@@ -15,7 +15,11 @@ const SignUpSchema = z.object({
     .string()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-  email: z.string().email("Please enter a valid email address"),
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .endsWith("@tp.edu.sg", "Please use your personal TP email"),
+  faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
   password: z
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")

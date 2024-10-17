@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,8 +15,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import FormRedirect from "./FormRedirect";
+import { signUp } from "@/app/action/user";
+import FacultyComboBox from "./FacultyCombobox";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof SignUpSchema>>({
@@ -27,9 +28,13 @@ const SignUpForm = () => {
       password: "",
     },
   });
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState("");
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
-    // do something
-    console.log("onSubmit");
+    startTransition(async () => {
+      setError(""); // clear error message
+      await signUp(values).then((data) => setError(data.error as string));
+    });
   };
   return (
     <div className="w-full p-5">
@@ -61,6 +66,19 @@ const SignUpForm = () => {
                     {...field}
                     type="email"
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="faculty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Faculty</FormLabel>
+                <FormControl>
+                  <FacultyComboBox field={field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

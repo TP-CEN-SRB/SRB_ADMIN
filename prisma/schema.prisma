@@ -33,10 +33,12 @@ enum BinMaterial {
 }
 
 model User {
-  id      String  @id @default(uuid())
-  email   String  @unique
-  name    String
-  faculty Faculty
+  id            String    @id @default(uuid())
+  email         String    @unique
+  emailVerified DateTime?
+  password      String
+  name          String
+  faculty       Faculty
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
