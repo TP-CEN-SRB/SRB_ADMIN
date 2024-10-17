@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import FormRedirect from "./FormRedirect";
 import { login } from "@/app/action/user";
 import FormHeader from "./FormHeader";
+import CustomFormMessage from "./CustomFormMessage";
+import { toast } from "@/hooks/use-toast";
 
 const LoginForm = () => {
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -32,7 +34,11 @@ const LoginForm = () => {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      await login(values).then((data) => setError(data?.error as string));
+      const data = await login(values);
+      setError(data?.error as string);
+      if (!data?.error) {
+        toast({ title: "Success", description: "You are logged in!" });
+      }
     });
   };
   return (
@@ -76,9 +82,10 @@ const LoginForm = () => {
               </FormItem>
             )}
           />
+          {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           <Button disabled={isPending} className="w-full" type="submit">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            Submit
+            {isPending ? "Loading..." : "Submit"}
           </Button>
         </form>
       </Form>

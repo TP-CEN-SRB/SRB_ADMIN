@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SignUpSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -20,6 +21,7 @@ import { signUp } from "@/app/action/user";
 import FacultyComboBox from "./FacultyCombobox";
 import FormHeader from "./FormHeader";
 import { Loader2 } from "lucide-react";
+import CustomFormMessage from "./CustomFormMessage";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof SignUpSchema>>({
@@ -31,11 +33,19 @@ const SignUpForm = () => {
     },
   });
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
   const [error, setError] = useState("");
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      await signUp(values).then((data) => setError(data.error as string));
+      const data = await signUp(values);
+      setError(data.error);
+      if (!data.error) {
+        toast({
+          title: "Success",
+          description: "Account created! You can now log in.",
+        });
+      }
     });
   };
   return (
@@ -113,10 +123,10 @@ const SignUpForm = () => {
               </FormItem>
             )}
           />
-
+          {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           <Button disabled={isPending} className="w-full" type="submit">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            Submit
+            {isPending ? "Loading..." : "Submit"}
           </Button>
         </form>
       </Form>
