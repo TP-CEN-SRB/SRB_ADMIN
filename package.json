@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.7.0",
     "@hookform/resolvers": "^3.9.0",
     "@prisma/client": "^5.21.0",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -37,7 +38,6 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
     "postcss": "^8",
-    "prisma": "^5.21.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }

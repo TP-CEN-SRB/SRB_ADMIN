@@ -1,9 +1,11 @@
 "use server";
 
+import { signIn } from "@/auth";
 import prisma from "@/lib/db";
 import { LoginSchema, SignUpSchema } from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { hash } from "bcryptjs";
+import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 

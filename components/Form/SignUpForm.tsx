@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import FormRedirect from "./FormRedirect";
 import { signUp } from "@/app/action/user";
 import FacultyComboBox from "./FacultyCombobox";
+import FormHeader from "./FormHeader";
+import { Loader2 } from "lucide-react";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof SignUpSchema>>({
@@ -37,8 +39,8 @@ const SignUpForm = () => {
     });
   };
   return (
-    <div className="w-full p-5">
-      <h1 className="text-4xl">Sign Up</h1>
+    <div className="w-full p-5 shadow-lg rounded-md">
+      <FormHeader>Sign Up</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -48,7 +50,12 @@ const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} type="name" />
+                  <Input
+                    disabled={isPending}
+                    placeholder="John Doe"
+                    {...field}
+                    type="name"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -62,6 +69,7 @@ const SignUpForm = () => {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
+                    disabled={isPending}
                     placeholder="johndoe@tp.edu.sg"
                     {...field}
                     type="email"
@@ -92,6 +100,7 @@ const SignUpForm = () => {
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <Input
+                    disabled={isPending}
                     placeholder="At least 8 characters"
                     {...field}
                     type="password"
@@ -105,7 +114,8 @@ const SignUpForm = () => {
             )}
           />
 
-          <Button className="w-full" type="submit">
+          <Button disabled={isPending} className="w-full" type="submit">
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             Submit
           </Button>
         </form>
