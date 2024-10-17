@@ -2,7 +2,11 @@ import { Faculty } from "@prisma/client";
 import * as z from "zod";
 
 const LoginSchema = z.object({
-  email: z.string().email("Please enter a valid email address").toLowerCase(),
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .toLowerCase()
+    .endsWith("@tp.edu.sg", "Please use your personal TP email"),
   password: z.string().min(1, "Password is required"),
 });
 

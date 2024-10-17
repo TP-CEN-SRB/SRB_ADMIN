@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import FormRedirect from "./FormRedirect";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof SignUpSchema>>({
@@ -31,7 +32,7 @@ const SignUpForm = () => {
     console.log("onSubmit");
   };
   return (
-    <div className="max-w-3xl w-full p-5">
+    <div className="w-full p-5">
       <h1 className="text-4xl">Sign Up</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -56,7 +57,7 @@ const SignUpForm = () => {
                 <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="22xxxxx@student.tp.edu.sg"
+                    placeholder="johndoe@tp.edu.sg"
                     {...field}
                     type="email"
                   />
@@ -91,7 +92,7 @@ const SignUpForm = () => {
           </Button>
         </form>
       </Form>
-      <Link href="/login">Already a user?</Link>
+      <FormRedirect href="/login">Already have an account?</FormRedirect>
     </div>
   );
 };

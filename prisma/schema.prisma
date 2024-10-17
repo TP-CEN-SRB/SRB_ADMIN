@@ -14,7 +14,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Faculty{
+enum Faculty {
   ENGINEERING
   BUSINESS
   SCIENCE
@@ -22,9 +22,38 @@ enum Faculty{
   DESIGN
 }
 
+enum BinStatus {
+  FUNCTIONAL
+  UNDER_MAINTENANCE
+}
+
+enum BinMaterial {
+  PLASTIC
+  METAL
+}
+
 model User {
-  id    String     @id @default(uuid())
-  email String  @unique
-  name  String
+  id      String  @id @default(uuid())
+  email   String  @unique
+  name    String
   faculty Faculty
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Bin {
+  id              String      @id @default(uuid())
+  location        String // Outside library
+  status          BinStatus
+  material        BinMaterial
+  currentCapacity Int
+  totalCapacity   Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bins")
 }
