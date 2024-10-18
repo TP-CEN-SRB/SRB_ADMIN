@@ -22,8 +22,11 @@ import FacultyComboBox from "./FacultyCombobox";
 import FormHeader from "./FormHeader";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "./CustomFormMessage";
+import { ToastAction } from "@radix-ui/react-toast";
+import { useRouter } from "next/navigation";
 
 const SignUpForm = () => {
+  const router = useRouter();
   const form = useForm<z.infer<typeof SignUpSchema>>({
     resolver: zodResolver(SignUpSchema),
     defaultValues: {
@@ -39,11 +42,16 @@ const SignUpForm = () => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await signUp(values);
-      setError(data.error);
-      if (!data.error) {
+      setError(data?.error as string);
+      if (!data?.error) {
         toast({
           title: "Success",
           description: "Account created! You can now log in.",
+          action: (
+            <ToastAction altText="Login">
+              <Button onClick={() => router.push("/login")}>Login</Button>
+            </ToastAction>
+          ),
         });
       }
     });

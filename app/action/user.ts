@@ -34,7 +34,6 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
       password: hashedPassword,
     },
   });
-  redirect("/login");
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
