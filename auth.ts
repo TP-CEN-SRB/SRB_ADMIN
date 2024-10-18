@@ -38,6 +38,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   callbacks: {
+    async signIn({ user }) {
+      const existingUser = await prisma.user.findUnique({
+        where: {
+          id: user.id,
+        },
+      });
+      // Prevent sign in without email verification
+      if (!existingUser?.emailVerified) return false;
+      return true;
+    },
     // token in session parameters is identical to the one in jwt
     async session({ session, token }) {
       // check if id exists in token and if user is logged in

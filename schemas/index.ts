@@ -2,11 +2,8 @@ import { Faculty } from "@prisma/client";
 import * as z from "zod";
 
 const LoginSchema = z.object({
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .toLowerCase()
-    .endsWith("@tp.edu.sg", "Please use your personal TP email"),
+  email: z.string().email("Please enter a valid email address").toLowerCase(),
+  // .endsWith("@tp.edu.sg", "Please use your personal TP email"),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -15,10 +12,8 @@ const SignUpSchema = z.object({
     .string()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .endsWith("@tp.edu.sg", "Please use your personal TP email"),
+  email: z.string().email("Please enter a valid email address"),
+  // .endsWith("@tp.edu.sg", "Please use your personal TP email"),
   faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
   password: z
     .string()

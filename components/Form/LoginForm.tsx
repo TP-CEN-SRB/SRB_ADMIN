@@ -31,12 +31,14 @@ const LoginForm = () => {
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await login(values);
       setError(data?.error as string);
-      if (!data?.error) {
+      setSuccess(data?.success as string);
+      if (!data?.error && data?.loggedIn === true) {
         toast({ title: "Success", description: "You are logged in!" });
       }
     });
@@ -83,6 +85,9 @@ const LoginForm = () => {
             )}
           />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+          {success && (
+            <CustomFormMessage type="Success">{success}</CustomFormMessage>
+          )}
           <Button disabled={isPending} className="w-full" type="submit">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}

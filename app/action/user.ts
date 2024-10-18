@@ -6,8 +6,9 @@ import { LoginSchema, SignUpSchema } from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { hash } from "bcryptjs";
 import { AuthError } from "next-auth";
-import { redirect } from "next/navigation";
 import { z } from "zod";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values);
@@ -34,6 +35,9 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
       password: hashedPassword,
     },
   });
+  const verificationToken = await generateVerificationToken(email);
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  return { success: "Confirmation email sent" };
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
@@ -44,12 +48,31 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   const formData = validatedFields.data;
   const email = formData.email.toLowerCase();
   const password = formData.password;
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  if (!existingUser) {
+    return { error: "Email does not exist!" };
+  }
+  if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(
+      existingUser.email
+    );
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token
+    );
+    return { success: "Confirmation email sent!" };
+  }
   try {
     await signIn("credentials", {
       redirectTo: "/",
       email,
       password,
     });
+    return { loggedIn: true };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

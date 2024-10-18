@@ -38,15 +38,18 @@ const SignUpForm = () => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await signUp(values);
       setError(data?.error as string);
+      setSuccess(data?.success as string);
       if (!data?.error) {
         toast({
-          title: "Success",
-          description: "Account created! You can now log in.",
+          title: "Hey there!",
+          description: `A verification email has been sent to ${values.email}`,
           action: (
             <ToastAction altText="Login">
               <Button onClick={() => router.push("/login")}>Login</Button>
@@ -132,6 +135,9 @@ const SignUpForm = () => {
             )}
           />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+          {success && (
+            <CustomFormMessage type="Success">{success}</CustomFormMessage>
+          )}
           <Button disabled={isPending} className="w-full" type="submit">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}

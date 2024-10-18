@@ -10,9 +10,9 @@ const CustomFormMessage = ({ children, type }: FormMessageProps) => {
     <div
       className={`${
         type === "Error"
-          ? "bg-destructive/15 text-destructive p-3"
+          ? "bg-destructive/15 text-destructive"
           : "bg-emerald-500/15 text-emerald-500"
-      } rounded-md flex items-center gap-x-2 text-sm`}
+      } rounded-md flex items-center gap-x-2 text-sm p-3`}
     >
       {type === "Error" ? <FaExclamationTriangle /> : <LuCheckCircle />}
       <p>{children}</p>
