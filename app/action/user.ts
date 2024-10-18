@@ -4,7 +4,7 @@ import { signIn } from "@/auth";
 import prisma from "@/lib/db";
 import { LoginSchema, SignUpSchema } from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { hash } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { generateVerificationToken } from "@/lib/tokens";
@@ -56,10 +56,14 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   if (!existingUser) {
     return { error: "Email does not exist!" };
   }
+  const isMatched = await compare(password, existingUser.password);
+  if (!isMatched) {
+    return { error: "Invalid credentials" };
+  }
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(
       existingUser.email
-    );
+    );  
     await sendVerificationEmail(
       verificationToken.email,
       verificationToken.token
