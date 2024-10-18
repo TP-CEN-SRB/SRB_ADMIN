@@ -69,7 +69,7 @@ const SignUpForm = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel className="font-bold">Name</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -87,7 +87,7 @@ const SignUpForm = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel className="font-bold">Email</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -105,7 +105,7 @@ const SignUpForm = () => {
             name="faculty"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Faculty</FormLabel>
+                <FormLabel className="font-bold">Faculty</FormLabel>
                 <FormControl>
                   <FacultyComboBox field={field} />
                 </FormControl>
@@ -118,7 +118,7 @@ const SignUpForm = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel className="font-bold">Password</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}

@@ -21,4 +21,9 @@ const SignUpSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
-export { LoginSchema, SignUpSchema };
+const ResetSchema = z.object({
+  email: z.string().email("Please enter a valid email address").toLowerCase(),
+  // .endsWith("@tp.edu.sg", "Please use your personal TP email"),
+});
+
+export { LoginSchema, SignUpSchema, ResetSchema };

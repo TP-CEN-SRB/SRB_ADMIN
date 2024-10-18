@@ -3,12 +3,13 @@ import React, { useTransition, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { LoginSchema } from "@/schemas";
+import { ResetSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -16,33 +17,31 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import FormRedirect from "./FormRedirect";
-import { login } from "@/app/action/user";
+import { resetPassword } from "@/app/action/user";
 import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
-import Link from "next/link";
 
-const LoginForm = () => {
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+const ResetPasswordForm = () => {
+  const form = useForm<z.infer<typeof ResetSchema>>({
+    resolver: zodResolver(ResetSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof ResetSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await login(values);
+      const data = await resetPassword(values);
       setError(data?.error as string);
       setSuccess(data?.success as string);
     });
   };
   return (
     <div className="w-full p-5 shadow-lg rounded-md">
-      <FormHeader>Login</FormHeader>
+      <FormHeader>Forgot Password</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -59,27 +58,9 @@ const LoginForm = () => {
                     type="email"
                   />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold">Password</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="At least 8 characters"
-                    {...field}
-                    type="password"
-                  />
-                </FormControl>
-                <Button size="sm" variant="link" asChild>
-                  <Link href="/reset-password">Forgot password?</Link>
-                </Button>
+                <FormDescription>
+                  We will send you an email to reset password
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -90,13 +71,13 @@ const LoginForm = () => {
           )}
           <Button disabled={isPending} className="w-full" type="submit">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Submit"}
+            {isPending ? "Loading..." : "Send email"}
           </Button>
         </form>
       </Form>
-      <FormRedirect href="/sign-up">Don't have an account?</FormRedirect>
+      <FormRedirect href="/login">Back to login</FormRedirect>
     </div>
   );
 };
 
-export default LoginForm;
+export default ResetPasswordForm;

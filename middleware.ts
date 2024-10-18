@@ -4,7 +4,14 @@ import authConfig from "./auth.config";
 export const { auth } = NextAuth(authConfig);
 
 const protectedRoutes = ["/admin-dashboard"]; // protected routes for non-logged in users and users with incomplete profile
-const publicRoutes = ["/", "/login", "/sign-up", "/new-verification"];
+const publicRoutes = [
+  "/",
+  "/login",
+  "/sign-up",
+  "/new-verification",
+  "/new-password",
+  "/reset-password",
+];
 const apiAuthRoutes = "/api/auth";
 
 export default auth(async (req) => {

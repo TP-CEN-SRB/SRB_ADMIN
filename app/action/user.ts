@@ -2,13 +2,16 @@
 
 import { signIn } from "@/auth";
 import prisma from "@/lib/db";
-import { LoginSchema, SignUpSchema } from "@/schemas";
+import { LoginSchema, SignUpSchema, ResetSchema } from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
 import { AuthError } from "next-auth";
 import { z } from "zod";
-import { generateVerificationToken } from "@/lib/tokens";
-import { sendVerificationEmail } from "@/lib/mail";
+import {
+  generateVerificationToken,
+  generatePasswordResetToken,
+} from "@/lib/tokens";
+import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 
 const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values);
@@ -63,7 +66,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(
       existingUser.email
-    );  
+    );
     await sendVerificationEmail(
       verificationToken.email,
       verificationToken.token
@@ -76,7 +79,6 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
       email,
       password,
     });
-    return { loggedIn: true };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -91,4 +93,26 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 };
 
-export { signUp, login };
+const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
+  const validatedFields = ResetSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid email" };
+  }
+  const formData = validatedFields.data;
+  const email = formData.email.toLowerCase();
+  const existingUser = await prisma.user.findUnique({
+    where: { email: email },
+  });
+  if (!existingUser) {
+    return { error: "Email does not exist!" };
+  }
+
+  const passwordResetToken = await generatePasswordResetToken(email);
+  await sendPasswordResetEmail(
+    passwordResetToken.email,
+    passwordResetToken.token
+  );
+  return { success: "Reset email sent!" };
+};
+
+export { signUp, login, resetPassword };
