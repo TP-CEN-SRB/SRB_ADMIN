@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;

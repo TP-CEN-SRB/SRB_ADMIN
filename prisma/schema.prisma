@@ -62,10 +62,22 @@ model Bin {
   status          BinStatus
   material        BinMaterial
   currentCapacity Int
-  totalCapacity   Int
+  disposals       Disposal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("bins")
+}
+
+model Disposal {
+  id            String @id @default(uuid())
+  weightInGrams Int
+  binId         String
+  bin           Bin    @relation(fields: [binId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("disposals")
 }
