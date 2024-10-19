@@ -1,8 +1,16 @@
+import Image from "next/image";
 import React, { ReactNode } from "react";
 
 const FormHeader = ({ children }: { children: ReactNode }) => {
   return (
-    <h1 className="mb-4 text-4xl font-extrabold text-gray-900 md:text-5xl lg:text-6xl dark:text-white">
+    <h1 className="mb-4 text-2xl font-extrabold text-gray-900 md:text-3xl lg:text-4xl dark:text-white">
+      <Image
+        src="/temasekPolyBanner.png"
+        alt="Temasek Polytechnic"
+        width="150"
+        height="100"
+        className="mb-3"
+      />
       {children}
     </h1>
   );
