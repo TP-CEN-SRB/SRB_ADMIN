@@ -1,21 +1,21 @@
 "use server";
 import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
-import { redirect } from "next/navigation";
 
 const verifyToken = async (token: string) => {
+  if (!token) return { error: "Missing token" };
   const existingToken = await getVerificationTokenByToken(token);
-  if (!existingToken) return { error: "Token not found" };
+  if (!existingToken) return { error: "Token not found!" };
 
   const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired) return { error: "Token has expired" };
+  if (hasExpired) return { error: "Token has expired!" };
 
   const existingUser = await prisma.user.findUnique({
     where: {
       email: existingToken.email,
     },
   });
-  if (!existingUser) return { error: "User not found" };
+  if (!existingUser) return { error: "User not found!" };
   await prisma.user.update({
     where: {
       id: existingUser.id,
@@ -30,7 +30,7 @@ const verifyToken = async (token: string) => {
       id: existingToken.id,
     },
   });
-  redirect("/new-verification?success=true");
+  return { success: "Email verified!" };
 };
 
 export { verifyToken };

@@ -3,7 +3,7 @@ import React, { useTransition, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { ResetSchema } from "@/schemas";
+import { NewPasswordSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {
@@ -17,56 +17,52 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import FormRedirect from "./FormRedirect";
-import { resetPassword } from "@/app/action/user";
+import { newPassword } from "@/app/action/user";
 import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
-import { toast } from "@/hooks/use-toast";
+interface NewPasswordFormProps {
+  token: string;
+}
 
-const ResetPasswordForm = () => {
-  const form = useForm<z.infer<typeof ResetSchema>>({
-    resolver: zodResolver(ResetSchema),
+const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
+  const form = useForm<z.infer<typeof NewPasswordSchema>>({
+    resolver: zodResolver(NewPasswordSchema),
     defaultValues: {
-      email: "",
+      password: "",
     },
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const onSubmit = (values: z.infer<typeof ResetSchema>) => {
+  const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await resetPassword(values);
+      const data = await newPassword(values, token);
       setError(data?.error as string);
       setSuccess(data?.success as string);
-      if (!data?.error) {
-        toast({
-          title: "Hey there!",
-          description: `A reset password email has been sent to ${values.email}`,
-        });
-      }
     });
   };
   return (
     <div className="w-full p-5 shadow-lg rounded-md">
-      <FormHeader>Forgot Password</FormHeader>
+      <FormHeader>Reset Password</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Email</FormLabel>
+                <FormLabel className="font-bold">Password</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="johndoe@tp.edu.sg"
+                    placeholder="At least 8 characters"
                     {...field}
-                    type="email"
+                    type="password"
                   />
                 </FormControl>
                 <FormDescription>
-                  We will send you an email to reset password
+                  This will be your new password
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -76,10 +72,16 @@ const ResetPasswordForm = () => {
           {success && (
             <CustomFormMessage type="Success">{success}</CustomFormMessage>
           )}
-          <Button disabled={isPending} className="w-full" type="submit">
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Send email"}
-          </Button>
+          {!success && (
+            <Button disabled={isPending} className="w-full" type="submit">
+              {isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                ""
+              )}
+              {isPending ? "Loading..." : "Reset my password"}
+            </Button>
+          )}
         </form>
       </Form>
       <FormRedirect href="/login">Back to login</FormRedirect>
@@ -87,4 +89,4 @@ const ResetPasswordForm = () => {
   );
 };
 
-export default ResetPasswordForm;
+export default NewPasswordForm;

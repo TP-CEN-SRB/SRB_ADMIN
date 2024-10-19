@@ -25,7 +25,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       from: `Automated Messenger<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Confirmation] Account creation",
-      html: `<p>Click <a href=${confirmLink}>here</a> to confirm email</p>`,
+      html: `<p>Click <a href=${confirmLink}>here</a> to verify email</p>`,
     });
   } catch (error) {
     return;
@@ -50,7 +50,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   try {
     const testResult = await transporter.verify();
   } catch (error) {
-    console.log(error);
+    return;
   }
 
   try {
@@ -58,9 +58,9 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       from: `Automated Messenger<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Confirmation] Reset password",
-      html: `<p>Click <a href=${resetLink}>here</a> to confirm email</p>`,
+      html: `<p>Click <a href=${resetLink}>here</a> to reset password</p>`,
     });
   } catch (error) {
-    console.log(error);
+    return;
   }
 };

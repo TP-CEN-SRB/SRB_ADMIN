@@ -26,4 +26,11 @@ const ResetSchema = z.object({
   // .endsWith("@tp.edu.sg", "Please use your personal TP email"),
 });
 
-export { LoginSchema, SignUpSchema, ResetSchema };
+const NewPasswordSchema = z.object({
+  password: z
+    .string()
+    .regex(/^\S*$/, "Password cannot contain spaces")
+    .min(8, "Password must be at least 8 characters"),
+});
+
+export { LoginSchema, SignUpSchema, ResetSchema, NewPasswordSchema };

@@ -2,7 +2,12 @@
 
 import { signIn } from "@/auth";
 import prisma from "@/lib/db";
-import { LoginSchema, SignUpSchema, ResetSchema } from "@/schemas";
+import {
+  LoginSchema,
+  SignUpSchema,
+  ResetSchema,
+  NewPasswordSchema,
+} from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -12,22 +17,23 @@ import {
   generatePasswordResetToken,
 } from "@/lib/tokens";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
+import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
 
 const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values);
   if (!validatedFields.success) {
-    return { error: "Invalid fields" };
+    return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
   const name = capitalizeFirstLetter(formData.name);
-  const email = formData.email.toLowerCase();
+  const email = formData.email;
   const password = formData.password;
   const faculty = formData.faculty;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
   if (existingUser) {
-    return { error: "User already exists" };
+    return { error: "User already exists!" };
   }
   const hashedPassword = await hash(password, 10);
   await prisma.user.create({
@@ -40,16 +46,17 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   });
   const verificationToken = await generateVerificationToken(email);
   await sendVerificationEmail(verificationToken.email, verificationToken.token);
-  return { success: "Confirmation email sent" };
+  return { success: "Confirmation email sent!" };
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
   const validatedFields = LoginSchema.safeParse(values);
   if (!validatedFields.success) {
-    return { error: "Invalid fields" };
+    return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const email = formData.email.toLowerCase();
+  console.log("Non formatted email is", formData.email);
+  const email = formData.email;
   const password = formData.password;
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -61,7 +68,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
   const isMatched = await compare(password, existingUser.password);
   if (!isMatched) {
-    return { error: "Invalid credentials" };
+    return { error: "Invalid credentials!" };
   }
   if (!existingUser.emailVerified) {
     const verificationToken = await generateVerificationToken(
@@ -83,9 +90,9 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
     if (error instanceof AuthError) {
       switch (error.type) {
         case "CredentialsSignin":
-          return { error: "Invalid credentials" };
+          return { error: "Invalid credentials!" };
         default: {
-          return { error: "Something went wrong" };
+          return { error: "Something went wrong!" };
         }
       }
     }
@@ -99,7 +106,7 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
     return { error: "Invalid email" };
   }
   const formData = validatedFields.data;
-  const email = formData.email.toLowerCase();
+  const email = formData.email;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
@@ -115,4 +122,38 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   return { success: "Reset email sent!" };
 };
 
-export { signUp, login, resetPassword };
+const newPassword = async (
+  values: z.infer<typeof NewPasswordSchema>,
+  token: string
+) => {
+  if (!token) return { error: "Missing Token!" };
+  const validatedFields = NewPasswordSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid token or password!" };
+  }
+  const formData = validatedFields.data;
+  const password = formData.password;
+  const existingToken = await getPasswordResetTokenByToken(token);
+  if (!existingToken) return { error: "Token not found!" };
+
+  const hasExpired = new Date(existingToken.expires) < new Date();
+  if (hasExpired) return { error: "Token has expired!" };
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email: existingToken.email },
+  });
+  if (!existingUser) {
+    return { error: "Email does not exist!" };
+  }
+  const hashedPassword = await hash(password, 10);
+  await prisma.user.update({
+    where: { id: existingUser.id },
+    data: { password: hashedPassword },
+  });
+  await prisma.passswordResetToken.delete({
+    where: { id: existingToken.id },
+  });
+  return { success: "Password updated successfully!" };
+};
+
+export { signUp, login, resetPassword, newPassword };
