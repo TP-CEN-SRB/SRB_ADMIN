@@ -11,6 +11,7 @@ const publicRoutes = [
   "/new-verification",
   "/new-password",
   "/reset-password",
+  "/dispose-steps",
 ];
 const apiAuthRoutes = "/api/auth";
 
