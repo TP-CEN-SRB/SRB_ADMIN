@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
+import useSound from "use-sound";
 
 const DisposeStepsPage = () => {
   const timeoutDurationInMs = 30000;
@@ -10,6 +11,7 @@ const DisposeStepsPage = () => {
   const [remainingTime, setRemainingTime] = useState(
     timeoutDurationInMs / 1000
   );
+  const [play, { sound }] = useSound("/welcome.mp3");
   useEffect(() => {
     const timeout = setTimeout(() => {
       router.push("/");
@@ -17,6 +19,9 @@ const DisposeStepsPage = () => {
 
     return () => clearTimeout(timeout);
   }, [router]);
+  useEffect(() => {
+    play();
+  }, [sound]);
   useEffect(() => {
     const interval = setInterval(() => {
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
