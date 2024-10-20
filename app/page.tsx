@@ -1,19 +1,11 @@
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default async function Home() {
-  const session = await auth();
-  const user = session?.user;
+  // const session = await auth();
+  // const user = session?.user;
   return (
-    // <div className="text-center">
-    //   <h1 className="mb-8 font-extrabold text-2xl md:text-4xl lg:text-5xl text-gray-900 text-center">
-    //     Welcome to Smart Recycling Bin
-    //   </h1>
-    //   <Button className="text-2xl" asChild>
-    //     <Link href="/dispose">Click here to get started</Link>
-    //   </Button>
-    // </div>
     <div className="flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-gray-800 mb-4">

@@ -21,7 +21,7 @@ const DisposeStepsPage = () => {
   }, [router]);
   useEffect(() => {
     play();
-  }, [sound]);
+  }, [sound, play]);
   useEffect(() => {
     const interval = setInterval(() => {
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));

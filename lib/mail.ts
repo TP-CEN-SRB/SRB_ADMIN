@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+// import { Resend } from "resend";
 import nodemailer from "nodemailer";
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
@@ -77,19 +77,21 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     },
   });
   try {
-    const testResult = await transporter.verify();
+    await transporter.verify();
   } catch (error) {
+    console.log(error);
     return;
   }
 
   try {
-    const sendResult = await transporter.sendMail({
+    await transporter.sendMail({
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Account creation",
       html: emailTemplate(confirmLink),
     });
   } catch (error) {
+    console.log(error);
     return;
   }
   // await resend.emails.send({
@@ -110,19 +112,21 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     },
   });
   try {
-    const testResult = await transporter.verify();
+    await transporter.verify();
   } catch (error) {
+    console.log(error);
     return;
   }
 
   try {
-    const sendResult = await transporter.sendMail({
+    await transporter.sendMail({
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Reset password",
       html: emailTemplate(resetLink),
     });
   } catch (error) {
+    console.log(error);
     return;
   }
 };

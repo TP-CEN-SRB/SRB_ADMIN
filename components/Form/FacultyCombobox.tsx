@@ -16,10 +16,17 @@ import { Button } from "@/components/ui/button";
 import { Faculty } from "@prisma/client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { ControllerRenderProps } from "react-hook-form";
+import { z } from "zod";
+import { SignUpSchema } from "@/schemas";
 
-const FacultyComboBox = ({ field }: { field: any }) => {
+const FacultyComboBox = ({
+  field,
+}: {
+  field: ControllerRenderProps<z.infer<typeof SignUpSchema>>;
+}) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(field.value || ""); // Initialize with field value
+  const [value, setValue] = useState(field.value || "");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

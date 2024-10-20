@@ -8,10 +8,7 @@ const NewVerificationPage = ({
 }) => {
   return (
     <div>
-      <NewVerificationForm
-        token={searchParams.token}
-        successStatus={searchParams.success}
-      />
+      <NewVerificationForm token={searchParams.token} />
     </div>
   );
 };

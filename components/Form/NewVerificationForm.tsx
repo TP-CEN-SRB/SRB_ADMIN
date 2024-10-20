@@ -10,8 +10,8 @@ interface VerificationFormProps {
   token: string;
 }
 const NewVerificationForm = ({ token }: VerificationFormProps) => {
-  const [error, setError] = useState<String | undefined>();
-  const [success, setSuccess] = useState<String | undefined>();
+  const [error, setError] = useState<string | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
   const handleSubmit = () => {
     startTransition(async () => {
