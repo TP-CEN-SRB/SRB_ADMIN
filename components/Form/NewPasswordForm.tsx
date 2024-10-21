@@ -20,6 +20,7 @@ import FormRedirect from "./FormRedirect";
 import { newPassword } from "@/app/action/user";
 import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
+import Card from "../Card/Card";
 interface NewPasswordFormProps {
   token: string;
 }
@@ -43,7 +44,7 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
     });
   };
   return (
-    <div className="w-full p-5 shadow-lg rounded-md">
+    <Card fullWidth>
       <FormHeader>Reset Password</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -85,7 +86,7 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
         </form>
       </Form>
       <FormRedirect href="/login">Back to login</FormRedirect>
-    </div>
+    </Card>
   );
 };
 

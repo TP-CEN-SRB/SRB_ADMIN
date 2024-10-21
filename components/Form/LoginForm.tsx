@@ -20,6 +20,7 @@ import { login } from "@/app/action/user";
 import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
 import Link from "next/link";
+import Card from "../Card/Card";
 
 const LoginForm = () => {
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -41,7 +42,7 @@ const LoginForm = () => {
     });
   };
   return (
-    <div className="w-full p-5 shadow-lg rounded-md">
+    <Card fullWidth>
       <FormHeader>Login</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -95,7 +96,7 @@ const LoginForm = () => {
         </form>
       </Form>
       <FormRedirect href="/sign-up">Don&apos;t have an account?</FormRedirect>
-    </div>
+    </Card>
   );
 };
 

@@ -6,6 +6,7 @@ import CustomFormMessage from "./CustomFormMessage";
 import FormRedirect from "./FormRedirect";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
+import Card from "../Card/Card";
 interface VerificationFormProps {
   token: string;
 }
@@ -22,7 +23,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
     });
   };
   return (
-    <div className="w-full p-5 shadow-lg rounded-md text-center">
+    <Card fullWidth>
       <FormHeader>Verification</FormHeader>
       {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
       {success && (
@@ -40,7 +41,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
         </Button>
       )}
       <FormRedirect href="/login">Back to login</FormRedirect>
-    </div>
+    </Card>
   );
 };
 

@@ -1,45 +1,29 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import Card from "@/components/Card/Card";
+import CardBody from "@/components/Card/CardBody";
+import CardButton from "@/components/Card/CardButton";
+import CardHeader from "@/components/Card/CardHeader";
+import { useTimeout } from "@/hooks/use-timeout";
+import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
 
 const DisposeStepsPage = () => {
-  const timeoutDurationInMs = 30000;
-  const router = useRouter();
-  const [remainingTime, setRemainingTime] = useState(
-    timeoutDurationInMs / 1000
-  );
   const [play, { sound }] = useSound("/welcome.mp3");
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      router.push("/");
-    }, timeoutDurationInMs);
-
-    return () => clearTimeout(timeout);
-  }, [router]);
   useEffect(() => {
     play();
   }, [sound, play]);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const remainingTime = useTimeout(30000, "/");
   return (
-    <div className="flex flex-col justify-center items-center px-4">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full">
-        <div className="flex items-center justify-center mb-6 gap-x-3">
-          <h1 className="text-4xl text-gray-800 text-center">
-            Recycling Steps
-          </h1>
-          <RingLoader color="#22c55e" />
-        </div>
-        <div className="space-y-8">
+    <Card>
+      <div className="flex items-center justify-center mb-6 gap-x-3">
+        <CardHeader>Recycling Steps</CardHeader>
+        <RingLoader color="#22c55e" />
+      </div>
+      <CardBody>
+        <div className="flex flex-col items-center space-y-8">
           {recyclingSteps.map((step, index) => (
-            <div key={index} className="flex items-start space-x-4">
+            <div key={index} className="flex items-start space-x-4 text">
               <span className="text-3xl text-green-500 font-bold">
                 {index + 1}.
               </span>
@@ -50,24 +34,16 @@ const DisposeStepsPage = () => {
             </div>
           ))}
         </div>
-
-        <div className="mt-8 text-center">
-          <Button className="bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-6 px-6 rounded-full transition-all max-w-56 w-full">
-            Continue
-          </Button>
-        </div>
-        <div className="text-center mt-6">
-          <p className="text-gray-600 font-semibold">
-            Redirecting in
-            <span className="text-green-500 text-xl">
-              {" "}
-              {remainingTime}
-            </span>{" "}
-            seconds
-          </p>
-        </div>
+      </CardBody>
+      <CardButton href="/detect-material">Continue</CardButton>
+      <div className="text-center mt-6">
+        <p className="text-gray-600 font-semibold">
+          Redirecting in
+          <span className="text-green-500 text-xl"> {remainingTime}</span>{" "}
+          seconds
+        </p>
       </div>
-    </div>
+    </Card>
   );
 };
 

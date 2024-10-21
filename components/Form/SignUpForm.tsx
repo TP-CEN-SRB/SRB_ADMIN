@@ -24,6 +24,7 @@ import { Loader2 } from "lucide-react";
 import CustomFormMessage from "./CustomFormMessage";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useRouter } from "next/navigation";
+import Card from "../Card/Card";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -60,7 +61,7 @@ const SignUpForm = () => {
     });
   };
   return (
-    <div className="w-full p-5 shadow-lg rounded-md">
+    <Card fullWidth>
       <FormHeader>Sign Up</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -145,7 +146,7 @@ const SignUpForm = () => {
         </form>
       </Form>
       <FormRedirect href="/login">Already have an account?</FormRedirect>
-    </div>
+    </Card>
   );
 };
 

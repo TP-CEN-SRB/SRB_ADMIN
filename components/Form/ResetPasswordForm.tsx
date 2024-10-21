@@ -21,6 +21,7 @@ import { resetPassword } from "@/app/action/user";
 import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
 import { toast } from "@/hooks/use-toast";
+import Card from "../Card/Card";
 
 const ResetPasswordForm = () => {
   const form = useForm<z.infer<typeof ResetSchema>>({
@@ -47,7 +48,7 @@ const ResetPasswordForm = () => {
     });
   };
   return (
-    <div className="w-full p-5 shadow-lg rounded-md">
+    <Card fullWidth>
       <FormHeader>Forgot Password</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -83,7 +84,7 @@ const ResetPasswordForm = () => {
         </form>
       </Form>
       <FormRedirect href="/login">Back to login</FormRedirect>
-    </div>
+    </Card>
   );
 };
 
