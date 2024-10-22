@@ -9,10 +9,11 @@ import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
 
 const DisposeStepsPage = () => {
-  const [play, { sound }] = useSound("/welcome.mp3");
+  const [play, { sound, stop }] = useSound("/welcome.mp3");
   useEffect(() => {
     play();
-  }, [sound, play]);
+    return () => stop();
+  }, [sound, play, stop]);
   const remainingTime = useTimeout(30000, "/");
   return (
     <Card>
@@ -21,7 +22,7 @@ const DisposeStepsPage = () => {
         <RingLoader color="#22c55e" />
       </div>
       <CardBody>
-        <div className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col space-y-8">
           {recyclingSteps.map((step, index) => (
             <div key={index} className="flex items-start space-x-4 text">
               <span className="text-3xl text-green-500 font-bold">
