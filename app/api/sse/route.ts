@@ -17,8 +17,6 @@ export const GET = async () => {
         // Add the client to the list
         clients.push({ controller, close: closeClient });
 
-        // Listen for disconnection
-        // Use a setTimeout or a similar mechanism to remove the client if it closes
         const interval = setInterval(() => {
           if (controller.desiredSize === 0) {
             closeClient();

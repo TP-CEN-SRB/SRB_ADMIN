@@ -33,7 +33,7 @@ const NewPasswordSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
-const BinLocationSchema = z.object({
+const BinSchema = z.object({
   location: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
@@ -43,4 +43,16 @@ const BinLocationSchema = z.object({
     .max(100, "Maximum capacity cannot be above 100"),
 });
 
-export { LoginSchema, SignUpSchema, ResetSchema, NewPasswordSchema };
+const DisposalSchema = z.object({
+  weightInGrams: z.coerce.number().min(1, "Minimum weight must be 1"),
+  material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
+});
+
+export {
+  LoginSchema,
+  SignUpSchema,
+  ResetSchema,
+  NewPasswordSchema,
+  BinSchema,
+  DisposalSchema,
+};

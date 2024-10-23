@@ -4,30 +4,63 @@ import { FadeLoader } from "react-spinners";
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 import CardBody from "@/components/Card/CardBody";
-import CardButton from "@/components/Card/CardButton";
 import { useTimeout } from "@/hooks/use-timeout";
+import { useRouter } from "next/navigation";
+import { BeatLoader } from "react-spinners";
+import { createDisposal } from "../action/disposal";
+import { BinMaterial } from "@prisma/client";
 
 const DetectMaterialPage = () => {
   const [detecting, setDetecting] = useState(true);
-  const [material, setMaterial] = useState<string>();
+  const [material, setMaterial] = useState<BinMaterial>();
   const [weightInGrams, setWeightInGrams] = useState<number>();
 
-  const remainingTime = useTimeout(30000, "/");
+  const [success, setSuccess] = useState<string>();
+  const [error, setError] = useState<string>();
+  const [thrown, setThrown] = useState(false);
+  const router = useRouter();
+  const remainingTime = useTimeout(150000, "/");
 
   useEffect(() => {
     const eventSource = new EventSource("/api/sse");
 
     eventSource.onmessage = (event: MessageEvent) => {
-      const { material, weightInGrams } = JSON.parse(event.data);
-      setMaterial(material);
-      setWeightInGrams(weightInGrams);
-      setDetecting(false);
+      const { material, weightInGrams, thrown } = JSON.parse(event.data);
+      if (
+        !Object.values(BinMaterial).includes(material) ||
+        isNaN(weightInGrams)
+      ) {
+        setDetecting(false);
+        setError("Unable to detect material. Please try again");
+      } else if (!thrown) {
+        setMaterial(material);
+        setWeightInGrams(weightInGrams);
+        setDetecting(false);
+      }
+      setThrown(thrown);
     };
-    // Clean up the EventSource when the component unmounts
     return () => {
       eventSource.close();
     };
-  }, [detecting]);
+  }, []);
+
+  useEffect(() => {
+    const handleDisposal = async () => {
+      if (thrown === true && material && weightInGrams) {
+        const data = await createDisposal({
+          material: material as BinMaterial,
+          weightInGrams,
+        });
+        setSuccess(data?.success);
+        setError(data?.error);
+        if (data?.success) {
+          router.push("/qr-code");
+        }
+      }
+    };
+
+    handleDisposal();
+  }, [thrown]);
 
   return (
     <Card>
@@ -40,7 +73,7 @@ const DetectMaterialPage = () => {
           <p className="text-gray-600 text-center text-lg">
             Detecting the material of your item...
           </p>
-        ) : material && weightInGrams ? (
+        ) : material && weightInGrams && !error ? (
           <div className="text-center space-y-6">
             <h2 className="text-3xl font-bold text-green-500">
               {material} Detected
@@ -53,12 +86,14 @@ const DetectMaterialPage = () => {
             </p>
           </div>
         ) : (
-          <p className="text-gray-600 text-center text-lg">
-            Unable to detect material. Please try again.
-          </p>
+          <p className="text-gray-600 text-center text-lg">{error}</p>
         )}
       </CardBody>
-      {material && !detecting && <CardButton href="">Proceed</CardButton>}
+      {!detecting && material && weightInGrams && !error && (
+        <div className="flex justify-center mt-4">
+          <BeatLoader color="#22c55e" />
+        </div>
+      )}
       <div className="text-center mt-6">
         <p className="text-gray-600 font-semibold">
           Redirecting in

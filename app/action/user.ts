@@ -55,7 +55,6 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  console.log("Non formatted email is", formData.email);
   const email = formData.email;
   const password = formData.password;
   const existingUser = await prisma.user.findUnique({
