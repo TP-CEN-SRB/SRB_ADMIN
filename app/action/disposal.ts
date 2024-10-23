@@ -16,15 +16,25 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
     },
   });
   if (!bin) return { error: "No bin found" };
-  await prisma.disposal.create({
+  const disposal = await prisma.disposal.create({
     data: {
       weightInGrams: weightInGrams,
       binId: bin.id,
     },
   });
-  return { success: "Disposal created" };
+  return { id: disposal.id };
+};
+const getDisposal = async (id: string) => {
+  const disposal = await prisma.disposal.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      bin: true,
+    },
+  });
+
+  return disposal;
 };
 
-
-
-export { createDisposal };
+export { createDisposal, getDisposal };

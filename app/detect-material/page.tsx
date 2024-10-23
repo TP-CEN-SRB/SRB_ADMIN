@@ -15,7 +15,6 @@ const DetectMaterialPage = () => {
   const [material, setMaterial] = useState<BinMaterial>();
   const [weightInGrams, setWeightInGrams] = useState<number>();
 
-  const [success, setSuccess] = useState<string>();
   const [error, setError] = useState<string>();
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
@@ -51,10 +50,9 @@ const DetectMaterialPage = () => {
           material: material as BinMaterial,
           weightInGrams,
         });
-        setSuccess(data?.success);
         setError(data?.error);
-        if (data?.success) {
-          router.push("/qr-code");
+        if (data?.id) {
+          router.push(`/qr-code?id=${data.id}`);
         }
       }
     };
@@ -73,7 +71,7 @@ const DetectMaterialPage = () => {
           <p className="text-gray-600 text-center text-lg">
             Detecting the material of your item...
           </p>
-        ) : material && weightInGrams && !error ? (
+        ) : !error ? (
           <div className="text-center space-y-6">
             <h2 className="text-3xl font-bold text-green-500">
               {material} Detected
@@ -89,7 +87,7 @@ const DetectMaterialPage = () => {
           <p className="text-gray-600 text-center text-lg">{error}</p>
         )}
       </CardBody>
-      {!detecting && material && weightInGrams && !error && (
+      {!detecting && !error && (
         <div className="flex justify-center mt-4">
           <BeatLoader color="#22c55e" />
         </div>

@@ -56,10 +56,10 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model PassswordResetToken{
-  id String @id @default(uuid())
-  email String
-  token String @unique
+model PassswordResetToken {
+  id      String   @id @default(uuid())
+  email   String
+  token   String   @unique
   expires DateTime
 
   @@unique([email, token])
@@ -71,7 +71,7 @@ model Bin {
   location        String // Outside library
   status          BinStatus
   material        BinMaterial
-  currentCapacity Int
+  currentCapacity Int         @default(0)
   disposals       Disposal[]
 
   createdAt DateTime @default(now())
@@ -84,7 +84,7 @@ model Disposal {
   id            String @id @default(uuid())
   weightInGrams Int
   binId         String
-  bin           Bin    @relation(fields: [binId], references: [id])
+  bin           Bin    @relation(fields: [binId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
