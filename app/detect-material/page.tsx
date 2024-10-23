@@ -13,25 +13,20 @@ const DetectMaterialPage = () => {
   const [weightInGrams, setWeightInGrams] = useState<number>();
 
   const remainingTime = useTimeout(30000, "/");
-  const fetchData = async () => {
-    const response = await fetch("/api/material", {
-      method: "GET",
-    });
-    if (response.ok) {
-      const { material, weightInGrams } = await response.json();
+
+  useEffect(() => {
+    const eventSource = new EventSource("/api/sse");
+
+    eventSource.onmessage = (event: MessageEvent) => {
+      const { material, weightInGrams } = JSON.parse(event.data);
       setMaterial(material);
       setWeightInGrams(weightInGrams);
       setDetecting(false);
-    }
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (detecting) {
-        fetchData();
-      } else clearInterval(interval);
-    }, 5000);
-    return () => clearInterval(interval);
+    };
+    // Clean up the EventSource when the component unmounts
+    return () => {
+      eventSource.close();
+    };
   }, [detecting]);
 
   return (
@@ -45,7 +40,7 @@ const DetectMaterialPage = () => {
           <p className="text-gray-600 text-center text-lg">
             Detecting the material of your item...
           </p>
-        ) : material ? (
+        ) : material && weightInGrams ? (
           <div className="text-center space-y-6">
             <h2 className="text-3xl font-bold text-green-500">
               {material} Detected
