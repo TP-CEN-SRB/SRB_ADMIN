@@ -9,9 +9,7 @@ const QrCodeComponent = async ({
   searchParams: { [key: string]: string };
 }) => {
   const id = searchParams.id;
-
   if (!id) notFound();
-
   const disposalData = await getUnscannedDisposal(id);
   if (!disposalData) {
     notFound();
@@ -19,7 +17,6 @@ const QrCodeComponent = async ({
   const data = {
     disposalId: disposalData.id,
   };
-
   const token = generateQrToken(data);
   const qrCodeUrl = await QRCode.toDataURL(token);
 

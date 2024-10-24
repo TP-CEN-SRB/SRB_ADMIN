@@ -20,17 +20,20 @@ const DetectMaterialPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const eventSource = new EventSource("/api/sse");
+    const eventSource = new EventSource("/api/detect-material");
 
     eventSource.onmessage = (event: MessageEvent) => {
       const { material, weightInGrams, thrown } = JSON.parse(event.data);
-      if (
-        !Object.values(BinMaterial).includes(material) ||
-        isNaN(weightInGrams)
-      ) {
-        setDetecting(false);
-        setError("Unable to detect material. Please try again");
-      } else if (!thrown) {
+      if (thrown === undefined) {
+        if (
+          !Object.values(BinMaterial).includes(material) ||
+          isNaN(weightInGrams) ||
+          !material ||
+          !weightInGrams
+        ) {
+          setDetecting(false);
+          setError("Unable to detect material. Please try again");
+        }
         setMaterial(material);
         setWeightInGrams(weightInGrams);
         setDetecting(false);
@@ -51,7 +54,7 @@ const DetectMaterialPage = () => {
         });
         setError(data?.error);
         if (data?.id) {
-          router.push(`/qr-code?id=${data.id}`);
+          router.push(`/disposal-qr?id=${data.id}`);
         }
       }
     };
@@ -92,7 +95,8 @@ const DetectMaterialPage = () => {
           <BeatLoader color="#22c55e" />
         </div>
       )}
-      <TimerRedirect delayInMs={150000} redirectTo="/" />
+      {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
+      {!error && <TimerRedirect delayInMs={150000} redirectTo="/" />}
     </Card>
   );
 };

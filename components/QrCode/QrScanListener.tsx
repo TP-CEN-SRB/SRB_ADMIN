@@ -9,9 +9,8 @@ const QrScanListener = () => {
 
     eventSource.onmessage = (event: MessageEvent) => {
       const { updated } = JSON.parse(event.data);
-      console.log("Json received", updated);
       if (updated === true) {
-        router.push("/");
+        router.push("/disposal-confirmation");
       }
     };
     return () => {
