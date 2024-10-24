@@ -3,6 +3,7 @@ import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
 import CardButton from "@/components/Card/CardButton";
 import CardHeader from "@/components/Card/CardHeader";
+import TimerRedirect from "@/components/TimerRedirect";
 import { useTimeout } from "@/hooks/use-timeout";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
@@ -14,7 +15,6 @@ const DisposeStepsPage = () => {
     play();
     return () => stop();
   }, [sound, play, stop]);
-  const remainingTime = useTimeout(30000, "/");
   return (
     <Card>
       <div className="flex items-center justify-center mb-6 gap-x-3">
@@ -37,13 +37,7 @@ const DisposeStepsPage = () => {
         </div>
       </CardBody>
       <CardButton href="/detect-material">Continue</CardButton>
-      <div className="text-center mt-6">
-        <p className="text-gray-600 font-semibold">
-          Redirecting in
-          <span className="text-green-500 text-xl"> {remainingTime}</span>{" "}
-          seconds
-        </p>
-      </div>
+      <TimerRedirect redirectTo="/" delayInMs={30000} />
     </Card>
   );
 };

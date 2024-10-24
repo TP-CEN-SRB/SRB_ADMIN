@@ -4,11 +4,11 @@ import { FadeLoader } from "react-spinners";
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 import CardBody from "@/components/Card/CardBody";
-import { useTimeout } from "@/hooks/use-timeout";
 import { useRouter } from "next/navigation";
 import { BeatLoader } from "react-spinners";
 import { createDisposal } from "../action/disposal";
 import { BinMaterial } from "@prisma/client";
+import TimerRedirect from "@/components/TimerRedirect";
 
 const DetectMaterialPage = () => {
   const [detecting, setDetecting] = useState(true);
@@ -18,7 +18,6 @@ const DetectMaterialPage = () => {
   const [error, setError] = useState<string>();
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
-  const remainingTime = useTimeout(150000, "/");
 
   useEffect(() => {
     const eventSource = new EventSource("/api/sse");
@@ -62,6 +61,7 @@ const DetectMaterialPage = () => {
 
   return (
     <Card>
+      {thrown ? <></> : <></>}
       <div className="flex flex-col items-center justify-center gap-y-3 mb-6">
         <CardHeader>Material Detection</CardHeader>
         {detecting && <FadeLoader color="#22c55e" />}
@@ -92,13 +92,7 @@ const DetectMaterialPage = () => {
           <BeatLoader color="#22c55e" />
         </div>
       )}
-      <div className="text-center mt-6">
-        <p className="text-gray-600 font-semibold">
-          Redirecting in
-          <span className="text-green-500 text-xl"> {remainingTime}</span>{" "}
-          seconds
-        </p>
-      </div>
+      <TimerRedirect delayInMs={150000} redirectTo="/" />
     </Card>
   );
 };

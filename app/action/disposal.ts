@@ -20,6 +20,7 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
     data: {
       weightInGrams: weightInGrams,
       binId: bin.id,
+      isScanned: false,
     },
   });
   return { id: disposal.id };

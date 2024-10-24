@@ -18,6 +18,7 @@ import {
 } from "@/lib/tokens";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
+import { Role } from "@prisma/client";
 
 const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values);
@@ -41,6 +42,7 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
       name: name,
       faculty: faculty,
       email: email,
+      role: Role.ADMIN,
       password: hashedPassword,
     },
   });
@@ -60,6 +62,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   const existingUser = await prisma.user.findUnique({
     where: {
       email: email,
+      role: Role.ADMIN,
     },
   });
   if (!existingUser) {
