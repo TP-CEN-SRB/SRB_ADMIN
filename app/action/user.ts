@@ -128,7 +128,7 @@ const newPassword = async (
   values: z.infer<typeof NewPasswordSchema>,
   token: string
 ) => {
-  if (!token) return { error: "Missing Token!" };
+  if (!token) return { error: "Something went wrong! Please try again" };
   const validatedFields = NewPasswordSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid token or password!" };
@@ -136,10 +136,12 @@ const newPassword = async (
   const formData = validatedFields.data;
   const password = formData.password;
   const existingToken = await getPasswordResetTokenByToken(token);
-  if (!existingToken) return { error: "Token not found!" };
+  if (!existingToken)
+    return { error: "This link is invalid! Please reset your password again" };
 
   const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired) return { error: "Token has expired!" };
+  if (hasExpired)
+    return { error: "This link has expired! Please reset your password again" };
 
   const existingUser = await prisma.user.findUnique({
     where: { email: existingToken.email },

@@ -3,12 +3,16 @@ import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 
 const verifyToken = async (token: string) => {
-  if (!token) return { error: "Missing token" };
+  if (!token) return { error: "Something went wrong! Please try again" };
   const existingToken = await getVerificationTokenByToken(token);
-  if (!existingToken) return { error: "Token not found!" };
+  if (!existingToken)
+    return { error: "This link is invalid! Please log in again" };
 
   const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired) return { error: "Token has expired!" };
+  if (hasExpired)
+    return {
+      error: "This link has expired! Please log in again",
+    };
 
   const existingUser = await prisma.user.findUnique({
     where: {
