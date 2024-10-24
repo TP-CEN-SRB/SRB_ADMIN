@@ -1,7 +1,7 @@
 import QRCode from "qrcode";
 import { notFound } from "next/navigation";
 import { generateQrToken } from "@/lib/jwt-tokens";
-import { getDisposal } from "@/app/action/disposal";
+import { getUnscannedDisposal } from "@/app/action/disposal";
 
 const QrCodeComponent = async ({
   searchParams,
@@ -12,14 +12,12 @@ const QrCodeComponent = async ({
 
   if (!id) notFound();
 
-  const disposalData = await getDisposal(id);
+  const disposalData = await getUnscannedDisposal(id);
   if (!disposalData) {
     notFound();
   }
-
   const data = {
-    material: disposalData.bin.material,
-    weightInGrams: disposalData.weightInGrams,
+    disposalId: disposalData.id,
   };
 
   const token = generateQrToken(data);

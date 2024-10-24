@@ -1,7 +1,8 @@
 import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
 import QrCard from "@/components/Card/QrCard";
-import QrCodeComponent from "@/components/Qr-Code";
+import QrCodeComponent from "@/components/QrCode/Qr-Code";
+import QrScanListener from "@/components/QrCode/QrScanListener";
 import TimerRedirect from "@/components/TimerRedirect";
 
 const QrCodePage = ({
@@ -15,6 +16,7 @@ const QrCodePage = ({
         <CardHeader>Scan the QR code!</CardHeader>
         <CardBody>
           <QrCodeComponent searchParams={searchParams} />
+          <QrScanListener />
         </CardBody>
         {/* <TimerRedirect redirectTo="/" delayInMs={30000} /> */}
       </QrCard>

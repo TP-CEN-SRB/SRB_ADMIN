@@ -1,6 +1,12 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+type Client = {
+  controller: ReadableStreamDefaultController<any>;
+  close: () => void;
+};
+let clients: Client[] = [];
+
 export const PUT = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -37,6 +43,7 @@ export const PUT = async (
         isScanned: true,
       },
     });
+
     return NextResponse.json({ message: "Updated disposal" }, { status: 201 });
   } catch (error) {
     if (error instanceof Error) {
