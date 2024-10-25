@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const QrCodeComponent = async ({ id }: { id: string }) => {
   const disposalData = await getUnscannedDisposal(id);
-  if (!disposalData || "error" in disposalData) {
+  if (!disposalData) {
     notFound();
   }
   const data = {
