@@ -19,71 +19,68 @@ const DetectMaterialPage = () => {
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const eventSource = new EventSource("/api/detect-material");
-    eventSource.addEventListener("message", (event: MessageEvent) => {
-      console.log("event source received on client");
-      const { material, weightInGrams, thrown } = JSON.parse(event.data);
-      if (thrown === undefined) {
-        if (
-          !Object.values(BinMaterial).includes(material) ||
-          isNaN(weightInGrams) ||
-          !material ||
-          !weightInGrams
-        ) {
-          setDetecting(false);
-          setError("Unable to detect material. Please try again");
-        }
-        setMaterial(material);
-        setWeightInGrams(weightInGrams);
-        setDetecting(false);
-      }
-      setThrown(thrown);
+  // useEffect(() => {
+  //   const eventSource = new EventSource("/api/detect-material");
+  //   eventSource.onmessage = (event: MessageEvent) => {
+  //     const { material, weightInGrams, thrown } = JSON.parse(event.data);
+  //     if (thrown === undefined) {
+  //       if (
+  //         !Object.values(BinMaterial).includes(material) ||
+  //         isNaN(weightInGrams) ||
+  //         !material ||
+  //         !weightInGrams
+  //       ) {
+  //         setDetecting(false);
+  //         setError("Unable to detect material. Please try again");
+  //       }
+  //       setMaterial(material);
+  //       setWeightInGrams(weightInGrams);
+  //       setDetecting(false);
+  //     }
+  //     setThrown(thrown);
+  //   };
+  //   return () => {
+  //     eventSource.close();
+  //   };
+  // }, [material, router, weightInGrams]);
+
+  const fetchData = async () => {
+    const response = await fetch("/api/detect-material", {
+      method: "GET",
     });
-    return () => {
-      eventSource.close();
-    };
-
-    // eventSource.onmessage = (event: MessageEvent) => {
-    //   console.log("event source received on client");
-    //   const { material, weightInGrams, thrown } = JSON.parse(event.data);
-    //   if (thrown === undefined) {
-    //     if (
-    //       !Object.values(BinMaterial).includes(material) ||
-    //       isNaN(weightInGrams) ||
-    //       !material ||
-    //       !weightInGrams
-    //     ) {
-    //       setDetecting(false);
-    //       setError("Unable to detect material. Please try again");
-    //     }
-    //     setMaterial(material);
-    //     setWeightInGrams(weightInGrams);
-    //     setDetecting(false);
-    //   }
-    //   setThrown(thrown);
-    // };
-    // return () => {
-    //   eventSource.close();
-    // };
-  }, [material, router, weightInGrams]);
+    if (response.ok) {
+      const { material, weightInGrams } = await response.json();
+      setMaterial(material);
+      setWeightInGrams(weightInGrams);
+      setDetecting(false);
+    }
+  };
 
   useEffect(() => {
-    const handleDisposal = async () => {
-      if (thrown === true && material && weightInGrams) {
-        const data = await createDisposal({
-          material: material as BinMaterial,
-          weightInGrams,
-        });
-        setError(data?.error);
-        if (data?.id) {
-          router.push(`/disposal-qr?id=${data.id}`);
-        }
-      }
-    };
+    const interval = setInterval(() => {
+      if (detecting) {
+        fetchData();
+      } else clearInterval(interval);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [detecting]);
 
-    handleDisposal();
-  }, [thrown]);
+  // useEffect(() => {
+  //   const handleDisposal = async () => {
+  //     if (thrown === true && material && weightInGrams) {
+  //       const data = await createDisposal({
+  //         material: material as BinMaterial,
+  //         weightInGrams,
+  //       });
+  //       setError(data?.error);
+  //       if (data?.id) {
+  //         router.push(`/disposal-qr?id=${data.id}`);
+  //       }
+  //     }
+  //   };
+
+  //   handleDisposal();
+  // }, [thrown]);
 
   return (
     <Card>
