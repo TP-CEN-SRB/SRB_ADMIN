@@ -23,6 +23,7 @@ const DetectMaterialPage = () => {
     const eventSource = new EventSource("/api/detect-material");
 
     eventSource.onmessage = (event: MessageEvent) => {
+      console.log("event source received on client");
       const { material, weightInGrams, thrown } = JSON.parse(event.data);
       if (thrown === undefined) {
         if (
