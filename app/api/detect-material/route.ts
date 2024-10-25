@@ -9,7 +9,7 @@ let clients: Client[] = [];
 export const GET = async () => {
   try {
     const stream = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         const closeClient = () => {
           clients = clients.filter(
             (client) => client.controller !== controller

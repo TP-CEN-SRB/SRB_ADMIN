@@ -69,7 +69,7 @@ export const GET = async () => {
   const encoder = new TextEncoder();
   try {
     const stream = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         const closeClient = () => {
           clients = clients.filter(
             (client) => client.controller !== controller
