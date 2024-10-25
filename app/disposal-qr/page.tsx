@@ -4,18 +4,20 @@ import QrCard from "@/components/Card/QrCard";
 import QrCodeComponent from "@/components/QrCode/QrImage";
 import QrScanListener from "@/components/QrCode/QrScanListener";
 import TimerRedirect from "@/components/TimerRedirect";
+import { notFound } from "next/navigation";
 
 const QrCodePage = ({
   searchParams,
 }: {
   searchParams: { [key: string]: string };
 }) => {
+  if (!searchParams.id) notFound();
   return (
     <div className="flex">
       <QrCard>
         <CardHeader>Scan the QR code!</CardHeader>
         <CardBody>
-          <QrCodeComponent searchParams={searchParams} />
+          <QrCodeComponent id={searchParams.id} />
           <QrScanListener />
         </CardBody>
         <TimerRedirect redirectTo="/" delayInMs={45000} />
