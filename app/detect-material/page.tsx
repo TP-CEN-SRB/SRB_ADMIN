@@ -21,8 +21,7 @@ const DetectMaterialPage = () => {
 
   useEffect(() => {
     const eventSource = new EventSource("/api/detect-material");
-
-    eventSource.onmessage = (event: MessageEvent) => {
+    eventSource.addEventListener("message", (event: MessageEvent) => {
       console.log("event source received on client");
       const { material, weightInGrams, thrown } = JSON.parse(event.data);
       if (thrown === undefined) {
@@ -40,10 +39,33 @@ const DetectMaterialPage = () => {
         setDetecting(false);
       }
       setThrown(thrown);
-    };
+    });
     return () => {
       eventSource.close();
     };
+
+    // eventSource.onmessage = (event: MessageEvent) => {
+    //   console.log("event source received on client");
+    //   const { material, weightInGrams, thrown } = JSON.parse(event.data);
+    //   if (thrown === undefined) {
+    //     if (
+    //       !Object.values(BinMaterial).includes(material) ||
+    //       isNaN(weightInGrams) ||
+    //       !material ||
+    //       !weightInGrams
+    //     ) {
+    //       setDetecting(false);
+    //       setError("Unable to detect material. Please try again");
+    //     }
+    //     setMaterial(material);
+    //     setWeightInGrams(weightInGrams);
+    //     setDetecting(false);
+    //   }
+    //   setThrown(thrown);
+    // };
+    // return () => {
+    //   eventSource.close();
+    // };
   }, [material, router, weightInGrams]);
 
   useEffect(() => {
