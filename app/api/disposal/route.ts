@@ -1,6 +1,7 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
+export const revalidate = 0;
 type Client = {
   controller: ReadableStreamDefaultController;
   close: () => void;
