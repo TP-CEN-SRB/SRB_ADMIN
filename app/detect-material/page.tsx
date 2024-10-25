@@ -18,7 +18,8 @@ const DetectMaterialPage = () => {
   const [error, setError] = useState<string>();
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
-
+  /** SSE
+   */
   // useEffect(() => {
   //   const eventSource = new EventSource("/api/detect-material");
   //   eventSource.onmessage = (event: MessageEvent) => {
@@ -44,27 +45,6 @@ const DetectMaterialPage = () => {
   //   };
   // }, [material, router, weightInGrams]);
 
-  const fetchData = async () => {
-    const response = await fetch("/api/detect-material", {
-      method: "GET",
-    });
-    if (response.ok) {
-      const { material, weightInGrams } = await response.json();
-      setMaterial(material);
-      setWeightInGrams(weightInGrams);
-      setDetecting(false);
-    }
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (detecting) {
-        fetchData();
-      } else clearInterval(interval);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [detecting]);
-
   // useEffect(() => {
   //   const handleDisposal = async () => {
   //     if (thrown === true && material && weightInGrams) {
@@ -81,6 +61,60 @@ const DetectMaterialPage = () => {
 
   //   handleDisposal();
   // }, [thrown]);
+
+  /** Polling
+   */
+  const fetchMaterial = async () => {
+    const response = await fetch("/api/detect-material", {
+      method: "GET",
+    });
+    if (response.ok) {
+      const { material, weightInGrams, thrown } = await response.json();
+      if (thrown === undefined) {
+        if (
+          !Object.values(BinMaterial).includes(material) ||
+          isNaN(weightInGrams) ||
+          !material ||
+          !weightInGrams
+        ) {
+          setDetecting(false);
+          setError("Unable to detect material. Please try again");
+        }
+        setMaterial(material);
+        setWeightInGrams(weightInGrams);
+        setDetecting(false);
+      }
+      setThrown(thrown);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (detecting || thrown !== true) {
+        fetchMaterial();
+      } else {
+        clearInterval(interval);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [detecting]);
+
+  useEffect(() => {
+    const handleDisposal = async () => {
+      if (thrown === true && material && weightInGrams) {
+        const data = await createDisposal({
+          material: material as BinMaterial,
+          weightInGrams,
+        });
+        setError(data?.error);
+        if (data?.id) {
+          router.push(`/disposal-qr?id=${data.id}`);
+        }
+      }
+    };
+
+    handleDisposal();
+  }, [thrown]);
 
   return (
     <Card>

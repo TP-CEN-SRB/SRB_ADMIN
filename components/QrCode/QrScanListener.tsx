@@ -4,19 +4,44 @@ import React, { useEffect } from "react";
 
 const QrScanListener = () => {
   const router = useRouter();
-  useEffect(() => {
-    const eventSource = new EventSource("/api/disposal");
+  /**
+   SSE
+   */
+  // useEffect(() => {
+  //   const eventSource = new EventSource("/api/disposal");
 
-    eventSource.onmessage = (event: MessageEvent) => {
-      const { updated } = JSON.parse(event.data);
+  //   eventSource.onmessage = (event: MessageEvent) => {
+  //     const { updated } = JSON.parse(event.data);
+  //     if (updated === true) {
+  //       router.push("/disposal-confirmation");
+  //     }
+  //   };
+  //   return () => {
+  //     eventSource.close();
+  //   };
+  // }, [router]);
+
+  /**
+   Polling
+   */
+  const fetchUser = async () => {
+    const response = await fetch("/api/disposal", {
+      method: "GET",
+    });
+
+    if (response.ok) {
+      const { updated } = await response.json();
       if (updated === true) {
         router.push("/disposal-confirmation");
       }
-    };
-    return () => {
-      eventSource.close();
-    };
-  }, [router]);
+    }
+  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUser();
+    }, 5000);
+    return () => clearInterval(interval);
+  });
   return <div></div>;
 };
 

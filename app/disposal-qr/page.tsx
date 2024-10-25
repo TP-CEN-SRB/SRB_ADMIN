@@ -4,7 +4,6 @@ import QrCard from "@/components/Card/QrCard";
 import QrCodeComponent from "@/components/QrCode/QrImage";
 import QrScanListener from "@/components/QrCode/QrScanListener";
 import TimerRedirect from "@/components/TimerRedirect";
-import { notFound } from "next/navigation";
 
 const QrCodePage = ({
   searchParams,
