@@ -43,7 +43,7 @@ const DetectMaterialPage = () => {
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [material, router, weightInGrams]);
 
   useEffect(() => {
     const handleDisposal = async () => {

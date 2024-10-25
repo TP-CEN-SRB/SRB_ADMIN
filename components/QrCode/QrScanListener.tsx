@@ -16,7 +16,7 @@ const QrScanListener = () => {
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [router]);
   return <div></div>;
 };
 

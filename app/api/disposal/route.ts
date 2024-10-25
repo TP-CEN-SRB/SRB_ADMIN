@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-
+export const runtime = "edge";
 type Client = {
   controller: ReadableStreamDefaultController;
   close: () => void;
