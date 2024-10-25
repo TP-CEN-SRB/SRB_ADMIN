@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 type Client = {
-  controller: ReadableStreamDefaultController<any>;
+  controller: ReadableStreamDefaultController;
   close: () => void;
 };
 let clients: Client[] = [];
