@@ -7,7 +7,6 @@ type Client = {
 let clients: Client[] = [];
 
 export const GET = async () => {
-  const encoder = new TextEncoder();
   try {
     const stream = new ReadableStream({
       start(controller) {
@@ -19,15 +18,12 @@ export const GET = async () => {
         // Add the client to the list
         clients.push({ controller, close: closeClient });
 
-        const keepAliveInterval = setInterval(() => {
+        const interval = setInterval(() => {
           if (controller.desiredSize === 0) {
-            clearInterval(keepAliveInterval);
             closeClient();
-          } else {
-            // Send keep-alive message to prevent closing the connection
-            controller.enqueue(encoder.encode(`:\n\n`));
+            clearInterval(interval);
           }
-        }, 15000); // Adjust the interval based on Vercel’s timeout behavior
+        }, 1000);
       },
     });
 
@@ -35,8 +31,8 @@ export const GET = async () => {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        Connection: "keep-alive",
         "X-Accel-Buffering": "no",
+        Connection: "keep-alive",
       },
     });
   } catch (error) {
@@ -51,8 +47,8 @@ export const GET = async () => {
 };
 
 export const POST = async (request: NextRequest) => {
+  const encoder = new TextEncoder();
   try {
-    const encoder = new TextEncoder();
     const data = await request.json(); // Expecting a JSON payload
     // Notify all connected clients with the posted data
     clients.forEach((client) => {

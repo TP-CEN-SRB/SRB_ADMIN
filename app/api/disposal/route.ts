@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-export const runtime = "edge";
+export const runtime = "nodejs";
 type Client = {
   controller: ReadableStreamDefaultController;
   close: () => void;
@@ -8,6 +8,7 @@ type Client = {
 let clients: Client[] = [];
 
 export const PUT = async (req: NextRequest) => {
+  const encoder = new TextEncoder();
   try {
     const { disposalId, userId } = await req.json();
     if (!disposalId) {
@@ -48,7 +49,7 @@ export const PUT = async (req: NextRequest) => {
     });
     clients.forEach((client) => {
       client.controller.enqueue(
-        `data: ${JSON.stringify({ updated: true })}\n\n`
+        encoder.encode(`data: ${JSON.stringify({ updated: true })}\n\n`)
       );
     });
     return NextResponse.json({ message: "Updated disposal" }, { status: 201 });
@@ -64,6 +65,7 @@ export const PUT = async (req: NextRequest) => {
 };
 
 export const GET = async () => {
+  const encoder = new TextEncoder();
   try {
     const stream = new ReadableStream({
       start(controller) {

@@ -15,7 +15,15 @@ const QrCodeComponent = async ({ id }: { id: string }) => {
   const token = generateQrToken(data);
   const qrCodeUrl = await QRCode.toDataURL(token);
 
-  return <Image className="w-full" src={qrCodeUrl} alt="Generated QR Code" />;
+  return (
+    <Image
+      width="0"
+      height="0"
+      className="w-full"
+      src={qrCodeUrl}
+      alt="Generated QR Code"
+    />
+  );
 };
 
 export default QrCodeComponent;

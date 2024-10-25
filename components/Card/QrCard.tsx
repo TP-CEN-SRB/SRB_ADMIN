@@ -12,7 +12,13 @@ const QrCard = ({ children, fullWidth = false }: QrCardProps) => {
       }`}
     >
       <div className="absolute rounded-full -top-[75px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-white p-3">
-        <Image src="/qr_code.png" width="50" alt="QR code" className="" />
+        <Image
+          src="/qr_code.png"
+          width="50"
+          height="50"
+          alt="QR code"
+          className=""
+        />
       </div>
       {children}
     </div>
