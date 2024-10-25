@@ -14,7 +14,7 @@ const QrCodePage = ({
   return (
     <div className="flex">
       <QrCard>
-        <CardHeader>Scan the QR code!</CardHeader>
+        <CardHeader>Scan the QR code</CardHeader>
         <CardBody>
           <QrCodeComponent id={searchParams.id} />
           <QrScanListener />
