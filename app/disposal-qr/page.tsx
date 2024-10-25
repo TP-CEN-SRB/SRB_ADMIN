@@ -11,7 +11,6 @@ const QrCodePage = ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
-  if (!searchParams.id) notFound();
   return (
     <div className="flex">
       <QrCard>

@@ -5,7 +5,6 @@ import { getUnscannedDisposal } from "@/app/action/disposal";
 import Image from "next/image";
 
 const QrCodeComponent = async ({ id }: { id: string }) => {
-  if (!id) notFound();
   const disposalData = await getUnscannedDisposal(id);
   if (!disposalData) {
     notFound();
