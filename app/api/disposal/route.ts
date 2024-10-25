@@ -107,6 +107,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 let storedUpdated: boolean | undefined;
+export const runtime = "nodejs";
 export const GET = async (req: NextRequest) => {
   try {
     const updated = storedUpdated;
