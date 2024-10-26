@@ -4,7 +4,6 @@ import CardBody from "@/components/Card/CardBody";
 import CardButton from "@/components/Card/CardButton";
 import CardHeader from "@/components/Card/CardHeader";
 import TimerRedirect from "@/components/TimerRedirect";
-import { useTimeout } from "@/hooks/use-timeout";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";

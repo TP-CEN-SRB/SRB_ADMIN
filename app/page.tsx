@@ -6,7 +6,7 @@ export default async function Home() {
   // const session = await auth();
   // const user = session?.user;
   return (
-    <div className="flex items-center justify-center">
+    <div className="h-screen flex items-center justify-center">
       <div className="text-center">
         <h1 className="text-gray-800 mb-4">
           Welcome to the Smart Recycling Bin!

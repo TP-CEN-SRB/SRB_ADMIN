@@ -6,7 +6,7 @@ import CardHeader from "@/components/Card/CardHeader";
 import CardBody from "@/components/Card/CardBody";
 import { useRouter } from "next/navigation";
 import { BeatLoader } from "react-spinners";
-import { createDisposal } from "../action/disposal";
+import { createDisposal } from "@/app/action/disposal";
 import { BinMaterial } from "@prisma/client";
 import TimerRedirect from "@/components/TimerRedirect";
 

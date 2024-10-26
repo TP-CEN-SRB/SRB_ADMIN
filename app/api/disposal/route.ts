@@ -109,13 +109,13 @@ import prisma from "@/lib/db";
 let storedUpdated: boolean | undefined;
 export const runtime = "nodejs";
 
+// needed for to allow other domain to send put request
 function setCorsHeaders(response: NextResponse) {
   response.headers.set("Access-Control-Allow-Origin", "*");
   response.headers.set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
   response.headers.set("Access-Control-Allow-Headers", "Content-Type");
   return response;
 }
-// Handle preflight OPTIONS request
 export const OPTIONS = () => {
   const response = new NextResponse(null, { status: 204 });
   return setCorsHeaders(response);

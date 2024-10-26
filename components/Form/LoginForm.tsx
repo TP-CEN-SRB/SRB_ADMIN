@@ -78,13 +78,18 @@ const LoginForm = () => {
                     type="password"
                   />
                 </FormControl>
-                <Button size="sm" variant="link" asChild>
-                  <Link href="/reset-password">Forgot password?</Link>
-                </Button>
                 <FormMessage />
               </FormItem>
             )}
           />
+          <div className="ml-2">
+            <Link
+              className="text-sm hover:underline underline-offset-4"
+              href="/reset-password"
+            >
+              Forgot password?
+            </Link>
+          </div>
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && (
             <CustomFormMessage type="Success">{success}</CustomFormMessage>
