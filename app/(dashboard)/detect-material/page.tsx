@@ -70,12 +70,10 @@ const DetectMaterialPage = () => {
     });
     if (response.ok) {
       const { material, weightInGrams, thrown } = await response.json();
-      if (thrown === undefined) {
+      if (thrown === undefined && material && weightInGrams) {
         if (
           !Object.values(BinMaterial).includes(material) ||
-          isNaN(weightInGrams) ||
-          !material ||
-          !weightInGrams
+          isNaN(weightInGrams)
         ) {
           setDetecting(false);
           setError("Unable to detect material. Please try again");
@@ -118,7 +116,6 @@ const DetectMaterialPage = () => {
 
   return (
     <Card>
-      {thrown ? <></> : <></>}
       <div className="flex flex-col items-center justify-center gap-y-3 mb-6">
         <CardHeader>Material Detection</CardHeader>
         {detecting && <FadeLoader color="#22c55e" />}
