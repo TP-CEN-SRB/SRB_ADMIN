@@ -32,9 +32,6 @@ const getUnscannedDisposal = async (id: string) => {
       id: id,
       isScanned: false,
     },
-    // include: {
-    //   bin: true,
-    // },
   });
 
   return disposal;

@@ -108,6 +108,19 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 let storedUpdated: boolean | undefined;
 export const runtime = "nodejs";
+
+function setCorsHeaders(response: NextResponse) {
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
+  response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+  return response;
+}
+// Handle preflight OPTIONS request
+export const OPTIONS = () => {
+  const response = new NextResponse(null, { status: 204 });
+  return setCorsHeaders(response);
+};
+
 export const GET = async (req: NextRequest) => {
   try {
     const updated = storedUpdated;
@@ -123,6 +136,7 @@ export const GET = async (req: NextRequest) => {
     );
   }
 };
+
 export const PUT = async (req: NextRequest) => {
   try {
     const { disposalId, userId } = await req.json();
