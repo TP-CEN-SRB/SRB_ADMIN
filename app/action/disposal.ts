@@ -27,7 +27,7 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
 };
 const getUnscannedDisposal = async (id: string) => {
   // if (!id) return { error: "Missing Id" };
-  const disposal = await prisma.disposal.findUnique({
+  const disposal = await prisma.disposal.findFirst({
     where: {
       id: id,
       isScanned: false,
