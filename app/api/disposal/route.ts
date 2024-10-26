@@ -126,19 +126,17 @@ export const GET = async (req: NextRequest) => {
 export const PUT = async (req: NextRequest) => {
   try {
     const { disposalId, userId } = await req.json();
-    if (!disposalId) {
+    if (!disposalId || !userId) {
       return NextResponse.json(
-        { message: "Missing fields: [disposalId]" },
+        {
+          message: `Missing fields: ${!disposalId ? "[disposalId]" : ""} ${
+            !userId ? "[userId]" : ""
+          }`,
+        },
         { status: 400 }
       );
     }
-    if (!userId) {
-      return NextResponse.json(
-        { message: "Missing fields: [userId]" },
-        { status: 400 }
-      );
-    }
-    const result = await prisma.disposal.findUnique({
+    const result = await prisma.disposal.findFirst({
       where: { id: disposalId, isScanned: false },
     });
     if (!result) {
