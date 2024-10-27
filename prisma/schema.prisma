@@ -30,6 +30,7 @@ enum BinStatus {
 enum Role {
   USER
   ADMIN
+  BIN
 }
 
 enum BinMaterial {
@@ -42,10 +43,11 @@ model User {
   email         String     @unique
   emailVerified DateTime?
   password      String
-  name          String
-  faculty       Faculty
+  name          String?
+  faculty       Faculty?
   role          Role
   disposals     Disposal[]
+  bins          Bin[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,7 +81,10 @@ model Bin {
   status          BinStatus
   material        BinMaterial
   currentCapacity Int         @default(0)
-  disposals       Disposal[]
+  userId          String
+  User            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  disposals Disposal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

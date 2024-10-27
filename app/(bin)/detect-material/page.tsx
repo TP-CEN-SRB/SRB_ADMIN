@@ -10,7 +10,11 @@ import { createDisposal } from "@/app/action/disposal";
 import { BinMaterial } from "@prisma/client";
 import TimerRedirect from "@/components/TimerRedirect";
 
-const DetectMaterialPage = () => {
+const DetectMaterialPage = ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string };
+}) => {
   const [detecting, setDetecting] = useState(true);
   const [material, setMaterial] = useState<BinMaterial>();
   const [weightInGrams, setWeightInGrams] = useState<number>();
@@ -65,7 +69,7 @@ const DetectMaterialPage = () => {
   /** Polling
    */
   const fetchMaterial = async () => {
-    const response = await fetch("/api/detect-material", {
+    const response = await fetch(`/api/detect-material/${searchParams.id}`, {
       method: "GET",
     });
     if (response.ok) {
@@ -95,7 +99,7 @@ const DetectMaterialPage = () => {
       }
     }, 5000);
     return () => clearInterval(interval);
-  }, [detecting]);
+  }, [detecting, thrown]);
 
   useEffect(() => {
     const handleDisposal = async () => {
@@ -106,7 +110,9 @@ const DetectMaterialPage = () => {
         });
         setError(data?.error);
         if (data?.id) {
-          router.push(`/disposal-qr?id=${data.id}`);
+          router.push(
+            `/disposal-qr?disposalId=${data.id}&userId=${searchParams.id}`
+          );
         }
       }
     };

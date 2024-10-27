@@ -1,10 +1,9 @@
-// import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { getSessionUser } from "@/utils/getAuth";
 import Link from "next/link";
 
 export default async function Home() {
-  // const session = await auth();
-  // const user = session?.user;
+  const user = await getSessionUser();
   return (
     <div className="h-screen flex items-center justify-center">
       <div className="text-center">
@@ -18,7 +17,9 @@ export default async function Home() {
           asChild
           className="bg-green-500 hover:bg-green-600 text-white text-xl font-semibold py-8 px-8 rounded-full shadow-lg transition-all"
         >
-          <Link href="/dispose-steps">Tap here to get started</Link>
+          <Link href={`/dispose-steps?id=${user?.id}`}>
+            Tap here to get started
+          </Link>
         </Button>
       </div>
     </div>

@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 
-const QrScanListener = () => {
+const QrScanListener = ({ userId }: { userId: string }) => {
   const router = useRouter();
   /**
    SSE
@@ -25,7 +25,7 @@ const QrScanListener = () => {
    Polling
    */
   const fetchUser = async () => {
-    const response = await fetch("/api/disposal", {
+    const response = await fetch(`/api/disposal/${userId}`, {
       method: "GET",
     });
 

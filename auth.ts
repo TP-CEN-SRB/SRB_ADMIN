@@ -2,17 +2,17 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/db";
 import authConfig from "./auth.config";
+import { Role } from "@prisma/client";
 
-// type ExtendedUser = DefaultSession["user"] & {
-//   role: "ADMIN" | "USER";
-//   age: number; // check if age of user exist in middleware before purchasing passes
-// };
+type ExtendedUser = DefaultSession["user"] & {
+  role: Role;
+};
 
-// declare module "next-auth" {
-//   interface Session {
-//     user: ExtendedUser;
-//   }
-// }
+declare module "next-auth" {
+  interface Session {
+    user: ExtendedUser;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -55,6 +55,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (token.sub) {
           session.user.id = token.sub;
         }
+        if (token.role) {
+          session.user.role = token.role as Role;
+        }
       }
       return session;
     },
@@ -65,6 +68,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         where: { id: token.sub },
       });
       if (!existingUser) return token;
+      token.role = existingUser.role;
 
       return token;
     },

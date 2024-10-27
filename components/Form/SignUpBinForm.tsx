@@ -3,9 +3,8 @@ import React, { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { SignUpSchema } from "@/schemas";
+import { SignUpBinSchema } from "@/schemas";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -16,20 +15,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormRedirect from "./FormRedirect";
-import { signUp } from "@/app/action/user";
-import FacultyComboBox from "./FacultyCombobox";
 import FormHeader from "./FormHeader";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "./CustomFormMessage";
-import { ToastAction } from "@radix-ui/react-toast";
 import { useRouter } from "next/navigation";
 import Card from "../Card/Card";
+import { signUpBin } from "@/app/action/user";
 
-const SignUpForm = () => {
+const SignUpBinForm = () => {
   const router = useRouter();
-  const form = useForm<z.infer<typeof SignUpSchema>>({
-    resolver: zodResolver(SignUpSchema),
+  const form = useForm<z.infer<typeof SignUpBinSchema>>({
+    resolver: zodResolver(SignUpBinSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -37,32 +33,20 @@ const SignUpForm = () => {
     },
   });
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
+  const onSubmit = (values: z.infer<typeof SignUpBinSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await signUp(values);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
-      if (!data?.error) {
-        toast({
-          title: "Hey there!",
-          description: `A verification email has been sent to ${values.email.toLowerCase()}`,
-          action: (
-            <ToastAction altText="Login">
-              <Button onClick={() => router.push("/login")}>Login</Button>
-            </ToastAction>
-          ),
-        });
-      }
+        const data = await signUpBin(values);
+        setError(data?.error as string);
+        setSuccess(data?.success as string);
     });
   };
   return (
     <Card fullWidth>
-      <FormHeader>Sign Up</FormHeader>
+      <FormHeader>Create a bin user</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -103,19 +87,6 @@ const SignUpForm = () => {
           />
           <FormField
             control={form.control}
-            name="faculty"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold">Faculty</FormLabel>
-                <FormControl>
-                  <FacultyComboBox field={field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="password"
             render={({ field }) => (
               <FormItem>
@@ -145,9 +116,8 @@ const SignUpForm = () => {
           </Button>
         </form>
       </Form>
-      <FormRedirect href="/login">Already have an account?</FormRedirect>
     </Card>
   );
 };
 
-export default SignUpForm;
+export default SignUpBinForm;

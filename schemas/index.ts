@@ -12,9 +12,25 @@ const SignUpSchema = z.object({
     .string()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().email("Please enter a valid email address").toLowerCase(),
   // .endsWith("@tp.edu.sg", "Please use your personal TP email"),
   faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
+  password: z
+    .string()
+    .regex(/^\S*$/, "Password cannot contain spaces")
+    .min(8, "Password must be at least 8 characters"),
+});
+
+const SignUpBinSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name is too short")
+    .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+  email: z
+    .string()
+    .email("Please enter a valid email address")
+    .endsWith("@tp.bin.sg", "Please ensure your bin ends with @tp.bin.sg")
+    .toLowerCase(),
   password: z
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
@@ -50,6 +66,7 @@ const DisposalSchema = z.object({
 
 export {
   LoginSchema,
+  SignUpBinSchema,
   SignUpSchema,
   ResetSchema,
   NewPasswordSchema,

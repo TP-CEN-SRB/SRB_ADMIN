@@ -4,8 +4,8 @@ import { generateQrToken } from "@/lib/jwt-tokens";
 import { getUnscannedDisposal } from "@/app/action/disposal";
 import Image from "next/image";
 
-const QrCodeComponent = async ({ id }: { id: string }) => {
-  const disposalData = await getUnscannedDisposal(id);
+const QrCodeComponent = async ({ disposalId }: { disposalId: string }) => {
+  const disposalData = await getUnscannedDisposal(disposalId);
   if (!disposalData) {
     notFound();
   }

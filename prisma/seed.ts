@@ -1,24 +1,42 @@
 import prisma from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { BinMaterial, BinStatus } from "@prisma/client";
-const binData: Prisma.BinCreateInput[] = [
+const userData: Prisma.UserCreateInput[] = [
   {
-    location: "Library",
-    status: BinStatus.FUNCTIONAL,
-    material: BinMaterial.METAL,
-    currentCapacity: 0,
+    name: "testBin",
+    email: "testbin@tp.bin.sg",
+    emailVerified: new Date(),
+    password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
+    role: "BIN",
+    bins: {
+      createMany: {
+        data: [
+          {
+            location: "Library",
+            status: BinStatus.FUNCTIONAL,
+            material: BinMaterial.METAL,
+          },
+          {
+            location: "Library",
+            status: BinStatus.FUNCTIONAL,
+            material: BinMaterial.PLASTIC,
+          },
+        ],
+      },
+    },
   },
   {
-    location: "Library",
-    status: BinStatus.FUNCTIONAL,
-    material: BinMaterial.PLASTIC,
-    currentCapacity: 0,
+    name: "testAdmin",
+    email: "testadmin@tp.edu.sg",
+    emailVerified: new Date(),
+    password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
+    role: "ADMIN",
   },
 ];
 
 async function main() {
-  for (const data of binData) {
-    const bin = await prisma.bin.create({
+  for (const data of userData) {
+    const user = await prisma.user.create({
       data: data,
     });
   }
