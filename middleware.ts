@@ -23,6 +23,7 @@ export default auth(async (req) => {
     secret: process.env.AUTH_SECRET,
     secureCookie: true,
   });
+  console.log(token);
   const isAdminRoute = adminRoutes.includes(path);
   const isBinRoute = binRoutes.includes(path);
 
