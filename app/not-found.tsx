@@ -10,7 +10,8 @@ export default function NotFoundPage() {
           Oops! Page not found
         </h2>
         <p className="mt-4 text-gray-500">
-          Sorry, the page you're looking for doesn't exist or has been moved.
+          Sorry, the page you&apos;re looking for doesn&apos;t exist or has been
+          moved.
         </p>
         <Link href="/" passHref>
           <button className="mt-6 px-6 py-2 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700">
