@@ -18,8 +18,11 @@ export default auth(async (req) => {
   const path = req.nextUrl.pathname;
   const isLoggedIn = !!req.auth;
   const isApiAuthRoute = path.startsWith(apiAuthRoutes);
-  const token = await getToken({ req, secret: process.env.AUTH_SECRET });
-  console.log(token);
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    secureCookie: true,
+  });
   const isAdminRoute = adminRoutes.includes(path);
   const isBinRoute = binRoutes.includes(path);
 
