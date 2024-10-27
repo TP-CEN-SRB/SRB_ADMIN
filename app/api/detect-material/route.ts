@@ -1,7 +1,7 @@
 /*
  * SSE
  */
-export const maxDuration = 60; // This function can run for a maximum of 150 seconds
+export const maxDuration = 60; // This function can run for a maximum of 60 seconds due to vercel's hobby plan
 import { NextRequest, NextResponse } from "next/server";
 // export const runtime = "edge";
 type Client = {

@@ -40,6 +40,9 @@ const DetectMaterialPage = () => {
       }
       setThrown(thrown);
     };
+    eventSource.onerror = function (error) {
+      console.error("Error in SSE connection:", error);
+    };
     return () => {
       eventSource.close();
     };
