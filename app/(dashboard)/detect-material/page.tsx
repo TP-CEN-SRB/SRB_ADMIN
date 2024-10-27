@@ -20,60 +20,16 @@ const DetectMaterialPage = () => {
   const router = useRouter();
   /** SSE
    */
-  // useEffect(() => {
-  //   const eventSource = new EventSource("/api/detect-material");
-  //   eventSource.onmessage = (event: MessageEvent) => {
-  //     const { material, weightInGrams, thrown } = JSON.parse(event.data);
-  //     if (thrown === undefined) {
-  //       if (
-  //         !Object.values(BinMaterial).includes(material) ||
-  //         isNaN(weightInGrams) ||
-  //         !material ||
-  //         !weightInGrams
-  //       ) {
-  //         setDetecting(false);
-  //         setError("Unable to detect material. Please try again");
-  //       }
-  //       setMaterial(material);
-  //       setWeightInGrams(weightInGrams);
-  //       setDetecting(false);
-  //     }
-  //     setThrown(thrown);
-  //   };
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, [material, router, weightInGrams]);
-
-  // useEffect(() => {
-  //   const handleDisposal = async () => {
-  //     if (thrown === true && material && weightInGrams) {
-  //       const data = await createDisposal({
-  //         material: material as BinMaterial,
-  //         weightInGrams,
-  //       });
-  //       setError(data?.error);
-  //       if (data?.id) {
-  //         router.push(`/disposal-qr?id=${data.id}`);
-  //       }
-  //     }
-  //   };
-
-  //   handleDisposal();
-  // }, [thrown]);
-
-  /** Polling
-   */
-  const fetchMaterial = async () => {
-    const response = await fetch("/api/detect-material", {
-      method: "GET",
-    });
-    if (response.ok) {
-      const { material, weightInGrams, thrown } = await response.json();
-      if (thrown === undefined && material && weightInGrams) {
+  useEffect(() => {
+    const eventSource = new EventSource("/api/detect-material");
+    eventSource.onmessage = (event: MessageEvent) => {
+      const { material, weightInGrams, thrown } = JSON.parse(event.data);
+      if (thrown === undefined) {
         if (
           !Object.values(BinMaterial).includes(material) ||
-          isNaN(weightInGrams)
+          isNaN(weightInGrams) ||
+          !material ||
+          !weightInGrams
         ) {
           setDetecting(false);
           setError("Unable to detect material. Please try again");
@@ -83,19 +39,11 @@ const DetectMaterialPage = () => {
         setDetecting(false);
       }
       setThrown(thrown);
-    }
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (detecting || thrown !== true) {
-        fetchMaterial();
-      } else {
-        clearInterval(interval);
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [detecting]);
+    };
+    return () => {
+      eventSource.close();
+    };
+  }, [material, router, weightInGrams]);
 
   useEffect(() => {
     const handleDisposal = async () => {
@@ -113,6 +61,58 @@ const DetectMaterialPage = () => {
 
     handleDisposal();
   }, [thrown]);
+
+  /** Polling
+   */
+  // const fetchMaterial = async () => {
+  //   const response = await fetch("/api/detect-material", {
+  //     method: "GET",
+  //   });
+  //   if (response.ok) {
+  //     const { material, weightInGrams, thrown } = await response.json();
+  //     if (thrown === undefined && material && weightInGrams) {
+  //       if (
+  //         !Object.values(BinMaterial).includes(material) ||
+  //         isNaN(weightInGrams)
+  //       ) {
+  //         setDetecting(false);
+  //         setError("Unable to detect material. Please try again");
+  //       }
+  //       setMaterial(material);
+  //       setWeightInGrams(weightInGrams);
+  //       setDetecting(false);
+  //     }
+  //     setThrown(thrown);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (detecting || thrown !== true) {
+  //       fetchMaterial();
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [detecting]);
+
+  // useEffect(() => {
+  //   const handleDisposal = async () => {
+  //     if (thrown === true && material && weightInGrams) {
+  //       const data = await createDisposal({
+  //         material: material as BinMaterial,
+  //         weightInGrams,
+  //       });
+  //       setError(data?.error);
+  //       if (data?.id) {
+  //         router.push(`/disposal-qr?id=${data.id}`);
+  //       }
+  //     }
+  //   };
+
+  //   handleDisposal();
+  // }, [thrown]);
 
   return (
     <Card>
