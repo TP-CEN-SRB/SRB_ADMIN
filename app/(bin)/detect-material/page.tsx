@@ -69,6 +69,7 @@ const DetectMaterialPage = ({
   /** Polling
    */
   const fetchMaterial = async () => {
+    console.log(searchParams.id);
     const response = await fetch(`/api/detect-material/${searchParams.id}`, {
       method: "GET",
     });
