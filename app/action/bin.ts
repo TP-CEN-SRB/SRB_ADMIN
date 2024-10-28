@@ -1,19 +1,19 @@
-// "use server";
+"use server";
 
-// import prisma from "@/lib/db";
-// import { BinMaterial, BinStatus } from "@prisma/client";
+import prisma from "@/lib/db";
+import { BinMaterial, BinStatus } from "@prisma/client";
 
 // export const getAllBins = async () => {
 //   return await prisma.bin.findMany();
 // };
 
-// export const getBinById = async (id: string) => {
-//   return await prisma.bin.findUnique({
-//     where: {
-//       id: id,
-//     },
-//   });
-// };
+export const getBinsByUserId = async (id: string) => {
+  return await prisma.bin.findMany({
+    where: {
+      userId: id,
+    },
+  });
+};
 
 // const initialState: BinFormState = {
 //   message: "",

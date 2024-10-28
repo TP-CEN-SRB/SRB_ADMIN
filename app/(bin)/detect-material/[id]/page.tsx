@@ -145,12 +145,15 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
         )}
       </CardBody>
       {!detecting && !error && (
-        <div className="flex justify-center mt-4">
+        <div className="flex flex-col items-center justify-center mt-4">
           <BeatLoader color="#22c55e" />
+          {thrown && (
+            <p className="text-gray-600">Generating your qr code...</p>
+          )}
         </div>
       )}
       {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
-      {!error && <TimerRedirect delayInMs={150000} redirectTo="/" />}
+      {!error && !thrown && <TimerRedirect delayInMs={150000} redirectTo="/" />}
     </Card>
   );
 };

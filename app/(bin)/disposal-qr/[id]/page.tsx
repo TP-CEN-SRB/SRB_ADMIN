@@ -20,7 +20,7 @@ const QrCodePage = ({
           <QrCodeComponent disposalId={searchParams.disposalId} />
           <QrScanListener userId={params.id} />
         </CardBody>
-        <TimerRedirect redirectTo="/" delayInMs={45000} />
+        <TimerRedirect redirectTo="/" delayInMs={60000} />
       </QrCard>
     </div>
   );
