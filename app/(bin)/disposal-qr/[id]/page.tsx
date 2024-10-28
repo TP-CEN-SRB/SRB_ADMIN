@@ -6,8 +6,10 @@ import QrScanListener from "@/components/QrCode/QrScanListener";
 import TimerRedirect from "@/components/TimerRedirect";
 
 const QrCodePage = ({
+  params,
   searchParams,
 }: {
+  params: { id: string };
   searchParams: { [key: string]: string };
 }) => {
   return (
@@ -16,7 +18,7 @@ const QrCodePage = ({
         <CardHeader>Scan the QR code</CardHeader>
         <CardBody>
           <QrCodeComponent disposalId={searchParams.disposalId} />
-          <QrScanListener userId={searchParams.userId} />
+          <QrScanListener userId={params.id} />
         </CardBody>
         <TimerRedirect redirectTo="/" delayInMs={45000} />
       </QrCard>

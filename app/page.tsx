@@ -17,7 +17,7 @@ export default async function Home() {
           asChild
           className="bg-green-500 hover:bg-green-600 text-white text-xl font-semibold py-8 px-8 rounded-full shadow-lg transition-all"
         >
-          <Link href={`/dispose-steps?id=${user?.id}`}>
+          <Link href={`/dispose-steps/${user?.id}`}>
             Tap here to get started
           </Link>
         </Button>
