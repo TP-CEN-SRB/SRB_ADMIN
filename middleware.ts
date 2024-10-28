@@ -7,7 +7,7 @@ export const { auth } = NextAuth(authConfig);
 
 const adminRoutes = ["/admin-dashboard", "/bin-users"]; // protected routes for non-logged in users and users with incomplete profile
 const binRoutes = [
-  "/dispose-steps",
+  "/dispose-steps/",
   "/disposal-confirmation",
   "/disposal-qr",
   "/detect-material",
@@ -21,10 +21,10 @@ export default auth(async (req) => {
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    secureCookie: true, // disable during development
+    // secureCookie: true, // disable during development
   });
-  const isAdminRoute = adminRoutes.includes(path);
-  const isBinRoute = binRoutes.includes(path);
+  const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
+  const isBinRoute = binRoutes.some((route) => path.startsWith(route));
 
   if (isApiAuthRoute) {
     return;

@@ -1,5 +1,5 @@
 "use server";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import prisma from "@/lib/db";
 import {
   LoginSchema,
@@ -132,6 +132,12 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 };
 
+const logout = async () => {
+  await signOut({
+    redirectTo: "/",
+  });
+};
+
 const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   const validatedFields = ResetSchema.safeParse(values);
   if (!validatedFields.success) {
@@ -190,4 +196,4 @@ const newPassword = async (
   return { success: "Password updated successfully!" };
 };
 
-export { signUp, signUpBin, login, resetPassword, newPassword };
+export { signUp, signUpBin, login, logout, resetPassword, newPassword };
