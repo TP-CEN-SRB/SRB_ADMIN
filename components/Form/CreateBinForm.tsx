@@ -1,105 +1,147 @@
 "use client";
 
 import { createBin, BinFormState } from "@/app/action/bin";
-import React, { useRef, useEffect } from "react";
-import { useFormState, useFormStatus } from "react-dom";
-
-// Separate SubmitButton component
-const SubmitButton = () => {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      className="flex items-center justify-center rounded-lg h-12 border-2 border-green-400/75 outline-blue-500 bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300"
-      type="submit"
-      disabled={pending}
-    >
-      {pending ? "Creating Bin..." : "Add New Bin"}
-    </button>
-  );
-};
+import { BinSchema } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useTransition, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "@/components/ui/input";
+import BinStatusCombobox from "./BinStatusCombobox";
+import BinMaterialCombobox from "./BinMaterialCombobox";
+import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { BinMaterial, BinStatus } from "@prisma/client";
 
 const CreateBinForm = () => {
-  const formRef = useRef<HTMLFormElement>(null);
-  const initialState: BinFormState = {
-    message: "",
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const form = useForm<z.infer<typeof BinSchema>>({
+    resolver: zodResolver(BinSchema),
+    defaultValues: {
+      location: "",
+      status: BinStatus.FUNCTIONAL,
+      material: BinMaterial.PLASTIC,
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof BinSchema>) => {
+    const datetime = new Date().toLocaleString("en-SG", {
+      timeZone: "Asia/Singapore",
+      hour12: false, // 24-hour format, remove if 12-hour format is needed
+    });
+    startTransition(async () => {
+      setError("");
+      //const result = await createBin(values);
+      const result = await fetch("/api/bin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          location: values.location,
+          status: values.status,
+          material: values.material,
+        }),
+      });
+      const data = await result.json();
+      if (data.success) {
+        setSuccess(data.success as string);
+        toast({
+          title: "Bin created successfully",
+          description: `Bin created at ${datetime}`,
+          duration: 2000,
+        });
+      } else if (data.error) {
+        setError(data.error);
+        toast({
+          title: "Error creating bin",
+          description: data.error,
+          duration: 2000,
+        });
+      }
+    });
   };
-
-  const [state, handleSubmit] = useFormState<BinFormState, FormData>(
-    createBin,
-    initialState
-  );
-
-  // Use useEffect to handle form reset after successful submission
-  useEffect(() => {
-    if (state.message === "Bin created successfully") {
-      formRef.current?.reset();
-    }
-  }, [state.message]);
-
   return (
-    <div className="md:w-1/2 sm:w-4/5 flex flex-col space-x-5 gap-y-5">
-      <h1>Add new bin</h1>
-      <form
-        ref={formRef}
-        action={handleSubmit}
-        className="flex flex-col text-xl font-medium gap-y-5"
-      >
-        <label htmlFor="location">Location:</label>
-        <input
-          className="rounded-lg h-12 p-3 border-2 border-green-400/75 outline-blue-500"
-          type="text"
-          id="location"
-          name="location"
-          placeholder="Location"
-          required
-        />
-
-        <label htmlFor="status">Status:</label>
-        <select
-          className="rounded-lg h-12 p-3 border-2 border-green-400/75 outline-blue-500"
-          id="status"
-          name="status"
-          required
-        >
-          <option value="FUNCTIONAL">FUNCTIONAL</option>
-          <option value="UNDER_MAINTENANCE">UNDER_MAINTENANCE</option>
-        </select>
-
-        <label htmlFor="material">Material:</label>
-        <select
-          className="rounded-lg h-12 p-3 border-2 border-green-400/75 outline-blue-500"
-          id="material"
-          name="material"
-          required
-        >
-          <option value="PLASTIC">PLASTIC</option>
-          <option value="METAL">METAL</option>
-        </select>
-
-        <label htmlFor="currentCapacity">Current Capacity:</label>
-        <input
-          className="rounded-lg h-12 p-3 border-2 border-green-400/75 outline-blue-500"
-          type="number"
-          id="currentCapacity"
-          name="currentCapacity"
-          placeholder="Current Capacity"
-          required
-        />
-
-        <SubmitButton />
-
-        {state.message && (
-          <p
-            className={`text-center ${
-              state.message === "Bin created successfully"
-                ? "text-green-500"
-                : "text-red-500"
-            }`}
-          >
-            {state.message}
-          </p>
-        )}
-      </form>
+    <div className=" min-h-screen flex flex-col items-center justify-center container mx-auto max-w-screen-xs">
+      <div className="w-full">
+        <h1>Add new bin</h1>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold">Location</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="Near Library"
+                      {...field}
+                      type="text"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold">Status</FormLabel>
+                  <FormControl>
+                    <BinStatusCombobox field={field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="material"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold">Material</FormLabel>
+                  <FormControl>
+                    <BinMaterialCombobox field={field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              disabled={isPending}
+              className="w-full"
+              type="submit"
+              onClick={() => {
+                console.log({ error }, { success });
+              }}
+            >
+              {isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                ""
+              )}
+              {isPending ? "Loading..." : "Submit"}
+            </Button>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 };

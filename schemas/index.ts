@@ -33,14 +33,10 @@ const NewPasswordSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
-const BinLocationSchema = z.object({
+const BinSchema = z.object({
   location: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
-  currentCapacity: z
-    .number()
-    .min(0, "Current capacity cannot be negative")
-    .max(100, "Maximum capacity cannot be above 100"),
 });
 
-export { LoginSchema, SignUpSchema, ResetSchema, NewPasswordSchema };
+export { LoginSchema, SignUpSchema, ResetSchema, NewPasswordSchema, BinSchema };

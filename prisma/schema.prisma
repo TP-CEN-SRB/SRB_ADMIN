@@ -71,13 +71,13 @@ model Bin {
   location        String // Outside library
   status          BinStatus
   material        BinMaterial
-  currentCapacity Int
   disposals       Disposal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("bins")
+  @@unique([location, status, material])
 }
 
 model Disposal {
