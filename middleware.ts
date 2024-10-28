@@ -21,9 +21,8 @@ export default auth(async (req) => {
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    secureCookie: true,
+    secureCookie: true, // disable during development
   });
-  console.log(token);
   const isAdminRoute = adminRoutes.includes(path);
   const isBinRoute = binRoutes.includes(path);
 
