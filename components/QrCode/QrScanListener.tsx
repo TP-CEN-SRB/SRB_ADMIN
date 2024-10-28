@@ -25,6 +25,7 @@ const QrScanListener = ({ userId }: { userId: string }) => {
    Polling
    */
   const fetchUser = async () => {
+    console.log(userId);
     const response = await fetch(`/api/disposal/${userId}`, {
       method: "GET",
     });
