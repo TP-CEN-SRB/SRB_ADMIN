@@ -10,6 +10,7 @@ const QrCodePage = ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
+  console.log(searchParams);
   return (
     <div className="flex">
       <QrCard>
