@@ -50,7 +50,7 @@ const SignUpForm = () => {
       if (!data?.error) {
         toast({
           title: "Hey there!",
-          description: `A verification email has been sent to ${values.email}`,
+          description: `A verification email has been sent to ${values.email.toLowerCase()}`,
           action: (
             <ToastAction altText="Login">
               <Button onClick={() => router.push("/login")}>Login</Button>

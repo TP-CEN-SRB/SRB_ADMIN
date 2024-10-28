@@ -1,0 +1,7 @@
+import jwt from "jsonwebtoken";
+export const generateQrToken = (data: { disposalId: string }) => {
+  const token = jwt.sign(data, process.env.NEXT_JWT_SECRET_KEY!, {
+    expiresIn: "1h",
+  });
+  return token;
+};

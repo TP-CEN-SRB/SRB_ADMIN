@@ -27,18 +27,27 @@ enum BinStatus {
   UNDER_MAINTENANCE
 }
 
+enum Role {
+  USER
+  ADMIN
+  BIN
+}
+
 enum BinMaterial {
   PLASTIC
   METAL
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
+  id            String     @id @default(uuid())
+  email         String     @unique
   emailVerified DateTime?
   password      String
-  name          String
-  faculty       Faculty
+  name          String?
+  faculty       Faculty?
+  role          Role
+  disposals     Disposal[]
+  bins          Bin[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -56,10 +65,10 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
-model PassswordResetToken{
-  id String @id @default(uuid())
-  email String
-  token String @unique
+model PassswordResetToken {
+  id      String   @id @default(uuid())
+  email   String
+  token   String   @unique
   expires DateTime
 
   @@unique([email, token])
@@ -71,7 +80,11 @@ model Bin {
   location        String // Outside library
   status          BinStatus
   material        BinMaterial
-  disposals       Disposal[]
+  currentCapacity Int         @default(0)
+  userId          String
+  User            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  disposals Disposal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,13 +94,15 @@ model Bin {
 }
 
 model Disposal {
-  id            String @id @default(uuid())
+  id            String   @id @default(uuid())
   weightInGrams Int
   binId         String
-  bin           Bin    @relation(fields: [binId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
+  isScanned     Boolean
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("disposals")
 }

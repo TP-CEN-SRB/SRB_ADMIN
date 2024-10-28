@@ -3,18 +3,21 @@ import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
 import CardButton from "@/components/Card/CardButton";
 import CardHeader from "@/components/Card/CardHeader";
-import { useTimeout } from "@/hooks/use-timeout";
+import TimerRedirect from "@/components/TimerRedirect";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
 
-const DisposeStepsPage = () => {
+const DisposeStepsPage = ({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string };
+}) => {
   const [play, { sound, stop }] = useSound("/welcome.mp3");
   useEffect(() => {
     play();
     return () => stop();
   }, [sound, play, stop]);
-  const remainingTime = useTimeout(30000, "/");
   return (
     <Card>
       <div className="flex items-center justify-center mb-6 gap-x-3">
@@ -36,14 +39,10 @@ const DisposeStepsPage = () => {
           ))}
         </div>
       </CardBody>
-      <CardButton href="/detect-material">Continue</CardButton>
-      <div className="text-center mt-6">
-        <p className="text-gray-600 font-semibold">
-          Redirecting in
-          <span className="text-green-500 text-xl"> {remainingTime}</span>{" "}
-          seconds
-        </p>
-      </div>
+      <CardButton href={`/detect-material?id=${searchParams.id}`}>
+        Continue
+      </CardButton>
+      <TimerRedirect redirectTo="/" delayInMs={30000} />
     </Card>
   );
 };

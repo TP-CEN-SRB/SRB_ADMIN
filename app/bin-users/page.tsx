@@ -1,15 +1,12 @@
+import SignUpBinForm from "@/components/Form/SignUpBinForm";
 import React from "react";
 
-const AuthLayout = ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+const BinRolePage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs py-4">
-      {children}
+      <SignUpBinForm />
     </div>
   );
 };
 
-export default AuthLayout;
+export default BinRolePage;
