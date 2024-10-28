@@ -100,10 +100,13 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const handleDisposal = async () => {
       if (thrown === true && material && weightInGrams) {
-        const data = await createDisposal({
-          material: material as BinMaterial,
-          weightInGrams,
-        });
+        const data = await createDisposal(
+          {
+            material: material as BinMaterial,
+            weightInGrams,
+          },
+          params.id
+        );
         setError(data?.error);
         if (data?.id) {
           router.push(`/disposal-qr/${params.id}?disposalId=${data.id}`);

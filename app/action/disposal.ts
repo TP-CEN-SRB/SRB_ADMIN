@@ -4,7 +4,10 @@ import { DisposalSchema } from "@/schemas";
 import { BinMaterial } from "@prisma/client";
 import { z } from "zod";
 
-const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
+const createDisposal = async (
+  values: z.infer<typeof DisposalSchema>,
+  userId: string
+) => {
   const validatedFields = DisposalSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
@@ -13,6 +16,7 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
   const bin = await prisma.bin.findFirst({
     where: {
       material: material as BinMaterial,
+      userId: userId,
     },
   });
   if (!bin) return { error: "No bin found" };
@@ -23,6 +27,18 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
       isScanned: false,
     },
   });
+  if (disposal) {
+    await prisma.bin.update({
+      where: {
+        id: bin.id,
+      },
+      data: {
+        currentCapacity: {
+          increment: 1,
+        },
+      },
+    });
+  }
   return { id: disposal.id };
 };
 const getUnscannedDisposal = async (id: string) => {
