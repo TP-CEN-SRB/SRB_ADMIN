@@ -9,11 +9,27 @@ export default async function Home() {
     {
       href: `/dispose-steps/${user?.id}`,
       label: "Get started",
-      color: "green",
+      color: "bg-green-500",
+      hoverColor: "hover:bg-green-600",
     },
-    { href: `/bin-capacity`, label: "Bin Capacity", color: "blue" },
-    { href: `/rewards/${user?.id}`, label: "My Rewards", color: "orange" },
-    { href: `/settings/${user?.id}`, label: "Settings", color: "purple" },
+    {
+      href: `/bin-capacity`,
+      label: "Bin Capacity",
+      color: "bg-blue-500",
+      hoverColor: "hover:bg-blue-600",
+    },
+    {
+      href: `/my-points`,
+      label: "My points",
+      color: "bg-orange-500",
+      hoverColor: "hover:bg-orange-600",
+    },
+    {
+      href: `/settings/${user?.id}`,
+      label: "Settings",
+      color: "bg-purple-500",
+      hoverColor: "hover:bg-purple-600",
+    },
   ];
 
   return (
@@ -30,7 +46,7 @@ export default async function Home() {
             <Button
               key={index}
               asChild
-              className={`bg-${button.color}-500 hover:bg-${button.color}-600 text-white lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-all h-full`}
+              className={`${button.color} ${button.hoverColor} text-white lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-all h-full`}
             >
               <Link href={button.href}>{button.label}</Link>
             </Button>

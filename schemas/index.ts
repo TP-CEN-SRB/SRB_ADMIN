@@ -37,6 +37,9 @@ const SignUpBinSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
+const AdminNumberSchema = z.object({
+  adminNumber: z.string().regex(/^\d{7}[A-Za-z]$/, "Invalid admin number"),
+});
 const ResetSchema = z.object({
   email: z.string().email("Please enter a valid email address").toLowerCase(),
   // .endsWith("@tp.edu.sg", "Please use your personal TP email"),
@@ -72,4 +75,5 @@ export {
   NewPasswordSchema,
   BinSchema,
   DisposalSchema,
+  AdminNumberSchema,
 };

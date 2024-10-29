@@ -145,8 +145,8 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   }
   const formData = validatedFields.data;
   const email = formData.email;
-  const existingUser = await prisma.user.findUnique({
-    where: { email: email },
+  const existingUser = await prisma.user.findFirst({
+    where: { email: email, role: "ADMIN" },
   });
   if (!existingUser) {
     return { error: "Email does not exist!" };
@@ -179,8 +179,8 @@ const newPassword = async (
   if (hasExpired)
     return { error: "This link has expired! Please reset your password again" };
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email: existingToken.email },
+  const existingUser = await prisma.user.findFirst({
+    where: { email: existingToken.email, role: "ADMIN" },
   });
   if (!existingUser) {
     return { error: "Email does not exist!" };
@@ -196,4 +196,19 @@ const newPassword = async (
   return { success: "Password updated successfully!" };
 };
 
-export { signUp, signUpBin, login, logout, resetPassword, newPassword };
+const getBinUser = async (id: string) => {
+  const binUser = await prisma.user.findFirst({
+    where: { id: id, role: Role.BIN },
+  });
+  return binUser;
+};
+
+export {
+  signUp,
+  signUpBin,
+  login,
+  logout,
+  resetPassword,
+  newPassword,
+  getBinUser,
+};

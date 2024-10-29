@@ -7,9 +7,9 @@ import CardBody from "@/components/Card/CardBody";
 const SignOutForm = () => {
   return (
     <Card>
-      <h1 className="text-center mb-4">Are you sure?</h1>
+      <h1 className="text-gray-800 text-center">Are you sure?</h1>
       <CardBody>
-        <p className="text-gray-600 text-center">
+        <p className="text-gray-500 text-center mt-4">
           You&apos;re about to sign out from your account. <br />
           Any unsaved changes will be{" "}
           <span className="font-bold text-black">lost</span>.

@@ -72,6 +72,7 @@
 //   }
 // };
 
+import { getSessionUser } from "@/utils/getAuth";
 import { NextRequest, NextResponse } from "next/server";
 const storedData: Record<
   string,
@@ -82,6 +83,13 @@ export const GET = async (
   { params }: { params: { id: string } }
 ) => {
   try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not authenticated" },
+        { status: 401 }
+      );
+    }
     const id = params.id;
     if (!id || !storedData[id]) {
       return NextResponse.json(
@@ -111,6 +119,13 @@ export const POST = async (
   { params }: { params: { id: string } }
 ) => {
   try {
+    const authorization = req.headers.get("x-api-key");
+    if (authorization !== process.env.API_KEY) {
+      return NextResponse.json(
+        { message: "Permission denied!" },
+        { status: 401 }
+      );
+    }
     const { material, weightInGrams, thrown } = await req.json();
     const id = params.id;
     if (!id) {

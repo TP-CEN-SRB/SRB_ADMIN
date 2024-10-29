@@ -114,6 +114,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { getSessionUser } from "@/utils/getAuth";
 const storedData: Record<string, { updated: boolean }> = {};
 export const runtime = "nodejs";
 
@@ -134,6 +135,13 @@ export const GET = async (
   { params }: { params: { id: string } }
 ) => {
   try {
+    const user = await getSessionUser();
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not authenticated" },
+        { status: 401 }
+      );
+    }
     const id = params.id;
     if (!id || !storedData[id]) {
       return NextResponse.json(
@@ -160,6 +168,13 @@ export const PUT = async (
   { params }: { params: { id: string } }
 ) => {
   try {
+    const authorization = req.headers.get("x-api-key");
+    if (authorization !== process.env.API_KEY) {
+      return NextResponse.json(
+        { message: "Permission denied!" },
+        { status: 401 }
+      );
+    }
     const { disposalId, userId } = await req.json();
     const id = params.id;
     if (!id) {

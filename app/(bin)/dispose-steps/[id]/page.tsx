@@ -35,7 +35,9 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
           ))}
         </div>
       </CardBody>
-      <CardButton href={`/detect-material/${params.id}`}>Continue</CardButton>
+      <CardButton color="green" href={`/detect-material/${params.id}`}>
+        Continue
+      </CardButton>
       <TimerRedirect redirectTo="/" delayInMs={30000} />
     </Card>
   );
