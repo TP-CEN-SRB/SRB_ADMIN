@@ -19,6 +19,7 @@ import {
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
 import { Role } from "@prisma/client";
+import { generateRandomNumber } from "@/utils/generateRandomNumber";
 
 const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values);
@@ -36,7 +37,8 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   if (existingUser) {
     return { error: "User already exists!" };
   }
-  const hashedPassword = await hash(password, 10);
+  const salt = generateRandomNumber(8, 16);
+  const hashedPassword = await hash(password, salt);
   await prisma.user.create({
     data: {
       name: name,
@@ -66,7 +68,8 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   if (existingUser) {
     return { error: "User already exists!" };
   }
-  const hashedPassword = await hash(password, 10);
+  const salt = generateRandomNumber(8, 16);
+  const hashedPassword = await hash(password, salt);
   await prisma.user.create({
     data: {
       name: name,

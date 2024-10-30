@@ -19,6 +19,7 @@ import {
 import { AdminNumberSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -30,7 +31,13 @@ const MyPointsPage = () => {
       adminNumber: "",
     },
   });
-  const onSubmit = (values: z.infer<typeof AdminNumberSchema>) => {};
+  const router = useRouter();
+  const onSubmit = (values: z.infer<typeof AdminNumberSchema>) => {
+    const validatedFields = AdminNumberSchema.safeParse(values);
+    if (validatedFields.success) {
+      router.push(`/my-points/${values.adminNumber}`);
+    }
+  };
   return (
     <Card>
       <div className="mb-6">

@@ -23,6 +23,8 @@ const QrCodeComponent = async ({
   const data = {
     disposalId: disposalData.id,
     userId: binUser.id,
+    material: disposalData.bin.material,
+    weightInGrams: disposalData.weightInGrams,
   };
   const token = generateQrToken(data);
   const qrCodeUrl = await QRCode.toDataURL(token);

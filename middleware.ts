@@ -11,6 +11,7 @@ const binRoutes = [
   "/disposal-confirmation",
   "/disposal-qr",
   "/detect-material",
+  "/my-points",
 ];
 const apiAuthRoutes = "/api/auth";
 
@@ -41,7 +42,7 @@ export default auth(async (req) => {
     if (isBinRoute && token?.role !== Role.BIN) {
       return Response.redirect(new URL("/not-found", req.nextUrl));
     }
-    if (path.includes("/login") || path.includes("/signup")) {
+    if (path.includes("/login") || path.includes("/sign-up")) {
       return Response.redirect(new URL("/", req.nextUrl));
     }
   }
