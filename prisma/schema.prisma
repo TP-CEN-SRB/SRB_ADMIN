@@ -49,8 +49,10 @@ model User {
   disposals     Disposal[]
   bins          Bin[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Point       Point?
+  Transaction Transaction[]
 
   @@map("users")
 }
@@ -89,6 +91,7 @@ model Bin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([location, status, material])
   @@map("bins")
 }
 
@@ -104,4 +107,39 @@ model Disposal {
   updatedAt     DateTime @updatedAt
 
   @@map("disposals")
+}
+
+model Reward {
+  id             String  @id @default(uuid())
+  pointsRequired Int
+  isAvailable    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("rewards")
+}
+
+model Point {
+  id      String @id @default(uuid())
+  balance Int    @default(0)
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("points")
+}
+
+model Transaction {
+  id           String @id @default(uuid())
+  pointsChange Int
+  userId       String
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("transactions")
 }

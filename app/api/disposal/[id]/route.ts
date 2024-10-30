@@ -210,11 +210,51 @@ export const PUT = async (
     if (!existingUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    await prisma.disposal.update({
+    const updatedDisposal = await prisma.disposal.update({
       where: { id: disposalId },
       data: {
-        userId: userId,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
         isScanned: true,
+      },
+    });
+    const transaction = await prisma.transaction.create({
+      data: {
+        pointsChange: updatedDisposal.weightInGrams,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+    const point = await prisma.point.findFirst({
+      where: {
+        userId: transaction.userId,
+      },
+    });
+    if (!point) {
+      await prisma.point.create({
+        data: {
+          user: {
+            connect: {
+              id: transaction.userId,
+            },
+          },
+        },
+      });
+    }
+    const userPoint = await prisma.point.update({
+      where: {
+        userId: transaction.userId,
+      },
+      data: {
+        balance: {
+          increment: transaction.pointsChange,
+        },
       },
     });
     storedData[id] = { updated: true };
