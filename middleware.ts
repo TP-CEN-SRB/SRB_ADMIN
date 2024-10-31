@@ -4,14 +4,22 @@ import { getToken } from "next-auth/jwt";
 import { Role } from "@prisma/client";
 
 export const { auth } = NextAuth(authConfig);
+/**
+ * Routes that are only available to users with ADMIN role
+ */
+const adminRoutes = ["/admin-dashboard", "/bin-users"];
 
-const adminRoutes = ["/admin-dashboard", "/bin-users"]; // protected routes for non-logged in users and users with incomplete profile
+/**
+ * Routes that are only available to users with BIN role
+ */
 const binRoutes = [
   "/dispose-steps/",
   "/disposal-confirmation",
   "/disposal-qr",
   "/detect-material",
   "/my-points",
+  "/bin-capacity",
+  "/bin/settings",
 ];
 const apiAuthRoutes = "/api/auth";
 

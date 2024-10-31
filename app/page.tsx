@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { getSessionUser } from "@/utils/getAuth";
 import Link from "next/link";
-
+import { FaRecycle } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
+import { FaCoins } from "react-icons/fa";
+import { IoSettings } from "react-icons/io5";
 export default async function Home() {
   const user = await getSessionUser();
 
@@ -11,24 +14,28 @@ export default async function Home() {
       label: "Get started",
       color: "bg-green-500",
       hoverColor: "hover:bg-green-600",
+      icon: <FaRecycle />,
     },
     {
       href: `/bin-capacity`,
       label: "Bin Capacity",
       color: "bg-blue-500",
       hoverColor: "hover:bg-blue-600",
+      icon: <FaTrash />,
     },
     {
       href: `/my-points`,
       label: "My points",
       color: "bg-orange-500",
       hoverColor: "hover:bg-orange-600",
+      icon: <FaCoins />,
     },
     {
       href: `/bin/settings`,
       label: "Settings",
       color: "bg-purple-500",
       hoverColor: "hover:bg-purple-600",
+      icon: <IoSettings />,
     },
   ];
 
@@ -43,13 +50,14 @@ export default async function Home() {
         </p>
         <div className="grid grid-cols-2 gap-4 mb-8 min-h-[200px]">
           {buttonData.map((button, index) => (
-            <Button
-              key={index}
-              asChild
-              className={`${button.color} ${button.hoverColor} text-white lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-all h-full`}
-            >
-              <Link href={button.href}>{button.label}</Link>
-            </Button>
+            <Link key={index} href={button.href}>
+              <Button
+                className={`${button.color} ${button.hoverColor} text-white lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex gap-x-3`}
+              >
+                {button.icon}
+                {button.label}
+              </Button>
+            </Link>
           ))}
         </div>
       </div>

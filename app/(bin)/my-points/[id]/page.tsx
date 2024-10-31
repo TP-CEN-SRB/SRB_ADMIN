@@ -1,5 +1,6 @@
 import { getPointByAdminNumber } from "@/app/action/point";
 import CardButton from "@/components/Card/CardButton";
+import CardHeader from "@/components/Card/CardHeader";
 import UserCard from "@/components/Card/UserCard";
 import React from "react";
 
@@ -8,9 +9,7 @@ const PointsPage = async ({ params }: { params: { id: string } }) => {
 
   return (
     <UserCard>
-      <div className="flex items-center mb-4">
-        <h1>Points Information</h1>
-      </div>
+      <CardHeader>Points Information</CardHeader>
       {point ? (
         <div className="bg-blue-50 p-4 rounded-lg shadow-inner">
           <h2>
@@ -18,7 +17,7 @@ const PointsPage = async ({ params }: { params: { id: string } }) => {
             {params.id}
           </h2>
           <h2>
-            <span className="font-medium text-blue-700">Points Balance:</span>{" "}
+            <span className="font-medium text-blue-700">Balance:</span>{" "}
             {point.balance}
           </h2>
         </div>
