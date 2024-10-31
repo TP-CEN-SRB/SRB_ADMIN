@@ -25,7 +25,7 @@ export default async function Home() {
       hoverColor: "hover:bg-orange-600",
     },
     {
-      href: `/settings/${user?.id}`,
+      href: `/bin/settings`,
       label: "Settings",
       color: "bg-purple-500",
       hoverColor: "hover:bg-purple-600",
@@ -34,7 +34,7 @@ export default async function Home() {
 
   return (
     <div className="h-screen flex items-center justify-center">
-      <div className="text-center">
+      <div className="text-center max-w-screen-lg w-full">
         <h1 className="text-gray-800 mb-4">
           Welcome to the Smart Recycling Bin!
         </h1>

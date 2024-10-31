@@ -9,6 +9,7 @@ import { BeatLoader } from "react-spinners";
 import { createDisposal } from "@/app/action/disposal";
 import { BinMaterial } from "@prisma/client";
 import TimerRedirect from "@/components/TimerRedirect";
+import { Button } from "@/components/ui/button";
 
 const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
@@ -117,6 +118,11 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     handleDisposal();
   }, [thrown]);
 
+  const handleCancel = () => {
+    setDetecting(false);
+    setError("Cancelling detection process. Please wait");
+  };
+
   return (
     <Card>
       <div className="flex flex-col items-center justify-center gap-y-3 mb-6">
@@ -154,6 +160,17 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
       )}
       {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
       {!error && !thrown && <TimerRedirect delayInMs={150000} redirectTo="/" />}
+      {!error && !thrown && detecting && (
+        <div className="flex justify-center mt-4">
+          <Button
+            onClick={handleCancel}
+            type="submit"
+            className="bg-red-500 hover:bg-red-600 text-white text-lg font-semibold py-6 px-6 min-w-56 rounded-full transition-all"
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };

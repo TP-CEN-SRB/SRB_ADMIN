@@ -23,12 +23,12 @@ const CardButton = ({
     orange: "bg-orange-500 hover:bg-orange-600",
   };
   return (
-    <div className="mt-8 text-center">
+    <div className="mt-4 text-center">
       <Button
         asChild
         className={`${disabled ? "cursor-not-allowed" : ""} ${
           colorVariants[color]
-        } text-white text-lg font-semibold py-6 px-6 min-w-56 rounded-full transition-all`}
+        } text-white text-lg font-semibold p-6 min-w-56 rounded-full transition-all`}
       >
         {disabled ? (
           <span>

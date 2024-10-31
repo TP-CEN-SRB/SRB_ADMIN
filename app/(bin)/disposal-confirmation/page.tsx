@@ -1,9 +1,11 @@
 import Card from "@/components/Card/Card";
 import { Button } from "@/components/ui/button";
+import { getSessionUser } from "@/utils/getAuth";
 import Link from "next/link";
 import React from "react";
 
-const DisposalConfirmationPage = () => {
+const DisposalConfirmationPage = async () => {
+  const user = await getSessionUser();
   return (
     <Card>
       <div className="flex flex-col items-center justify-center p-4">
@@ -16,7 +18,7 @@ const DisposalConfirmationPage = () => {
             asChild
             className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition-all"
           >
-            <Link href="/detect-material">Scan Another Item</Link>
+            <Link href={`/detect-material/${user?.id}`}>Scan Another Item</Link>
           </Button>
           <Button
             asChild

@@ -202,9 +202,10 @@ export const PUT = async (
         { status: 404 }
       );
     }
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.user.findFirst({
       where: {
         id: userId,
+        role: "USER",
       },
     });
     if (!existingUser) {

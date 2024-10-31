@@ -1,34 +1,41 @@
 import { getPointByAdminNumber } from "@/app/action/point";
-import Card from "@/components/Card/Card";
+import CardButton from "@/components/Card/CardButton";
+import UserCard from "@/components/Card/UserCard";
 import React from "react";
-import { FaUserCircle } from "react-icons/fa";
 
 const PointsPage = async ({ params }: { params: { id: string } }) => {
   const point = await getPointByAdminNumber(params.id);
 
   return (
-    <Card>
+    <UserCard>
       <div className="flex items-center mb-4">
-        <FaUserCircle className="text-blue-600 md:text-5xl text-4xl mr-3" />
         <h1>Points Information</h1>
       </div>
       {point ? (
         <div className="bg-blue-50 p-4 rounded-lg shadow-inner">
-          <p className="text-gray-700 text-lg">
-            <span className="font-medium text-blue-700">Admin ID:</span>{" "}
+          <h2>
+            <span className="font-medium text-blue-700">Admin Number:</span>{" "}
             {params.id}
-          </p>
-          <p className="text-gray-700 text-lg mt-2">
+          </h2>
+          <h2>
             <span className="font-medium text-blue-700">Points Balance:</span>{" "}
             {point.balance}
-          </p>
+          </h2>
         </div>
       ) : (
-        <p className="text-center text-red-600 font-medium mt-4">
-          No user found
-        </p>
+        <>
+          <h2 className="text-2xl text-center font-semibold text-red-700 ">
+            Oops! User not found
+          </h2>
+          <p className="mt-4 text-gray-500 text-center">
+            Start disposing now to earn points!
+          </p>
+        </>
       )}
-    </Card>
+      <CardButton color="blue" href="/my-points">
+        Back
+      </CardButton>
+    </UserCard>
   );
 };
 
