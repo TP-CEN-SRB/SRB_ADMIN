@@ -7,7 +7,6 @@ import {
   ResetSchema,
   NewPasswordSchema,
   SignUpBinSchema,
-  SecondaryPasswordSchema,
 } from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -145,14 +144,17 @@ const logout = async () => {
   });
 };
 
-const logoutBin = async (userId: string, password: string) => {
+const logoutBin = async (userId: string, secondaryPassword: string) => {
   const binUser = await prisma.user.findUnique({
     where: {
       id: userId,
     },
   });
   if (!binUser) return { error: "User not found!" };
-  const isMatched = await compare(password, binUser.secondaryPassword!);
+  const isMatched = await compare(
+    secondaryPassword,
+    binUser.secondaryPassword!
+  );
   if (!isMatched) {
     return { error: "Invalid password!" };
   }
