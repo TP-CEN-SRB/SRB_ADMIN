@@ -7,6 +7,7 @@ import {
   ResetSchema,
   NewPasswordSchema,
   SignUpBinSchema,
+  SecondaryPasswordSchema,
 } from "@/schemas";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -62,6 +63,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const name = capitalizeFirstLetter(formData.name);
   const email = formData.email;
   const password = formData.password;
+  const secondaryPassword = formData.secondaryPassword;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
@@ -70,6 +72,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   }
   const salt = generateRandomNumber(8, 16);
   const hashedPassword = await hash(password, salt);
+  const hashedSecondaryPassword = await hash(secondaryPassword, salt);
   await prisma.user.create({
     data: {
       name: name,
@@ -77,6 +80,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       emailVerified: new Date(), // automatically verify bin user
       role: Role.BIN,
       password: hashedPassword,
+      secondaryPassword: hashedSecondaryPassword,
     },
   });
   return { success: "Bin User successfully created!" };
@@ -136,6 +140,22 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
 };
 
 const logout = async () => {
+  await signOut({
+    redirectTo: "/",
+  });
+};
+
+const logoutBin = async (userId: string, password: string) => {
+  const binUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!binUser) return { error: "User not found!" };
+  const isMatched = await compare(password, binUser.secondaryPassword!);
+  if (!isMatched) {
+    return { error: "Invalid password!" };
+  }
   await signOut({
     redirectTo: "/",
   });
@@ -211,6 +231,7 @@ export {
   signUpBin,
   login,
   logout,
+  logoutBin,
   resetPassword,
   newPassword,
   getBinUser,

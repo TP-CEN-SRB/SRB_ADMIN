@@ -35,8 +35,15 @@ const SignUpBinSchema = z.object({
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
+  secondaryPassword: z
+    .string()
+    .regex(/^\d{6}$/, "Secondary password must be 6 digits"),
 });
-
+const SecondaryPasswordSchema = z.object({
+  secondaryPassword: z
+    .string()
+    .regex(/^\d{6}$/, "Secondary password must be 6 digits"),
+});
 const AdminNumberSchema = z.object({
   adminNumber: z.string().regex(/^\d{7}[A-Za-z]$/, "Invalid admin number"),
 });
@@ -71,6 +78,7 @@ export {
   LoginSchema,
   SignUpBinSchema,
   SignUpSchema,
+  SecondaryPasswordSchema,
   ResetSchema,
   NewPasswordSchema,
   BinSchema,
