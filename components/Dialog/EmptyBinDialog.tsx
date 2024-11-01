@@ -25,7 +25,7 @@ const EmptyBinDialog = async () => {
           <DialogDescription className="text-gray-500 mt-4 text-md">
             Please enter your 6 digit passcode to continue
           </DialogDescription>
-          <EmptyBinForm userId={user?.id!} />
+          {user?.id && <EmptyBinForm userId={user.id} />}
         </DialogHeader>
       </DialogContent>
     </Dialog>

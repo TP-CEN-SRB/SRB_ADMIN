@@ -27,7 +27,7 @@ const SignOutBinDialog = async () => {
             will be <span className="font-bold text-black">lost</span>. <br />
             Please enter your 6 digit passcode to continue
           </DialogDescription>
-          <SignOutBinForm userId={user?.id!} />
+          {user?.id && <SignOutBinForm userId={user.id} />}
         </DialogHeader>
       </DialogContent>
     </Dialog>

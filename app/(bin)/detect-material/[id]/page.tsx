@@ -10,6 +10,7 @@ import { createDisposal } from "@/app/action/disposal";
 import { BinMaterial } from "@prisma/client";
 import TimerRedirect from "@/components/TimerRedirect";
 import { Button } from "@/components/ui/button";
+import { pusherClient } from "@/lib/pusher";
 
 const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
@@ -65,38 +66,38 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
 
   /** Polling
    */
-  const fetchMaterial = async () => {
-    const response = await fetch(`/api/detect-material/${params.id}`, {
-      method: "GET",
-    });
-    if (response.ok) {
-      const { material, weightInGrams, thrown } = await response.json();
-      if (thrown === undefined && material && weightInGrams) {
-        if (
-          !Object.values(BinMaterial).includes(material) ||
-          isNaN(weightInGrams)
-        ) {
-          setDetecting(false);
-          setError("Unable to detect material. Please try again");
-        }
-        setMaterial(material);
-        setWeightInGrams(weightInGrams);
-        setDetecting(false);
-      }
-      setThrown(thrown);
-    }
-  };
+  // const fetchMaterial = async () => {
+  //   const response = await fetch(`/api/detect-material/${params.id}`, {
+  //     method: "GET",
+  //   });
+  //   if (response.ok) {
+  //     const { material, weightInGrams, thrown } = await response.json();
+  //     if (thrown === undefined && material && weightInGrams) {
+  //       if (
+  //         !Object.values(BinMaterial).includes(material) ||
+  //         isNaN(weightInGrams)
+  //       ) {
+  //         setDetecting(false);
+  //         setError("Unable to detect material. Please try again");
+  //       }
+  //       setMaterial(material);
+  //       setWeightInGrams(weightInGrams);
+  //       setDetecting(false);
+  //     }
+  //     setThrown(thrown);
+  //   }
+  // };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (detecting || thrown !== true) {
-        fetchMaterial();
-      } else {
-        clearInterval(interval);
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [detecting, thrown]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (detecting || thrown !== true) {
+  //       fetchMaterial();
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [detecting, thrown]);
 
   useEffect(() => {
     const handleDisposal = async () => {
@@ -117,6 +118,36 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
 
     handleDisposal();
   }, [thrown]);
+
+  /**
+   *Pusher
+   */
+  useEffect(() => {
+    pusherClient.subscribe(`detect-material-${params.id}`);
+    pusherClient.bind(
+      "material-details",
+      (data: {
+        material: BinMaterial;
+        weightInGrams: number;
+        thrown: boolean;
+      }) => {
+        if (data.thrown === undefined && data.material && data.weightInGrams) {
+          if (
+            !Object.values(BinMaterial).includes(data.material) ||
+            isNaN(data.weightInGrams)
+          ) {
+            setDetecting(false);
+            setError("Unable to detect material. Please try again");
+          }
+          setMaterial(data.material);
+          setWeightInGrams(data.weightInGrams);
+          setDetecting(false);
+        }
+        if (material && weightInGrams) setThrown(data.thrown);
+      }
+    );
+    return () => pusherClient.unsubscribe(`detect-material-${params.id}`);
+  }, [material, weightInGrams, thrown, params.id, router]);
 
   const handleCancel = () => {
     setDetecting(false);
@@ -160,7 +191,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
       )}
       {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
       {!error && !thrown && <TimerRedirect delayInMs={150000} redirectTo="/" />}
-      {!error && !thrown && detecting && (
+      {!error && detecting && (
         <div className="flex justify-center mt-4">
           <Button
             onClick={handleCancel}
