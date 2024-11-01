@@ -20,12 +20,12 @@ npx prisma generate # generate prisma client
 Ensure your `.env` has the following environment variables
 1. DATABASE_URL=********************************  <!-- Neon DB -->
 2. BASE_URL="https://major-project-tp.vercel.app" <!-- Domain URL -->
-3. AUTH_SECRET=******************************** <!-- Type npx auth secret to generate auth secret key ->
+3. AUTH_SECRET=******************************** <!-- Type npx auth secret to generate auth secret key -->
 4. NEXT_JWT_SECRET_KEY=********************************
 5. API_KEY=********************************
 
 6. NEXT_PUBLIC_PERSONAL_EMAIL=******@gmail.com
-7. NEXT_PUBLIC_EMAIL_PASSWORD=******************************** <!--Generate app password in gmail ->
+7. NEXT_PUBLIC_EMAIL_PASSWORD=******************************** <!--Generate app password in gmail -->
 
 Copy API keys from [Pusher](https://dashboard.pusher.com/)
 
