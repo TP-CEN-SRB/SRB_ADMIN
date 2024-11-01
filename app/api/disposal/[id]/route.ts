@@ -256,7 +256,7 @@ export const PUT = async (
         },
       },
     });
-    pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
+    await pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
       updated: true,
     });
     return NextResponse.json({ message: "Updated disposal" }, { status: 201 });

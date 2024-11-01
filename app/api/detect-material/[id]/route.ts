@@ -101,11 +101,15 @@ export const POST = async (
       );
     }
     const { material, weightInGrams, thrown } = await req.json();
-    pusherServer.trigger(`detect-material-${params.id}`, "material-details", {
-      material,
-      weightInGrams,
-      thrown,
-    });
+    await pusherServer.trigger(
+      `detect-material-${params.id}`,
+      "material-details",
+      {
+        material,
+        weightInGrams,
+        thrown,
+      }
+    );
     return NextResponse.json(
       { message: "Material details received" },
       { status: 200 }
