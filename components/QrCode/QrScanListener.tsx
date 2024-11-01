@@ -54,7 +54,8 @@ const QrScanListener = ({ userId }: { userId: string }) => {
         router.push("/disposal-confirmation");
       }
     });
-  });
+    return () => pusherClient.unsubscribe(`disposal-qr-${userId}`);
+  }, []);
   return <div></div>;
 };
 
