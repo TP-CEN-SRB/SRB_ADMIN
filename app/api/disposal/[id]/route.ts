@@ -209,57 +209,35 @@ export const PUT = async (
     if (!existingUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    const updatedDisposal = await prisma.disposal.update({
-      where: { id: disposalId },
-      data: {
-        user: {
-          connect: {
-            id: userId,
+    const [updatedDisposal, transaction, userPoint] = await prisma.$transaction(
+      [
+        prisma.disposal.update({
+          where: { id: disposalId },
+          data: {
+            userId: userId,
+            isScanned: true,
           },
-        },
-        isScanned: true,
-      },
-    });
-    const transaction = await prisma.transaction.create({
-      data: {
-        pointsChange: updatedDisposal.weightInGrams,
-        user: {
-          connect: {
-            id: userId,
+        }),
+        prisma.transaction.create({
+          data: {
+            pointsChange: result.weightInGrams,
+            userId: userId,
           },
-        },
-      },
-    });
-    const point = await prisma.point.findFirst({
-      where: {
-        userId: transaction.userId,
-      },
-    });
-    if (!point) {
-      await prisma.point.create({
-        data: {
-          user: {
-            connect: {
-              id: transaction.userId,
-            },
+        }),
+        prisma.point.upsert({
+          where: { userId: userId },
+          update: { balance: { increment: result.weightInGrams } },
+          create: {
+            userId,
+            balance: result.weightInGrams,
           },
-        },
-      });
-    }
-    const userPoint = await prisma.point.update({
-      where: {
-        userId: transaction.userId,
-      },
-      data: {
-        balance: {
-          increment: transaction.pointsChange,
-        },
-      },
-    });
+        }),
+      ]
+    );
     await pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
       updated: true,
     });
-    return NextResponse.json({ message: "Updated disposal" }, { status: 201 });
+    return NextResponse.json({ message: "Updated disposal" }, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
