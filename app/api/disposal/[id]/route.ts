@@ -9,16 +9,16 @@ import { pusherServer } from "@/lib/pusher";
 export const runtime = "nodejs";
 
 // needed for to allow other domain to send put request
-function setCorsHeaders(response: NextResponse) {
-  response.headers.set("Access-Control-Allow-Origin", "*");
-  response.headers.set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
-  response.headers.set("Access-Control-Allow-Headers", "Content-Type");
-  return response;
-}
-export const OPTIONS = () => {
-  const response = new NextResponse(null, { status: 204 });
-  return setCorsHeaders(response);
-};
+// function setCorsHeaders(response: NextResponse) {
+//   response.headers.set("Access-Control-Allow-Origin", "*");
+//   response.headers.set("Access-Control-Allow-Methods", "GET, PUT, OPTIONS");
+//   response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+//   return response;
+// }
+// export const OPTIONS = () => {
+//   const response = new NextResponse(null, { status: 204 });
+//   return setCorsHeaders(response);
+// };
 // const storedData: Record<string, { updated: boolean }> = {};
 // export const GET = async (
 //   req: NextRequest,
