@@ -7,7 +7,6 @@ import { FaCoins } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
 export default async function Home() {
   const user = await getSessionUser();
-
   const buttonData = [
     {
       href: `/dispose-steps/${user?.id}`,

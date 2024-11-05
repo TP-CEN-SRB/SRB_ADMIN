@@ -203,7 +203,7 @@ export const PUT = async (
     const existingUser = await prisma.user.findFirst({
       where: {
         id: userId,
-        role: "USER",
+        role: "STUDENT",
       },
     });
     if (!existingUser) {

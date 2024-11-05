@@ -16,7 +16,7 @@ import {
 import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { SecondaryPasswordSchema } from "@/schemas";
+import { SecondaryPasswordSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { logoutBin } from "@/app/action/user";
 import CustomFormMessage from "./CustomFormMessage";

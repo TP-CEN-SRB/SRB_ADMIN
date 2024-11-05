@@ -34,7 +34,7 @@ const verifyToken = async (token: string) => {
       id: existingToken.id,
     },
   });
-  return { success: "Email verified!" };
+  return { success: "Your email has been verified!" };
 };
 
 export { verifyToken };

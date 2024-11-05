@@ -28,7 +28,7 @@ enum BinStatus {
 }
 
 enum Role {
-  USER
+  STUDENT
   ADMIN
   BIN
 }
@@ -39,8 +39,8 @@ enum BinMaterial {
 }
 
 model User {
-  id                String     @id @default(uuid())
-  email             String     @unique
+  id                String        @id @default(uuid())
+  email             String        @unique
   emailVerified     DateTime?
   password          String
   secondaryPassword String?
@@ -49,11 +49,11 @@ model User {
   role              Role
   disposals         Disposal[]
   bins              Bin[]
+  Transaction       Transaction[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  Point       Point?
-  Transaction Transaction[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  point     Point?
 
   @@map("users")
 }

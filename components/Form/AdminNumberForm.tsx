@@ -16,7 +16,7 @@ import {
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { AdminNumberSchema } from "@/schemas";
+import { AdminNumberSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useRouter } from "next/navigation";

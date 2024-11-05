@@ -3,7 +3,7 @@ import React, { useTransition, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { ResetSchema } from "@/schemas";
+import { ResetSchema } from "@/schemas/auth";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {

@@ -3,11 +3,11 @@ import { signIn, signOut } from "@/auth";
 import prisma from "@/lib/db";
 import {
   LoginSchema,
-  SignUpSchema,
+  SignUpAdminSchema,
   ResetSchema,
   NewPasswordSchema,
   SignUpBinSchema,
-} from "@/schemas";
+} from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
 import { AuthError } from "next-auth";
@@ -19,10 +19,9 @@ import {
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
 import { Role } from "@prisma/client";
-import { generateRandomNumber } from "@/utils/generateRandomNumber";
 
-const signUp = async (values: z.infer<typeof SignUpSchema>) => {
-  const validatedFields = SignUpSchema.safeParse(values);
+const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
+  const validatedFields = SignUpAdminSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
@@ -37,8 +36,7 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   if (existingUser) {
     return { error: "User already exists!" };
   }
-  const salt = generateRandomNumber(8, 16);
-  const hashedPassword = await hash(password, salt);
+  const hashedPassword = await hash(password, 10);
   await prisma.user.create({
     data: {
       name: name,
@@ -69,9 +67,8 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   if (existingUser) {
     return { error: "User already exists!" };
   }
-  const salt = generateRandomNumber(8, 16);
-  const hashedPassword = await hash(password, salt);
-  const hashedSecondaryPassword = await hash(secondaryPassword, salt);
+  const hashedPassword = await hash(password, 10);
+  const hashedSecondaryPassword = await hash(secondaryPassword, 10);
   await prisma.user.create({
     data: {
       name: name,
@@ -102,7 +99,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
     },
   });
   if (!existingUser) {
-    return { error: "Email does not exist!" };
+    return { error: "Invalid credentials" };
   }
   const isMatched = await compare(password, existingUser.password);
   if (!isMatched) {
@@ -171,7 +168,12 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   const formData = validatedFields.data;
   const email = formData.email;
   const existingUser = await prisma.user.findFirst({
-    where: { email: email, role: "ADMIN" },
+    where: {
+      email: email,
+      role: {
+        in: ["ADMIN", "STUDENT"],
+      },
+    },
   });
   if (!existingUser) {
     return { error: "Email does not exist!" };

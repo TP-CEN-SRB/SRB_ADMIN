@@ -2,7 +2,6 @@ import { getVerificationTokenByEmail } from "@/utils/verificationToken";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "./db";
 import { getPasswordResetTokenByEmail } from "@/utils/passwordResetToken";
-import jwt from "jsonwebtoken";
 export const generateVerificationToken = async (email: string) => {
   const token = uuidv4();
   const expirationTimeInSeconds = 3600;
@@ -54,5 +53,3 @@ export const generatePasswordResetToken = async (email: string) => {
   });
   return passswordResetToken;
 };
-
-

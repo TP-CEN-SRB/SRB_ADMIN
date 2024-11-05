@@ -3,7 +3,7 @@ import React, { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { SignUpSchema } from "@/schemas";
+import { SignUpAdminSchema } from "@/schemas/auth";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -28,8 +28,8 @@ import Card from "../Card/Card";
 
 const SignUpForm = () => {
   const router = useRouter();
-  const form = useForm<z.infer<typeof SignUpSchema>>({
-    resolver: zodResolver(SignUpSchema),
+  const form = useForm<z.infer<typeof SignUpAdminSchema>>({
+    resolver: zodResolver(SignUpAdminSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -41,7 +41,7 @@ const SignUpForm = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
+  const onSubmit = (values: z.infer<typeof SignUpAdminSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await signUp(values);
