@@ -91,7 +91,9 @@ const LoginForm = () => {
           />
           <div className="ml-2">
             <Link
-              className="text-sm hover:underline underline-offset-4"
+              className={`text-sm hover:underline underline-offset-4 ${
+                isPending ? "pointer-events-none" : ""
+              }`}
               href="/reset-password"
             >
               Forgot password?

@@ -22,8 +22,10 @@ import { SignUpAdminSchema } from "@/schemas/auth";
 
 const FacultyComboBox = ({
   field,
+  disabled,
 }: {
   field: ControllerRenderProps<z.infer<typeof SignUpAdminSchema>>;
+  disabled: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(field.value || "");
@@ -32,6 +34,7 @@ const FacultyComboBox = ({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          disabled={disabled}
           variant="outline"
           role="combobox"
           aria-expanded={open}

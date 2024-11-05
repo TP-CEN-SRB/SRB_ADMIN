@@ -108,7 +108,7 @@ const SignUpForm = () => {
               <FormItem>
                 <FormLabel className="font-bold">Faculty</FormLabel>
                 <FormControl>
-                  <FacultyComboBox field={field} />
+                  <FacultyComboBox disabled={isPending} field={field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
