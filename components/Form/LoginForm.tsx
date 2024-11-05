@@ -21,6 +21,7 @@ import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
 import Link from "next/link";
 import Card from "../Card/Card";
+import { toast } from "@/hooks/use-toast";
 
 const LoginForm = () => {
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -39,6 +40,12 @@ const LoginForm = () => {
       const data = await login(values);
       setError(data?.error as string);
       setSuccess(data?.success as string);
+      if (!data?.error && data?.success !== undefined) {
+        toast({
+          title: "Hey there!",
+          description: `A verification email has been sent to ${values.email.toLowerCase()}`,
+        });
+      }
     });
   };
   return (

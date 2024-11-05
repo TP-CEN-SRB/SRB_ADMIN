@@ -141,4 +141,6 @@ model Redemption {
   userId   String
   reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
   rewardId String
+
+  @@map("redemptions")
 }

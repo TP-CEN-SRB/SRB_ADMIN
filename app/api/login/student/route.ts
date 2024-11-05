@@ -4,6 +4,8 @@ import { Role } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -39,9 +41,16 @@ export const POST = async (req: NextRequest) => {
       );
     }
     if (!existingUser.emailVerified) {
+      const verificationToken = await generateVerificationToken(
+        existingUser.email
+      );
+      await sendVerificationEmail(
+        verificationToken.email,
+        verificationToken.token
+      );
       return NextResponse.json(
-        { message: "Email not verified!" },
-        { status: 401 }
+        { message: "Confirmation email sent!" },
+        { status: 200 }
       );
     }
     const token = jwt.sign(

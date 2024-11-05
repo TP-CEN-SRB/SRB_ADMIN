@@ -39,10 +39,10 @@ const ResetPasswordForm = () => {
       const data = await resetPassword(values);
       setError(data?.error as string);
       setSuccess(data?.success as string);
-      if (!data?.error) {
+      if (!data?.error && data?.success) {
         toast({
           title: "Hey there!",
-          description: `A reset password email has been sent to ${values.email}`,
+          description: `A reset password email has been sent to ${values.email.toLowerCase()}`,
         });
       }
     });

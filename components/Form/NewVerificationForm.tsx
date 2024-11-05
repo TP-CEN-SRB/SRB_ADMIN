@@ -1,5 +1,5 @@
 "use client";
-import FormHeader from "./FormHeader";
+import { IoRocket } from "react-icons/io5";
 import { useState, useTransition } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Loader2 } from "lucide-react";
@@ -25,38 +25,38 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
   };
   return (
     <Card fullWidth>
-      <FormHeader>
-        <div className="text-center">Email Verification</div>
-      </FormHeader>
+      {!success && !error && (
+        <div className="flex flex-col items-center text-center">
+          <IoRocket size={100} className="text-blue-500" />
+          <h1 className="text-4xl text-gray-800">Almost there</h1>
+          <p className="text-gray-600 mt-2">
+            Just click the button below to activate your account.
+          </p>
+          <Button
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="w-full mt-4"
+            type="submit"
+          >
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+            {isPending ? "Loading..." : "Verify my email"}
+          </Button>
+        </div>
+      )}
       {error && (
-        <div className="flex flex-col items-center text-red-700">
-          <MdError size={150} />
-          <h2 className="text-xl text-center font-semibold">{error}</h2>
+        <div className="flex flex-col items-center text-center">
+          <MdError size={100} className="text-red-500" />
+          <h1 className="text-4xl text-gray-800">Verification Fail</h1>
+          <p className="text-gray-600 mt-2">{error}</p>
+          <p className="text-gray-600 mt-2">Please try again</p>
         </div>
       )}
       {success && (
-        <div className="flex flex-col items-center text-green-500">
-          <MdVerified size={150} />
-          <h2 className="text-xl text-center font-semibold">{success}</h2>
-          <p className="text-gray-500">
-            You can continue using the application
-          </p>
+        <div className="flex flex-col items-center text-center">
+          <MdVerified size={100} className="text-green-500" />
+          <h1 className="text-4xl text-gray-800">Verification Success</h1>
+          <p className="text-gray-600 mt-2">{success}</p>
         </div>
-      )}
-      {!success && !error && (
-        <p className="text-center">You&apos;re almost there!</p>
-      )}
-
-      {!success && !error && (
-        <Button
-          onClick={handleSubmit}
-          disabled={isPending}
-          className="w-full mt-4"
-          type="submit"
-        >
-          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-          {isPending ? "Loading..." : "Verify my email"}
-        </Button>
       )}
     </Card>
   );

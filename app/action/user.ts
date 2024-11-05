@@ -176,7 +176,7 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
     },
   });
   if (!existingUser) {
-    return { error: "Email does not exist!" };
+    return { error: "Invalid credentials!" };
   }
 
   const passwordResetToken = await generatePasswordResetToken(email);
@@ -191,26 +191,27 @@ const newPassword = async (
   values: z.infer<typeof NewPasswordSchema>,
   token: string
 ) => {
-  if (!token) return { error: "Something went wrong! Please try again" };
+  if (!token) return { error: "Something went wrong!" };
   const validatedFields = NewPasswordSchema.safeParse(values);
   if (!validatedFields.success) {
-    return { error: "Invalid token or password!" };
+    return { error: "Invalid credentials!" };
   }
   const formData = validatedFields.data;
   const password = formData.password;
   const existingToken = await getPasswordResetTokenByToken(token);
   if (!existingToken)
-    return { error: "This link is invalid! Please reset your password again" };
+    return {
+      error: "Oops! This link may have already been used",
+    };
 
   const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired)
-    return { error: "This link has expired! Please reset your password again" };
+  if (hasExpired) return { error: "Oops! This link has expired" };
 
   const existingUser = await prisma.user.findFirst({
     where: { email: existingToken.email, role: "ADMIN" },
   });
   if (!existingUser) {
-    return { error: "Email does not exist!" };
+    return { error: "Something went wrong!" };
   }
   const hashedPassword = await hash(password, 10);
   await prisma.user.update({
@@ -220,7 +221,7 @@ const newPassword = async (
   await prisma.passswordResetToken.delete({
     where: { id: existingToken.id },
   });
-  return { success: "Password updated successfully!" };
+  return { success: "Your password has been updated!" };
 };
 
 const getBinUser = async (id: string) => {

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { newPassword } from "@/app/action/user";
-import FormHeader from "./FormHeader";
+import { MdLockReset } from "react-icons/md";
 import Card from "../Card/Card";
 import { MdError, MdVerified } from "react-icons/md";
 interface NewPasswordFormProps {
@@ -44,61 +44,64 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
   };
   return (
     <Card fullWidth>
-      <FormHeader>
-        <div className="text-center">Reset Password</div>
-      </FormHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {!success && !error && (
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold">Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isPending}
-                      placeholder="At least 8 characters"
-                      {...field}
-                      type="password"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    This will be your new password
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
+      {!error && !success && (
+        <div>
+          <div className="flex flex-col items-center mb-3">
+            <MdLockReset size={100} className="text-blue-500" />
+            <h1 className="text-4xl text-gray-800">Reset password</h1>
+          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="font-bold">Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={isPending}
+                        placeholder="At least 8 characters"
+                        {...field}
+                        type="password"
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      This will be your new password
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {!success && !error && (
+                <Button disabled={isPending} className="w-full" type="submit">
+                  {isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    ""
+                  )}
+                  {isPending ? "Loading..." : "Reset my password"}
+                </Button>
               )}
-            />
-          )}
-          {error && (
-            <div className="flex flex-col items-center text-red-700">
-              <MdError size={150} />
-              <h2 className="text-xl text-center font-semibold">{error}</h2>
-            </div>
-          )}
-          {success && (
-            <div className="flex flex-col items-center text-green-500">
-              <MdVerified size={150} />
-              <h2 className="text-xl text-center font-semibold">{success}</h2>
-              <p className="text-gray-500">
-                You can continue using the application
-              </p>
-            </div>
-          )}
-          {!success && !error && (
-            <Button disabled={isPending} className="w-full" type="submit">
-              {isPending ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                ""
-              )}
-              {isPending ? "Loading..." : "Reset my password"}
-            </Button>
-          )}
-        </form>
-      </Form>
+            </form>
+          </Form>
+        </div>
+      )}
+      {error && (
+        <div className="flex flex-col items-center">
+          <MdError size={100} className="text-red-500" />
+          <h1 className="text-4xl text-gray-800">Reset Fail</h1>
+          <p className="text-gray-600 mt-2">{error}</p>
+          <p className="text-gray-600 mt-2">Please try again</p>
+        </div>
+      )}
+      {success && (
+        <div className="flex flex-col items-center ">
+          <MdVerified size={100} className="text-green-500" />
+          <h1 className="text-4xl text-gray-800">Reset Success</h1>
+          <p className="text-gray-600 mt-2">{success}</p>
+        </div>
+      )}
     </Card>
   );
 };
