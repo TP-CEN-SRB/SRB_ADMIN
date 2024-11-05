@@ -134,13 +134,14 @@ export const deleteBin = async (id: string) => {
     },
   });
   if (!bin) {
-    await prisma.bin.delete({
-      where: {
-        id,
-      },
-    });
-    return { success: `Bin with ID ${id} deleted successfully` };
-  } else return { error: `Bin with ID ${id} does not exist` };
+    return { error: `Bin with ID ${id} does not exist` };
+  }
+  await prisma.bin.delete({
+    where: {
+      id,
+    },
+  });
+  return { success: `Bin with ID ${id} deleted successfully` };
 };
 
 const checkExistingBinRecord = async (binData: {
@@ -157,8 +158,7 @@ const checkExistingBinRecord = async (binData: {
       },
     },
   });
-  if (bin !== null) return true;
-  else false;
+  return bin !== null;
 };
 
 export const getChartData = async () => {
