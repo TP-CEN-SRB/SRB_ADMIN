@@ -5,10 +5,7 @@ const BinSchema = z.object({
   location: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
-  currentCapacity: z
-    .number()
-    .min(0, "Current capacity cannot be negative")
-    .max(100, "Maximum capacity cannot be above 100"),
+  userId: z.string().min(1, "User ID is required"),
 });
 
 const DisposalSchema = z.object({
