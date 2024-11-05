@@ -50,12 +50,12 @@ export default async function Home() {
         <div className="grid grid-cols-2 gap-4 mb-8 min-h-[200px]">
           {buttonData.map((button, index) => (
             <Link key={index} href={button.href}>
-              <Button
-                className={`${button.color} ${button.hoverColor} text-white lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex gap-x-3`}
+              <button
+                className={`${button.color} ${button.hoverColor} text-white lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
               >
                 {button.icon}
                 {button.label}
-              </Button>
+              </button>
             </Link>
           ))}
         </div>

@@ -4,6 +4,7 @@ import { generateVerificationToken } from "@/lib/tokens";
 import { SignUpStudentSchema } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { Role } from "@prisma/client";
+import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
@@ -34,11 +35,12 @@ export const POST = async (req: NextRequest) => {
         { status: 409 }
       );
     }
+    const hashedPassword = await hash(data.password, 10);
     await prisma.user.create({
       data: {
         name: capitalizeFirstLetter(data.name),
         email: data.email,
-        password: data.password,
+        password: hashedPassword,
         role: Role.STUDENT,
         point: {
           create: {},

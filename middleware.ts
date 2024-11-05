@@ -7,7 +7,7 @@ export const { auth } = NextAuth(authConfig);
 /**
  * Routes that are only available to users with ADMIN role
  */
-const adminRoutes = ["/admin-dashboard", "/bin-users"];
+const adminRoutes = ["/admin"];
 
 /**
  * Routes that are only available to users with BIN role

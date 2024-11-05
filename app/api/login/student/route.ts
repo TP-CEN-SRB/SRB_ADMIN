@@ -29,7 +29,7 @@ export const POST = async (req: NextRequest) => {
         { status: 404 }
       );
     }
-    const isMatched = await compare(password, existingUser.password);
+    const isMatched = compare(password, existingUser.password);
     if (!isMatched) {
       return NextResponse.json(
         {
