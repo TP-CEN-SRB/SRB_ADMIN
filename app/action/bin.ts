@@ -52,7 +52,6 @@ export const emptyBinsByUserId = async (
   return { success: "All bins emptied successfully!" };
 };
 
-
 export const createBin = async (values: z.infer<typeof BinSchema>) => {
   const validatedFields = BinSchema.safeParse(values);
   if (!validatedFields.success) {
@@ -163,13 +162,13 @@ const checkExistingBinRecord = async (binData: {
 };
 
 export const getChartData = async () => {
-  let yearlyData: {
+  const yearlyData: {
     month: string;
     bin: number;
     binMetal: number;
     binPlastic: number;
   }[] = [];
-  let months: string[] = [
+  const months: string[] = [
     "",
     "January",
     "February",
@@ -186,10 +185,9 @@ export const getChartData = async () => {
   ];
 
   for (let i = 1; i <= 12; i++) {
-    let startDate = new Date(`2024-${String(i).padStart(2, "0")}-01`); // Start of the month
-    let endDate;
+    const startDate = new Date(`2024-${String(i).padStart(2, "0")}-01`); // Start of the month
 
-    endDate = new Date(`2024-${String(i).padStart(2, "0")}-01`);
+    const endDate = new Date(`2024-${String(i).padStart(2, "0")}-01`);
     endDate.setMonth(endDate.getMonth() + 1);
     endDate.setDate(0); // Set to the last day of the previous month
 
@@ -235,10 +233,10 @@ export const getChartData = async () => {
 };
 
 export const getBinCountsByMaterial = async () => {
-  let pieChartData: {
+  const pieChartData: {
     binType: BinMaterial;
     binCount: number;
-    fill: String;
+    fill: string;
   }[] = [];
   const metalBinCount = await prisma.bin.count({
     where: {
