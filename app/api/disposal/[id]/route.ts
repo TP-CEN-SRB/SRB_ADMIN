@@ -202,10 +202,10 @@ export const PUT = async (
         { status: 400 }
       );
     }
-    const result = await prisma.disposal.findFirst({
-      where: { id: disposalId, isScanned: false },
+    const disposal = await prisma.disposal.findFirst({
+      where: { id: disposalId, isRedeemed: false },
     });
-    if (!result) {
+    if (!disposal) {
       return NextResponse.json(
         { message: "No disposal found" },
         { status: 404 }
@@ -220,31 +220,23 @@ export const PUT = async (
     if (!existingUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    const [updatedDisposal, transaction, userPoint] = await prisma.$transaction(
-      [
-        prisma.disposal.update({
-          where: { id: disposalId },
-          data: {
-            userId: userId,
-            isScanned: true,
-          },
-        }),
-        prisma.transaction.create({
-          data: {
-            pointsChange: result.weightInGrams,
-            userId: userId,
-          },
-        }),
-        prisma.point.upsert({
-          where: { userId: userId },
-          update: { balance: { increment: result.weightInGrams } },
-          create: {
-            userId,
-            balance: result.weightInGrams,
-          },
-        }),
-      ]
-    );
+    const [updatedDisposal, userPoint] = await prisma.$transaction([
+      prisma.disposal.update({
+        where: { id: disposalId },
+        data: {
+          userId: userId,
+          isRedeemed: true,
+        },
+      }),
+      prisma.point.upsert({
+        where: { userId: userId },
+        update: { balance: { increment: disposal.pointsAwarded } },
+        create: {
+          userId,
+          balance: disposal.pointsAwarded,
+        },
+      }),
+    ]);
     await pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
       updated: true,
     });

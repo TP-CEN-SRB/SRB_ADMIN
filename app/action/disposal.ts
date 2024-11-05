@@ -30,7 +30,8 @@ const createDisposal = async (
     data: {
       weightInGrams: weightInGrams,
       binId: bin.id,
-      isScanned: false,
+      isRedeemed: false,
+      pointsAwarded: weightInGrams, // 1g = 1 point
     },
   });
   if (disposal) {
@@ -56,7 +57,7 @@ const getUnscannedDisposal = async (id: string) => {
   const disposal = await prisma.disposal.findFirst({
     where: {
       id: id,
-      isScanned: false,
+      isRedeemed: false,
     },
     include: {
       bin: true,

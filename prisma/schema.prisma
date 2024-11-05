@@ -39,8 +39,8 @@ enum BinMaterial {
 }
 
 model User {
-  id                String        @id @default(uuid())
-  email             String        @unique
+  id                String       @id @default(uuid())
+  email             String       @unique
   emailVerified     DateTime?
   password          String
   secondaryPassword String?
@@ -49,7 +49,7 @@ model User {
   role              Role
   disposals         Disposal[]
   bins              Bin[]
-  transactions      Transaction[]
+  redemption        Redemption[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,7 +81,7 @@ model PassswordResetToken {
 model Bin {
   id              String      @id @default(uuid())
   location        String // Outside library
-  status          BinStatus
+  status          BinStatus   @default(FUNCTIONAL)
   material        BinMaterial
   currentCapacity Int         @default(0)
   userId          String
@@ -101,24 +101,14 @@ model Disposal {
   weightInGrams Int
   binId         String
   bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
-  isScanned     Boolean
+  isRedeemed    Boolean
+  pointsAwarded Int
   userId        String?
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@map("disposals")
-}
-
-model Reward {
-  id             String  @id @default(uuid())
-  pointsRequired Int
-  isAvailable    Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("rewards")
 }
 
 model Point {
@@ -133,14 +123,22 @@ model Point {
   @@map("points")
 }
 
-model Transaction {
-  id           String @id @default(uuid())
-  pointsChange Int
-  userId       String
-  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Reward {
+  id             String  @id @default(uuid())
+  pointsRequired Int
+  isAvailable    Boolean @default(true)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  Redemption Redemption[]
 
-  @@map("transactions")
+  @@map("rewards")
+}
+
+model Redemption {
+  id       String @id @default(uuid())
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  rewardId String
 }
