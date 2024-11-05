@@ -2,6 +2,7 @@ import prisma from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/mail";
 import { generateVerificationToken } from "@/lib/tokens";
 import { SignUpStudentSchema } from "@/schemas/auth";
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { Role } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -35,7 +36,7 @@ export const POST = async (req: NextRequest) => {
     }
     await prisma.user.create({
       data: {
-        name: data.name,
+        name: capitalizeFirstLetter(data.name),
         email: data.email,
         password: data.password,
         role: Role.STUDENT,

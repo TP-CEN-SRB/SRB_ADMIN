@@ -7,13 +7,6 @@ import jwt from "jsonwebtoken";
 
 export const POST = async (req: NextRequest) => {
   try {
-    // const authorization = req.headers.get("x-api-key");
-    // if (authorization !== process.env.API_KEY) {
-    //   return NextResponse.json(
-    //     { message: "Permission denied!" },
-    //     { status: 401 }
-    //   );
-    // }
     const { email, password } = await req.json();
     const validatedFields = LoginSchema.safeParse({ email, password });
     if (!validatedFields.success) {
@@ -31,7 +24,10 @@ export const POST = async (req: NextRequest) => {
       where: { email: data.email, role: Role.STUDENT },
     });
     if (!existingUser) {
-      return NextResponse.json({ message: "User not found!" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Invalid Credentials" },
+        { status: 404 }
+      );
     }
     const isMatched = await compare(password, existingUser.password);
     if (!isMatched) {
@@ -54,38 +50,6 @@ export const POST = async (req: NextRequest) => {
       { expiresIn: "7d" }
     );
     return NextResponse.json({ token }, { status: 200 });
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-    return NextResponse.json(
-      { message: "An unknown error occurred" },
-      { status: 500 }
-    );
-  }
-};
-
-/*
- *Test
- */
-export const GET = async (req: NextRequest) => {
-  try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json(
-        { message: "Missing authorization header!" },
-        { status: 401 }
-      );
-    }
-    try {
-      const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    } catch (error) {
-      if (error instanceof Error) {
-        return NextResponse.json({ message: "Invalid token" }, { status: 401 });
-      }
-    }
-    const users = await prisma.user.findMany();
-    return NextResponse.json(users, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });

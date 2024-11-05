@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import { pusherServer } from "@/lib/pusher";
+import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
 
@@ -166,12 +167,22 @@ export const PUT = async (
   { params }: { params: { id: string } }
 ) => {
   try {
-    const authorization = req.headers.get("x-api-key");
-    if (authorization !== process.env.API_KEY) {
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
       return NextResponse.json(
-        { message: "Permission denied!" },
+        { message: "Missing authorization header!" },
         { status: 401 }
       );
+    }
+    try {
+      const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+    } catch (error) {
+      if (error instanceof Error) {
+        return NextResponse.json(
+          { message: "Unauthorized token!" },
+          { status: 401 }
+        );
+      }
     }
     const { disposalId, userId } = await req.json();
     const id = params.id;
