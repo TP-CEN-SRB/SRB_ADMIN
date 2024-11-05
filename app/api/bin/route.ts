@@ -3,11 +3,11 @@ import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {
-  const { location, status, material } = await request.json();
-  console.log(location, status, material);
+  const { location, status, material, userId } = await request.json();
+  console.log(location, status, material, userId);
   try {
     const result = await prisma.bin.create({
-      data: { location, status, material },
+      data: { location, status, material, userId },
     });
 
     // Return JSON response directly with success message

@@ -33,6 +33,9 @@ const Page = async () => {
               Status
             </th>
             <th scope="col" className="px-6 py-3">
+              Material
+            </th>
+            <th scope="col" className="px-6 py-3">
               Action
             </th>
           </tr>
@@ -78,6 +81,7 @@ const Page = async () => {
                   {bin.status}
                 </div>
               </td>
+              <td className="px-6 py-4">{bin.material}</td>
               <td className="px-6 py-4">
                 <Link
                   href={`update/${bin.id}`}

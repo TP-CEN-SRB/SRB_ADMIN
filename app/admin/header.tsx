@@ -64,7 +64,7 @@ const navItems = [
   },
   {
     label: "Bin",
-    href: "/admin/bin/create",
+    href: "/admin/bin/all",
   },
   {
     label: "Users",

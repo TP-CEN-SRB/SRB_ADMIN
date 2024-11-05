@@ -1,10 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-//connection string for pgsql 
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,30 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum Faculty {
-  ENGINEERING
-  BUSINESS
-  SCIENCE
-  IT
-  DESIGN
-}
-
-enum BinStatus {
-  FUNCTIONAL
-  UNDER_MAINTENANCE
-}
-
-enum Role {
-  USER
-  ADMIN
-  BIN
-}
-
-enum BinMaterial {
-  PLASTIC
-  METAL
 }
 
 model User {
@@ -46,11 +15,10 @@ model User {
   name          String?
   faculty       Faculty?
   role          Role
-  disposals     Disposal[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
   bins          Bin[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  disposals     Disposal[]
 
   @@map("users")
 }
@@ -77,17 +45,15 @@ model PassswordResetToken {
 
 model Bin {
   id              String      @id @default(uuid())
-  location        String // Outside library
+  location        String
   status          BinStatus
   material        BinMaterial
   currentCapacity Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   userId          String
-  User            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
-
-  disposals Disposal[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  User            User        @relation(fields: [userId], references: [id])
+  disposals       Disposal[]
 
   @@map("bins")
   @@unique([location, status, material])
@@ -97,12 +63,36 @@ model Disposal {
   id            String   @id @default(uuid())
   weightInGrams Int
   binId         String
-  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
   isScanned     Boolean
   userId        String?
-  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("disposals")
+}
+
+enum Faculty {
+  ENGINEERING
+  BUSINESS
+  SCIENCE
+  IT
+  DESIGN
+}
+
+enum BinStatus {
+  FUNCTIONAL
+  UNDER_MAINTENANCE
+}
+
+enum Role {
+  USER
+  ADMIN
+  BIN
+}
+
+enum BinMaterial {
+  PLASTIC
+  METAL
 }

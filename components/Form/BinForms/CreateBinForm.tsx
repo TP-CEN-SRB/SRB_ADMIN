@@ -1,6 +1,5 @@
 "use client";
 
-import { createBin, BinFormState } from "@/app/action/bin";
 import { BinSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition, useState } from "react";
@@ -9,20 +8,36 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "../../ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import BinStatusCombobox from "./BinStatusCombobox";
-import BinMaterialCombobox from "./BinMaterialCombobox";
-import { Button } from "../ui/button";
+import BinStatusCombobox from "../BinStatusCombobox";
+import BinMaterialCombobox from "../BinMaterialCombobox";
+import { Button } from "../../ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinMaterial, BinStatus, User } from "@prisma/client";
+import { createBin } from "@/app/action/bin";
+import { redirect } from "next/navigation";
 
-const CreateBinForm = () => {
+interface CreateBinFormProps {
+  users: User[]; // Explicitly defining the type for users prop
+}
+
+const CreateBinForm: React.FC<CreateBinFormProps> = ({ users }) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [error, setError] = useState("");
@@ -44,32 +59,25 @@ const CreateBinForm = () => {
     });
     startTransition(async () => {
       setError("");
-      //const result = await createBin(values);
-      const result = await fetch("/api/bin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          location: values.location,
-          status: values.status,
-          material: values.material,
-        }),
-      });
-      const data = await result.json();
-      if (data.success) {
-        setSuccess(data.success as string);
+      const result = await createBin(values);
+      console.log(result?.error);
+
+      if (result?.success) {
+        setSuccess(result?.success as string);
         toast({
           title: "Bin created successfully",
           description: `Bin created at ${datetime}`,
           duration: 2000,
+          variant: "default",
         });
-      } else if (data.error) {
-        setError(data.error);
+        redirect("/admin/bin/all");
+      } else if (result?.error) {
+        setError(result?.error);
         toast({
           title: "Error creating bin",
-          description: data.error,
+          description: result?.error,
           duration: 2000,
+          variant: "destructive",
         });
       }
     });
@@ -124,12 +132,43 @@ const CreateBinForm = () => {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="userId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold">Managed by</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a user" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {users.map((user) => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    This bin will be managed by the selected user.
+                  </FormDescription>
+                </FormItem>
+              )}
+            />
+
             <Button
               disabled={isPending}
               className="w-full"
               type="submit"
               onClick={() => {
-                console.log({ error }, { success });
+                //console.log({ error }, { success });
               }}
             >
               {isPending ? (
