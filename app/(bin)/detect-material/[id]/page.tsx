@@ -9,12 +9,10 @@ import { BeatLoader } from "react-spinners";
 import { createDisposal } from "@/app/action/disposal";
 import { BinMaterial } from "@prisma/client";
 import TimerRedirect from "@/components/TimerRedirect";
+import { Button } from "@/components/ui/button";
+import { pusherClient } from "@/lib/pusher";
 
-const DetectMaterialPage = ({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string };
-}) => {
+const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
   const [material, setMaterial] = useState<BinMaterial>();
   const [weightInGrams, setWeightInGrams] = useState<number>();
@@ -68,58 +66,93 @@ const DetectMaterialPage = ({
 
   /** Polling
    */
-  const fetchMaterial = async () => {
-    console.log(searchParams.id);
-    const response = await fetch(`/api/detect-material/${searchParams.id}`, {
-      method: "GET",
-    });
-    if (response.ok) {
-      const { material, weightInGrams, thrown } = await response.json();
-      if (thrown === undefined && material && weightInGrams) {
-        if (
-          !Object.values(BinMaterial).includes(material) ||
-          isNaN(weightInGrams)
-        ) {
-          setDetecting(false);
-          setError("Unable to detect material. Please try again");
-        }
-        setMaterial(material);
-        setWeightInGrams(weightInGrams);
-        setDetecting(false);
-      }
-      setThrown(thrown);
-    }
-  };
+  // const fetchMaterial = async () => {
+  //   const response = await fetch(`/api/detect-material/${params.id}`, {
+  //     method: "GET",
+  //   });
+  //   if (response.ok) {
+  //     const { material, weightInGrams, thrown } = await response.json();
+  //     if (thrown === undefined && material && weightInGrams) {
+  //       if (
+  //         !Object.values(BinMaterial).includes(material) ||
+  //         isNaN(weightInGrams)
+  //       ) {
+  //         setDetecting(false);
+  //         setError("Unable to detect material. Please try again");
+  //       }
+  //       setMaterial(material);
+  //       setWeightInGrams(weightInGrams);
+  //       setDetecting(false);
+  //     }
+  //     setThrown(thrown);
+  //   }
+  // };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (detecting || thrown !== true) {
-        fetchMaterial();
-      } else {
-        clearInterval(interval);
-      }
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [detecting, thrown]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (detecting || thrown !== true) {
+  //       fetchMaterial();
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [detecting, thrown]);
 
   useEffect(() => {
     const handleDisposal = async () => {
       if (thrown === true && material && weightInGrams) {
-        const data = await createDisposal({
-          material: material as BinMaterial,
-          weightInGrams,
-        });
+        const data = await createDisposal(
+          {
+            material: material as BinMaterial,
+            weightInGrams,
+          },
+          params.id
+        );
         setError(data?.error);
         if (data?.id) {
-          router.push(
-            `/disposal-qr?disposalId=${data.id}&userId=${searchParams.id}`
-          );
+          router.push(`/disposal-qr/${params.id}?disposalId=${data.id}`);
         }
       }
     };
 
     handleDisposal();
   }, [thrown]);
+
+  /**
+   *Pusher
+   */
+  useEffect(() => {
+    pusherClient.subscribe(`detect-material-${params.id}`);
+    pusherClient.bind(
+      "material-details",
+      (data: {
+        material: BinMaterial;
+        weightInGrams: number;
+        thrown: boolean;
+      }) => {
+        if (data.thrown === undefined && data.material && data.weightInGrams) {
+          if (
+            !Object.values(BinMaterial).includes(data.material) ||
+            isNaN(data.weightInGrams)
+          ) {
+            setDetecting(false);
+            setError("Unable to detect material. Please try again");
+          }
+          setMaterial(data.material);
+          setWeightInGrams(data.weightInGrams);
+          setDetecting(false);
+        }
+        if (material && weightInGrams) setThrown(data.thrown);
+      }
+    );
+    return () => pusherClient.unsubscribe(`detect-material-${params.id}`);
+  }, [material, weightInGrams, thrown, params.id, router]);
+
+  const handleCancel = () => {
+    setDetecting(false);
+    setError("Cancelling detection process. Please wait");
+  };
 
   return (
     <Card>
@@ -149,12 +182,26 @@ const DetectMaterialPage = ({
         )}
       </CardBody>
       {!detecting && !error && (
-        <div className="flex justify-center mt-4">
+        <div className="flex flex-col items-center justify-center mt-4">
           <BeatLoader color="#22c55e" />
+          {thrown && (
+            <p className="text-gray-600">Generating your qr code...</p>
+          )}
         </div>
       )}
       {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
-      {!error && <TimerRedirect delayInMs={150000} redirectTo="/" />}
+      {!error && !thrown && <TimerRedirect delayInMs={150000} redirectTo="/" />}
+      {!error && detecting && (
+        <div className="flex justify-center mt-4">
+          <Button
+            onClick={handleCancel}
+            type="submit"
+            className="bg-red-500 hover:bg-red-600 text-white text-lg font-semibold py-6 px-6 min-w-56 rounded-full transition-all"
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };

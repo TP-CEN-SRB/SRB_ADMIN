@@ -3,6 +3,8 @@
 import prisma from "@/lib/db";
 import { BinSchema } from "@/schemas";
 import { Bin, BinMaterial, BinStatus, Prisma } from "@prisma/client";
+import { compare } from "bcryptjs";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const getAllBins = async () => {
@@ -16,6 +18,40 @@ export const getBinById = async (id: string) => {
     },
   });
 };
+
+export const getBinsByUserId = async (id: string) => {
+  return await prisma.bin.findMany({
+    where: {
+      userId: id,
+    },
+  });
+};
+
+export const emptyBinsByUserId = async (
+  userId: string,
+  secondaryPassword: string
+) => {
+  const binUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!binUser) return { error: "User not found!" };
+  const isMatched = await compare(
+    secondaryPassword,
+    binUser.secondaryPassword!
+  );
+  if (!isMatched) {
+    return { error: "Invalid password!" };
+  }
+  await prisma.bin.updateMany({
+    where: { userId: userId },
+    data: { currentCapacity: 0 },
+  });
+  revalidatePath("/bin-capacity");
+  return { success: "All bins emptied successfully!" };
+};
+
 
 export const createBin = async (values: z.infer<typeof BinSchema>) => {
   const validatedFields = BinSchema.safeParse(values);

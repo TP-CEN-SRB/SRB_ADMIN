@@ -7,15 +7,28 @@ interface CardButtonProps {
   href: string;
   children: ReactNode;
   disabled?: boolean;
+  color: "blue" | "red" | "green" | "orange";
 }
-const CardButton = ({ href, children, disabled = false }: CardButtonProps) => {
+
+const CardButton = ({
+  href,
+  children,
+  disabled = false,
+  color,
+}: CardButtonProps) => {
+  const colorVariants = {
+    blue: "bg-blue-500 hover:bg-blue-600",
+    red: "bg-red-500 hover:bg-red-600",
+    green: "bg-green-500 hover:bg-green-600 ",
+    orange: "bg-orange-500 hover:bg-orange-600",
+  };
   return (
-    <div className="mt-8 text-center">
+    <div className="mt-4 text-center">
       <Button
         asChild
-        className={`${
-          disabled ? "cursor-not-allowed" : ""
-        } bg-green-500 hover:bg-green-600 text-white text-lg font-semibold py-6 px-6 min-w-56 rounded-full transition-all`}
+        className={`${disabled ? "cursor-not-allowed" : ""} ${
+          colorVariants[color]
+        } text-white text-lg font-semibold p-6 min-w-56 rounded-full transition-all`}
       >
         {disabled ? (
           <span>

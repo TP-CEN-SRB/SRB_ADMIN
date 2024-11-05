@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Temasek Polytechnic Smart Recycling Bin(Major Project)
 
-## Getting Started
+## Installation
 
-First, run the development server:
+First, ensure that you have the following installed:
 
+1. [Node.js 18.17](https://nodejs.org/en) or later
+2. Visual Studio Code
+3. Git
+
+Once you clone the repository, enter the following commands
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install # install the necessary dependencies
+
+npx prisma generate # generate prisma client
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setting up environent variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Ensure your `.env` has the following environment variables
+1. DATABASE_URL=********************************  <!-- Neon DB -->
+2. BASE_URL="https://major-project-tp.vercel.app" <!-- Domain URL -->
+3. AUTH_SECRET=******************************** <!-- Type npx auth secret to generate auth secret key -->
+4. NEXT_JWT_SECRET_KEY=********************************
+5. API_KEY=********************************
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+6. NEXT_PUBLIC_PERSONAL_EMAIL=******@gmail.com
+7. NEXT_PUBLIC_EMAIL_PASSWORD=******************************** <!--Generate app password in gmail -->
 
-## Learn More
+Copy API keys from [Pusher](https://dashboard.pusher.com/)
 
-To learn more about Next.js, take a look at the following resources:
+8. NEXT_PUBLIC_PUSHER_APP_ID = ********************************
+9. NEXT_PUBLIC_PUSHER_KEY = ********************************
+10. PUSHER_SECRET = ********************************
+11. NEXT_PUBLIC_PUSHER_CLUSTER = ********************************
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

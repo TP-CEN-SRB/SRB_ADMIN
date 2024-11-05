@@ -3,16 +3,11 @@ import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
 import CardButton from "@/components/Card/CardButton";
 import CardHeader from "@/components/Card/CardHeader";
-import TimerRedirect from "@/components/TimerRedirect";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
 
-const DisposeStepsPage = ({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string };
-}) => {
+const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
   const [play, { sound, stop }] = useSound("/welcome.mp3");
   useEffect(() => {
     play();
@@ -39,10 +34,12 @@ const DisposeStepsPage = ({
           ))}
         </div>
       </CardBody>
-      <CardButton href={`/detect-material?id=${searchParams.id}`}>
+      <CardButton color="green" href={`/detect-material/${params.id}`}>
         Continue
       </CardButton>
-      <TimerRedirect redirectTo="/" delayInMs={30000} />
+      <CardButton color="blue" href="/">
+        Back
+      </CardButton>
     </Card>
   );
 };

@@ -4,13 +4,22 @@ import { getToken } from "next-auth/jwt";
 import { Role } from "@prisma/client";
 
 export const { auth } = NextAuth(authConfig);
+/**
+ * Routes that are only available to users with ADMIN role
+ */
+const adminRoutes = ["/admin-dashboard", "/bin-users"];
 
-const adminRoutes = ["/admin-dashboard", "/bin-users"]; // protected routes for non-logged in users and users with incomplete profile
+/**
+ * Routes that are only available to users with BIN role
+ */
 const binRoutes = [
-  "/dispose-steps",
+  "/dispose-steps/",
   "/disposal-confirmation",
   "/disposal-qr",
   "/detect-material",
+  "/my-points",
+  "/bin-capacity",
+  "/bin/settings",
 ];
 const apiAuthRoutes = "/api/auth";
 
@@ -21,11 +30,10 @@ export default auth(async (req) => {
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    //secureCookie: true,
+    // secureCookie: true, // disable during development
   });
-  console.log(token);
-  const isAdminRoute = adminRoutes.includes(path);
-  const isBinRoute = binRoutes.includes(path);
+  const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
+  const isBinRoute = binRoutes.some((route) => path.startsWith(route));
 
   if (isApiAuthRoute) {
     return;
@@ -42,7 +50,7 @@ export default auth(async (req) => {
     if (isBinRoute && token?.role !== Role.BIN) {
       return Response.redirect(new URL("/not-found", req.nextUrl));
     }
-    if (path.includes("/login") || path.includes("/signup")) {
+    if (path.includes("/login") || path.includes("/sign-up")) {
       return Response.redirect(new URL("/", req.nextUrl));
     }
   }

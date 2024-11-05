@@ -1,3 +1,10 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+//connection string for pgsql 
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,18 +14,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Faculty {
+  ENGINEERING
+  BUSINESS
+  SCIENCE
+  IT
+  DESIGN
+}
+
+enum BinStatus {
+  FUNCTIONAL
+  UNDER_MAINTENANCE
+}
+
+enum Role {
+  USER
+  ADMIN
+  BIN
+}
+
+enum BinMaterial {
+  PLASTIC
+  METAL
+}
+
 model User {
-  id            String     @id @default(uuid())
-  email         String     @unique
-  emailVerified DateTime?
-  password      String
-  name          String?
-  faculty       Faculty?
-  role          Role
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  bins          Bin[]
-  disposals     Disposal[]
+  id                String     @id @default(uuid())
+  email             String     @unique
+  emailVerified     DateTime?
+  password          String
+  secondaryPassword String?
+  name              String?
+  faculty           Faculty?
+  role              Role
+  disposals         Disposal[]
+  bins              Bin[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Point       Point?
+  Transaction Transaction[]
 
   @@map("users")
 }
@@ -45,54 +80,67 @@ model PassswordResetToken {
 
 model Bin {
   id              String      @id @default(uuid())
-  location        String
+  location        String // Outside library
   status          BinStatus
   material        BinMaterial
   currentCapacity Int         @default(0)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
   userId          String
-  User            User        @relation(fields: [userId], references: [id])
-  disposals       Disposal[]
+  User            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
 
-  @@map("bins")
+  disposals Disposal[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([location, status, material])
+  @@map("bins")
 }
 
 model Disposal {
   id            String   @id @default(uuid())
   weightInGrams Int
   binId         String
+  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
   isScanned     Boolean
   userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
-  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("disposals")
 }
 
-enum Faculty {
-  ENGINEERING
-  BUSINESS
-  SCIENCE
-  IT
-  DESIGN
+model Reward {
+  id             String  @id @default(uuid())
+  pointsRequired Int
+  isAvailable    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("rewards")
 }
 
-enum BinStatus {
-  FUNCTIONAL
-  UNDER_MAINTENANCE
+model Point {
+  id      String @id @default(uuid())
+  balance Int    @default(0)
+  userId  String @unique
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("points")
 }
 
-enum Role {
-  USER
-  ADMIN
-  BIN
-}
+model Transaction {
+  id           String @id @default(uuid())
+  pointsChange Int
+  userId       String
+  user         User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-enum BinMaterial {
-  PLASTIC
-  METAL
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("transactions")
 }

@@ -1,10 +1,19 @@
 "use server";
 import prisma from "@/lib/db";
 import { DisposalSchema } from "@/schemas";
+import { getSessionUser } from "@/utils/getAuth";
 import { BinMaterial } from "@prisma/client";
 import { z } from "zod";
 
-const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
+const createDisposal = async (
+  values: z.infer<typeof DisposalSchema>,
+  userId: string
+) => {
+  // Check if user has permission
+  const user = await getSessionUser();
+  if (user?.role !== "BIN") {
+    return { error: "Permission denied!" };
+  }
   const validatedFields = DisposalSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
@@ -13,6 +22,7 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
   const bin = await prisma.bin.findFirst({
     where: {
       material: material as BinMaterial,
+      userId: userId,
     },
   });
   if (!bin) return { error: "No bin found" };
@@ -23,14 +33,33 @@ const createDisposal = async (values: z.infer<typeof DisposalSchema>) => {
       isScanned: false,
     },
   });
+  if (disposal) {
+    await prisma.bin.update({
+      where: {
+        id: bin.id,
+      },
+      data: {
+        currentCapacity: {
+          increment: 1,
+        },
+      },
+    });
+  }
   return { id: disposal.id };
 };
 const getUnscannedDisposal = async (id: string) => {
-  // if (!id) return { error: "Missing Id" };
+  // Check if user has permission
+  const user = await getSessionUser();
+  if (user?.role !== "BIN") {
+    console.log("Permission denied!");
+  }
   const disposal = await prisma.disposal.findFirst({
     where: {
       id: id,
       isScanned: false,
+    },
+    include: {
+      bin: true,
     },
   });
 

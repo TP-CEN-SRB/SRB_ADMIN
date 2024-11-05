@@ -30,6 +30,7 @@ const SignUpBinForm = () => {
       name: "",
       email: "",
       password: "",
+      secondaryPassword: "",
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -39,9 +40,9 @@ const SignUpBinForm = () => {
   const onSubmit = (values: z.infer<typeof SignUpBinSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-        const data = await signUpBin(values);
-        setError(data?.error as string);
-        setSuccess(data?.success as string);
+      const data = await signUpBin(values);
+      setError(data?.error as string);
+      setSuccess(data?.success as string);
     });
   };
   return (
@@ -101,6 +102,27 @@ const SignUpBinForm = () => {
                 </FormControl>
                 <FormDescription>
                   We will never share your password
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="secondaryPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold">Secondary Password</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="6 Digit Passcode"
+                    {...field}
+                    type="password"
+                  />
+                </FormControl>
+                <FormDescription>
+                  This password will be used for actions like signing out
                 </FormDescription>
                 <FormMessage />
               </FormItem>

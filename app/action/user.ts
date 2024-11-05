@@ -1,5 +1,5 @@
 "use server";
-import { signIn } from "@/auth";
+import { signIn, signOut } from "@/auth";
 import prisma from "@/lib/db";
 import {
   LoginSchema,
@@ -19,6 +19,7 @@ import {
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
 import { Role } from "@prisma/client";
+import { generateRandomNumber } from "@/utils/generateRandomNumber";
 
 const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values);
@@ -36,7 +37,8 @@ const signUp = async (values: z.infer<typeof SignUpSchema>) => {
   if (existingUser) {
     return { error: "User already exists!" };
   }
-  const hashedPassword = await hash(password, 10);
+  const salt = generateRandomNumber(8, 16);
+  const hashedPassword = await hash(password, salt);
   await prisma.user.create({
     data: {
       name: name,
@@ -60,13 +62,16 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const name = capitalizeFirstLetter(formData.name);
   const email = formData.email;
   const password = formData.password;
+  const secondaryPassword = formData.secondaryPassword;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
   if (existingUser) {
     return { error: "User already exists!" };
   }
-  const hashedPassword = await hash(password, 10);
+  const salt = generateRandomNumber(8, 16);
+  const hashedPassword = await hash(password, salt);
+  const hashedSecondaryPassword = await hash(secondaryPassword, salt);
   await prisma.user.create({
     data: {
       name: name,
@@ -74,6 +79,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       emailVerified: new Date(), // automatically verify bin user
       role: Role.BIN,
       password: hashedPassword,
+      secondaryPassword: hashedSecondaryPassword,
     },
   });
   return { success: "Bin User successfully created!" };
@@ -132,6 +138,31 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 };
 
+const logout = async () => {
+  await signOut({
+    redirectTo: "/",
+  });
+};
+
+const logoutBin = async (userId: string, secondaryPassword: string) => {
+  const binUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!binUser) return { error: "User not found!" };
+  const isMatched = await compare(
+    secondaryPassword,
+    binUser.secondaryPassword!
+  );
+  if (!isMatched) {
+    return { error: "Invalid password!" };
+  }
+  await signOut({
+    redirectTo: "/",
+  });
+};
+
 const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   const validatedFields = ResetSchema.safeParse(values);
   if (!validatedFields.success) {
@@ -139,8 +170,8 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   }
   const formData = validatedFields.data;
   const email = formData.email;
-  const existingUser = await prisma.user.findUnique({
-    where: { email: email },
+  const existingUser = await prisma.user.findFirst({
+    where: { email: email, role: "ADMIN" },
   });
   if (!existingUser) {
     return { error: "Email does not exist!" };
@@ -173,8 +204,8 @@ const newPassword = async (
   if (hasExpired)
     return { error: "This link has expired! Please reset your password again" };
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email: existingToken.email },
+  const existingUser = await prisma.user.findFirst({
+    where: { email: existingToken.email, role: "ADMIN" },
   });
   if (!existingUser) {
     return { error: "Email does not exist!" };
@@ -190,4 +221,20 @@ const newPassword = async (
   return { success: "Password updated successfully!" };
 };
 
-export { signUp, signUpBin, login, resetPassword, newPassword };
+const getBinUser = async (id: string) => {
+  const binUser = await prisma.user.findFirst({
+    where: { id: id, role: Role.BIN },
+  });
+  return binUser;
+};
+
+export {
+  signUp,
+  signUpBin,
+  login,
+  logout,
+  logoutBin,
+  resetPassword,
+  newPassword,
+  getBinUser,
+};
