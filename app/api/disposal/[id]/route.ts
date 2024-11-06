@@ -179,7 +179,7 @@ export const PUT = async (
     } catch (error) {
       if (error instanceof Error) {
         return NextResponse.json(
-          { message: "Unauthorized token!" },
+          { message: "Unauthorized access!" },
           { status: 401 }
         );
       }
