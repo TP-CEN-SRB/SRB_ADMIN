@@ -1,10 +1,20 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { getSessionUser } from "@/utils/getAuth";
 import React from "react";
-import Header from "./header";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <div>{children}</div>;
+  const user = await getSessionUser();
+  return (
+    <div className="bg-[var(--pastel-green)] min-h-screen">
+      <SidebarProvider defaultOpen>
+        <AppSidebar email={user?.email!} />
+        {children}
+      </SidebarProvider>
+    </div>
+  );
 }

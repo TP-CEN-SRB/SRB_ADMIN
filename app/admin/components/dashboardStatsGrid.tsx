@@ -88,118 +88,111 @@ const DashboardStatsGrid = ({
     getAllStatsData();
   };
   return (
-    <>
-      <div className="px-4 md:px-6 lg:px-8">
-        <div>
-          <Button
-            variant="secondary"
-            className="bg-white font-bold text-gray-500 w-[200px] flex items-center justify-center"
-            onClick={refreshData}
-            disabled={loading}
-          >
-            {loading ? (
-              <AiOutlineLoading3Quarters className="animate-spin" />
-            ) : (
-              "Refresh"
-            )}
-          </Button>
+    <div>
+      <div>
+        <Button
+          className="bg-slate-500 hover:bg-slate-600 font-bold text-gray-50 w-[200px] flex items-center justify-center"
+          onClick={refreshData}
+          disabled={loading}
+        >
+          {loading ? (
+            <AiOutlineLoading3Quarters className="animate-spin" />
+          ) : (
+            "Refresh"
+          )}
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        {/* Bins Status Card */}
+        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl p-4 flex flex-col gap-2">
+          <div className="flex items-center">
+            <BsActivity className="text-xl md:text-4xl text-emerald-500 mr-2" />
+            <h2 className={`text-lg md:text-2xl text-slate-800`}>
+              Bins Status
+            </h2>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="font-bold text-2xl sm:text-4xl">
+              {binsStatusCount}
+            </span>
+            <span className={`${nunito400.className} text-sm sm:text-base`}>
+              Functional Bins
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            <div className="flex flex-col">
+              <span className="font-bold text-sm sm:text-base">8 Active</span>
+              <div
+                className={`flex items-center ${nunito400.className} text-xs`}
+              >
+                <GrLineChart className="text-indigo-500 mr-1" />
+                <span>+2.5% from last week</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col">
+              <div className="font-bold flex items-center">
+                <MdOutlineAccessTime className="text-lg sm:text-xl mr-1" />
+                <span className="text-sm sm:text-base">Last updated</span>
+              </div>
+              <span className={`${nunito400.className} text-xs`}>
+                {datetime}
+              </span>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {/* Bins Status Card */}
-          <div className="bg-white rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center">
-              <BsActivity className="text-xl sm:text-2xl text-green-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Bins Status
-              </span>
-            </div>
 
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">
-                {binsStatusCount}
-              </span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Functional Bins
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-2">
-              <div className="flex flex-col">
-                <span className="font-bold text-sm sm:text-base">8 Active</span>
-                <div
-                  className={`flex items-center ${nunito400.className} text-xs`}
-                >
-                  <GrLineChart className="text-blue-500 mr-1" />
-                  <span>+2.5% from last week</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <div className="font-bold flex items-center">
-                  <MdOutlineAccessTime className="text-lg sm:text-xl mr-1" />
-                  <span className="text-sm sm:text-base">Last updated</span>
-                </div>
-                <span className={`${nunito400.className} text-xs`}>
-                  {datetime}
-                </span>
-              </div>
-            </div>
+        {/* Total Bins Card */}
+        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl p-4 flex flex-col gap-2">
+          <div className="flex items-center">
+            <RiDeleteBin6Line className="text-xl md:text-4xl text-indigo-500 mr-2" />
+            <h2 className={`text-lg md:text-2xl text-slate-800`}>Total Bins</h2>
           </div>
-
-          {/* Total Bins Card */}
-          <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col gap-2">
-            <div className="flex items-center">
-              <RiDeleteBin6Line className="text-xl sm:text-2xl text-blue-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Total Bins
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">
-                {binsUpdated}
-              </span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                All Locations
-              </span>
-            </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-2xl sm:text-4xl">
+              {binsUpdated}
+            </span>
+            <span className={`${nunito400.className} text-sm sm:text-base`}>
+              All Locations
+            </span>
           </div>
+        </div>
 
-          {/* Total Recycled Card */}
-          <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col gap-2">
-            <div className="flex items-center">
-              <RiDeleteBin6Line className="text-xl sm:text-2xl text-green-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Total Recycled
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">
-                {disposals}
-              </span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Items
-              </span>
-            </div>
+        {/* Total Recycled Card */}
+        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl p-4 flex flex-col gap-2">
+          <div className="flex items-center">
+            <RiDeleteBin6Line className="text-xl md:text-4xl text-emerald-500 mr-2" />
+            <h2 className={`text-lg md:text-2xl text-slate-800`}>
+              Total Recycled
+            </h2>
           </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-2xl sm:text-4xl">{disposals}</span>
+            <span className={`${nunito400.className} text-sm sm:text-base`}>
+              Items
+            </span>
+          </div>
+        </div>
 
-          {/* Percentage Card */}
-          <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col gap-2">
-            <div className="flex items-center">
-              <GrLineChart className="text-xl sm:text-2xl text-blue-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Success Rate
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">92%</span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Recycling Rate
-              </span>
-            </div>
+        {/* Percentage Card */}
+        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl p-4 flex flex-col gap-2">
+          <div className="flex items-center">
+            <GrLineChart className="text-xl md:text-4xl text-indigo-500 mr-2" />
+            <h2 className={`text-lg md:text-2xl text-slate-800`}>
+              Success Rate
+            </h2>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold text-2xl sm:text-4xl">92%</span>
+            <span className={`${nunito400.className} text-sm sm:text-base`}>
+              Recycling Rate
+            </span>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

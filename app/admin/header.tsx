@@ -16,12 +16,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PiSignOutBold } from "react-icons/pi";
 import { FaUser } from "react-icons/fa";
+import { logout } from "../action/user";
+import { IoSettings } from "react-icons/io5";
 
 const Header = () => {
   const path = usePathname();
   return (
     enableNav.some((route) => path.startsWith(route)) && (
-      <div className="sticky top-0 left-0 right-0 bg-white z-10">
+      <div className="sticky top-0 left-0 right-0 bg-[#f7f6c5] z-10 shadow-xl">
         <div className="max-w-[2000px] mx-auto px-4 h-20">
           <div className="flex items-center justify-between h-full">
             {/* Left section - Logo and mobile menu */}
@@ -57,24 +59,36 @@ const Header = () => {
 
             {/* Right section - Icons */}
             <div className="flex items-center gap-4">
-              <button className="text-4xl text-gray-500 hover:text-gray-900">
-                <FaBell />
-              </button>
               <DropdownMenu modal={false}>
                 <DropdownMenuTrigger className="text-4xl text-gray-500 hover:text-gray-900">
                   <CgProfile />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" side="left" sideOffset={10}>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <FaUser />
                     Profile
                   </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <FaBell />
+                    Notification
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <IoSettings />
+                    Settings
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <PiSignOutBold />
-                    Log out
+                    <form action={logout}>
+                      <button
+                        className="flex items-center gap-x-2"
+                        type="submit"
+                      >
+                        <PiSignOutBold />
+                        Log out
+                      </button>
+                    </form>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

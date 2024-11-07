@@ -15,7 +15,7 @@ export default function NotFoundPage() {
             Sorry, the page you&apos;re looking for doesn&apos;t exist or has
             been moved.
           </p>
-          <ButtonRedirect href="/" rounded color="indigo" variant="outline">
+          <ButtonRedirect href="/" rounded color="slate" variant="outline">
             Go to Homepage
           </ButtonRedirect>
         </div>

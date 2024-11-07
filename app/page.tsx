@@ -5,9 +5,11 @@ import { FaRecycle } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa";
 import { FaCoins } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
+import { RiAdminFill } from "react-icons/ri";
 export default async function Home() {
   const user = await getSessionUser();
-  const buttonData = [
+
+  const binButtons = [
     {
       href: `/dispose-steps/${user?.id}`,
       label: "Get started",
@@ -37,6 +39,15 @@ export default async function Home() {
       icon: <IoSettings />,
     },
   ];
+  const adminButtons = [
+    {
+      href: `/admin`,
+      label: "Admin dashboard",
+      color: "bg-green-500",
+      hoverColor: "hover:bg-green-600",
+      icon: <RiAdminFill />,
+    },
+  ];
 
   return (
     <div className="bg-[var(--pastel-green)]">
@@ -48,18 +59,35 @@ export default async function Home() {
           <p className="text-lg text-slate-700 mb-8">
             Help reduce waste and earn rewards by recycling responsibly.
           </p>
-          <div className="grid grid-cols-2 gap-4 mb-8 min-h-[200px]">
-            {buttonData.map((button, index) => (
-              <Link key={index} href={button.href}>
-                <button
-                  className={`${button.color} ${button.hoverColor} text-gray-50 lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
-                >
-                  {button.icon}
-                  {button.label}
-                </button>
-              </Link>
-            ))}
-          </div>
+          {user?.role === "ADMIN" ? (
+            <div className="flex justify-center">
+              <div className="max-w-screen-md w-full">
+                {adminButtons.map((button, index) => (
+                  <Link key={index} href={button.href}>
+                    <button
+                      className={`${button.color} ${button.hoverColor} text-gray-50 lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
+                    >
+                      {button.icon}
+                      {button.label}
+                    </button>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 mb-8 min-h-[200px]">
+              {binButtons.map((button, index) => (
+                <Link key={index} href={button.href}>
+                  <button
+                    className={`${button.color} ${button.hoverColor} text-gray-50 lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
+                  >
+                    {button.icon}
+                    {button.label}
+                  </button>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

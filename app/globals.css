@@ -54,9 +54,9 @@ h2 {
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
-    --popover: 210 10% 98%; /*gray-50*/
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 164 91% 33; /*emerald-600 */
+    --popover: 58 76% 88%; /*gray-50*/
+    --popover-foreground: 219 28% 18%; /* slate-800 */
+    --primary: 164 91% 33%; /*emerald-600 */
     --primary-foreground: 210 10% 98%; /*gray-50*/
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -75,11 +75,11 @@ h2 {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-background: 58 76% 88%;
+    --sidebar-foreground: 219 28% 18%;
     --sidebar-primary: 240 5.9% 10%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent: 58 76% 83%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;

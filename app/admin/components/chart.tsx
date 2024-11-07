@@ -50,11 +50,11 @@ const chartConfig = {
   },
   binMetal: {
     label: "Metal",
-    color: "#4394E5",
+    color: "#6366f1",
   },
   binPlastic: {
     label: "Plastic",
-    color: "#41B3A2",
+    color: "#10b981",
   },
   bin: {
     label: "Bins",
@@ -84,8 +84,8 @@ const PieChartConfig = {
 export function Chart({ chartData, pieChartData }: ChartProps) {
   return (
     <>
-      <div className="grid md:grid-cols-8 grid-cols-1 px-8 py-4 gap-4 font-bold">
-        <div className="bg-white rounded-xl col-span-5">
+      <div className="grid md:grid-cols-8 grid-cols-1 gap-4 font-bold mt-4">
+        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl col-span-5">
           <ChartContainer config={chartConfig} className="w-full h-[500px]">
             <BarChart accessibilityLayer data={chartData}>
               <XAxis
@@ -117,7 +117,7 @@ export function Chart({ chartData, pieChartData }: ChartProps) {
             </BarChart>
           </ChartContainer>
         </div>
-        <div className="bg-white rounded-xl col-span-3 flex justify-center">
+        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl col-span-3 flex justify-center">
           <ChartContainer config={PieChartConfig} className="w-full">
             <PieChart>
               <Pie

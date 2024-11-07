@@ -19,7 +19,7 @@ const binRoutes = [
   "/detect-material",
   "/my-points",
   "/bin-capacity",
-  "/bin/settings",
+  "/bin-settings",
 ];
 const apiAuthRoutes = "/api/auth";
 

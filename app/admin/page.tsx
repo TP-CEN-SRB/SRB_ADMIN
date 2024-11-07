@@ -8,7 +8,6 @@ import {
   getChartData,
   getDisposals,
 } from "../action/bin";
-import { Button } from "@/components/ui/button";
 
 const Page = async () => {
   const DBChartData = await getChartData();
@@ -17,7 +16,7 @@ const Page = async () => {
   const totalCountByStatus = await getBinCountsByStatus();
   const totalDisposalCount = await getDisposals();
   return (
-    <div className="w-full">
+    <div className="w-full p-4">
       <DashboardStatsGrid
         binsCount={totalCount.length}
         binsCountByStatus={totalCountByStatus}

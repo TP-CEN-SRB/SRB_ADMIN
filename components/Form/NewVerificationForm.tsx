@@ -28,7 +28,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
     <Card fullWidth rounded>
       {!success && !error && (
         <div className="flex flex-col items-center text-center">
-          <IoRocket size={100} className="text-indigo-500" />
+          <IoRocket size={100} className="text-slate-500" />
           <CardHeader>Almost there</CardHeader>
           <p className="text-slate-600 mt-2">
             Just click the button below to activate your account.
@@ -36,7 +36,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
           <Button
             onClick={handleSubmit}
             disabled={isPending}
-            className="w-full mt-4"
+            className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700"
             type="submit"
           >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
