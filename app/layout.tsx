@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import Header from "./admin/header";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -17,6 +18,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Smart Recycling Bin System",
   description: "A dashboard for smart recycling",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -26,10 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gradient-to-r from-green-300 to-blue-300`}
-      >
-        <main className="container mx-auto px-4">{children}</main>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Header />
+        <main className="">{children}</main>
         <Toaster />
       </body>
     </html>

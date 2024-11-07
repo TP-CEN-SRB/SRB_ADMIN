@@ -19,6 +19,7 @@ import {
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
 import { Role } from "@prisma/client";
+import { redirect } from "next/navigation";
 
 const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.safeParse(values);
@@ -117,10 +118,14 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
   try {
     await signIn("credentials", {
-      redirectTo: "/",
+      redirectTo: existingUser.role === Role.ADMIN ? "/admin" : "/",
       email,
       password,
     });
+    if (existingUser.role === Role.ADMIN) {
+      redirect("/admin");
+    }
+    redirect("/");
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

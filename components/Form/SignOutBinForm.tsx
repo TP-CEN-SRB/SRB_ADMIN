@@ -61,12 +61,12 @@ const SignOutBinForm = ({ userId }: { userId: string }) => {
                     {...field}
                   >
                     <InputOTPGroup>
-                      <InputOTPSlot index={0} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={1} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={2} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={3} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={4} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={5} className="w-12 h-12 text-2xl" />
+                      {Array.from({ length: 6 }, (_, index) => (
+                        <InputOTPSlot
+                          index={index}
+                          className="w-12 h-12 text-2xl ring-red-500"
+                        />
+                      ))}
                     </InputOTPGroup>
                   </InputOTP>
                 </FormControl>
@@ -79,7 +79,7 @@ const SignOutBinForm = ({ userId }: { userId: string }) => {
             <Button
               type="submit"
               disabled={isPending}
-              className="bg-red-500 hover:bg-red-600 text-white text-lg font-semibold p-6 min-w-56 rounded-full transition-all"
+              className="bg-red-500 hover:bg-red-600 text-gray-50 text-xl font-semibold p-6 min-w-56 rounded-full transition-all"
             >
               {isPending ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

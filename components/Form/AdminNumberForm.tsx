@@ -52,17 +52,20 @@ const AdminNumberForm = () => {
                     {...field}
                   >
                     <InputOTPGroup>
-                      <InputOTPSlot index={0} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={1} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={2} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={3} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={4} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={5} className="w-12 h-12 text-2xl" />
-                      <InputOTPSlot index={6} className="w-12 h-12 text-2xl" />
+                      {Array.from({ length: 7 }, (_, index) => (
+                        <InputOTPSlot
+                          key={index}
+                          index={index}
+                          className="w-12 h-12 text-2xl ring-orange-500"
+                        />
+                      ))}
                     </InputOTPGroup>
                     <InputOTPSeparator />
                     <InputOTPGroup>
-                      <InputOTPSlot index={7} className="w-12 h-12 text-2xl" />
+                      <InputOTPSlot
+                        index={7}
+                        className="w-12 h-12 text-2xl ring-orange-500"
+                      />
                     </InputOTPGroup>
                   </InputOTP>
                 </FormControl>
@@ -73,7 +76,7 @@ const AdminNumberForm = () => {
           <div className="text-center">
             <Button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 text-white text-lg font-semibold p-6 min-w-56 rounded-full transition-all"
+              className="bg-amber-500 hover:bg-amber-600 text-gray-50 text-xl font-semibold p-6 min-w-56 rounded-full transition-all"
             >
               Submit
             </Button>

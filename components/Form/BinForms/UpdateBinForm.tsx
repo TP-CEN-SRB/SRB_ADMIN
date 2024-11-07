@@ -93,7 +93,9 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({ id, initialData }) => {
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold">Location</FormLabel>
+                  <FormLabel className="font-bold text-slate-700d">
+                    Location
+                  </FormLabel>
                   <FormControl>
                     <Input
                       disabled={isPending}
@@ -111,7 +113,9 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({ id, initialData }) => {
               name="status"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold">Status</FormLabel>
+                  <FormLabel className="font-bold text-slate-700">
+                    Status
+                  </FormLabel>
                   <FormControl>
                     <BinStatusCombobox field={field} />
                   </FormControl>
@@ -124,7 +128,9 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({ id, initialData }) => {
               name="material"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold">Material</FormLabel>
+                  <FormLabel className="font-bold text-slate-700">
+                    Material
+                  </FormLabel>
                   <FormControl>
                     <BinMaterialCombobox field={field} />
                   </FormControl>

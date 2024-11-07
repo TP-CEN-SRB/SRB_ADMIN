@@ -6,7 +6,11 @@ const NewPasswordPage = ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
-  return <NewPasswordForm token={searchParams.token} />;
+  return (
+    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs py-4">
+      <NewPasswordForm token={searchParams.token} />
+    </div>
+  );
 };
 
 export default NewPasswordPage;

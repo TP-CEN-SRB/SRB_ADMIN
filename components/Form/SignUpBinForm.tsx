@@ -46,7 +46,7 @@ const SignUpBinForm = () => {
     });
   };
   return (
-    <Card fullWidth>
+    <Card rounded fullWidth>
       <FormHeader>Create a bin user</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -55,7 +55,7 @@ const SignUpBinForm = () => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Name</FormLabel>
+                <FormLabel className="font-bold text-slate-700">Name</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -73,7 +73,9 @@ const SignUpBinForm = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Email</FormLabel>
+                <FormLabel className="font-bold text-slate-700">
+                  Email
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -91,7 +93,9 @@ const SignUpBinForm = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Password</FormLabel>
+                <FormLabel className="font-bold text-slate-700">
+                  Password
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -112,7 +116,9 @@ const SignUpBinForm = () => {
             name="secondaryPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Secondary Password</FormLabel>
+                <FormLabel className="font-bold text-slate-700">
+                  Secondary Password
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}

@@ -6,12 +6,8 @@ interface UserCardProps {
 }
 const UserCard = ({ children, fullWidth = false }: UserCardProps) => {
   return (
-    <div
-      className={`bg-white p-8 rounded-lg shadow-md relative ${
-        fullWidth ? "w-full" : ""
-      }`}
-    >
-      <div className="absolute rounded-full -top-[75px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-white p-3">
+    <div className={`card rounded-lg relative ${fullWidth ? "w-full" : ""}`}>
+      <div className="absolute rounded-full -top-[75px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-[var(--pale-mint)] p-3">
         <Image
           src="/user.png"
           width="50"

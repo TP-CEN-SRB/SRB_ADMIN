@@ -49,7 +49,7 @@ const LoginForm = () => {
     });
   };
   return (
-    <Card fullWidth>
+    <div className="auth-card w-full">
       <FormHeader>Login</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -58,7 +58,9 @@ const LoginForm = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Email</FormLabel>
+                <FormLabel className="font-bold text-slate-700">
+                  Email
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -76,7 +78,9 @@ const LoginForm = () => {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Password</FormLabel>
+                <FormLabel className="font-bold text-slate-700">
+                  Password
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -91,10 +95,11 @@ const LoginForm = () => {
           />
           <div className="ml-2">
             <Link
-              className={`text-sm hover:underline underline-offset-4 ${
+              className={`text-sm link-underline ${
                 isPending ? "pointer-events-none" : ""
               }`}
               href="/reset-password"
+              target="_blank"
             >
               Forgot password?
             </Link>
@@ -110,7 +115,7 @@ const LoginForm = () => {
         </form>
       </Form>
       <FormRedirect href="/sign-up">Don&apos;t have an account?</FormRedirect>
-    </Card>
+    </div>
   );
 };
 

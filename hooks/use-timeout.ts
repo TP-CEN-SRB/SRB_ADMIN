@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 export const useTimeout = (
@@ -9,20 +9,48 @@ export const useTimeout = (
   const [remainingTime, setRemainingTime] = useState(
     timeoutDurationInMs / 1000
   );
+  const [timeoutDuration, setTimeoutDuration] = useState(timeoutDurationInMs);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      router.push(redirectPath);
-    }, timeoutDurationInMs);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    return () => clearTimeout(timeout);
-  }, [router]);
+  const resetTimer = (newDelayInMs: number) => {
+    setTimeoutDuration(newDelayInMs);
+    setRemainingTime(newDelayInMs / 1000);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(() => {
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-  return remainingTime;
+
+    timeoutRef.current = setTimeout(() => {
+      router.push(redirectPath);
+    }, newDelayInMs);
+  };
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    timeoutRef.current = setTimeout(() => {
+      router.push(redirectPath);
+    }, timeoutDuration);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [router, timeoutDuration, redirectPath]);
+
+  return { remainingTime, resetTimer };
 };

@@ -1,67 +1,55 @@
 "use client";
-import React, { useState, useTransition } from "react";
+import React, { useTransition, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { SignUpAdminSchema } from "@/schemas/auth";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormRedirect from "./FormRedirect";
-import { signUp } from "@/app/action/user";
-import FacultyComboBox from "./FacultyCombobox";
-import FormHeader from "./FormHeader";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "./CustomFormMessage";
-import { ToastAction } from "@radix-ui/react-toast";
-import { useRouter } from "next/navigation";
+import { login } from "@/app/action/user";
+import FormHeader from "@/components/Form/FormHeader";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
+import Card from "@/components/Card/Card";
+import { toast } from "@/hooks/use-toast";
+import { RewardSchema } from "@/schemas";
 
-const SignUpForm = () => {
-  const router = useRouter();
-  const form = useForm<z.infer<typeof SignUpAdminSchema>>({
-    resolver: zodResolver(SignUpAdminSchema),
+const CreateRewardForm = () => {
+  const form = useForm<z.infer<typeof RewardSchema>>({
+    resolver: zodResolver(RewardSchema),
     defaultValues: {
       name: "",
-      email: "",
-      password: "",
+      pointsRequired: undefined,
+      image: undefined,
     },
   });
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  const onSubmit = (values: z.infer<typeof SignUpAdminSchema>) => {
+  const onSubmit = (values: z.infer<typeof RewardSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await signUp(values);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
-      if (!data?.error) {
-        toast({
-          title: "Hey there!",
-          description: `A verification email has been sent to ${values.email.toLowerCase()}`,
-          action: (
-            <ToastAction altText="Login">
-              <Button onClick={() => router.push("/login")}>Login</Button>
-            </ToastAction>
-          ),
-        });
-      }
+      //   const data = await login(values);
+      //   setError(data?.error as string);
+      //   setSuccess(data?.success as string);
+      //   if (!data?.error && data?.success !== undefined) {
+      //     toast({
+      //       title: "Hey there!",
+      //       description: `A verification email has been sent to ${values.email.toLowerCase()}`,
+      //     });
+      //   }
     });
   };
   return (
-    <div className="auth-card w-full">
-      <FormHeader>Sign Up</FormHeader>
+    <Card fullWidth>
+      <FormHeader>Add a reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -73,9 +61,8 @@ const SignUpForm = () => {
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="John Doe"
+                    placeholder="Short Circuit Voucher"
                     {...field}
-                    type="name"
                   />
                 </FormControl>
                 <FormMessage />
@@ -84,18 +71,18 @@ const SignUpForm = () => {
           />
           <FormField
             control={form.control}
-            name="email"
+            name="pointsRequired"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">
-                  Email
+                  Points Required
                 </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="johndoe@tp.edu.sg"
+                    placeholder="10"
                     {...field}
-                    type="email"
+                    type="number"
                   />
                 </FormControl>
                 <FormMessage />
@@ -104,42 +91,28 @@ const SignUpForm = () => {
           />
           <FormField
             control={form.control}
-            name="faculty"
-            render={({ field }) => (
+            name="image"
+            render={({ field: { value, onChange, ...field } }) => (
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">
-                  Faculty
-                </FormLabel>
-                <FormControl>
-                  <FacultyComboBox disabled={isPending} field={field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Password
+                  Image
                 </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="At least 8 characters"
+                    placeholder="Select a image for the reward"
                     {...field}
-                    type="password"
+                    type="file"
+                    onChange={(event) =>
+                      onChange(event.target.files && event.target.files[0])
+                    }
                   />
                 </FormControl>
-                <FormDescription>
-                  We will never share your password
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && (
             <CustomFormMessage type="Success">{success}</CustomFormMessage>
@@ -150,9 +123,8 @@ const SignUpForm = () => {
           </Button>
         </form>
       </Form>
-      <FormRedirect href="/login">Already have an account?</FormRedirect>
-    </div>
+    </Card>
   );
 };
 
-export default SignUpForm;
+export default CreateRewardForm;

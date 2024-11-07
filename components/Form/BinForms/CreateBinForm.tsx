@@ -83,7 +83,7 @@ const CreateBinForm: React.FC<CreateBinFormProps> = ({ users }) => {
     });
   };
   return (
-    <div className=" min-h-screen flex flex-col items-center justify-center container mx-auto max-w-screen-xs">
+    <div className="min-h-screen flex flex-col items-center justify-center container mx-auto max-w-screen-xs">
       <div className="w-full">
         <h1>Add new bin</h1>
         <Form {...form}>

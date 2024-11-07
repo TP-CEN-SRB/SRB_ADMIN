@@ -1,3 +1,4 @@
+import ButtonRedirect from "@/components/Button/ButtonRedirect";
 import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
 import QrCard from "@/components/Card/QrCard";
@@ -17,10 +18,20 @@ const QrCodePage = ({
       <QrCard>
         <CardHeader>Scan the QR code</CardHeader>
         <CardBody>
-          <QrCodeComponent disposalId={searchParams.disposalId} userId={params.id} />
+          <QrCodeComponent
+            disposalId={searchParams.disposalId}
+            userId={params.id}
+          />
           <QrScanListener userId={params.id} />
         </CardBody>
-        <TimerRedirect redirectTo="/" delayInMs={60000} />
+        <ButtonRedirect rounded href="/disposal-confirmation" color="indigo">
+          No thanks
+        </ButtonRedirect>
+        <TimerRedirect
+          redirectTo="/disposal-confirmation"
+          delayInMs={60000}
+          resetTimeInMs={60000}
+        />
       </QrCard>
     </div>
   );

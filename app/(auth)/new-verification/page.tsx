@@ -7,7 +7,7 @@ const NewVerificationPage = ({
   searchParams: { [key: string]: string };
 }) => {
   return (
-    <div>
+    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs py-4">
       <NewVerificationForm token={searchParams.token} />
     </div>
   );

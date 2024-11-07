@@ -16,12 +16,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormRedirect from "./FormRedirect";
 import { resetPassword } from "@/app/action/user";
 import FormHeader from "./FormHeader";
 import CustomFormMessage from "./CustomFormMessage";
 import { toast } from "@/hooks/use-toast";
 import Card from "../Card/Card";
+import { useRouter } from "next/navigation";
 
 const ResetPasswordForm = () => {
   const form = useForm<z.infer<typeof ResetSchema>>({
@@ -32,23 +32,23 @@ const ResetPasswordForm = () => {
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const router = useRouter();
   const onSubmit = (values: z.infer<typeof ResetSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await resetPassword(values);
       setError(data?.error as string);
-      setSuccess(data?.success as string);
       if (!data?.error && data?.success) {
         toast({
           title: "Hey there!",
           description: `A reset password email has been sent to ${values.email.toLowerCase()}`,
         });
+        router.push("/login");
       }
     });
   };
   return (
-    <Card fullWidth>
+    <Card fullWidth rounded>
       <FormHeader>Forgot Password</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -57,7 +57,9 @@ const ResetPasswordForm = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold">Email</FormLabel>
+                <FormLabel className="font-bold text-slate-700">
+                  Email
+                </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -74,16 +76,12 @@ const ResetPasswordForm = () => {
             )}
           />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
-          {success && (
-            <CustomFormMessage type="Success">{success}</CustomFormMessage>
-          )}
           <Button disabled={isPending} className="w-full" type="submit">
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Send email"}
           </Button>
         </form>
       </Form>
-      <FormRedirect href="/login">Back to login</FormRedirect>
     </Card>
   );
 };

@@ -18,8 +18,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { newPassword } from "@/app/action/user";
 import { MdLockReset } from "react-icons/md";
-import Card from "../Card/Card";
+import Card from "@/components/Card/Card";
 import { MdError, MdVerified } from "react-icons/md";
+import CardHeader from "../Card/CardHeader";
 interface NewPasswordFormProps {
   token: string;
 }
@@ -43,12 +44,12 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
     });
   };
   return (
-    <Card fullWidth>
+    <Card fullWidth rounded>
       {!error && !success && (
         <div>
           <div className="flex flex-col items-center mb-3">
-            <MdLockReset size={100} className="text-blue-500" />
-            <h1 className="text-4xl text-gray-800">Reset password</h1>
+            <MdLockReset size={100} className="text-indigo-500" />
+            <CardHeader>Reset password</CardHeader>
           </div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -57,7 +58,9 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-bold">Password</FormLabel>
+                    <FormLabel className="font-bold text-slate-700">
+                      Password
+                    </FormLabel>
                     <FormControl>
                       <Input
                         disabled={isPending}
@@ -90,16 +93,16 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
       {error && (
         <div className="flex flex-col items-center">
           <MdError size={100} className="text-red-500" />
-          <h1 className="text-4xl text-gray-800">Reset Fail</h1>
-          <p className="text-gray-600 mt-2">{error}</p>
-          <p className="text-gray-600 mt-2">Please try again</p>
+          <h1 className="text-4xl text-slate-800">Reset Fail</h1>
+          <p className="text-slate-600 mt-2">{error}</p>
+          <p className="text-slate-600 mt-2">Please try again</p>
         </div>
       )}
       {success && (
         <div className="flex flex-col items-center ">
           <MdVerified size={100} className="text-green-500" />
-          <h1 className="text-4xl text-gray-800">Reset Success</h1>
-          <p className="text-gray-600 mt-2">{success}</p>
+          <h1 className="text-4xl text-slate-800">Reset Success</h1>
+          <p className="text-slate-600 mt-2">{success}</p>
         </div>
       )}
     </Card>

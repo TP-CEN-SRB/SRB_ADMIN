@@ -27,13 +27,17 @@ const QrCodeComponent = async ({
     weightInGrams: disposalData.weightInGrams,
   };
   const token = generateQrToken(data);
-  const qrCodeUrl = await QRCode.toDataURL(token);
+  const qrCodeUrl = await QRCode.toDataURL(token, {
+    color: {
+      light: "#f3fae1",
+    },
+  });
 
   return (
     <Image
-      width="0"
-      height="0"
-      className="w-full"
+      width="100"
+      height="100"
+      className="w-full bg-transparent"
       src={qrCodeUrl}
       alt="Generated QR Code"
     />

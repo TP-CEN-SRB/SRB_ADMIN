@@ -125,8 +125,10 @@ model Point {
 
 model Reward {
   id             String  @id @default(uuid())
+  name           String
   pointsRequired Int
   isAvailable    Boolean @default(true)
+  image          String
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt

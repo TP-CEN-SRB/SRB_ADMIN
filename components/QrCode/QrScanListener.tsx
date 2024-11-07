@@ -56,7 +56,7 @@ const QrScanListener = ({ userId }: { userId: string }) => {
     });
     return () => pusherClient.unsubscribe(`disposal-qr-${userId}`);
   }, []);
-  return <div></div>;
+  return null;
 };
 
 export default QrScanListener;
