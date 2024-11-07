@@ -14,12 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { login } from "@/app/action/user";
 import FormHeader from "@/components/Form/FormHeader";
 import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
-import { toast } from "@/hooks/use-toast";
 import { RewardSchema } from "@/schemas";
+import { UploadButton } from "@/lib/uploadthing";
 
 const CreateRewardForm = () => {
   const form = useForm<z.infer<typeof RewardSchema>>({
@@ -48,7 +47,7 @@ const CreateRewardForm = () => {
     });
   };
   return (
-    <Card fullWidth>
+    <Card rounded fullWidth>
       <FormHeader>Add a reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -98,7 +97,7 @@ const CreateRewardForm = () => {
                   Image
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  {/* <Input
                     disabled={isPending}
                     placeholder="Select a image for the reward"
                     {...field}
@@ -106,6 +105,18 @@ const CreateRewardForm = () => {
                     onChange={(event) =>
                       onChange(event.target.files && event.target.files[0])
                     }
+                  /> */}
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={(res) => {
+                      // Do something with the response
+                      console.log("Files: ", res);
+                      alert("Upload Completed");
+                    }}
+                    onUploadError={(error: Error) => {
+                      // Do something with the error.
+                      alert(`ERROR! ${error.message}`);
+                    }}
                   />
                 </FormControl>
                 <FormMessage />

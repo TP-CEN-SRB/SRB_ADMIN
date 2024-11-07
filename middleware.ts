@@ -36,7 +36,7 @@ export default auth(async (req) => {
   const isBinRoute = binRoutes.some((route) => path.startsWith(route));
 
   if (isApiAuthRoute) {
-    return;
+    return Response.redirect(new URL("/not-found", req.nextUrl));
   }
   if (!isLoggedIn && !token) {
     // Redirect non-logged-in users to the login page for protected routes

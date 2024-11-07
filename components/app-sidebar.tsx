@@ -30,10 +30,11 @@ import { PiSignOutBold } from "react-icons/pi";
 import { FaChevronRight } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
+import Link from "next/link";
 
 const items = [
   {
-    title: "Home",
+    title: "Dashboard",
     url: "/admin",
     icon: BsFillBarChartFill,
   },
@@ -76,12 +77,12 @@ export function AppSidebar({ email }: { email: string }) {
           <SidebarHeader>
             <SidebarMenu>
               {items.map((project) => (
-                <SidebarMenuItem key={project.title}>
+                <SidebarMenuItem className="ml-4" key={project.title}>
                   <SidebarMenuButton asChild>
-                    <a href={project.url}>
+                    <Link href={project.url}>
                       <project.icon />
                       <span>{project.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
