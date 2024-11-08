@@ -85,7 +85,7 @@ const items = [
   },
 ];
 
-export function AppSidebar({ email }: { email: string }) {
+export function AppSidebar({ email }: { email: string | null | undefined }) {
   const path = usePathname();
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
 

@@ -12,7 +12,7 @@ export default async function AdminLayout({
   return (
     <div className="bg-[var(--pastel-green)] min-h-screen">
       <SidebarProvider defaultOpen>
-        <AppSidebar email={user?.email!} />
+        <AppSidebar email={user?.email} />
         {children}
       </SidebarProvider>
     </div>
