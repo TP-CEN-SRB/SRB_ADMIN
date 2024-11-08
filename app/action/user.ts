@@ -118,14 +118,10 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
   try {
     await signIn("credentials", {
-      redirectTo: existingUser.role === Role.ADMIN ? "/admin" : "/",
+      redirectTo: "/",
       email,
       password,
     });
-    if (existingUser.role === Role.ADMIN) {
-      redirect("/admin");
-    }
-    redirect("/");
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

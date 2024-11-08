@@ -10,11 +10,19 @@ import {
 } from "../action/bin";
 
 const Page = async () => {
-  const DBChartData = await getChartData();
-  const pieChartData = await getBinCountsByMaterial();
-  const totalCount = await getAllBins();
-  const totalCountByStatus = await getBinCountsByStatus();
-  const totalDisposalCount = await getDisposals();
+  const [
+    DBChartData,
+    pieChartData,
+    totalCount,
+    totalCountByStatus,
+    totalDisposalCount,
+  ] = await Promise.all([
+    getChartData(),
+    getBinCountsByMaterial(),
+    getAllBins(),
+    getBinCountsByStatus(),
+    getDisposals(),
+  ]);
   return (
     <div className="w-full p-4">
       <DashboardStatsGrid
