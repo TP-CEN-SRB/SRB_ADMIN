@@ -63,6 +63,7 @@ const SignOutBinForm = ({ userId }: { userId: string }) => {
                     <InputOTPGroup>
                       {Array.from({ length: 6 }, (_, index) => (
                         <InputOTPSlot
+                          key={index}
                           index={index}
                           className="w-12 h-12 text-2xl ring-red-500"
                         />
