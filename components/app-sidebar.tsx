@@ -1,7 +1,4 @@
 "use client";
-
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -25,11 +22,17 @@ import { BsFillBarChartFill } from "react-icons/bs";
 import { enableNav } from "@/utils/enableNav";
 import { usePathname } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
-import { FaBell, FaTrash, FaUser } from "react-icons/fa";
+import {
+  FaBell,
+  FaTrash,
+  FaUser,
+  FaChevronRight,
+  FaEye,
+  FaPlus,
+} from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
 import { logout } from "@/app/action/user";
 import { PiSignOutBold } from "react-icons/pi";
-import { FaChevronRight } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
 import Link from "next/link";
@@ -47,10 +50,12 @@ const items = [
     child: [
       {
         title: "View",
+        icon: FaEye,
         url: "/admin/bin",
       },
       {
         title: "Create",
+        icon: FaPlus,
         url: "/admin/bin/create",
       },
     ],
@@ -61,10 +66,12 @@ const items = [
     child: [
       {
         title: "View",
+        icon: FaEye,
         url: "/admin/user",
       },
       {
         title: "Create",
+        icon: FaPlus,
         url: "/admin/user/create",
       },
     ],
@@ -75,10 +82,12 @@ const items = [
     child: [
       {
         title: "View",
+        icon: FaEye,
         url: "/admin/reward",
       },
       {
         title: "Create",
+        icon: FaPlus,
         url: "/admin/reward/create",
       },
     ],
@@ -139,14 +148,17 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {item.child.map((child, subIndex) => (
-                        <SidebarMenuSubItem
-                          className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg"
-                          key={subIndex}
-                        >
-                          <Link href={child.url}>
-                            <span>{child.title}</span>
-                          </Link>
-                        </SidebarMenuSubItem>
+                        <Link href={child.url}>
+                          <SidebarMenuSubItem
+                            className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg"
+                            key={subIndex}
+                          >
+                            <SidebarMenuButton>
+                              <child.icon />
+                              <span>{child.title}</span>
+                            </SidebarMenuButton>
+                          </SidebarMenuSubItem>
+                        </Link>
                       ))}
                     </SidebarMenuSub>
                   </CollapsibleContent>
