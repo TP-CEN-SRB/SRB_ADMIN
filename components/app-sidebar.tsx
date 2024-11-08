@@ -10,6 +10,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -31,41 +33,71 @@ import { FaChevronRight } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+import { useState } from "react";
 
 const items = [
   {
-    title: "Dashboard",
-    url: "/admin",
-    icon: BsFillBarChartFill,
-  },
-  {
     title: "Bins",
-    url: "/admin/bin/all",
     icon: FaTrash,
+    child: [
+      {
+        title: "View",
+        url: "/admin/bin",
+      },
+      {
+        title: "Create",
+        url: "/admin/bin/create",
+      },
+    ],
   },
   {
     title: "Users",
-    url: "/admin/user",
     icon: FaUser,
+    child: [
+      {
+        title: "View",
+        url: "/admin/user",
+      },
+      {
+        title: "Create",
+        url: "/admin/user/create",
+      },
+    ],
   },
   {
     title: "Rewards",
-    url: "/admin/reward",
     icon: GiPresent,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: IoSettings,
+    child: [
+      {
+        title: "View",
+        url: "/admin/reward",
+      },
+      {
+        title: "Create",
+        url: "/admin/reward/create",
+      },
+    ],
   },
 ];
 
 export function AppSidebar({ email }: { email: string }) {
   const path = usePathname();
+  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+
+  const handleToggle = (index: number) => {
+    setOpenIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
   return (
     enableNav.some((route) => path.startsWith(route)) && (
       <Sidebar>
-        <SidebarContent>
+        <SidebarHeader>
           <SidebarMenu className="p-4">
             <Image
               src="/temasekPolyBanner.png"
@@ -74,20 +106,54 @@ export function AppSidebar({ email }: { email: string }) {
               height="300"
             />
           </SidebarMenu>
-          <SidebarHeader>
-            <SidebarMenu>
-              {items.map((project) => (
-                <SidebarMenuItem className="ml-4" key={project.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={project.url}>
-                      <project.icon />
-                      <span>{project.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem className="ml-4">
+              <SidebarMenuButton asChild>
+                <Link href="/admin">
+                  <BsFillBarChartFill />
+                  <span>Dashboard</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {items.map((item, index) => (
+              <Collapsible
+                key={index}
+                className="group/collapsible"
+                onOpenChange={() => handleToggle(index)}
+                open={openIndexes.includes(index)}
+              >
+                <SidebarMenuItem className="mx-4">
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <item.icon />
+                      <span>{item.title}</span>
+                      <FaChevronRight
+                        className={`ml-auto duration-100 ease ${
+                          openIndexes.includes(index) ? "rotate-90" : "rotate-0"
+                        }  `}
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.child.map((child, subIndex) => (
+                        <SidebarMenuSubItem
+                          className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg"
+                          key={subIndex}
+                        >
+                          <Link href={child.url}>
+                            <span>{child.title}</span>
+                          </Link>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarHeader>
+              </Collapsible>
+            ))}
+          </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
@@ -109,6 +175,10 @@ export function AppSidebar({ email }: { email: string }) {
                   <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
                     <FaBell />
                     Notification
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
+                    <IoSettings />
+                    Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="hover:!bg-[#f5f2b3]">

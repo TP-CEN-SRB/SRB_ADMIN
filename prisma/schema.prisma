@@ -125,7 +125,7 @@ model Point {
 
 model Reward {
   id             String  @id @default(uuid())
-  name           String
+  name           String  @unique
   pointsRequired Int
   isAvailable    Boolean @default(true)
   image          String
