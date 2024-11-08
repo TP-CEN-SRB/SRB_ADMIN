@@ -148,11 +148,8 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {item.child.map((child, subIndex) => (
-                        <Link href={child.url}>
-                          <SidebarMenuSubItem
-                            className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg"
-                            key={subIndex}
-                          >
+                        <Link key={subIndex} href={child.url}>
+                          <SidebarMenuSubItem className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg">
                             <SidebarMenuButton>
                               <child.icon />
                               <span>{child.title}</span>
