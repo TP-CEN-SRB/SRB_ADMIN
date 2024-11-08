@@ -19,6 +19,7 @@ import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { RewardSchema } from "@/schemas";
 import { createReward } from "@/app/action/reward";
+import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
 
 const CreateRewardForm = () => {
   const form = useForm<z.infer<typeof RewardSchema>>({
@@ -32,16 +33,23 @@ const CreateRewardForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>();
+  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+
+  const [isDialogOpen, setDialogOpen] = useState(false);
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
     startTransition(async () => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
       formData.append("image", values.image);
+      if (croppedFile) {
+        formData.append("image", croppedFile);
+      }
       const data = await createReward(formData);
       setError(data?.error as string);
       setSuccess(data?.success as string);
+      setCroppedFile(null);
     });
   };
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -51,11 +59,22 @@ const CreateRewardForm = () => {
       const reader = new FileReader();
       reader.onloadend = () => setImagePreview(reader.result as string);
       reader.readAsDataURL(file);
+      setDialogOpen(true);
     }
+  };
+  const handleCropComplete = (file: File) => {
+    setCroppedFile(file); // Update the state with the cropped file
+    setDialogOpen(false);
   };
 
   return (
     <Card rounded fullWidth>
+      <CropRewardDialog
+        onCropComplete={handleCropComplete}
+        isOpen={isDialogOpen}
+        image={imagePreview as string}
+        handleOpen={() => setDialogOpen(!isDialogOpen)}
+      />
       <FormHeader>Add a reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -115,33 +134,11 @@ const CreateRewardForm = () => {
                       handleImageChange(event);
                     }}
                   />
-                  {/* <UploadButton
-                    endpoint="imageUploader"
-                    onClientUploadComplete={(res) => {
-                      // Do something with the response
-                      console.log("Files: ", res);
-                      alert("Upload Completed");
-                    }}
-                    onUploadError={(error: Error) => {
-                      // Do something with the error.
-                      alert(`ERROR! ${error.message}`);
-                    }}
-                  /> */}
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          {imagePreview && (
-            <div className="mt-4">
-              <p>Image Preview:</p>
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-48 h-48 object-cover"
-              />
-            </div>
-          )}
 
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && (
@@ -153,9 +150,6 @@ const CreateRewardForm = () => {
           </Button>
         </form>
       </Form>
-      {/* <form action={createReward}>
-        <button type="submit">Create something</button>
-      </form> */}
     </Card>
   );
 };
