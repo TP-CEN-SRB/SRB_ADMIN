@@ -4,7 +4,7 @@ import React from "react";
 
 const LoginPage = () => {
   return (
-    <div className="flex w-full rounded-lg overflow-hidden min-h-screen">
+    <div className="flex w-full overflow-hidden min-h-screen">
       <div className="w-full md:max-w-full md:flex-1 bg-[var(--pale-mint)] flex justify-center">
         <LoginForm />
       </div>

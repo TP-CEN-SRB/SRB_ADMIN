@@ -4,7 +4,7 @@ import React from "react";
 
 const SignUpPage = () => {
   return (
-    <div className="flex w-full rounded-lg overflow-hidden min-h-screen">
+    <div className="flex w-full overflow-hidden min-h-screen">
       <div className="relative flex-1 border-gray-200 border-r-2">
         <Image
           className="object-cover"
