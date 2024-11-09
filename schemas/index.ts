@@ -1,7 +1,7 @@
 import { BinMaterial, BinStatus } from "@prisma/client";
 import * as z from "zod";
-const MAX_FILE_SIZE = 4 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = [
+export const MAX_FILE_SIZE = 4 * 1024 * 1024;
+export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",

@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import FormHeader from "@/components/Form/FormHeader";
 import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
-import { RewardSchema } from "@/schemas";
+import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas";
 import { createReward } from "@/app/action/reward";
 import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
 
@@ -64,13 +64,17 @@ const CreateRewardForm = () => {
   };
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      form.setValue("image", file);
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-      setDialogOpen(true);
+    if (!file) return;
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      return;
     }
+    if (file.size > MAX_FILE_SIZE) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+    setDialogOpen(true);
   };
   const handleCropComplete = (file: File) => {
     setCroppedFile(file); // Update the state with the cropped file
@@ -166,7 +170,7 @@ const CreateRewardForm = () => {
           )}
           <Button
             disabled={isPending}
-            className="w-full btn-primary"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
             type="submit"
           >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
