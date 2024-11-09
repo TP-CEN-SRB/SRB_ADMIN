@@ -47,6 +47,7 @@ const SignUpForm = () => {
       setError(data?.error as string);
       setSuccess(data?.success as string);
       if (!data?.error) {
+        form.reset();
         toast({
           title: "Hey there!",
           description: `A verification email has been sent to ${values.email.toLowerCase()}`,
@@ -146,7 +147,7 @@ const SignUpForm = () => {
           )}
           <Button
             disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
             type="submit"
           >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}

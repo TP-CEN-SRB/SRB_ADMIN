@@ -21,7 +21,6 @@ export async function createReward(formData: FormData) {
   const existingReward = await prisma.reward.findUnique({
     where: {
       name: name,
-      pointsRequired,
     },
   });
   if (existingReward) {

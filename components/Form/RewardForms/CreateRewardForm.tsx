@@ -1,5 +1,5 @@
 "use client";
-import React, { useTransition, useState, ChangeEvent } from "react";
+import React, { useTransition, useState, ChangeEvent, useRef } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,20 +36,30 @@ const CreateRewardForm = () => {
   const [imagePreview, setImagePreview] = useState<string | null>();
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const [isDialogOpen, setDialogOpen] = useState(false);
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
     startTransition(async () => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
-      formData.append("image", values.image);
-      if (croppedFile) {
-        formData.append("image", croppedFile);
+      if (!croppedFile) {
+        setError("Please select an image");
+        return;
       }
+      formData.set("image", croppedFile);
       const data = await createReward(formData);
       setError(data?.error as string);
       setSuccess(data?.success as string);
-      setCroppedFile(null);
+      if (data?.success) {
+        setCroppedFile(null);
+        setImagePreview(null);
+        values.name = "";
+        form.reset({
+          pointsRequired: 0,
+        });
+      }
     });
   };
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -67,13 +77,23 @@ const CreateRewardForm = () => {
     setDialogOpen(false);
   };
 
+  const handleDialogClose = (error: string | undefined) => {
+    if (error) {
+      setError(error);
+    }
+    setDialogOpen(false);
+    setCroppedFile(null);
+    setImagePreview(null);
+    form.resetField("image");
+  };
+
   return (
     <Card rounded fullWidth>
       <CropRewardDialog
         onCropComplete={handleCropComplete}
         isOpen={isDialogOpen}
         image={imagePreview as string}
-        handleOpen={() => setDialogOpen(!isDialogOpen)}
+        onDialogClose={handleDialogClose}
       />
       <FormHeader>Add a reward</FormHeader>
       <Form {...form}>
@@ -144,7 +164,11 @@ const CreateRewardForm = () => {
           {success && (
             <CustomFormMessage type="Success">{success}</CustomFormMessage>
           )}
-          <Button disabled={isPending} className="w-full" type="submit">
+          <Button
+            disabled={isPending}
+            className="w-full btn-primary"
+            type="submit"
+          >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}
           </Button>
