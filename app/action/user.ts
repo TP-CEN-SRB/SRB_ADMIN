@@ -17,9 +17,16 @@ import {
   generatePasswordResetToken,
 } from "@/lib/tokens";
 import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
-import { getPasswordResetTokenByToken } from "@/utils/passwordResetToken";
+import {
+  ableToGenerateNewPasswordResetToken,
+  getPasswordResetTokenByEmail,
+  getPasswordResetTokenByToken,
+} from "@/utils/passwordResetToken";
 import { Role } from "@prisma/client";
-import { redirect } from "next/navigation";
+import {
+  ableToGenerateNewVerificationToken,
+  getVerificationTokenByEmail,
+} from "@/utils/verificationToken";
 
 const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.safeParse(values);
@@ -107,6 +114,26 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
     return { error: "Invalid credentials!" };
   }
   if (!existingUser.emailVerified) {
+    const existingToken = await getVerificationTokenByEmail(existingUser.email);
+    if (!existingToken) {
+      const verificationToken = await generateVerificationToken(
+        existingUser.email
+      );
+      await sendVerificationEmail(
+        verificationToken.email,
+        verificationToken.token
+      );
+      return { success: "Confirmation email sent!" };
+    }
+    const ableToResendEmail = await ableToGenerateNewVerificationToken(
+      existingToken.token
+    );
+    if (!ableToResendEmail) {
+      return {
+        error:
+          "We have already sent you an email! If you wish to resend please try again later",
+      };
+    }
     const verificationToken = await generateVerificationToken(
       existingUser.email
     );
@@ -179,7 +206,26 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   if (!existingUser) {
     return { error: "Invalid credentials!" };
   }
-
+  const existingToken = await getPasswordResetTokenByEmail(existingUser.email);
+  if (!existingToken) {
+    const passwordResetToken = await generatePasswordResetToken(
+      existingUser.email
+    );
+    await sendVerificationEmail(
+      passwordResetToken.email,
+      passwordResetToken.token
+    );
+    return { success: "Confirmation email sent!" };
+  }
+  const ableToResendEmail = await ableToGenerateNewPasswordResetToken(
+    existingToken.token
+  );
+  if (!ableToResendEmail) {
+    return {
+      error:
+        "We have already sent you an email! If you wish to resend please try again later",
+    };
+  }
   const passwordResetToken = await generatePasswordResetToken(email);
   await sendPasswordResetEmail(
     passwordResetToken.email,

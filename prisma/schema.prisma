@@ -64,6 +64,9 @@ model VerificationToken {
   token   String   @unique
   expires DateTime
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([email, token])
   @@map("verification_tokens")
 }
@@ -73,6 +76,9 @@ model PassswordResetToken {
   email   String
   token   String   @unique
   expires DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([email, token])
   @@map("password_reset_tokens")

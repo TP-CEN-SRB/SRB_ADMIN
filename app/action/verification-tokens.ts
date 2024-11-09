@@ -39,4 +39,6 @@ const verifyToken = async (token: string) => {
   return { success: "Your email has been verified!" };
 };
 
+
+
 export { verifyToken };
