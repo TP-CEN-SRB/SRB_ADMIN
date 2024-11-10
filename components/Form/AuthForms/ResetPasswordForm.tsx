@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { resetPassword } from "@/app/action/user";
-import FormHeader from "./FormHeader";
-import CustomFormMessage from "./CustomFormMessage";
+import FormHeader from "@/components/Form/FormHeader";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import { toast } from "@/hooks/use-toast";
-import Card from "../Card/Card";
+import Card from "@/components/Card/Card";
 import { useRouter } from "next/navigation";
 
 const ResetPasswordForm = () => {
@@ -38,7 +38,7 @@ const ResetPasswordForm = () => {
       setError(""); // clear error message
       const data = await resetPassword(values);
       setError(data?.error as string);
-      if (!data?.error && data?.success) {
+      if (!data?.error && data?.success !== undefined) {
         toast({
           title: "Hey there!",
           description: `A reset password email has been sent to ${values.email.toLowerCase()}`,

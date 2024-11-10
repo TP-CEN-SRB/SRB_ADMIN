@@ -1,5 +1,5 @@
 "use client";
-import React, { useTransition, useState, ChangeEvent, useRef } from "react";
+import React, { useTransition, useState, ChangeEvent } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -35,8 +35,6 @@ const CreateRewardForm = () => {
   const [success, setSuccess] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>();
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {

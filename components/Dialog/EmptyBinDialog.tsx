@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getSessionUser } from "@/utils/getAuth";
-import EmptyBinForm from "../Form/EmptyBinForm";
+import EmptyBinForm from "@/components/Form/BinUserForms/EmptyBinForm";
 import { FaTrashArrowUp } from "react-icons/fa6";
 
 const EmptyBinDialog = async () => {

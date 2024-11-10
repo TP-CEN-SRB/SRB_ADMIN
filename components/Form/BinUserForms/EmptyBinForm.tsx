@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SecondaryPasswordSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomFormMessage from "./CustomFormMessage";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import { Loader2 } from "lucide-react";
 import { emptyBinsByUserId } from "@/app/action/bin";
 

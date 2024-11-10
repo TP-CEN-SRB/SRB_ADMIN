@@ -15,12 +15,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormRedirect from "./FormRedirect";
+import FormRedirect from "../FormRedirect";
 import { login } from "@/app/action/user";
-import FormHeader from "./FormHeader";
-import CustomFormMessage from "./CustomFormMessage";
+import FormHeader from "../FormHeader";
+import CustomFormMessage from "../CustomFormMessage";
 import Link from "next/link";
-import Card from "../Card/Card";
 import { toast } from "@/hooks/use-toast";
 
 const LoginForm = () => {

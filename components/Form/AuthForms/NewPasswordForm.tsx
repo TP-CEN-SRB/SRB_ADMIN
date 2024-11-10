@@ -20,7 +20,7 @@ import { newPassword } from "@/app/action/user";
 import { MdLockReset } from "react-icons/md";
 import Card from "@/components/Card/Card";
 import { MdError, MdVerified } from "react-icons/md";
-import CardHeader from "../Card/CardHeader";
+import CardHeader from "@/components/Card/CardHeader";
 interface NewPasswordFormProps {
   token: string;
 }

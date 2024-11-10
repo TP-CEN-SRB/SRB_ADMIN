@@ -136,7 +136,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            <SidebarMenuItem className="ml-4">
+            <SidebarMenuItem className="mx-4">
               <SidebarMenuButton asChild>
                 <Link href="/admin">
                   <BsFillBarChartFill />

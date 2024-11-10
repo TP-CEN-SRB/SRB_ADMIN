@@ -8,7 +8,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FaEdit } from "react-icons/fa";
-import { MdMoreVert } from "react-icons/md";
+import { MdLockReset, MdMoreVert } from "react-icons/md";
+import { IoIosMail } from "react-icons/io";
 import prisma from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import React from "react";
@@ -47,6 +48,14 @@ const AdminProfilePage = async () => {
                   <span>Edit profile</span>
                 </DropdownMenuItem>
               </Link>
+              <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+                <IoIosMail />
+                <span>Change email</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+                <MdLockReset />
+                <span>Reset password</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -75,6 +84,12 @@ const AdminProfilePage = async () => {
                 <p className="text-slate-600">Account created</p>
                 <p className="text-slate-700 font-bold text-xl">
                   {user?.createdAt.toLocaleDateString()}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-600">Account verified</p>
+                <p className="text-slate-700 font-bold text-xl">
+                  {user?.emailVerified?.toLocaleDateString()}
                 </p>
               </div>
               <div>

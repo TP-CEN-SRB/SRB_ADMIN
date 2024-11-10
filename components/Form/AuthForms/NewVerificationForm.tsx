@@ -3,11 +3,11 @@ import { IoRocket } from "react-icons/io5";
 import { useState, useTransition } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Loader2 } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Card from "@/components/Card/Card";
 import { MdVerified } from "react-icons/md";
 import { MdError } from "react-icons/md";
-import CardHeader from "../Card/CardHeader";
+import CardHeader from "@/components/Card/CardHeader";
 interface VerificationFormProps {
   token: string;
 }

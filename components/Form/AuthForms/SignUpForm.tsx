@@ -16,12 +16,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormRedirect from "./FormRedirect";
+import FormRedirect from "@/components/Form/FormRedirect";
 import { signUp } from "@/app/action/user";
-import FacultyComboBox from "./FacultyCombobox";
-import FormHeader from "./FormHeader";
+import FacultyComboBox from "@/components/Form/AuthForms/FacultyCombobox";
+import FormHeader from "@/components/Form/FormHeader";
 import { Loader2 } from "lucide-react";
-import CustomFormMessage from "./CustomFormMessage";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import { ToastAction } from "@radix-ui/react-toast";
 import { useRouter } from "next/navigation";
 
@@ -46,7 +46,7 @@ const SignUpForm = () => {
       const data = await signUp(values);
       setError(data?.error as string);
       setSuccess(data?.success as string);
-      if (!data?.error) {
+      if (!data?.error && data?.success !== undefined) {
         form.reset();
         toast({
           title: "Hey there!",

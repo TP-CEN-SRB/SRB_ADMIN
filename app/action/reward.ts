@@ -8,13 +8,13 @@ import { getSessionUser } from "@/utils/getAuth";
 export async function createReward(formData: FormData) {
   const user = await getSessionUser();
   if (!user) {
-    return { error: "Unauthorized access" };
+    return { error: "Unauthorized access!" };
   }
   const validatedFields = RewardSchema.safeParse(
     Object.fromEntries(formData.entries())
   );
   if (!validatedFields.success) {
-    return { error: "Invalid fields" };
+    return { error: "Invalid fields!" };
   }
   const { name, pointsRequired, image } = validatedFields.data;
 
@@ -28,7 +28,7 @@ export async function createReward(formData: FormData) {
   }
   const res = await utapi.uploadFiles(image);
   if (res.error) {
-    return { error: "Unable to upload image" };
+    return { error: "Unable to upload image!" };
   }
   await prisma.reward.create({
     data: {

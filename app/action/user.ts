@@ -27,6 +27,7 @@ import {
   ableToGenerateNewVerificationToken,
   getVerificationTokenByEmail,
 } from "@/utils/verificationToken";
+import { getSessionUser } from "@/utils/getAuth";
 
 const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.safeParse(values);
@@ -191,7 +192,7 @@ const logoutBin = async (userId: string, secondaryPassword: string) => {
 const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
   const validatedFields = ResetSchema.safeParse(values);
   if (!validatedFields.success) {
-    return { error: "Invalid email" };
+    return { error: "Invalid email!" };
   }
   const formData = validatedFields.data;
   const email = formData.email;
@@ -271,11 +272,46 @@ const newPassword = async (
   return { success: "Your password has been updated!" };
 };
 
-const getBinUserById = async (id: string) => {
+const getLoggedInUserById = async (id: string) => {
+  const sessionUser = await getSessionUser();
+  if (sessionUser?.id !== id || !sessionUser) {
+    return;
+  }
   const binUser = await prisma.user.findFirst({
-    where: { id: id, role: Role.BIN },
+    where: { id: id, role: sessionUser.role },
   });
   return binUser;
+};
+
+const updateAdminUser = async (
+  values: z.infer<typeof SignUpAdminSchema>
+) => {
+  const validatedFields = SignUpAdminSchema.omit({
+    password: true,
+  }).safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid credentials!" };
+  }
+  const { name, email, faculty } = validatedFields.data;
+  const existingUser = await prisma.user.findUnique({
+    where: { email: email, role: "ADMIN" },
+  });
+  if (!existingUser) {
+    return { error: "Something went wrong!" };
+  }
+  const sessionUser = await getSessionUser();
+  if (
+    !sessionUser ||
+    sessionUser.role !== "ADMIN" ||
+    sessionUser.id !== existingUser.id
+  ) {
+    return { error: "Unauthorized access!" };
+  }
+  await prisma.user.update({
+    where: { id: existingUser.id },
+    data: { name, faculty },
+  });
+  return { success: "Profile updated successfully!" };
 };
 
 export {
@@ -286,5 +322,6 @@ export {
   logoutBin,
   resetPassword,
   newPassword,
-  getBinUserById,
+  getLoggedInUserById,
+  updateAdminUser,
 };
