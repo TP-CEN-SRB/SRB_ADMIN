@@ -45,7 +45,7 @@ const PointsPage = ({ params }: { params: { id: string } }) => {
         )
       ) : (
         <div className="flex justify-center my-10">
-          <BeatLoader color="#22c55e" />
+          <BeatLoader color="var(--olive-green)" />
         </div>
       )}
 

@@ -271,7 +271,7 @@ const newPassword = async (
   return { success: "Your password has been updated!" };
 };
 
-const getBinUser = async (id: string) => {
+const getBinUserById = async (id: string) => {
   const binUser = await prisma.user.findFirst({
     where: { id: id, role: Role.BIN },
   });
@@ -286,5 +286,5 @@ export {
   logoutBin,
   resetPassword,
   newPassword,
-  getBinUser,
+  getBinUserById,
 };

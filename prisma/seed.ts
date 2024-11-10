@@ -28,11 +28,13 @@ const userData: Prisma.UserCreateInput[] = [
     },
   },
   {
-    name: "testAdmin",
+    name: "Test Admin",
     email: "testadmin@tp.edu.sg",
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "ADMIN",
+    faculty: "ENGINEERING",
+    
   },
 ];
 

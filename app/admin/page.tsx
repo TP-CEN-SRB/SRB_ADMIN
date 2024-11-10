@@ -1,6 +1,4 @@
-import React from "react";
-import DashboardStatsGrid from "./components/dashboardStatsGrid";
-import { Chart } from "./components/chart";
+import React, { Suspense } from "react";
 import {
   getAllBins,
   getBinCountsByMaterial,
@@ -8,8 +6,11 @@ import {
   getChartData,
   getDisposals,
 } from "../action/bin";
-
+import DashboardStatsGrid from "./components/dashboardStatsGrid";
+import Chart from "./components/chart";
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const Page = async () => {
+  // await delay(5000);
   const [
     DBChartData,
     pieChartData,

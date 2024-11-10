@@ -43,7 +43,7 @@ import {
 } from "./ui/collapsible";
 import { useState } from "react";
 
-const items = [
+const collaspeItems = [
   {
     title: "Bins",
     icon: FaTrash,
@@ -94,6 +94,24 @@ const items = [
   },
 ];
 
+const dropdownItems = [
+  {
+    title: "Profile",
+    icon: FaUser,
+    url: "/admin/profile",
+  },
+  {
+    title: "Notifications",
+    icon: FaBell,
+    url: "/admin/notification",
+  },
+  {
+    title: "Settings",
+    icon: IoSettings,
+    url: "/admin/settings",
+  },
+];
+
 export function AppSidebar({ email }: { email: string | null | undefined }) {
   const path = usePathname();
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
@@ -126,7 +144,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            {items.map((item, index) => (
+            {collaspeItems.map((item, index) => (
               <Collapsible
                 key={index}
                 className="group/collapsible"
@@ -177,18 +195,14 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                 <DropdownMenuContent align="start" side="right" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
-                    <FaUser />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
-                    <FaBell />
-                    Notification
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
-                    <IoSettings />
-                    Settings
-                  </DropdownMenuItem>
+                  {dropdownItems.map((item, index) => (
+                    <Link key={index} href={item.url}>
+                      <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </DropdownMenuItem>
+                    </Link>
+                  ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
                     <form action={logout}>

@@ -21,7 +21,7 @@ const ImagePreview = ({
 }: ImagePreviewProps) => {
   return (
     image && (
-      <div className="max-h-[60vh] overflow-y-auto">
+      <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden">
         <ReactCrop
           keepSelection
           aspect={ASPECT_RATIO}
@@ -33,7 +33,7 @@ const ImagePreview = ({
           <img
             ref={imgRef}
             onLoad={onImageLoad}
-            className="max-h-[150px] border-2"
+            className="border-2"
             src={image}
             alt="Preview"
           />
