@@ -158,7 +158,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     <Card rounded>
       <div className="flex flex-col items-center justify-center gap-y-3 mb-6">
         <CardHeader>Material Detection</CardHeader>
-        {detecting && <FadeLoader color="var(--olive-green)" />}
+        {detecting && <FadeLoader color="#22c55e" />}
       </div>
       <CardBody>
         {detecting ? (
@@ -183,7 +183,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
       </CardBody>
       {!detecting && !error && (
         <div className="flex flex-col items-center justify-center mt-4">
-          <BeatLoader color="var(--olive-green)" />
+          <BeatLoader color="#22c55e" />
           {thrown && (
             <p className="text-slate-600">Generating your qr code...</p>
           )}

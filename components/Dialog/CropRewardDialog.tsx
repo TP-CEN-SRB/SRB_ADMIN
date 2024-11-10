@@ -101,12 +101,13 @@ const CropRewardDialog = ({
   return (
     <Dialog open={isOpen}>
       <DialogContent
+        className="[&>button]:hidden"
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
       >
         <DialogHeader>
-          <DialogTitle>Resize your image</DialogTitle>
+          <DialogTitle className="text-3xl">Resize your image</DialogTitle>
         </DialogHeader>
         <ImagePreview
           crop={crop}
@@ -117,18 +118,18 @@ const CropRewardDialog = ({
         />
         <DialogFooter>
           <Button
+            onClick={() => onDialogClose(undefined)}
+            type="button"
+            className="border border-emerald-500 bg-gray-50 text-emerald-500 hover:bg-gray-200"
+          >
+            Cancel
+          </Button>
+          <Button
             type="button"
             className="bg-emerald-500 hover:bg-emerald-600 text-gray-50"
             onClick={handleCropSave}
           >
             Save
-          </Button>
-          <Button
-            onClick={() => onDialogClose(undefined)}
-            type="button"
-            className="border border-emerald-500 bg-gray-50 text-emerald-500 hover:bg-emerald-50"
-          >
-            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>

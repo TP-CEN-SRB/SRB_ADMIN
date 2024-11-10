@@ -1,19 +1,11 @@
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FaEdit } from "react-icons/fa";
-import { MdLockReset, MdMoreVert } from "react-icons/md";
-import { IoIosMail } from "react-icons/io";
 import prisma from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import React from "react";
-import Link from "next/link";
+import { getNameInitials } from "@/utils/getNameInitials";
+import AdminProfileMore from "@/components/Dropdown/AdminProfileMore";
 
 const AdminProfilePage = async () => {
   const sessionUser = await getSessionUser();
@@ -24,9 +16,7 @@ const AdminProfilePage = async () => {
       <Card>
         <div className="flex items-center gap-x-10">
           <Avatar className="border border-slate-800 w-24 h-24 text-3xl font-bold">
-            <AvatarFallback>
-              {user?.name?.charAt(0).toUpperCase()}
-            </AvatarFallback>
+            <AvatarFallback>{getNameInitials(user?.name!)}</AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-slate-800">{user?.name}</h1>
@@ -37,27 +27,7 @@ const AdminProfilePage = async () => {
       <Card>
         <div className="flex justify-between items-center">
           <CardHeader>Profile Information</CardHeader>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2">
-              <MdMoreVert />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="bottom" align="end">
-              <Link href="/admin/profile/edit">
-                <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
-                  <FaEdit />
-                  <span>Edit profile</span>
-                </DropdownMenuItem>
-              </Link>
-              <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
-                <IoIosMail />
-                <span>Change email</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
-                <MdLockReset />
-                <span>Reset password</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <AdminProfileMore email={user?.email!} />
         </div>
         <div className="mt-5">
           <div className="flex flex-wrap">

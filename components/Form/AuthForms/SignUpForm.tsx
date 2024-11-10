@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SignUpAdminSchema } from "@/schemas/auth";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import {
   Form,
   FormControl,
@@ -36,7 +36,6 @@ const SignUpForm = () => {
     },
   });
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 

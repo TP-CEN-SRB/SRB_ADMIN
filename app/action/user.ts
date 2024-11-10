@@ -28,6 +28,7 @@ import {
   getVerificationTokenByEmail,
 } from "@/utils/verificationToken";
 import { getSessionUser } from "@/utils/getAuth";
+import { revalidatePath } from "next/cache";
 
 const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.safeParse(values);
@@ -212,7 +213,7 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
     const passwordResetToken = await generatePasswordResetToken(
       existingUser.email
     );
-    await sendVerificationEmail(
+    await sendPasswordResetEmail(
       passwordResetToken.email,
       passwordResetToken.token
     );
@@ -283,9 +284,7 @@ const getLoggedInUserById = async (id: string) => {
   return binUser;
 };
 
-const updateAdminUser = async (
-  values: z.infer<typeof SignUpAdminSchema>
-) => {
+const updateAdminUser = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.omit({
     password: true,
   }).safeParse(values);
@@ -309,8 +308,9 @@ const updateAdminUser = async (
   }
   await prisma.user.update({
     where: { id: existingUser.id },
-    data: { name, faculty },
+    data: { name: capitalizeFirstLetter(name), faculty },
   });
+  revalidatePath("/admin/profile");
   return { success: "Profile updated successfully!" };
 };
 

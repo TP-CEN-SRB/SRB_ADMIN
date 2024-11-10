@@ -17,7 +17,7 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
     <Card rounded>
       <div className="flex items-center justify-center mb-6 gap-x-3">
         <CardHeader>Recycling Steps</CardHeader>
-        <RingLoader color="var(--olive-green)" />
+        <RingLoader color="#22c55e" />
       </div>
       <CardBody>
         <div className="flex flex-col space-y-8">
