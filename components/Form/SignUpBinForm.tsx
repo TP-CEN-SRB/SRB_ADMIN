@@ -15,11 +15,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FormHeader from "./FormHeader";
+import FormHeader from "@/components/Form/FormHeader";
 import { Loader2 } from "lucide-react";
-import CustomFormMessage from "./CustomFormMessage";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import { useRouter } from "next/navigation";
-import Card from "../Card/Card";
+import Card from "@/components/Card/Card";
 import { signUpBin } from "@/app/action/user";
 
 const SignUpBinForm = () => {

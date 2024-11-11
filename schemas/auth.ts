@@ -26,7 +26,9 @@ const SignUpAdminSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
-const UpdateAdminPasswordSchema = SignUpAdminSchema.pick({ password: true });
+const UpdateAdminEmailSchema = SignUpAdminSchema.pick({
+  email: true,
+}).merge(z.object({ password: z.string().min(1, "Password is required") }));
 
 /**
  * Students + Admins
@@ -88,6 +90,7 @@ const SignUpStudentSchema = z.object({
 export {
   LoginSchema,
   SignUpAdminSchema,
+  UpdateAdminEmailSchema,
   SignUpBinSchema,
   SignUpStudentSchema,
   SecondaryPasswordSchema,

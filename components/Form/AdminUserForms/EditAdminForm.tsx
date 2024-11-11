@@ -21,7 +21,7 @@ import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { Button } from "@/components/ui/button";
 import { Faculty } from "@prisma/client";
-import { updateAdminUser } from "@/app/action/user";
+import { updateAdmin } from "@/app/action/user";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -45,7 +45,7 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
   const onSubmit = (values: z.infer<typeof SignUpAdminSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await updateAdminUser(values);
+      const data = await updateAdmin(values);
       setError(data?.error as string);
       if (!data?.error && data?.success !== undefined) {
         toast({

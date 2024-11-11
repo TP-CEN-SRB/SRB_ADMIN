@@ -7,6 +7,7 @@ import {
   ResetSchema,
   NewPasswordSchema,
   SignUpBinSchema,
+  UpdateAdminEmailSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -284,7 +285,7 @@ const getLoggedInUserById = async (id: string) => {
   return binUser;
 };
 
-const updateAdminUser = async (values: z.infer<typeof SignUpAdminSchema>) => {
+const updateAdmin = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.omit({
     password: true,
   }).safeParse(values);
@@ -314,6 +315,60 @@ const updateAdminUser = async (values: z.infer<typeof SignUpAdminSchema>) => {
   return { success: "Profile updated successfully!" };
 };
 
+const updateAdminEmail = async (
+  values: z.infer<typeof UpdateAdminEmailSchema>
+) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
+  const validatedFields = UpdateAdminEmailSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid credentials!" };
+  }
+  const { email, password } = validatedFields.data;
+  const currentUser = await prisma.user.findUnique({
+    where: { id: sessionUser.id, role: "ADMIN" },
+  });
+  if (!currentUser) {
+    return { error: "Something went wrong!" };
+  }
+  const isMatched = await compare(password, currentUser.password);
+  if (!isMatched) {
+    return { error: "Invalid credentials!" };
+  }
+  const existingUser = await prisma.user.findUnique({
+    where: { email: email },
+  });
+  if (existingUser) {
+    return { error: "Email is already in use!" };
+  }
+  const existingToken = await getVerificationTokenByEmail(email);
+  if (!existingToken) {
+    const verificationToken = await generateVerificationToken(
+      email,
+      currentUser.email
+    );
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token
+    );
+    return { success: "Confirmation email sent!" };
+  }
+  const ableToResendEmail = await ableToGenerateNewVerificationToken(
+    existingToken.token
+  );
+  if (!ableToResendEmail) {
+    return {
+      error:
+        "We have already sent you an email! If you wish to resend please try again later",
+    };
+  }
+  const verificationToken = await generateVerificationToken(email);
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  return { success: "Confirmation email sent!" };
+};
+
 export {
   signUp,
   signUpBin,
@@ -323,5 +378,6 @@ export {
   resetPassword,
   newPassword,
   getLoggedInUserById,
-  updateAdminUser,
+  updateAdmin,
+  updateAdminEmail,
 };

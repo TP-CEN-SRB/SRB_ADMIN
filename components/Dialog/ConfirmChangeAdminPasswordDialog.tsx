@@ -41,7 +41,7 @@ const ConfirmChangeAdminPasswordDialog = ({
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
+          <DialogTitle className="text-3xl">Reset password?</DialogTitle>
           <DialogDescription className="text-slate-500 mt-4 text-md">
             We will send you an email with instructions to reset your password
           </DialogDescription>

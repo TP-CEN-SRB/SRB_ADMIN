@@ -15,6 +15,19 @@ const verifyToken = async (token: string) => {
     return {
       error: "Oops! This link has expired",
     };
+  // update email address
+  if (existingToken.oldEmail) {
+    await prisma.user.update({
+      where: { email: existingToken.oldEmail },
+      data: { email: existingToken.email },
+    });
+    await prisma.verificationToken.delete({
+      where: {
+        id: existingToken.id,
+      },
+    });
+    return { success: "Your email has been updated!" };
+  }
 
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -38,7 +51,5 @@ const verifyToken = async (token: string) => {
   });
   return { success: "Your email has been verified!" };
 };
-
-
 
 export { verifyToken };

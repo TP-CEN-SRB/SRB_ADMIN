@@ -11,15 +11,21 @@ import Link from "next/link";
 import { FaEdit } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 import ConfirmChangeAdminPasswordDialog from "../Dialog/ConfirmChangeAdminPasswordDialog";
+import EditAdminEmailDialog from "@/components/Dialog/EditAdminEmailDialog";
 
 const AdminProfileMore = ({ email }: { email: string }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [isEmailDialogOpen, setEmailDialogOpen] = useState(false);
   return (
     <div>
       <ConfirmChangeAdminPasswordDialog
         email={email}
-        isOpen={isDialogOpen}
-        handleDialogOpen={() => setDialogOpen(!isDialogOpen)}
+        isOpen={isPasswordDialogOpen}
+        handleDialogOpen={() => setPasswordDialogOpen(!isPasswordDialogOpen)}
+      />
+      <EditAdminEmailDialog
+        isOpen={isEmailDialogOpen}
+        handleDialogOpen={() => setEmailDialogOpen(!isEmailDialogOpen)}
       />
       <DropdownMenu>
         <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2">
@@ -32,12 +38,15 @@ const AdminProfileMore = ({ email }: { email: string }) => {
               <span>Edit profile</span>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => setEmailDialogOpen(true)}
+            className="hover:!bg-[#f5f2b3] cursor-pointer"
+          >
             <IoIosMail />
             <span>Change email</span>
           </DropdownMenuItem>
           <DropdownMenuItem
-            onClick={() => setDialogOpen(true)}
+            onClick={() => setPasswordDialogOpen(true)}
             className="hover:!bg-[#f5f2b3] cursor-pointer"
           >
             <MdLockReset />

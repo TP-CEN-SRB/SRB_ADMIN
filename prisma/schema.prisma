@@ -59,10 +59,11 @@ model User {
 }
 
 model VerificationToken {
-  id      String   @id @default(uuid())
-  email   String
-  token   String   @unique
-  expires DateTime
+  id       String   @id @default(uuid())
+  email    String
+  oldEmail String?
+  token    String   @unique
+  expires  DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
