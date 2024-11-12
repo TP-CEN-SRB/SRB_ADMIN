@@ -16,7 +16,9 @@ const AdminProfilePage = async () => {
       <Card>
         <div className="flex items-center gap-x-10">
           <Avatar className="border border-slate-800 w-24 h-24 text-3xl font-bold">
-            <AvatarFallback>{getNameInitials(user?.name!)}</AvatarFallback>
+            <AvatarFallback>
+              {getNameInitials(user?.name as string)}
+            </AvatarFallback>
           </Avatar>
           <div>
             <h1 className="text-slate-800">{user?.name}</h1>
@@ -27,7 +29,7 @@ const AdminProfilePage = async () => {
       <Card>
         <div className="flex justify-between items-center">
           <CardHeader>Profile Information</CardHeader>
-          <AdminProfileMore email={user?.email!} />
+          <AdminProfileMore email={user?.email as string} />
         </div>
         <div className="mt-5">
           <div className="flex flex-wrap">
