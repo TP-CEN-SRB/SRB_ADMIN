@@ -91,7 +91,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     await transporter.sendMail({
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
-      subject: "[Smart Bin System] Account creation",
+      subject: "[Smart Bin System] Account verification",
       html: emailTemplate(confirmLink, "VERIFY"),
     });
   } catch (error) {

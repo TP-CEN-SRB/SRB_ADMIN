@@ -35,7 +35,7 @@ const PointsPage = ({ params }: { params: { id: string } }) => {
         ) : (
           <div className="flex flex-col items-center gap-y-2">
             <MdError size={100} className="text-red-500" />
-            <h2 className="text-2xl font-semibold text-red-700">
+            <h2 className="text-2xl font-semibold text-red-600">
               Oops! User not found
             </h2>
             <p className="text-slate-500">

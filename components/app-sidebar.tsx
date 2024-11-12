@@ -197,14 +197,14 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                   <DropdownMenuSeparator />
                   {dropdownItems.map((item, index) => (
                     <Link key={index} href={item.url}>
-                      <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+                      <DropdownMenuItem className="cursor-pointer">
                         <item.icon />
                         <span>{item.title}</span>
                       </DropdownMenuItem>
                     </Link>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
+                  <DropdownMenuItem>
                     <form action={logout}>
                       <button
                         className="flex items-center gap-x-2"

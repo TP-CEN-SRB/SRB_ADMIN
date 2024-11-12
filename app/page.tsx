@@ -50,7 +50,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="bg-[var(--pastel-green)]">
+    <div className="bg-hero bg-cover bg-center">
       <div className="h-screen max-w-screen-lg flex items-center justify-center container mx-auto px-4">
         <div className="text-center max-w-screen-lg w-full">
           <h1 className="text-slate-800 mb-4">
