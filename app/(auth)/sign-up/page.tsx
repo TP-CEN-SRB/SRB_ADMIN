@@ -1,10 +1,10 @@
-import SignUpForm from "@/components/Form/SignUpForm";
+import SignUpForm from "@/components/Form/AuthForms/SignUpForm";
 import Image from "next/image";
 import React from "react";
 
 const SignUpPage = () => {
   return (
-    <div className="flex w-full rounded-lg overflow-hidden min-h-screen">
+    <div className="flex w-full overflow-hidden min-h-screen">
       <div className="relative flex-1 border-gray-200 border-r-2">
         <Image
           className="object-cover"

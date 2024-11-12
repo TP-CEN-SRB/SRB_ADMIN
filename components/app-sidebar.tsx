@@ -1,7 +1,4 @@
 "use client";
-
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +7,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -23,49 +22,109 @@ import { BsFillBarChartFill } from "react-icons/bs";
 import { enableNav } from "@/utils/enableNav";
 import { usePathname } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
-import { FaBell, FaTrash, FaUser } from "react-icons/fa";
+import {
+  FaBell,
+  FaTrash,
+  FaUser,
+  FaChevronRight,
+  FaEye,
+  FaPlus,
+} from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
 import { logout } from "@/app/action/user";
 import { PiSignOutBold } from "react-icons/pi";
-import { FaChevronRight } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
+import { useState } from "react";
 
-const items = [
-  {
-    title: "Dashboard",
-    url: "/admin",
-    icon: BsFillBarChartFill,
-  },
+const collaspeItems = [
   {
     title: "Bins",
-    url: "/admin/bin/all",
     icon: FaTrash,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/bin",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/bin/create",
+      },
+    ],
   },
   {
     title: "Users",
-    url: "/admin/user",
     icon: FaUser,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/user",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/user/create",
+      },
+    ],
   },
   {
     title: "Rewards",
-    url: "/admin/reward",
     icon: GiPresent,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: IoSettings,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/reward",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/reward/create",
+      },
+    ],
   },
 ];
 
-export function AppSidebar({ email }: { email: string }) {
+const dropdownItems = [
+  {
+    title: "Profile",
+    icon: FaUser,
+    url: "/admin/profile",
+  },
+  {
+    title: "Notifications",
+    icon: FaBell,
+    url: "/admin/notification",
+  },
+  {
+    title: "Settings",
+    icon: IoSettings,
+    url: "/admin/settings",
+  },
+];
+
+export function AppSidebar({ email }: { email: string | null | undefined }) {
   const path = usePathname();
+  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+
+  const handleToggle = (index: number) => {
+    setOpenIndexes((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
   return (
     enableNav.some((route) => path.startsWith(route)) && (
       <Sidebar>
-        <SidebarContent>
+        <SidebarHeader>
           <SidebarMenu className="p-4">
             <Image
               src="/temasekPolyBanner.png"
@@ -74,20 +133,54 @@ export function AppSidebar({ email }: { email: string }) {
               height="300"
             />
           </SidebarMenu>
-          <SidebarHeader>
-            <SidebarMenu>
-              {items.map((project) => (
-                <SidebarMenuItem className="ml-4" key={project.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={project.url}>
-                      <project.icon />
-                      <span>{project.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            <SidebarMenuItem className="mx-4">
+              <SidebarMenuButton asChild>
+                <Link href="/admin">
+                  <BsFillBarChartFill />
+                  <span>Dashboard</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            {collaspeItems.map((item, index) => (
+              <Collapsible
+                key={index}
+                className="group/collapsible"
+                onOpenChange={() => handleToggle(index)}
+                open={openIndexes.includes(index)}
+              >
+                <SidebarMenuItem className="mx-4">
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <item.icon />
+                      <span>{item.title}</span>
+                      <FaChevronRight
+                        className={`ml-auto duration-100 ease ${
+                          openIndexes.includes(index) ? "rotate-90" : "rotate-0"
+                        }  `}
+                      />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {item.child.map((child, subIndex) => (
+                        <Link key={subIndex} href={child.url}>
+                          <SidebarMenuSubItem className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg">
+                            <SidebarMenuButton>
+                              <child.icon />
+                              <span>{child.title}</span>
+                            </SidebarMenuButton>
+                          </SidebarMenuSubItem>
+                        </Link>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
                 </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarHeader>
+              </Collapsible>
+            ))}
+          </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
@@ -102,14 +195,14 @@ export function AppSidebar({ email }: { email: string }) {
                 <DropdownMenuContent align="start" side="right" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
-                    <FaUser />
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
-                    <FaBell />
-                    Notification
-                  </DropdownMenuItem>
+                  {dropdownItems.map((item, index) => (
+                    <Link key={index} href={item.url}>
+                      <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </DropdownMenuItem>
+                    </Link>
+                  ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="hover:!bg-[#f5f2b3]">
                     <form action={logout}>

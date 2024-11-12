@@ -1,7 +1,7 @@
 import { BinMaterial, BinStatus } from "@prisma/client";
 import * as z from "zod";
-const MAX_FILE_SIZE = 4 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = [
+export const MAX_FILE_SIZE = 4 * 1024 * 1024;
+export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
@@ -21,10 +21,7 @@ const DisposalSchema = z.object({
 });
 
 const RewardSchema = z.object({
-  name: z
-    .string()
-    .min(2, "Name is too short")
-    .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+  name: z.string().min(2, "Name is too short"),
   pointsRequired: z.coerce
     .number({ message: "Points must be a number" })
     .int("Points must be an integer")

@@ -1,7 +1,7 @@
 "use client";
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
-import AdminNumberForm from "@/components/Form/AdminNumberForm";
+import AdminNumberForm from "@/components/Form/BinUserForms/AdminNumberForm";
 import { FaStar } from "react-icons/fa";
 
 import React from "react";

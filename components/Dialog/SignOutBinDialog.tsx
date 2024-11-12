@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import SignOutBinForm from "../Form/SignOutBinForm";
+import SignOutBinForm from "@/components/Form/BinUserForms/SignOutBinForm";
 import { getSessionUser } from "@/utils/getAuth";
 import { PiSignOutBold } from "react-icons/pi";
 

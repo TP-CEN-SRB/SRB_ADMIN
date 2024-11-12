@@ -3,11 +3,11 @@ import { IoRocket } from "react-icons/io5";
 import { useState, useTransition } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Loader2 } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Card from "@/components/Card/Card";
 import { MdVerified } from "react-icons/md";
 import { MdError } from "react-icons/md";
-import CardHeader from "../Card/CardHeader";
+import CardHeader from "@/components/Card/CardHeader";
 interface VerificationFormProps {
   token: string;
 }
@@ -36,7 +36,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
           <Button
             onClick={handleSubmit}
             disabled={isPending}
-            className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700"
+            className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-gray-50"
             type="submit"
           >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}

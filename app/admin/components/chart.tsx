@@ -81,7 +81,7 @@ const PieChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function Chart({ chartData, pieChartData }: ChartProps) {
+export default function Chart({ chartData, pieChartData }: ChartProps) {
   return (
     <>
       <div className="grid md:grid-cols-8 grid-cols-1 gap-4 font-bold mt-4">

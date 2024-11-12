@@ -1,6 +1,4 @@
-import React from "react";
-import DashboardStatsGrid from "./components/dashboardStatsGrid";
-import { Chart } from "./components/chart";
+import React, { Suspense } from "react";
 import {
   getAllBins,
   getBinCountsByMaterial,
@@ -8,15 +6,26 @@ import {
   getChartData,
   getDisposals,
 } from "../action/bin";
-
+import DashboardStatsGrid from "./components/dashboardStatsGrid";
+import Chart from "./components/chart";
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const Page = async () => {
-  const DBChartData = await getChartData();
-  const pieChartData = await getBinCountsByMaterial();
-  const totalCount = await getAllBins();
-  const totalCountByStatus = await getBinCountsByStatus();
-  const totalDisposalCount = await getDisposals();
+  // await delay(5000);
+  const [
+    DBChartData,
+    pieChartData,
+    totalCount,
+    totalCountByStatus,
+    totalDisposalCount,
+  ] = await Promise.all([
+    getChartData(),
+    getBinCountsByMaterial(),
+    getAllBins(),
+    getBinCountsByStatus(),
+    getDisposals(),
+  ]);
   return (
-    <div className="w-full p-4">
+    <div className="p-4">
       <DashboardStatsGrid
         binsCount={totalCount.length}
         binsCountByStatus={totalCountByStatus}

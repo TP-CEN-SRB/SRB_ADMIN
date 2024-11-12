@@ -20,7 +20,7 @@ import { newPassword } from "@/app/action/user";
 import { MdLockReset } from "react-icons/md";
 import Card from "@/components/Card/Card";
 import { MdError, MdVerified } from "react-icons/md";
-import CardHeader from "../Card/CardHeader";
+import CardHeader from "@/components/Card/CardHeader";
 interface NewPasswordFormProps {
   token: string;
 }
@@ -79,7 +79,7 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
               {!success && !error && (
                 <Button
                   disabled={isPending}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
                   type="submit"
                 >
                   {isPending ? (

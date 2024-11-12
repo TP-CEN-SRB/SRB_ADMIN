@@ -6,6 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
+import {
+  ableToGenerateNewVerificationToken,
+  getVerificationTokenByEmail,
+} from "@/utils/verificationToken";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -31,7 +35,7 @@ export const POST = async (req: NextRequest) => {
         { status: 404 }
       );
     }
-    const isMatched = compare(password, existingUser.password);
+    const isMatched = await compare(password, existingUser.password);
     if (!isMatched) {
       return NextResponse.json(
         {
@@ -41,6 +45,36 @@ export const POST = async (req: NextRequest) => {
       );
     }
     if (!existingUser.emailVerified) {
+      const existingToken = await getVerificationTokenByEmail(
+        existingUser.email
+      );
+      if (!existingToken) {
+        const verificationToken = await generateVerificationToken(
+          existingUser.email
+        );
+        await sendVerificationEmail(
+          verificationToken.email,
+          verificationToken.token
+        );
+        return NextResponse.json(
+          { message: "Confirmation email sent!" },
+          { status: 200 }
+        );
+      }
+      const ableToResendEmail = await ableToGenerateNewVerificationToken(
+        existingToken.token
+      );
+      if (!ableToResendEmail) {
+        return NextResponse.json(
+          {
+            message:
+              "We have already sent you an email! If you wish to resend please try again later",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
       const verificationToken = await generateVerificationToken(
         existingUser.email
       );

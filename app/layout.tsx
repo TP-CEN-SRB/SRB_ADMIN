@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import Header from "./admin/header";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import "react-image-crop/dist/ReactCrop.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,7 +31,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* <Header /> */}
         <main>{children}</main>
         <Toaster />
       </body>

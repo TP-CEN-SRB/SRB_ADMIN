@@ -18,7 +18,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { SecondaryPasswordSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import CustomFormMessage from "./CustomFormMessage";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import { Loader2 } from "lucide-react";
 import { emptyBinsByUserId } from "@/app/action/bin";
 
@@ -65,6 +65,7 @@ const EmptyBinForm = ({ userId }: { userId: string }) => {
                     <InputOTPGroup>
                       {Array.from({ length: 6 }, (_, index) => (
                         <InputOTPSlot
+                          key={index}
                           index={index}
                           className="w-12 h-12 text-2xl ring-indigo-500"
                         />

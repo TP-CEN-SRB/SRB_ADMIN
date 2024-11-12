@@ -3,7 +3,7 @@ import React from "react";
 
 const RewardsCreatePage = () => {
   return (
-    <div className="container mx-auto my-auto max-w-screen-xs mt-[50px]">
+    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
       <CreateRewardForm />
     </div>
   );
