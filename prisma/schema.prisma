@@ -81,7 +81,7 @@ model PassswordResetToken {
 model Bin {
   id              String      @id @default(uuid())
   location        String // Outside library
-  status          BinStatus
+  status          BinStatus @default(FUNCTIONAL)
   material        BinMaterial
   currentCapacity Int         @default(0)
   userId          String

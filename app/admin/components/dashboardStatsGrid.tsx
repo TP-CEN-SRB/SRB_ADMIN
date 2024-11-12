@@ -30,15 +30,17 @@ const nunito400 = Nunito({
 });
 
 interface ChartProps {
-  binsCount: number;
-  binsCountByStatus: number;
-  disposalsCount: number;
+  binsCount?: number;
+  binsCountByStatus?: number;
+  disposalsCount?: number;
+  binsPercentageDiff?: number;
 }
 
 const DashboardStatsGrid = ({
   binsCount,
   binsCountByStatus,
   disposalsCount,
+  binsPercentageDiff,
 }: ChartProps) => {
   const [loading, setLoading] = useState(false);
   const [binsStatusCount, setBinsStatusCount] = useState(binsCountByStatus);
@@ -130,7 +132,7 @@ const DashboardStatsGrid = ({
                   className={`flex items-center ${nunito400.className} text-xs`}
                 >
                   <GrLineChart className="text-blue-500 mr-1" />
-                  <span>+2.5% from last week</span>
+                  <span>{binsPercentageDiff}% from last week</span>
                 </div>
               </div>
 

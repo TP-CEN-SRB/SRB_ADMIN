@@ -31,6 +31,7 @@ const SignUpBinForm = () => {
       email: "",
       password: "",
       secondaryPassword: "",
+      location: "",
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -47,7 +48,7 @@ const SignUpBinForm = () => {
   };
   return (
     <Card fullWidth>
-      <FormHeader>Create a bin user</FormHeader>
+      <FormHeader>Create a bin</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -124,6 +125,24 @@ const SignUpBinForm = () => {
                 <FormDescription>
                   This password will be used for actions like signing out
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold">Bin Location</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Level 1, Block 1 of Engineering School"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

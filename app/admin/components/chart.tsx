@@ -84,7 +84,7 @@ const PieChartConfig = {
 export function Chart({ chartData, pieChartData }: ChartProps) {
   return (
     <>
-      <div className="grid md:grid-cols-8 grid-cols-1 px-8 py-4 gap-4 font-bold">
+      <div className="grid md:grid-cols-8 grid-cols-1 px-4 md:px-6 lg:px-8 py-4 gap-4 font-bold">
         <div className="bg-white rounded-xl col-span-5">
           <ChartContainer config={chartConfig} className="w-full h-[500px]">
             <BarChart accessibilityLayer data={chartData}>

@@ -38,6 +38,12 @@ const SignUpBinSchema = z.object({
   secondaryPassword: z
     .string()
     .regex(/^\d{6}$/, "Secondary password must be 6 digits"),
+  location: z
+    .string()
+    .regex(
+      /^[A-Za-z0-9\s,]+$/,
+      "Location can only contain letters, numbers, spaces, and commas"
+    ),
 });
 const SecondaryPasswordSchema = z.object({
   secondaryPassword: z
