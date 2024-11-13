@@ -1,4 +1,4 @@
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
 import * as z from "zod";
 export const MAX_FILE_SIZE = 4 * 1024 * 1024;
 export const ACCEPTED_IMAGE_TYPES = [
@@ -11,13 +11,13 @@ export const ACCEPTED_IMAGE_TYPES = [
 const BinSchema = z.object({
   location: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
-  material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
+  material: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   userId: z.string().min(1, "User ID is required"),
 });
 
 const DisposalSchema = z.object({
   weightInGrams: z.coerce.number().min(1, "Minimum weight must be 1"),
-  material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
+  material: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
 });
 
 const RewardSchema = z.object({

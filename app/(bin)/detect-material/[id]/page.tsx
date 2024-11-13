@@ -7,104 +7,25 @@ import CardBody from "@/components/Card/CardBody";
 import { useRouter } from "next/navigation";
 import { BeatLoader } from "react-spinners";
 import { createDisposal } from "@/app/action/disposal";
-import { BinMaterial } from "@prisma/client";
 import TimerRedirect from "@/components/TimerRedirect";
 import { Button } from "@/components/ui/button";
 import { pusherClient } from "@/lib/pusher";
 
 const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
-  const [material, setMaterial] = useState<BinMaterial>();
+  const [material, setMaterial] = useState("");
   const [weightInGrams, setWeightInGrams] = useState<number>();
 
   const [error, setError] = useState<string>();
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
-  /** SSE
-   */
-  // useEffect(() => {
-  //   const eventSource = new EventSource("/api/detect-material");
-  //   eventSource.onmessage = (event: MessageEvent) => {
-  //     const { material, weightInGrams, thrown } = JSON.parse(event.data);
-  //     if (thrown === undefined) {
-  //       if (
-  //         !Object.values(BinMaterial).includes(material) ||
-  //         isNaN(weightInGrams) ||
-  //         !material ||
-  //         !weightInGrams
-  //       ) {
-  //         setDetecting(false);
-  //         setError("Unable to detect material. Please try again");
-  //       }
-  //       setMaterial(material);
-  //       setWeightInGrams(weightInGrams);
-  //       setDetecting(false);
-  //     }
-  //     setThrown(thrown);
-  //   };
-  //   return () => {
-  //     eventSource.close();
-  //   };
-  // }, [material, router, weightInGrams]);
-
-  // useEffect(() => {
-  //   const handleDisposal = async () => {
-  //     if (thrown === true && material && weightInGrams) {
-  //       const data = await createDisposal({
-  //         material: material as BinMaterial,
-  //         weightInGrams,
-  //       });
-  //       setError(data?.error);
-  //       if (data?.id) {
-  //         router.push(`/disposal-qr?id=${data.id}`);
-  //       }
-  //     }
-  //   };
-
-  //   handleDisposal();
-  // }, [thrown]);
-
-  /** Polling
-   */
-  // const fetchMaterial = async () => {
-  //   const response = await fetch(`/api/detect-material/${params.id}`, {
-  //     method: "GET",
-  //   });
-  //   if (response.ok) {
-  //     const { material, weightInGrams, thrown } = await response.json();
-  //     if (thrown === undefined && material && weightInGrams) {
-  //       if (
-  //         !Object.values(BinMaterial).includes(material) ||
-  //         isNaN(weightInGrams)
-  //       ) {
-  //         setDetecting(false);
-  //         setError("Unable to detect material. Please try again");
-  //       }
-  //       setMaterial(material);
-  //       setWeightInGrams(weightInGrams);
-  //       setDetecting(false);
-  //     }
-  //     setThrown(thrown);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (detecting || thrown !== true) {
-  //       fetchMaterial();
-  //     } else {
-  //       clearInterval(interval);
-  //     }
-  //   }, 5000);
-  //   return () => clearInterval(interval);
-  // }, [detecting, thrown]);
 
   useEffect(() => {
     const handleDisposal = async () => {
       if (thrown === true && material && weightInGrams) {
         const data = await createDisposal(
           {
-            material: material as BinMaterial,
+            material: material,
             weightInGrams,
           },
           params.id
@@ -126,24 +47,23 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     pusherClient.subscribe(`detect-material-${params.id}`);
     pusherClient.bind(
       "material-details",
-      (data: {
-        material: BinMaterial;
-        weightInGrams: number;
-        thrown: boolean;
-      }) => {
-        if (data.thrown === undefined && data.material && data.weightInGrams) {
-          if (
-            !Object.values(BinMaterial).includes(data.material) ||
-            isNaN(data.weightInGrams)
-          ) {
-            setDetecting(false);
-            setError("Unable to detect material. Please try again");
-          }
-          setMaterial(data.material);
-          setWeightInGrams(data.weightInGrams);
+      (data: { material: string; weightInGrams: number; thrown: boolean }) => {
+        if (
+          data.thrown === undefined &&
+          data.material &&
+          data.weightInGrams === undefined
+        ) {
+          setMaterial(data.material as string);
           setDetecting(false);
         }
-        if (material && weightInGrams) setThrown(data.thrown);
+        if (
+          material &&
+          data.weightInGrams !== undefined &&
+          data.thrown === true
+        ) {
+          setWeightInGrams(data.weightInGrams);
+          setThrown(data.thrown);
+        }
       }
     );
     return () => pusherClient.unsubscribe(`detect-material-${params.id}`);
@@ -170,9 +90,6 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
             <h2 className="text-3xl font-bold text-green-500">
               {material} Detected
             </h2>
-            <h2 className="text-3xl font-semibold text-green-500">
-              Weight {weightInGrams}g
-            </h2>
             <p className="text-slate-600">
               Please dispose the item in the opened bin.
             </p>
@@ -184,13 +101,15 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
       {!detecting && !error && (
         <div className="flex flex-col items-center justify-center mt-4">
           <BeatLoader color="#22c55e" />
-          {thrown && (
+          {thrown && weightInGrams && (
             <p className="text-slate-600">Generating your qr code...</p>
           )}
         </div>
       )}
       {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
-      {!error && !thrown && <TimerRedirect delayInMs={150000} redirectTo="/" />}
+      {!error && !thrown && weightInGrams === undefined && (
+        <TimerRedirect delayInMs={150000} redirectTo="/" />
+      )}
       {!error && detecting && (
         <div className="flex justify-center mt-4">
           <Button

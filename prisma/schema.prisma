@@ -33,11 +33,6 @@ enum Role {
   BIN
 }
 
-enum BinMaterial {
-  PLASTIC
-  METAL
-}
-
 model User {
   id                String       @id @default(uuid())
   email             String       @unique
@@ -50,10 +45,10 @@ model User {
   disposals         Disposal[]
   bins              Bin[]
   redemption        Redemption[]
+  point             Point?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  point     Point?
 
   @@map("users")
 }
@@ -89,18 +84,27 @@ model Bin {
   id              String      @id @default(uuid())
   location        String // Outside library
   status          BinStatus   @default(FUNCTIONAL)
-  material        BinMaterial
-  currentCapacity Int         @default(0)
+  currentCapacity Float       @default(0)
   userId          String
   User            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
-
-  disposals Disposal[]
+  binMaterialId   String
+  binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
+  disposals       Disposal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([location, status, material])
+  @@unique([location, status, binMaterialId])
   @@map("bins")
+}
+
+model BinMaterial {
+  id   String @id @default(uuid())
+  name String @unique
+
+  bins Bin[]
+
+  @@map("bin_materials")
 }
 
 model Disposal {
@@ -108,7 +112,7 @@ model Disposal {
   weightInGrams Int
   binId         String
   bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
-  isRedeemed    Boolean
+  isRedeemed    Boolean  @default(false)
   pointsAwarded Int
   userId        String?
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)

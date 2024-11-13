@@ -40,7 +40,7 @@ const AdminProfileMore = ({ email }: { email: string }) => {
           </Link>
           <DropdownMenuItem
             onClick={() => setEmailDialogOpen(true)}
-            className="hover:!bg-[#f5f2b3] cursor-pointer"
+            className="cursor-pointer"
           >
             <IoIosMail />
             <span>Change email</span>

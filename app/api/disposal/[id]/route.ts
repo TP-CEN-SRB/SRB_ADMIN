@@ -182,6 +182,12 @@ export const PUT = async (
       );
     }
     const { disposalId, userId } = await req.json();
+    if (userId !== decodedToken.userId) {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
     const id = params.id;
     if (!id) {
       return NextResponse.json(

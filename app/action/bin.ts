@@ -24,6 +24,14 @@ export const getBinsByUserId = async (id: string) => {
     where: {
       userId: id,
     },
+    select: {
+      currentCapacity: true,
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
+    },
   });
 };
 
