@@ -1,5 +1,5 @@
 import React from "react";
-import { Chart } from "./components/chart";
+import Chart from "@/app/admin/components/chart";
 import {
   getAllBins,
   getBinCountsByMaterial,

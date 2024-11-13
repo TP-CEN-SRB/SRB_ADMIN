@@ -50,11 +50,11 @@ const chartConfig = {
   },
   binMetal: {
     label: "Metal",
-    color: "#6366f1",
+    color: "#4394E5",
   },
   binPlastic: {
     label: "Plastic",
-    color: "#10b981",
+    color: "#41B3A2",
   },
   bin: {
     label: "Bins",
@@ -117,7 +117,7 @@ export default function Chart({ chartData, pieChartData }: ChartProps) {
             </BarChart>
           </ChartContainer>
         </div>
-        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl col-span-3 flex justify-center">
+        <div className="bg-white rounded-xl col-span-3 flex justify-center">
           <ChartContainer config={PieChartConfig} className="w-full">
             <PieChart>
               <Pie
