@@ -2,7 +2,7 @@
 import nodemailer from "nodemailer";
 
 // const resend = new Resend(process.env.RESEND_API_KEY);
-const emailTemplate = (link: string) => {
+const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -55,8 +55,12 @@ const emailTemplate = (link: string) => {
 <body>
     <div class="container">
         <h1>Hello,</h1>
-        <p>We received a request to reset your password or verify your email address. If you made this request, please click the link below:</p>
-        <a href="${link}" class="btn">Reset Password / Verify Email</a>
+        <p>We received a request to ${
+          type == "RESET" ? "reset your password" : "verify your email address"
+        }. If you made this request, please click the link below:</p>
+        <a href="${link}" class="btn">${
+    type == "RESET" ? "Reset Password" : "Verify Email"
+  }</a>
         <p>If you didn't request this, you can ignore this email.</p>
         <div class="footer">
             <p>Thank you,<br>Temasek Polytechnic CEN</p>
@@ -87,8 +91,8 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     await transporter.sendMail({
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
-      subject: "[Smart Bin System] Account creation",
-      html: emailTemplate(confirmLink),
+      subject: "[Smart Bin System] Account verification",
+      html: emailTemplate(confirmLink, "VERIFY"),
     });
   } catch (error) {
     console.log(error);
@@ -123,7 +127,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Reset password",
-      html: emailTemplate(resetLink),
+      html: emailTemplate(resetLink, "RESET"),
     });
   } catch (error) {
     console.log(error);

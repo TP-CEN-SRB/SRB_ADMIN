@@ -1,15 +1,22 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import prisma from "@/lib/db";
+import { getSessionUser } from "@/utils/getAuth";
 import React from "react";
-import Header from "./header";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const sessionUser = await getSessionUser();
+  const user = await prisma.user.findUnique({ where: { id: sessionUser?.id } });
   return (
-    <div className="h-full w-full">
-      <Header />
-      <div className="mt-24">{children}</div>
+    <div className="bg-[var(--pastel-green)] min-h-screen">
+      <SidebarProvider defaultOpen>
+        <AppSidebar email={user?.email} />
+        <div className="w-full mx-auto">{children}</div>
+      </SidebarProvider>
     </div>
   );
 }

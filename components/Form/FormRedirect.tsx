@@ -8,8 +8,10 @@ interface RedirectProps {
 
 const FormRedirect = ({ href, children }: RedirectProps) => {
   return (
-    <div className="text-gray-900 w-full text-center mt-4 hover:underline-offset-2 hover:underline">
-      <Link href={href}>{children}</Link>
+    <div className="flex justify-center mt-3">
+      <Link className="link-underline" href={href}>
+        {children}
+      </Link>
     </div>
   );
 };

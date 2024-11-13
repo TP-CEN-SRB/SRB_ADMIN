@@ -1,7 +1,7 @@
 "use client";
+import ButtonRedirect from "@/components/Button/ButtonRedirect";
 import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
-import CardButton from "@/components/Card/CardButton";
 import CardHeader from "@/components/Card/CardHeader";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
@@ -14,7 +14,7 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
     return () => stop();
   }, [sound, play, stop]);
   return (
-    <Card>
+    <Card rounded>
       <div className="flex items-center justify-center mb-6 gap-x-3">
         <CardHeader>Recycling Steps</CardHeader>
         <RingLoader color="#22c55e" />
@@ -27,19 +27,23 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
                 {index + 1}.
               </span>
               <div>
-                <h2 className="text-gray-800">{step.title}</h2>
-                <p className="text-gray-600">{step.description}</p>
+                <h2 className="text-slate-800">{step.title}</h2>
+                <p className="text-slate-600">{step.description}</p>
               </div>
             </div>
           ))}
         </div>
       </CardBody>
-      <CardButton color="green" href={`/detect-material/${params.id}`}>
+      <ButtonRedirect
+        rounded
+        color="emerald"
+        href={`/detect-material/${params.id}`}
+      >
         Continue
-      </CardButton>
-      <CardButton color="blue" href="/">
+      </ButtonRedirect>
+      <ButtonRedirect rounded color="emerald" variant="outline" href="/">
         Back
-      </CardButton>
+      </ButtonRedirect>
     </Card>
   );
 };

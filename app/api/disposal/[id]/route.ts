@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import { pusherServer } from "@/lib/pusher";
+import jwt from "jsonwebtoken";
 
 export const runtime = "nodejs";
 
@@ -166,10 +167,17 @@ export const PUT = async (
   { params }: { params: { id: string } }
 ) => {
   try {
-    const authorization = req.headers.get("x-api-key");
-    if (authorization !== process.env.API_KEY) {
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
       return NextResponse.json(
-        { message: "Permission denied!" },
+        { message: "Missing authorization header!" },
+        { status: 401 }
+      );
+    }
+    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+    if (typeof decodedToken === "string") {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
@@ -191,10 +199,10 @@ export const PUT = async (
         { status: 400 }
       );
     }
-    const result = await prisma.disposal.findFirst({
-      where: { id: disposalId, isScanned: false },
+    const disposal = await prisma.disposal.findFirst({
+      where: { id: disposalId, isRedeemed: false },
     });
-    if (!result) {
+    if (!disposal) {
       return NextResponse.json(
         { message: "No disposal found" },
         { status: 404 }
@@ -203,37 +211,29 @@ export const PUT = async (
     const existingUser = await prisma.user.findFirst({
       where: {
         id: userId,
-        role: "USER",
+        role: "STUDENT",
       },
     });
     if (!existingUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
-    const [updatedDisposal, transaction, userPoint] = await prisma.$transaction(
-      [
-        prisma.disposal.update({
-          where: { id: disposalId },
-          data: {
-            userId: userId,
-            isScanned: true,
-          },
-        }),
-        prisma.transaction.create({
-          data: {
-            pointsChange: result.weightInGrams,
-            userId: userId,
-          },
-        }),
-        prisma.point.upsert({
-          where: { userId: userId },
-          update: { balance: { increment: result.weightInGrams } },
-          create: {
-            userId,
-            balance: result.weightInGrams,
-          },
-        }),
-      ]
-    );
+    const [updatedDisposal, userPoint] = await prisma.$transaction([
+      prisma.disposal.update({
+        where: { id: disposalId },
+        data: {
+          userId: userId,
+          isRedeemed: true,
+        },
+      }),
+      prisma.point.upsert({
+        where: { userId: userId },
+        update: { balance: { increment: disposal.pointsAwarded } },
+        create: {
+          userId,
+          balance: disposal.pointsAwarded,
+        },
+      }),
+    ]);
     await pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
       updated: true,
     });

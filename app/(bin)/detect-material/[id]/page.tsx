@@ -117,7 +117,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     };
 
     handleDisposal();
-  }, [thrown]);
+  }, [thrown, material, params.id, router, weightInGrams]);
 
   /**
    *Pusher
@@ -155,14 +155,14 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   };
 
   return (
-    <Card>
+    <Card rounded>
       <div className="flex flex-col items-center justify-center gap-y-3 mb-6">
         <CardHeader>Material Detection</CardHeader>
         {detecting && <FadeLoader color="#22c55e" />}
       </div>
       <CardBody>
         {detecting ? (
-          <p className="text-gray-600 text-center text-lg">
+          <p className="text-slate-600 text-center text-lg">
             Detecting the material of your item...
           </p>
         ) : !error ? (
@@ -173,19 +173,19 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
             <h2 className="text-3xl font-semibold text-green-500">
               Weight {weightInGrams}g
             </h2>
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               Please dispose the item in the opened bin.
             </p>
           </div>
         ) : (
-          <p className="text-gray-600 text-center text-lg">{error}</p>
+          <p className="text-slate-600 text-center text-lg">{error}</p>
         )}
       </CardBody>
       {!detecting && !error && (
         <div className="flex flex-col items-center justify-center mt-4">
           <BeatLoader color="#22c55e" />
           {thrown && (
-            <p className="text-gray-600">Generating your qr code...</p>
+            <p className="text-slate-600">Generating your qr code...</p>
           )}
         </div>
       )}
@@ -196,7 +196,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
           <Button
             onClick={handleCancel}
             type="submit"
-            className="bg-red-500 hover:bg-red-600 text-white text-lg font-semibold py-6 px-6 min-w-56 rounded-full transition-all"
+            className="bg-red-500 hover:bg-red-600 text-gray-50 text-xl font-semibold py-6 px-6 min-w-56 rounded-full transition-all"
           >
             Cancel
           </Button>

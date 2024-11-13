@@ -7,22 +7,22 @@ import React from "react";
 const DisposalConfirmationPage = async () => {
   const user = await getSessionUser();
   return (
-    <Card>
+    <Card rounded>
       <div className="flex flex-col items-center justify-center p-4">
-        <h1 className="text-gray-800">Thank You!</h1>
-        <h2 className="text-lg text-gray-600">
-          Your points has been recorded.
+        <h1 className="text-slate-800">Thank You!</h1>
+        <h2 className="text-lg text-slate-600">
+          Your disposal has been recorded
         </h2>
         <div className="mt-6 space-x-4">
           <Button
             asChild
-            className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded transition-all"
+            className="bg-emerald-500 hover:bg-emerald-600 text-gray-50 text-xl font-semibold p-6 rounded transition-all"
           >
-            <Link href={`/detect-material/${user?.id}`}>Scan Another Item</Link>
+            <Link href={`/detect-material/${user?.id}`}>Scan another item</Link>
           </Button>
           <Button
             asChild
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded transition-all"
+            className="border border-emerald-500 bg-gray-50 text-emerald-500 hover:bg-emerald-50 text-xl font-semibold p-6 rounded transition-all"
           >
             <Link href="/">Go to main page</Link>
           </Button>

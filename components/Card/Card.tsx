@@ -2,12 +2,13 @@ import React, { ReactNode } from "react";
 interface CardProps {
   children: ReactNode;
   fullWidth?: boolean;
+  rounded?: boolean;
 }
-const Card = ({ children, fullWidth = false }: CardProps) => {
+const Card = ({ children, fullWidth = false, rounded = false }: CardProps) => {
   return (
     <div
-      className={`bg-white p-8 rounded-lg shadow-md ${
-        fullWidth ? "w-full" : ""
+      className={`card ${fullWidth ? "w-full" : ""}  ${
+        rounded ? "rounded-lg" : ""
       }`}
     >
       {children}

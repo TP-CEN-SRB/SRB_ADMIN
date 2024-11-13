@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 
 const FormHeader = ({ children }: { children: ReactNode }) => {
   return (
-    <h1 className="mb-4 text-2xl font-extrabold text-gray-900 md:text-3xl lg:text-4xl dark:text-white">
+    <h1 className="mb-4 font-extrabold text-slate-800 text-4xl">
       <Image
         src="/temasekPolyBanner.png"
         alt="Temasek Polytechnic"

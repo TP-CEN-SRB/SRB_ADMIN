@@ -7,19 +7,19 @@ export const { auth } = NextAuth(authConfig);
 /**
  * Routes that are only available to users with ADMIN role
  */
-const adminRoutes = ["/admin-dashboard", "/bin-users"];
+const adminRoutes = ["/admin"];
 
 /**
  * Routes that are only available to users with BIN role
  */
 const binRoutes = [
-  "/dispose-steps/",
+  "/dispose-steps",
   "/disposal-confirmation",
   "/disposal-qr",
   "/detect-material",
   "/my-points",
   "/bin-capacity",
-  "/bin/settings",
+  "/bin-settings",
 ];
 const apiAuthRoutes = "/api/auth";
 
@@ -30,13 +30,13 @@ export default auth(async (req) => {
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    // secureCookie: true, // disable during development
+    secureCookie: process.env.NODE_ENV === "production", // disable during development
   });
   const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
   const isBinRoute = binRoutes.some((route) => path.startsWith(route));
 
   if (isApiAuthRoute) {
-    return;
+    return Response.redirect(new URL("/not-found", req.nextUrl));
   }
   if (!isLoggedIn && !token) {
     // Redirect non-logged-in users to the login page for protected routes
