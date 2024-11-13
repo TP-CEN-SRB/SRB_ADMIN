@@ -26,6 +26,7 @@ const RewardSchema = z.object({
     .number({ message: "Points must be a number" })
     .int("Points must be an integer")
     .gte(1, "Points cannot be negative"),
+  description: z.string().min(2, "Description is too short"),
   image: z
     .instanceof(File, { message: "Image is required" })
     .refine((file: File) => file.size !== 0, "Image is required")

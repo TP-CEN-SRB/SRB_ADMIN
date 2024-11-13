@@ -138,6 +138,7 @@ model Reward {
   id             String  @id @default(uuid())
   name           String  @unique
   pointsRequired Int
+  description    String
   isAvailable    Boolean @default(true)
   image          String
 

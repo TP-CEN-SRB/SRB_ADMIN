@@ -15,6 +15,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
   const [material, setMaterial] = useState("");
   const [weightInGrams, setWeightInGrams] = useState<number>();
+  const [binCapacity, setBinCapacity] = useState<number>();
 
   const [error, setError] = useState<string>();
   const [thrown, setThrown] = useState(false);
@@ -22,13 +23,14 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const handleDisposal = async () => {
-      if (thrown === true && material && weightInGrams) {
+      if (thrown === true && material && weightInGrams && binCapacity) {
         const data = await createDisposal(
           {
-            material: material,
+            material,
             weightInGrams,
           },
-          params.id
+          params.id,
+          binCapacity
         );
         setError(data?.error);
         if (data?.id) {
@@ -47,11 +49,17 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     pusherClient.subscribe(`detect-material-${params.id}`);
     pusherClient.bind(
       "material-details",
-      (data: { material: string; weightInGrams: number; thrown: boolean }) => {
+      (data: {
+        material: string;
+        weightInGrams: number;
+        binCapacity: number;
+        thrown: boolean;
+      }) => {
         if (
           data.thrown === undefined &&
           data.material &&
-          data.weightInGrams === undefined
+          data.weightInGrams === undefined &&
+          data.binCapacity === undefined
         ) {
           setMaterial(data.material as string);
           setDetecting(false);
@@ -59,9 +67,11 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
         if (
           material &&
           data.weightInGrams !== undefined &&
+          data.binCapacity !== undefined &&
           data.thrown === true
         ) {
           setWeightInGrams(data.weightInGrams);
+          setBinCapacity(data.binCapacity);
           setThrown(data.thrown);
         }
       }
@@ -107,9 +117,12 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
         </div>
       )}
       {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
-      {!error && !thrown && weightInGrams === undefined && (
-        <TimerRedirect delayInMs={150000} redirectTo="/" />
-      )}
+      {!error &&
+        !thrown &&
+        weightInGrams === undefined &&
+        binCapacity === undefined && (
+          <TimerRedirect delayInMs={150000} redirectTo="/" />
+        )}
       {!error && detecting && (
         <div className="flex justify-center mt-4">
           <Button

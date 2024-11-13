@@ -60,7 +60,7 @@ const BinCapacityChart = ({
                       y={viewBox.cy}
                       className="fill-foreground text-3xl font-bold"
                     >
-                      {currentCapacity}
+                      {currentCapacity}%
                     </tspan>
                     <tspan
                       x={viewBox.cx}

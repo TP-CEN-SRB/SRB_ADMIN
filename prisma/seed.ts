@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { BinStatus } from "@prisma/client";
 const userData: Prisma.UserCreateInput[] = [
   {
+    id: "eabc24b6-ca1c-4c94-86e1-2ebbc4952a78",
     name: "testBin",
     email: "testbin@tp.bin.sg",
     emailVerified: new Date(),

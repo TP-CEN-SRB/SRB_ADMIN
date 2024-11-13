@@ -2,11 +2,13 @@
 import prisma from "@/lib/db";
 import { DisposalSchema } from "@/schemas";
 import { getSessionUser } from "@/utils/getAuth";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const createDisposal = async (
   values: z.infer<typeof DisposalSchema>,
-  userId: string
+  userId: string,
+  binCapacity: number
 ) => {
   // Check if user has permission
   const user = await getSessionUser();
@@ -40,12 +42,11 @@ const createDisposal = async (
         id: bin.id,
       },
       data: {
-        currentCapacity: {
-          increment: 1,
-        },
+        currentCapacity: binCapacity,
       },
     });
   }
+  revalidatePath("/bin-capacity");
   return { id: disposal.id };
 };
 const getUnscannedDisposal = async (id: string) => {

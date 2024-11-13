@@ -42,6 +42,7 @@ const CreateRewardForm = () => {
       const formData = new FormData();
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
+      formData.append("description", values.description);
       if (!croppedFile) {
         setError("Please select an image");
         return;
@@ -131,6 +132,25 @@ const CreateRewardForm = () => {
                     placeholder="10"
                     {...field}
                     type="number"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Description
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="A voucher to use in short circuit"
+                    {...field}
                   />
                 </FormControl>
                 <FormMessage />

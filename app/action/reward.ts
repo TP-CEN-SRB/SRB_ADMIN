@@ -16,7 +16,7 @@ export async function createReward(formData: FormData) {
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
-  const { name, pointsRequired, image } = validatedFields.data;
+  const { name, pointsRequired, description, image } = validatedFields.data;
 
   const existingReward = await prisma.reward.findUnique({
     where: {
@@ -34,6 +34,7 @@ export async function createReward(formData: FormData) {
     data: {
       name,
       pointsRequired,
+      description,
       image: res.data.appUrl,
     },
   });
