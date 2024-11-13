@@ -31,6 +31,7 @@ const SignUpBinForm = () => {
       email: "",
       password: "",
       secondaryPassword: "",
+      location: "",
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -130,6 +131,24 @@ const SignUpBinForm = () => {
                 <FormDescription>
                   This password will be used for actions like signing out
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold">Bin Location</FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Level 1, Block 1 of Engineering School"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

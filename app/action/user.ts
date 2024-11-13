@@ -72,6 +72,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const email = formData.email;
   const password = formData.password;
   const secondaryPassword = formData.secondaryPassword;
+  const location = formData.location;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
@@ -88,9 +89,20 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       role: Role.BIN,
       password: hashedPassword,
       secondaryPassword: hashedSecondaryPassword,
+      bins: {
+        createMany: {
+          data: [
+            {
+              location: `${location}`,
+              material: "PLASTIC",
+            },
+            { location: `${location}`, material: "METAL" },
+          ],
+        },
+      },
     },
   });
-  return { success: "Bin User successfully created!" };
+  return { success: "Bin successfully created!" };
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
