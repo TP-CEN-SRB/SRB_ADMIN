@@ -245,8 +245,13 @@ export const PUT = async (
     });
     return NextResponse.json({ message: "Updated disposal" }, { status: 200 });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
+    if (error instanceof jwt.TokenExpiredError) {
+      return NextResponse.json(
+        { message: "Token has expired!" },
+        { status: 401 }
+      );
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json({ message: "Token is invalid!" });
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
