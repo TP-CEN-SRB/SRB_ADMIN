@@ -1,6 +1,6 @@
 "use client";
 import { Bar, BarChart, LabelList, XAxis } from "recharts";
-import { TiBatteryLow } from "react-icons/ti";
+import { FaScrewdriverWrench } from "react-icons/fa6";
 
 import {
   ChartConfig,
@@ -51,130 +51,113 @@ export default function BinCapacityChart({
   } satisfies ChartConfig;
 
   return (
-    <ChartContainer config={chartConfig} className="min-h-[200px] max-w-24">
-      <BarChart accessibilityLayer data={chartData}>
-        <XAxis
-          className="font-bold !text-slate-800"
-          dataKey="name"
-          tickLine={false}
-          tickMargin={10}
-          axisLine={false}
-        />
-        {isUnderMaintenance ? (
-          <>
-            <Bar
-              dataKey="totalMaintenanceCapacity"
-              fill="var(--color-totalMaintenanceCapacity)"
-              radius={[4, 4, 4, 4]}
-              stackId="a"
-            >
-              <LabelList
-                dataKey="currentCapacity"
-                position="center"
-                content={({ value }) => (
-                  <text
-                    className="-rotate-45"
-                    x="50%"
-                    y="50%"
-                    dx={-45}
-                    dy={-35}
-                    fill="white"
-                    fontSize={12}
-                    fontWeight="bold"
-                    textAnchor="middle"
-                  >
-                    Out of service
-                  </text>
-                )}
-              />
-              <LabelList
+    <div className="flex flex-col items-center">
+      <ChartContainer config={chartConfig} className="min-h-[200px] max-w-24">
+        <BarChart accessibilityLayer data={chartData}>
+          <XAxis
+            className="font-bold !text-slate-800"
+            dataKey="name"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+          />
+          {isUnderMaintenance ? (
+            <>
+              <Bar
                 dataKey="totalMaintenanceCapacity"
-                position="center"
-                content={({ x, y }) => (
-                  <g transform={`translate(28,60)`}>
-                    <TiBatteryLow className="text-red-500" size={40} />
-                  </g>
-                )}
-              />
-            </Bar>
-          </>
-        ) : (
-          <>
-            {Math.floor(currentCapacity) !== 0 && (
-              <Bar
-                dataKey="currentCapacity"
-                fill="var(--color-currentCapacity)"
-                radius={
-                  Math.ceil(currentCapacity) === 100 ||
-                  Math.floor(currentCapacity) === 0
-                    ? [4, 4, 4, 4]
-                    : [0, 0, 4, 4]
-                }
+                fill="var(--color-totalMaintenanceCapacity)"
+                radius={[4, 4, 4, 4]}
                 stackId="a"
               >
                 <LabelList
-                  dataKey="currentCapacity"
+                  dataKey="totalMaintenanceCapacity"
                   position="center"
-                  content={({ value }) => (
-                    <text
-                      x="50%"
-                      y="50%"
-                      dy={-10}
-                      fill="white"
-                      fontSize={14}
-                      fontWeight="bold"
-                      textAnchor="middle"
-                    >
-                      {value === 100
-                        ? "Full"
-                        : `${currentCapacity.toFixed(2)}%`}
-                    </text>
+                  content={({ x, y }) => (
+                    <g transform={`translate(28,60)`}>
+                      <FaScrewdriverWrench className="text-red-500" size={40} />
+                    </g>
                   )}
                 />
               </Bar>
-            )}
-            {Math.ceil(currentCapacity) !== 100 && (
-              <Bar
-                dataKey="totalCapacity"
-                fill="var(--color-totalCapacity)"
-                radius={
-                  Math.ceil(currentCapacity) === 100 ||
-                  Math.floor(currentCapacity) === 0
-                    ? [4, 4, 4, 4]
-                    : [4, 4, 0, 0]
-                }
-                stackId="a"
-              >
-                <LabelList
+            </>
+          ) : (
+            <>
+              {Math.floor(currentCapacity) !== 0 && (
+                <Bar
                   dataKey="currentCapacity"
-                  position="center"
-                  content={({ value }) => (
-                    <text
-                      x="50%"
-                      y="50%"
-                      dy={-10}
-                      fill="white"
-                      fontSize={14}
-                      fontWeight="bold"
-                      textAnchor="middle"
-                    >
-                      {value === 100
-                        ? "Full"
-                        : `${currentCapacity.toFixed(2)}%`}
-                    </text>
-                  )}
-                />
-              </Bar>
-            )}
-          </>
-        )}
+                  fill="var(--color-currentCapacity)"
+                  radius={
+                    Math.ceil(currentCapacity) === 100 ||
+                    Math.floor(currentCapacity) === 0
+                      ? [4, 4, 4, 4]
+                      : [0, 0, 4, 4]
+                  }
+                  stackId="a"
+                >
+                  <LabelList
+                    dataKey="currentCapacity"
+                    position="center"
+                    content={({ value }) => (
+                      <text
+                        x="50%"
+                        y="50%"
+                        dy={-10}
+                        fill="white"
+                        fontSize={14}
+                        fontWeight="bold"
+                        textAnchor="middle"
+                      >
+                        {value === 100
+                          ? "Full"
+                          : `${currentCapacity.toFixed(2)}%`}
+                      </text>
+                    )}
+                  />
+                </Bar>
+              )}
+              {Math.ceil(currentCapacity) !== 100 && (
+                <Bar
+                  dataKey="totalCapacity"
+                  fill="var(--color-totalCapacity)"
+                  radius={
+                    Math.ceil(currentCapacity) === 100 ||
+                    Math.floor(currentCapacity) === 0
+                      ? [4, 4, 4, 4]
+                      : [4, 4, 0, 0]
+                  }
+                  stackId="a"
+                >
+                  <LabelList
+                    dataKey="currentCapacity"
+                    position="center"
+                    content={({ value }) => (
+                      <text
+                        x="50%"
+                        y="50%"
+                        dy={-10}
+                        fill="white"
+                        fontSize={14}
+                        fontWeight="bold"
+                        textAnchor="middle"
+                      >
+                        {value === 100
+                          ? "Full"
+                          : `${currentCapacity.toFixed(2)}%`}
+                      </text>
+                    )}
+                  />
+                </Bar>
+              )}
+            </>
+          )}
 
-        <ChartTooltip
-          content={<ChartTooltipContent />}
-          cursor={false}
-          defaultIndex={1}
-        />
-      </BarChart>
-    </ChartContainer>
+          <ChartTooltip
+            content={<ChartTooltipContent />}
+            cursor={false}
+            defaultIndex={1}
+          />
+        </BarChart>
+      </ChartContainer>
+    </div>
   );
 }

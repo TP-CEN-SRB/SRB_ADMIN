@@ -10,13 +10,16 @@ export async function createReward(formData: FormData) {
   if (!user) {
     return { error: "Unauthorized access!" };
   }
-  const validatedFields = RewardSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
+
+  let data = Object.fromEntries(formData.entries());
+  const jsonDate = JSON.parse(data.dates as string);
+  data.dates = jsonDate;
+  const validatedFields = RewardSchema.safeParse(data);
   if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
+    return { error: validatedFields.error };
   }
-  const { name, pointsRequired, description, image } = validatedFields.data;
+  const { name, pointsRequired, description, image, dates } =
+    validatedFields.data;
 
   const existingReward = await prisma.reward.findUnique({
     where: {
@@ -36,6 +39,8 @@ export async function createReward(formData: FormData) {
       pointsRequired,
       description,
       image: res.data.appUrl,
+      startDate: dates.from,
+      endDate: dates.to,
     },
   });
 

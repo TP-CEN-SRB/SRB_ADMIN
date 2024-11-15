@@ -1,4 +1,5 @@
 import { BinStatus } from "@prisma/client";
+import { addDays } from "date-fns";
 import * as z from "zod";
 export const MAX_FILE_SIZE = 4 * 1024 * 1024;
 export const ACCEPTED_IMAGE_TYPES = [
@@ -38,6 +39,15 @@ const RewardSchema = z.object({
     .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
       message: "Only .jpg, .jpeg, .png, and .webp files are accepted",
     }),
+  dates: z
+    .object({
+      from: z.coerce.date({ message: "From date is required" }),
+      to: z.coerce.date({ message: "To date is required" }),
+    })
+    .refine(
+      (data) => data.from > addDays(new Date(), -1),
+      "Start date must be in the future"
+    ),
 });
 
 export { BinSchema, DisposalSchema, RewardSchema };

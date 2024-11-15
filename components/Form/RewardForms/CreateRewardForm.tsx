@@ -20,6 +20,9 @@ import Card from "@/components/Card/Card";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas";
 import { createReward } from "@/app/action/reward";
 import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
+import DateRangePicker from "@/components/DatePicker/DateRangePicker";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const CreateRewardForm = () => {
   const form = useForm<z.infer<typeof RewardSchema>>({
@@ -35,6 +38,7 @@ const CreateRewardForm = () => {
   const [success, setSuccess] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>();
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const [radioSelection, setRadioSelection] = useState("option-one");
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
@@ -43,6 +47,16 @@ const CreateRewardForm = () => {
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
       formData.append("description", values.description);
+      if (values.dates.from === undefined || values.dates.to === undefined) {
+        setError("Please select a start and end date");
+        return;
+      }
+      const dateData = JSON.stringify({
+        from: values.dates.from.toISOString(),
+        to: values.dates.to.toISOString(),
+      });
+      formData.append("dates", dateData);
+
       if (!croppedFile) {
         setError("Please select an image");
         return;
@@ -54,10 +68,7 @@ const CreateRewardForm = () => {
       if (data?.success) {
         setCroppedFile(null);
         setImagePreview(null);
-        values.name = "";
-        form.reset({
-          pointsRequired: 0,
-        });
+        form.reset({ name: "", pointsRequired: 0, description: "" });
       }
     });
   };
@@ -181,6 +192,44 @@ const CreateRewardForm = () => {
               </FormItem>
             )}
           />
+          <RadioGroup
+            onValueChange={(e) => setRadioSelection(e)}
+            defaultValue="option-one"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="option-one" id="option-one" />
+              <Label htmlFor="option-one">Default</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="option-two" id="option-two" />
+              <Label htmlFor="option-two">Specify start and end dates</Label>
+            </div>
+          </RadioGroup>
+          {radioSelection == "option-two" && (
+            <FormField
+              control={form.control}
+              name="dates"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold text-slate-700">
+                    Dates
+                  </FormLabel>
+                  <FormControl>
+                    <DateRangePicker
+                      className="w-full"
+                      onDateChange={(dateRange) => {
+                        if (dateRange?.from && dateRange?.to) {
+                          form.setValue("dates.from", dateRange.from);
+                          form.setValue("dates.to", dateRange.to);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && (

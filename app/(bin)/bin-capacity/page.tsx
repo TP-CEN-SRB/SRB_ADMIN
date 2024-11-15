@@ -10,6 +10,7 @@ const BinCapacityPage = async () => {
 
   return (
     <div className="flex flex-col justify-center items-center h-full">
+      <h1 className="text-slate-800 mb-8">Bin Capacity</h1>
       <div
         className="grid place-items-center gap-4"
         style={{
