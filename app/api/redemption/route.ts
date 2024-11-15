@@ -1,11 +1,8 @@
-import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import prisma from "@/lib/db";
 
-export const GET = async (
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) => {
+export const POST = async (req: NextRequest) => {
   try {
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
@@ -21,27 +18,33 @@ export const GET = async (
         { status: 401 }
       );
     }
-    const userId = params.id;
-    if (decodedToken.userId !== userId) {
+    const { rewardId } = await req.json();
+    if (!rewardId) {
       return NextResponse.json(
-        { message: "Unauthorized access" },
-        { status: 401 }
+        { message: "Missing rewardId parameter!" },
+        { status: 400 }
       );
     }
-
-    const point = await prisma.point.findUnique({
-      where: { userId: userId },
-    });
-
-    if (!point) {
+    const reward = await prisma.reward.findUnique({ where: { id: rewardId } });
+    if (!reward) {
       return NextResponse.json(
-        { message: "Points not found for user" },
+        { message: "Reward not found!" },
         { status: 404 }
       );
     }
-
-    // Return the point balance
-    return NextResponse.json({ point: `${point.balance}` }, { status: 200 });
+    const [redemption, updatedPoint] = await prisma.$transaction([
+      prisma.redemption.create({
+        data: {
+          user: { connect: { id: decodedToken.userId } },
+          reward: { connect: { id: rewardId } },
+        },
+      }),
+      prisma.point.update({
+        where: { userId: decodedToken.userId },
+        data: { balance: { decrement: reward.pointsRequired } },
+      }),
+    ]);
+    return NextResponse.json({ message: `Reward Redeemed!` }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(
