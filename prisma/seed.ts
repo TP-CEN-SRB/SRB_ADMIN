@@ -11,31 +11,27 @@ const userData: Prisma.UserCreateInput[] = [
     secondaryPassword:
       "$2a$10$cXW5NGfru.a5xrRMi/kdQuxOADv2XqJ6s6QrSshhjlukD7miW0qNa", // 123456
     role: "BIN",
+    location: "Library",
     bins: {
       createMany: {
         data: [
           {
-            location: "Library",
             status: BinStatus.FUNCTIONAL,
             binMaterialId: "126f6451-956f-44f3-a9c7-be31e2229ed0",
           },
           {
-            location: "Library",
             status: BinStatus.FUNCTIONAL,
             binMaterialId: "0ab11796-b46b-4c21-aecd-a80f850f78d4",
           },
           {
-            location: "Library",
             status: BinStatus.FUNCTIONAL,
             binMaterialId: "526b5a69-fc92-459b-b538-39310412f538",
           },
           {
-            location: "Library",
             status: BinStatus.FUNCTIONAL,
             binMaterialId: "7223ee16-49c8-4740-a79f-70c8e5983b8a",
           },
           {
-            location: "Library",
             status: BinStatus.FUNCTIONAL,
             binMaterialId: "5b058bae-7d4e-4198-b8d7-294b2a40c0cc",
           },

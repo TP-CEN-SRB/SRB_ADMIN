@@ -42,7 +42,7 @@ const createDisposal = async (
         id: bin.id,
       },
       data: {
-        currentCapacity: binCapacity,
+        currentCapacity: parseFloat(binCapacity.toFixed(2)),
       },
     });
   }

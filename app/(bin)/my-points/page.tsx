@@ -11,7 +11,7 @@ const MyPointsPage = () => {
   return (
     <Card rounded>
       <div className="mb-6 flex flex-col items-center">
-        <FaStar size={100} className="text-amber-500" />
+        <FaStar size={100} className="text-yellow-400" />
         <CardHeader>Check my points</CardHeader>
         <p className="text-slate-600 mt-2">
           Enter your admin number to check your points
