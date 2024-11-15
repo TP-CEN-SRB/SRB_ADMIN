@@ -46,6 +46,7 @@ model User {
   bins              Bin[]
   redemption        Redemption[]
   point             Point?
+  location          String? // Outside library
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,7 +83,6 @@ model PassswordResetToken {
 
 model Bin {
   id              String      @id @default(uuid())
-  location        String // Outside library
   status          BinStatus   @default(FUNCTIONAL)
   currentCapacity Float       @default(0)
   userId          String
@@ -94,7 +94,6 @@ model Bin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([location, status, binMaterialId])
   @@map("bins")
 }
 

@@ -18,7 +18,7 @@ interface DialogProps {
 }
 const MIN_CROP_WIDTH = 30;
 const STARTING_CROP_WIDTH = 50;
-const ASPECT_RATIO = 1;
+const ASPECT_RATIO = 3 / 2;
 const CropRewardDialog = ({
   isOpen,
   image,

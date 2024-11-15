@@ -41,6 +41,7 @@ export const getBinsByUserId = async (id: string) => {
       userId: id,
     },
     select: {
+      status: true,
       currentCapacity: true,
       binMaterial: {
         select: {

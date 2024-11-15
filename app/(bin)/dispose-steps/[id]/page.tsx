@@ -3,6 +3,7 @@ import ButtonRedirect from "@/components/Button/ButtonRedirect";
 import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
+import { useIdle } from "@/hooks/use-idle";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
