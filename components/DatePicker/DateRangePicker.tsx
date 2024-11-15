@@ -17,15 +17,17 @@ import {
 export default function DateRangePicker({
   className,
   onDateChange,
+  disabled = false,
 }: {
   className?: string;
   onDateChange: (dateRange: DateRange | undefined) => void;
+  disabled?: boolean;
 }) {
   const [date, setDate] = React.useState<DateRange | undefined>();
 
   const handleDateChange = (selectedDate: DateRange | undefined) => {
     setDate(selectedDate);
-    onDateChange(selectedDate); // Pass the selected date range back to the parent component
+    onDateChange(selectedDate);
   };
 
   return (
@@ -33,6 +35,7 @@ export default function DateRangePicker({
       <Popover>
         <PopoverTrigger asChild>
           <Button
+            disabled={disabled}
             id="date"
             variant={"outline"}
             className={cn(

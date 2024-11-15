@@ -40,10 +40,13 @@ const RewardSchema = z.object({
       message: "Only .jpg, .jpeg, .png, and .webp files are accepted",
     }),
   dates: z
-    .object({
-      from: z.coerce.date({ message: "From date is required" }),
-      to: z.coerce.date({ message: "To date is required" }),
-    })
+    .object(
+      {
+        from: z.coerce.date({ message: "From date is required" }),
+        to: z.coerce.date({ message: "To date is required" }),
+      },
+      { message: "Dates are required" }
+    )
     .refine(
       (data) => data.from > addDays(new Date(), -1),
       "Start date must be in the future"
