@@ -11,13 +11,13 @@ const PointsPage = async ({ params }: { params: { id: string } }) => {
     <UserCard>
       <CardHeader>Points Information</CardHeader>
       {point ? (
-        <div className="bg-blue-50 p-4 rounded-lg shadow-inner">
-          <h2>
-            <span className="font-medium text-blue-700">Admin Number:</span>
+        <div className="mt-4">
+          <h2 className="text-slate-800">
+            <span className="font-medium text-amber-500">Admin Number: </span>
             {params.id}
           </h2>
-          <h2>
-            <span className="font-medium text-blue-700">Balance:</span>
+          <h2 className="text-slate-800">
+            <span className="font-medium text-amber-500">Balance: </span>
             {point.balance}
           </h2>
         </div>
@@ -30,12 +30,7 @@ const PointsPage = async ({ params }: { params: { id: string } }) => {
           <p className="text-slate-500">Start disposing now to earn points!</p>
         </div>
       )}
-      <ButtonRedirect
-        rounded
-        href="/my-points"
-        variant="outline"
-        color="indigo"
-      >
+      <ButtonRedirect rounded href="/my-points" variant="outline" color="slate">
         Back
       </ButtonRedirect>
     </UserCard>

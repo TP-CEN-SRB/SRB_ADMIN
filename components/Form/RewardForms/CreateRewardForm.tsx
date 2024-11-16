@@ -116,86 +116,92 @@ const CreateRewardForm = () => {
       <FormHeader>Add a reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">Name</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="Short Circuit Voucher"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="pointsRequired"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Points Required
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="10"
-                    {...field}
-                    type="number"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Description
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="A voucher to use in short circuit"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="image"
-            render={({ field: { value, onChange, ...field } }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Image
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="Select a image for the reward"
-                    {...field}
-                    type="file"
-                    onChange={(event) => {
-                      onChange(event.target.files && event.target.files[0]);
-                      handleImageChange(event);
-                    }}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="flex-1 min-w-[250px]">
+                  <FormLabel className="font-bold text-slate-700">
+                    Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="Short Circuit Voucher"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="pointsRequired"
+              render={({ field }) => (
+                <FormItem className="flex-1 min-w-[250px]">
+                  <FormLabel className="font-bold text-slate-700">
+                    Points Required
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="10"
+                      {...field}
+                      type="number"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem className="flex-1 min-w-[250px]">
+                  <FormLabel className="font-bold text-slate-700">
+                    Description
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="A voucher to use in short circuit"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field: { value, onChange, ...field } }) => (
+                <FormItem className="flex-1 min-w-[250px]">
+                  <FormLabel className="font-bold text-slate-700">
+                    Image
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={isPending}
+                      placeholder="Select a image for the reward"
+                      {...field}
+                      type="file"
+                      onChange={(event) => {
+                        onChange(event.target.files && event.target.files[0]);
+                        handleImageChange(event);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <FormItem>
             <FormLabel className="font-bold text-slate-700">
               Reward Duration

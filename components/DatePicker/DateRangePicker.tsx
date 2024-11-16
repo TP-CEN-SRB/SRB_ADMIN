@@ -84,7 +84,7 @@ export default function DateRangePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <div className="flex gap-x-4 items-center">
+          <div className="flex gap-x-4 items-center pl-4 pr-4 pt-4">
             <Select
               onValueChange={handleMonthChange}
               value={months[calendarMonth]}
@@ -126,10 +126,10 @@ export default function DateRangePicker({
             onSelect={handleDateChange}
             numberOfMonths={2}
             onMonthChange={(newMonth) => {
-              setCalendarMonth(getMonth(newMonth)); 
-              setCalendarYear(getYear(newMonth)); 
+              setCalendarMonth(getMonth(newMonth));
+              setCalendarYear(getYear(newMonth));
             }}
-            month={setMonth(setYear(new Date(), calendarYear), calendarMonth)} 
+            month={setMonth(setYear(new Date(), calendarYear), calendarMonth)}
           />
         </PopoverContent>
       </Popover>

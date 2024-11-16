@@ -58,7 +58,7 @@ const HomeScreen = ({
   return isIdle && role === "BIN" ? (
     <IdleVideo />
   ) : (
-    <div className="bg-hero bg-cover bg-center">
+    <div className="bg-hero bg-cover bg-center antialiased">
       <div className="h-screen max-w-screen-lg flex items-center justify-center container mx-auto px-4">
         <div className="text-center max-w-screen-lg w-full">
           <h1 className="text-slate-800 mb-4">

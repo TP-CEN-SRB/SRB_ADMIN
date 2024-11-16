@@ -22,6 +22,7 @@ import { BsFillBarChartFill } from "react-icons/bs";
 import { enableNav } from "@/utils/enableNav";
 import { usePathname } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
+import { PiStudentFill } from "react-icons/pi";
 import {
   FaBell,
   FaTrash,
@@ -61,18 +62,13 @@ const collaspeItems = [
     ],
   },
   {
-    title: "Users",
-    icon: FaUser,
+    title: "Students",
+    icon: PiStudentFill,
     child: [
       {
         title: "View",
         icon: FaEye,
         url: "/admin/user",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/user/create",
       },
     ],
   },

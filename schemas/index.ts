@@ -22,12 +22,14 @@ const DisposalSchema = z.object({
 });
 
 const RewardSchema = z.object({
-  name: z.string().min(2, "Name is too short"),
+  name: z.string({ message: "Name is required" }).min(2, "Name is too short"),
   pointsRequired: z.coerce
     .number({ message: "Points must be a number" })
     .int("Points must be an integer")
     .gte(1, "Points cannot be negative"),
-  description: z.string().min(2, "Description is too short"),
+  description: z
+    .string({ message: "Description is required" })
+    .min(2, "Description is too short"),
   image: z
     .instanceof(File, { message: "Image is required" })
     .refine((file: File) => file.size !== 0, "Image is required")
