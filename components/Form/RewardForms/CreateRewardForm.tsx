@@ -20,10 +20,18 @@ import Card from "@/components/Card/Card";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas";
 import { createReward } from "@/app/action/reward";
 import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
+import DateRangePicker from "@/components/DatePicker/DateRangePicker";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 const CreateRewardForm = () => {
+  const [radioSelection, setRadioSelection] = useState("option-one");
   const form = useForm<z.infer<typeof RewardSchema>>({
-    resolver: zodResolver(RewardSchema),
+    resolver: zodResolver(
+      radioSelection === "option-two"
+        ? RewardSchema
+        : RewardSchema.omit({ dates: true })
+    ),
     defaultValues: {
       name: "",
       pointsRequired: undefined,
@@ -43,21 +51,28 @@ const CreateRewardForm = () => {
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
       formData.append("description", values.description);
+      if (radioSelection === "option-two") {
+        const dateData = JSON.stringify({
+          from: values.dates.from.toISOString(),
+          to: values.dates.to.toISOString(),
+        });
+        formData.append("dates", dateData);
+      }
       if (!croppedFile) {
         setError("Please select an image");
         return;
       }
       formData.set("image", croppedFile);
-      const data = await createReward(formData);
+      const data = await createReward(
+        formData,
+        radioSelection === "option-two"
+      );
       setError(data?.error as string);
       setSuccess(data?.success as string);
       if (data?.success) {
         setCroppedFile(null);
         setImagePreview(null);
-        values.name = "";
-        form.reset({
-          pointsRequired: 0,
-        });
+        form.reset({ name: "", pointsRequired: 0, description: "" });
       }
     });
   };
@@ -181,6 +196,56 @@ const CreateRewardForm = () => {
               </FormItem>
             )}
           />
+          <FormItem>
+            <FormLabel className="font-bold text-slate-700">
+              Reward Duration
+            </FormLabel>
+            <RadioGroup
+              disabled={isPending}
+              onValueChange={(e) => {
+                setRadioSelection(e);
+                form.reset({ dates: undefined });
+              }}
+              defaultValue="option-one"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="option-one" id="option-one" />
+                <Label htmlFor="option-one">Default</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="option-two" id="option-two" />
+                <Label htmlFor="option-two">Specify start and end dates</Label>
+              </div>
+            </RadioGroup>
+          </FormItem>
+          {radioSelection == "option-two" && (
+            <FormField
+              control={form.control}
+              name="dates"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold text-slate-700">
+                    Dates
+                  </FormLabel>
+                  <FormControl>
+                    <DateRangePicker
+                      disabled={isPending}
+                      className="w-full"
+                      onDateChange={(dateRange) => {
+                        if (dateRange?.from && dateRange?.to) {
+                          field.onChange({
+                            from: dateRange.from,
+                            to: dateRange.to,
+                          });
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && (

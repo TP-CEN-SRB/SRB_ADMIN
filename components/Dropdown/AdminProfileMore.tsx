@@ -33,7 +33,7 @@ const AdminProfileMore = ({ email }: { email: string }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="end">
           <Link href="/admin/profile/edit">
-            <DropdownMenuItem className="hover:!bg-[#f5f2b3] cursor-pointer">
+            <DropdownMenuItem className="cursor-pointer">
               <FaEdit />
               <span>Edit profile</span>
             </DropdownMenuItem>
@@ -47,7 +47,7 @@ const AdminProfileMore = ({ email }: { email: string }) => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => setPasswordDialogOpen(true)}
-            className="hover:!bg-[#f5f2b3] cursor-pointer"
+            className="cursor-pointer"
           >
             <MdLockReset />
             <span>Reset password</span>

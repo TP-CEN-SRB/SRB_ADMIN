@@ -29,6 +29,9 @@ const createDisposal = async (
     },
   });
   if (!bin) return { error: "No bin found" };
+  if (bin.currentCapacity === 100) {
+    return { error: "Bin is already full!" };
+  }
   const disposal = await prisma.disposal.create({
     data: {
       weightInGrams: weightInGrams,
@@ -42,7 +45,7 @@ const createDisposal = async (
         id: bin.id,
       },
       data: {
-        currentCapacity: binCapacity,
+        currentCapacity: parseFloat(binCapacity.toFixed(2)),
       },
     });
   }

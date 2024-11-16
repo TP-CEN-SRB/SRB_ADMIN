@@ -3,7 +3,7 @@ import React from "react";
 import ReactCrop, { type Crop } from "react-image-crop";
 
 const MIN_CROP_WIDTH = 30;
-const ASPECT_RATIO = 1;
+const ASPECT_RATIO = 3 / 2;
 
 interface ImagePreviewProps {
   image: string;
