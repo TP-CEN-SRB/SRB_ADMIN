@@ -50,8 +50,6 @@ export const columns: ColumnDef<BinManager>[] = [
             </Link>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Delete</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Chart</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
