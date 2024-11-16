@@ -80,6 +80,7 @@
 // };
 import { NextRequest, NextResponse } from "next/server";
 import { pusherServer } from "@/lib/pusher";
+import prisma from "@/lib/db";
 export const POST = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -92,12 +93,18 @@ export const POST = async (
         { status: 401 }
       );
     }
-
     const id = params.id;
     if (!id) {
       return NextResponse.json(
         { message: "Missing ID parameter" },
         { status: 400 }
+      );
+    }
+    const binUser = await prisma.user.findUnique({ where: { id: id } });
+    if (!binUser) {
+      return NextResponse.json(
+        { message: "Bin user is not found!" },
+        { status: 404 }
       );
     }
     const { material, weightInGrams, thrown, binCapacity } = await req.json();

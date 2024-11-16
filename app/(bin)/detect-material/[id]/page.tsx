@@ -61,7 +61,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
           data.weightInGrams === undefined &&
           data.binCapacity === undefined
         ) {
-          setMaterial(data.material as string);
+          setMaterial(data.material.toUpperCase() as string);
           setDetecting(false);
         }
         if (
