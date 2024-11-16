@@ -8,39 +8,23 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { BinMaterial } from "@prisma/client";
 import { Bar, BarChart, XAxis, Pie, PieChart } from "recharts";
 
-class monthlyChartData {
+interface monthlyChartData {
   month: string;
   bin: number;
   binMetal: number;
   binPlastic: number;
-  constructor(
-    month: string,
-    binTotal: number,
-    binMetal: number,
-    binPlastic: number
-  ) {
-    this.month = month;
-    this.bin = binTotal;
-    this.binMetal = binMetal;
-    this.binPlastic = binPlastic;
-  }
 }
 
-class pieChartData {
-  binType: BinMaterial;
-  binCount: number;
-  constructor(binType: BinMaterial, binCount: number) {
-    this.binType = binType;
-    this.binCount = binCount;
-  }
+interface pieChartData {
+  binType?: string;
+  binCount?: number;
 }
 
 interface ChartProps {
-  chartData: monthlyChartData[];
-  pieChartData: pieChartData[];
+  chartData?: monthlyChartData[];
+  pieChartData?: pieChartData[];
 }
 
 const chartConfig = {

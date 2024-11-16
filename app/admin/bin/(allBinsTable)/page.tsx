@@ -9,15 +9,16 @@ const getData = async () => {
   return allBins.map((bin) => ({
     location: bin.location,
     status: bin.status,
-    material: bin.material,
-    userId: bin.User.name as string,
+    material: bin.binMaterial.name,
+    binId: bin.id as string,
+    userName: bin.User.name as string,
   }));
 };
 
 const AllBins = async () => {
   const data = await getData();
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 overflow-y-scroll h-[737px]">
       <DataTable columns={columns} data={data} />
     </div>
   );

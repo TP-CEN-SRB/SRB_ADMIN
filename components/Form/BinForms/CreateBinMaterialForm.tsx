@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation"; // Import useRouter
-import { UpdateBinSchema } from "@/schemas";
+import { BinMaterialSchema, UpdateBinSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -21,7 +21,7 @@ import { Button } from "../../ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Bin, BinMaterial } from "@prisma/client";
-import { updateBin } from "@/app/action/bin";
+import { createBinMaterial, updateBin } from "@/app/action/bin";
 import Card from "@/components/Card/Card";
 import FormHeader from "../FormHeader";
 
@@ -31,7 +31,7 @@ interface UpdateBinFormProps {
   materials: BinMaterial[];
 }
 
-const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
+const CreateBinMaterialForm: React.FC<UpdateBinFormProps> = ({
   id,
   initialData,
   materials,
@@ -42,16 +42,14 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
   const [success, setSuccess] = useState("");
   const router = useRouter(); // Initialize useRouter
 
-  const form = useForm<z.infer<typeof UpdateBinSchema>>({
-    resolver: zodResolver(UpdateBinSchema),
+  const form = useForm<z.infer<typeof BinMaterialSchema>>({
+    resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
-      location: initialData.location,
-      status: initialData.status,
-      materialId: initialData.binMaterialId,
+      name: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof UpdateBinSchema>) => {
+  const onSubmit = (values: z.infer<typeof BinMaterialSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
@@ -60,7 +58,7 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
     startTransition(async () => {
       setError("");
       try {
-        const result = await updateBin(id, values);
+        const result = await createBinMaterial(values);
         if (result?.success) {
           setSuccess(result.success);
           toast({
@@ -93,54 +91,24 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
 
   return (
     <Card rounded fullWidth>
-      <FormHeader>Update Bin</FormHeader>
+      <FormHeader>Create Material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="location"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-bold text-slate-700d">
-                  Location
+                  Name
                 </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="Near Library"
+                    placeholder="PLASTIC"
                     {...field}
                     type="text"
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Status
-                </FormLabel>
-                <FormControl>
-                  <BinStatusCombobox field={field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="materialId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Material
-                </FormLabel>
-                <FormControl>
-                  <BinMaterialCombobox materials={materials} field={field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -156,4 +124,4 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
   );
 };
 
-export default UpdateBinForm;
+export default CreateBinMaterialForm;

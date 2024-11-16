@@ -100,7 +100,7 @@ export const POST = async (
         { status: 400 }
       );
     }
-    const { material, weightInGrams, thrown } = await req.json();
+    const { material, weightInGrams, thrown, binCapacity } = await req.json();
     await pusherServer.trigger(
       `detect-material-${params.id}`,
       "material-details",
@@ -108,6 +108,7 @@ export const POST = async (
         material,
         weightInGrams,
         thrown,
+        binCapacity,
       }
     );
     return NextResponse.json(

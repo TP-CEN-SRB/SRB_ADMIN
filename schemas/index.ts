@@ -1,4 +1,4 @@
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
 import * as z from "zod";
 export const MAX_FILE_SIZE = 4 * 1024 * 1024;
 export const ACCEPTED_IMAGE_TYPES = [
@@ -9,15 +9,18 @@ export const ACCEPTED_IMAGE_TYPES = [
 ];
 
 const BinSchema = z.object({
-  location: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+  location: z
+    .string()
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
-  material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
-  userId: z.string().min(1, "User ID is required"),
+  materialIds: z
+    .array(z.string())
+    .nonempty("At least one material must be selected"),
 });
 
 const DisposalSchema = z.object({
   weightInGrams: z.coerce.number().min(1, "Minimum weight must be 1"),
-  material: z.nativeEnum(BinMaterial, { message: "Invalid material" }),
+  material: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
 });
 
 const RewardSchema = z.object({
@@ -26,6 +29,7 @@ const RewardSchema = z.object({
     .number({ message: "Points must be a number" })
     .int("Points must be an integer")
     .gte(1, "Points cannot be negative"),
+  description: z.string().min(2, "Description is too short"),
   image: z
     .instanceof(File, { message: "Image is required" })
     .refine((file: File) => file.size !== 0, "Image is required")
@@ -39,4 +43,26 @@ const RewardSchema = z.object({
     }),
 });
 
-export { BinSchema, DisposalSchema, RewardSchema };
+const BinMaterialSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name is too short")
+    .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+});
+
+const UpdateBinSchema = z.object({
+  location: z
+    .string()
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
+  status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
+  materialId: z.string().min(1, "Please select the material type"),
+  // userId: z.string().min(1, "User ID is required"),
+});
+
+export {
+  BinSchema,
+  DisposalSchema,
+  RewardSchema,
+  BinMaterialSchema,
+  UpdateBinSchema,
+};

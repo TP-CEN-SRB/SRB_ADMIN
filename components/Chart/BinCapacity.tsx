@@ -35,7 +35,7 @@ const BinCapacityChart = ({
   return (
     <ChartContainer
       config={chartConfig}
-      className="mx-auto aspect-square md:min-h-[400px] min-h-150px"
+      className="md:min-h-[250px] min-h-150px"
     >
       <PieChart>
         <Pie
@@ -60,7 +60,7 @@ const BinCapacityChart = ({
                       y={viewBox.cy}
                       className="fill-foreground text-3xl font-bold"
                     >
-                      {currentCapacity}
+                      {currentCapacity}%
                     </tspan>
                     <tspan
                       x={viewBox.cx}

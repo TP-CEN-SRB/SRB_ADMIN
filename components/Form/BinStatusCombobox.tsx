@@ -17,16 +17,14 @@ import { BinStatus } from "@prisma/client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ControllerRenderProps } from "react-hook-form";
-import { z } from "zod";
-import { BinSchema } from "@/schemas";
 
-const BinStatusCombobox = ({
+const BinStatusCombobox = <TField extends ControllerRenderProps<any>>({
   field,
 }: {
-  field: ControllerRenderProps<z.infer<typeof BinSchema>>;
+  field?: TField;
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(field.value || "");
+  const [createValue, setCreateValue] = useState(field?.value || "");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,8 +36,8 @@ const BinStatusCombobox = ({
           className="flex"
         >
           <ChevronsUpDown className="-ml-2 mr-2 h-4 w-4 shrink-0 opacity-50" />
-          {value
-            ? Object.values(BinStatus).find((status) => status === value)
+          {createValue
+            ? Object.values(BinStatus).find((status) => status === createValue)
             : "Select status..."}
         </Button>
       </PopoverTrigger>
@@ -54,15 +52,17 @@ const BinStatusCombobox = ({
                   key={idx}
                   value={status}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                    setCreateValue(
+                      currentValue === createValue ? "" : currentValue
+                    );
                     setOpen(false);
-                    field.onChange(currentValue);
+                    field?.onChange(currentValue); // Handles both create and update
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === status ? "opacity-100" : "opacity-0"
+                      createValue === status ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {status}

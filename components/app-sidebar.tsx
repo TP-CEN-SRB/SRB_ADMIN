@@ -54,9 +54,9 @@ const collaspeItems = [
         url: "/admin/bin",
       },
       {
-        title: "Create",
+        title: "Create Material",
         icon: FaPlus,
-        url: "/admin/bin/create",
+        url: "/admin/bin/create/material",
       },
     ],
   },
@@ -89,6 +89,22 @@ const collaspeItems = [
         title: "Create",
         icon: FaPlus,
         url: "/admin/reward/create",
+      },
+    ],
+  },
+  {
+    title: "Bin Managers",
+    icon: CgProfile,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/bin/manager",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/bin/manager/create",
       },
     ],
   },

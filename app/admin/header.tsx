@@ -119,4 +119,8 @@ const navItems = [
     label: "Rewards",
     href: "/admin/reward",
   },
+  {
+    label: "Bin Managers",
+    href: "/admin/bin-managers",
+  },
 ];

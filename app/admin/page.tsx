@@ -7,8 +7,6 @@ import {
   getBinDisposalsByTime,
   getChartData,
   getDisposals,
-  getLatestBins,
-  //getPercentageDiff,
 } from "../action/bin";
 import BinTimeChart from "./components/binTimeChart";
 import StatsGrid from "./components/statsGrid";
@@ -23,16 +21,21 @@ interface StatsData {
   description?: string;
 }
 const Page = async () => {
-  const DBChartData = await getChartData();
-  const pieChartData = await getBinCountsByMaterial();
-  const totalCount = await getAllBins();
-  const totalCountByStatus = await getBinCountsByStatus();
-  const totalDisposalCount = await getDisposals();
-  const binDisposalsTimeLine = await getBinDisposalsByTime();
-  const getBinTotalCount = async () => {
-    "use server";
-    return (await getAllBins()).length;
-  };
+  const [
+    DBChartData,
+    pieChartData,
+    totalCount,
+    totalCountByStatus,
+    totalDisposalCount,
+    binDisposalsTimeLine,
+  ] = await Promise.all([
+    getChartData(),
+    getBinCountsByMaterial(),
+    getAllBins(),
+    getBinCountsByStatus(),
+    getDisposals(),
+    getBinDisposalsByTime(),
+  ]);
   const binStatsData: StatsData[] = [
     {
       color: "#34b7eb",
@@ -69,7 +72,7 @@ const Page = async () => {
   ];
   return (
     <div className="w-full">
-      <StatsGrid statsData={binStatsData} colOne={getBinTotalCount} />
+      <StatsGrid statsData={binStatsData} />
       <Chart chartData={DBChartData} pieChartData={pieChartData} />
       <BinTimeChart chartData={binDisposalsTimeLine} />
     </div>

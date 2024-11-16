@@ -17,16 +17,18 @@ import { BinMaterial, BinStatus } from "@prisma/client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ControllerRenderProps } from "react-hook-form";
-import { z } from "zod";
-import { BinSchema } from "@/schemas";
 
-const BinMaterialCombobox = ({
+interface BinMaterialComboboxProps {
+  materials: BinMaterial[]; // `materials` is now a string array
+  field: ControllerRenderProps<any, any>;
+}
+
+const BinMaterialCombobox: React.FC<BinMaterialComboboxProps> = ({
+  materials,
   field,
-}: {
-  field: ControllerRenderProps<z.infer<typeof BinSchema>>;
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(field.value || "");
+  const [value, setValue] = useState("");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,9 +40,7 @@ const BinMaterialCombobox = ({
           className="flex"
         >
           <ChevronsUpDown className="-ml-2 mr-2 h-4 w-4 shrink-0 opacity-50" />
-          {value
-            ? Object.values(BinMaterial).find((material) => material === value)
-            : "Select material..."}
+          {value || "Select material..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
@@ -49,23 +49,23 @@ const BinMaterialCombobox = ({
           <CommandList>
             <CommandEmpty>No material found.</CommandEmpty>
             <CommandGroup>
-              {Object.values(BinMaterial).map((material, idx) => (
+              {materials.map((material) => (
                 <CommandItem
-                  key={idx}
-                  value={material}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                  key={material.id}
+                  onSelect={() => {
+                    const newValue = material.id;
+                    setValue(material.name);
                     setOpen(false);
-                    field.onChange(currentValue);
+                    field.onChange(newValue);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === material ? "opacity-100" : "opacity-0"
+                      value === material.name ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {material}
+                  {material.name}
                 </CommandItem>
               ))}
             </CommandGroup>

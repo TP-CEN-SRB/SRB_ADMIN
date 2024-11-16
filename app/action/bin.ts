@@ -1,25 +1,32 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { BinSchema } from "@/schemas";
-import { Bin, BinMaterial, BinStatus, Prisma } from "@prisma/client";
+import { BinMaterialSchema, BinSchema, UpdateBinSchema } from "@/schemas";
+import { BinStatus } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import { date, z } from "zod";
+import { z } from "zod";
 
-export const getAllBins = async (startDate?: Date, endDate?: Date) => {
-  if (startDate !== undefined && endDate !== undefined) {
-    const adjustedEndDate = new Date(endDate);
-    adjustedEndDate.setHours(23, 59, 59, 999);
-    return await prisma.bin.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: adjustedEndDate.toISOString(),
-        },
-      },
-    });
-  }
+// export const getAllBins = async (startDate?: Date, endDate?: Date) => {
+//   if (startDate !== undefined && endDate !== undefined) {
+//     const adjustedEndDate = new Date(endDate);
+//     adjustedEndDate.setHours(23, 59, 59, 999);
+//     return await prisma.bin.findMany({
+//       where: {
+//         createdAt: {
+//           gte: startDate,
+//           lte: adjustedEndDate.toISOString(),
+//         },
+//       },
+//     });
+//   }
+//   return await prisma.bin.findMany({
+//     orderBy: {
+//       createdAt: "desc",
+//     },
+//   });
+// };
+export const getAllBins = async () => {
   return await prisma.bin.findMany({
     orderBy: {
       createdAt: "desc",
@@ -39,6 +46,14 @@ export const getBinsByUserId = async (id: string) => {
   return await prisma.bin.findMany({
     where: {
       userId: id,
+    },
+    select: {
+      currentCapacity: true,
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 };
@@ -68,45 +83,53 @@ export const emptyBinsByUserId = async (
   return { success: "All bins emptied successfully!" };
 };
 
-export const createBin = async (values: z.infer<typeof BinSchema>) => {
+export const createBin = async (
+  values: z.infer<typeof BinSchema>,
+  binUserId: string
+) => {
   const validatedFields = BinSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const checkBinWithSimilarRecord = await checkExistingBinRecord(formData);
-
-  if (checkBinWithSimilarRecord) {
-    return {
-      error: "Duplicate found. A bin of similar properties already exists",
-    };
-  }
-  try {
-    await prisma.bin.create({
-      data: {
-        location: formData.location as string,
-        status: formData.status as BinStatus,
-        material: formData.material as BinMaterial,
-        User: {
-          connect: { id: formData.userId },
+  for (var i = 0; i < formData.materialIds.length; i++) {
+    const checkBinWithSimilarRecord = await checkExistingBinRecord(
+      formData,
+      formData.materialIds[i]
+    );
+    if (checkBinWithSimilarRecord) {
+      return {
+        error: "Duplicate found. A bin of similar properties already exists",
+      };
+    }
+    try {
+      await prisma.bin.create({
+        data: {
+          location: formData.location as string,
+          status: formData.status as BinStatus,
+          binMaterialId: formData.materialIds[i] as string,
+          userId: binUserId,
         },
-      },
-    });
-    return {
-      success: "Bin created successfully",
-    };
-  } catch (error) {
-    return {
-      error: "Unexpected Error occurred, Failed to create bin",
-    };
+      });
+      if (i === formData.materialIds.length - 1) {
+        return {
+          success: `Bin created successfully, Location: ${formData.location}`,
+        };
+      }
+    } catch (error) {
+      return {
+        error: "Unexpected Error occurred, Failed to create bin",
+      };
+    }
   }
 };
 
 export const updateBin = async (
   id: string,
-  values: z.infer<typeof BinSchema>
+  values: z.infer<typeof UpdateBinSchema>
 ) => {
-  const validatedFields = BinSchema.safeParse(values);
+  console.log("Updating bin with ID:", id);
+  const validatedFields = UpdateBinSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
@@ -117,7 +140,10 @@ export const updateBin = async (
   if (!checkBin) {
     return { error: "Bin does not exist" };
   }
-  const checkBinWithSimilarRecord = await checkExistingBinRecord(formData);
+  const checkBinWithSimilarRecord = await checkExistingBinRecord(
+    formData,
+    formData.materialId
+  );
   if (checkBinWithSimilarRecord) {
     return {
       error: "Duplicate found. A bin of similar properties already exists",
@@ -129,7 +155,7 @@ export const updateBin = async (
         data: {
           location: formData.location,
           status: formData.status as BinStatus,
-          material: formData.material as BinMaterial,
+          binMaterialId: formData.materialId as string,
         },
       });
       return {
@@ -159,17 +185,19 @@ export const deleteBin = async (id: string) => {
   } else return { error: `Bin with ID ${id} does not exist` };
 };
 
-const checkExistingBinRecord = async (binData: {
-  location: string;
-  status: BinStatus;
-  material: BinMaterial;
-}) => {
+const checkExistingBinRecord = async (
+  binData: {
+    location: string;
+    status: BinStatus;
+  },
+  binMaterialId: string
+) => {
   const bin = await prisma.bin.findUnique({
     where: {
-      location_status_material: {
+      location_status_binMaterialId: {
         location: binData.location,
         status: binData.status,
-        material: binData.material,
+        binMaterialId: binMaterialId,
       },
     },
   });
@@ -177,14 +205,7 @@ const checkExistingBinRecord = async (binData: {
 };
 
 export const getChartData = async () => {
-  const yearlyData: {
-    month: string;
-    bin: number;
-    binMetal: number;
-    binPlastic: number;
-  }[] = [];
-  const months: string[] = [
-    "",
+  const months = [
     "January",
     "February",
     "March",
@@ -199,81 +220,91 @@ export const getChartData = async () => {
     "December",
   ];
 
-  for (let i = 1; i <= 12; i++) {
-    const startDate = new Date(`2024-${String(i).padStart(2, "0")}-01`); // Start of the month
+  const yearlyData = await Promise.all(
+    months.map(async (month, index) => {
+      const startDate = new Date(2024, index, 1);
+      const endDate = new Date(2024, index + 1, 0); // Last day of the month
 
-    const endDate = new Date(`2024-${String(i).padStart(2, "0")}-01`);
-    endDate.setMonth(endDate.getMonth() + 1);
-    endDate.setDate(0); // Set to the last day of the previous month
-
-    // Fetch data for the current month
-    const getMonthlyBinData = await prisma.bin.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
+      const monthlyBins = await prisma.bin.findMany({
+        where: {
+          createdAt: {
+            gte: startDate,
+            lte: endDate,
+          },
         },
-      },
-    });
-
-    const getMonthlyMetalBin = await prisma.bin.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
+        include: {
+          binMaterial: {
+            select: {
+              name: true,
+            },
+          },
         },
-        material: "METAL",
-      },
-    });
+      });
 
-    const getMonthlyPlasticBin = await prisma.bin.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
+      const binsByMaterial = monthlyBins.reduce(
+        (acc, bin) => {
+          const materialName = bin.binMaterial.name;
+          if (materialName === "METAL") acc.metal++;
+          if (materialName === "PLASTIC") acc.plastic++;
+          return acc;
         },
-        material: "PLASTIC",
-      },
-    });
+        { metal: 0, plastic: 0 }
+      );
 
-    yearlyData.push({
-      month: months[i],
-      bin: getMonthlyBinData.length,
-      binMetal: getMonthlyMetalBin.length,
-      binPlastic: getMonthlyPlasticBin.length,
-    });
-  }
+      return {
+        month,
+        bin: monthlyBins.length,
+        binMetal: binsByMaterial.metal,
+        binPlastic: binsByMaterial.plastic,
+      };
+    })
+  );
 
   return yearlyData;
 };
 
-export const getBinCountsByMaterial = async () => {
-  const pieChartData: {
-    binType: BinMaterial;
-    binCount: number;
-    fill: string;
-  }[] = [];
-  const metalBinCount = await prisma.bin.count({
-    where: {
-      material: "METAL",
-    },
-  });
-  const plasticBinCount = await prisma.bin.count({
-    where: {
-      material: "PLASTIC",
-    },
-  });
-  pieChartData.push({
-    binType: "METAL",
-    binCount: metalBinCount,
-    fill: "#2D88FF",
-  });
-  pieChartData.push({
-    binType: "PLASTIC",
-    binCount: plasticBinCount,
-    fill: "#41B3A2",
-  });
-  return pieChartData;
+interface BinCount {
+  binType: string;
+  binCount: number;
+  fill: string;
+}
+
+const MATERIAL_COLORS = {
+  METAL: "#2D88FF",
+  PLASTIC: "#41B3A2",
+} as const;
+
+type MaterialType = keyof typeof MATERIAL_COLORS;
+
+export const getBinCountsByMaterial = async (): Promise<BinCount[]> => {
+  try {
+    const binsCountWithMaterial = await prisma.bin.findMany({
+      select: {
+        binMaterial: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const materialCounts = binsCountWithMaterial.reduce((acc, bin) => {
+      const materialName = bin.binMaterial.name as MaterialType;
+      if (materialName in MATERIAL_COLORS) {
+        acc[materialName] = (acc[materialName] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<MaterialType, number>);
+
+    return Object.entries(materialCounts).map(([binType, count]) => ({
+      binType,
+      binCount: count,
+      fill: MATERIAL_COLORS[binType as MaterialType],
+    }));
+  } catch (error) {
+    console.error("Failed to fetch bin counts:", error);
+    throw new Error("Failed to fetch bin counts by material");
+  }
 };
 
 // export const getBinCountsByStatus = async () => {
@@ -319,83 +350,6 @@ export const getDisposals = async () => {
   return disposals.length;
 };
 
-export const getLatestBins = async () => {
-  const binDtoArray: {
-    location: string;
-    status: BinStatus;
-    material: BinMaterial;
-    createdAt: string;
-  }[] = [];
-  const result = await prisma.bin.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: 5,
-    select: {
-      location: true,
-      status: true,
-      material: true,
-      createdAt: true,
-    },
-  });
-  result.forEach((bin) => {
-    binDtoArray.push({
-      location: bin.location,
-      status: bin.status,
-      material: bin.material,
-      createdAt: bin.createdAt.toISOString(),
-    });
-  });
-  return binDtoArray;
-};
-
-// export const getPercentageDiff = async () => {
-//   var percentageDiff = 0.0;
-//   const today = new Date();
-
-//   // Calculate last Monday by going back to the start of this week and then 7 days back
-//   const lastMonday = new Date(today);
-//   lastMonday.setDate(today.getDate() - today.getDay() - 6); // Last Monday
-
-//   // Set lastMonday to the start of that day (midnight)
-//   lastMonday.setHours(0, 0, 0, 0);
-
-//   // Calculate lastSunday by adding 6 days to lastMonday
-//   const lastSunday = new Date(lastMonday);
-//   lastSunday.setDate(lastMonday.getDate() + 6);
-
-//   // Set lastSunday to the end of that day (11:59 PM)
-//   lastSunday.setHours(23, 59, 59, 999);
-
-//   // Query for bins deployed in the range of last Monday to last Sunday
-//   const binsDeployedLastWeek = await prisma.bin.findMany({
-//     where: {
-//       createdAt: {
-//         gte: lastMonday,
-//         lt: new Date(lastSunday.setHours(23, 59, 59, 999)), // End of last Sunday
-//       },
-//     },
-//   });
-
-//   const binsDeployedThisWeek = await prisma.bin.findMany({
-//     where: {
-//       createdAt: {
-//         gte: new Date(lastSunday.setHours(0, 0, 0, 0)), // Start of this Monday
-//         lte: today,
-//       },
-//     },
-//   });
-
-//   percentageDiff =
-//     binsDeployedLastWeek.length > 0
-//       ? ((binsDeployedThisWeek.length - binsDeployedLastWeek.length) /
-//           binsDeployedLastWeek.length) *
-//         100
-//       : 0;
-
-//   return percentageDiff;
-// };
-
 export const getBinDisposalsByTime = async () => {
   var hourlyDisposalData: {
     hour: string;
@@ -431,7 +385,7 @@ export const getBinDisposalsByTime = async () => {
     include: {
       bin: {
         select: {
-          material: true,
+          binMaterial: true,
         },
       },
     },
@@ -443,9 +397,9 @@ export const getBinDisposalsByTime = async () => {
     return `${hour.slice(0, 2)}`;
   };
   for (var i = 0; i < totalDisposals.length; i++) {
-    if (totalDisposals[i].bin.material == "METAL") {
+    if (totalDisposals[i].bin.binMaterial.name == "METAL") {
       metalDisposals.push(totalDisposals[i]);
-    } else if (totalDisposals[i].bin.material == "PLASTIC") {
+    } else if (totalDisposals[i].bin.binMaterial.name == "PLASTIC") {
       plasticDisposals.push(totalDisposals[i]);
     }
   }
@@ -481,6 +435,34 @@ export const getAllBinsWithUser = async () => {
           name: true,
         },
       },
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
+};
+
+export const createBinMaterial = async (
+  values: z.infer<typeof BinMaterialSchema>
+) => {
+  const validatedFields = BinMaterialSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid fields" };
+  }
+  const formData = validatedFields.data;
+  const checkExistingBinMaterial = await prisma.binMaterial.findUnique({
+    where: {
+      name: values.name,
+    },
+  });
+  if (!checkExistingBinMaterial) {
+    const result = await prisma.binMaterial.create({
+      data: {
+        name: formData.name,
+      },
+    });
+    return { success: "Bin Material created successfully" };
+  } else return { error: "Bin Material already exists" };
 };

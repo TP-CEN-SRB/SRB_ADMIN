@@ -2,12 +2,13 @@
 import prisma from "@/lib/db";
 import { DisposalSchema } from "@/schemas";
 import { getSessionUser } from "@/utils/getAuth";
-import { BinMaterial } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const createDisposal = async (
   values: z.infer<typeof DisposalSchema>,
-  userId: string
+  userId: string,
+  binCapacity: number
 ) => {
   // Check if user has permission
   const user = await getSessionUser();
@@ -21,7 +22,9 @@ const createDisposal = async (
   const { material, weightInGrams } = validatedFields.data;
   const bin = await prisma.bin.findFirst({
     where: {
-      material: material as BinMaterial,
+      binMaterial: {
+        name: material.toUpperCase(),
+      },
       userId: userId,
     },
   });
@@ -30,7 +33,6 @@ const createDisposal = async (
     data: {
       weightInGrams: weightInGrams,
       binId: bin.id,
-      isRedeemed: false,
       pointsAwarded: weightInGrams, // 1g = 1 point
     },
   });
@@ -40,12 +42,11 @@ const createDisposal = async (
         id: bin.id,
       },
       data: {
-        currentCapacity: {
-          increment: 1,
-        },
+        currentCapacity: binCapacity,
       },
     });
   }
+  revalidatePath("/bin-capacity");
   return { id: disposal.id };
 };
 const getUnscannedDisposal = async (id: string) => {
@@ -60,7 +61,11 @@ const getUnscannedDisposal = async (id: string) => {
       isRedeemed: false,
     },
     include: {
-      bin: true,
+      bin: {
+        include: {
+          binMaterial: true,
+        },
+      },
     },
   });
 

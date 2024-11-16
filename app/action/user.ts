@@ -89,17 +89,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       role: Role.BIN,
       password: hashedPassword,
       secondaryPassword: hashedSecondaryPassword,
-      bins: {
-        createMany: {
-          data: [
-            {
-              location: `${location}`,
-              material: "PLASTIC",
-            },
-            { location: `${location}`, material: "METAL" },
-          ],
-        },
-      },
     },
   });
   return { success: "Bin successfully created!" };
@@ -381,6 +370,20 @@ const updateAdminEmail = async (
   return { success: "Confirmation email sent!" };
 };
 
+const getAllBinUsers = async () => {
+  const result = await prisma.user.findMany({
+    where: {
+      role: "BIN",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  });
+  return result;
+};
+
 export {
   signUp,
   signUpBin,
@@ -392,4 +395,5 @@ export {
   getLoggedInUserById,
   updateAdmin,
   updateAdminEmail,
+  getAllBinUsers,
 };

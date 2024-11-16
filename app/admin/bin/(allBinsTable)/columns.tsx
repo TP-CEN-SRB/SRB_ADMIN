@@ -1,9 +1,6 @@
 "use client";
 
-import { BinSchema } from "@/schemas";
 import { ColumnDef } from "@tanstack/react-table";
-import { z } from "zod";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +11,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
+import Link from "next/link";
+import { deleteBin } from "@/app/action/bin";
+import { useState, useTransition } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/router";
+import { redirect } from "next/navigation";
 
 export type Bin = {
   location: string;
   status: BinStatus;
-  material: BinMaterial;
-  userId: string;
+  material: string;
+  binId: string;
+  userName: string;
 };
 
 export const columns: ColumnDef<Bin>[] = [
@@ -51,7 +55,7 @@ export const columns: ColumnDef<Bin>[] = [
     header: "Material",
   },
   {
-    accessorKey: "userId",
+    accessorKey: "userName",
     header: "Name",
   },
   {
@@ -59,6 +63,44 @@ export const columns: ColumnDef<Bin>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const bin = row.original;
+      const [isPending, startTransition] = useTransition();
+      const { toast } = useToast();
+      const [error, setError] = useState("");
+      const [success, setSuccess] = useState("");
+      const datetime = new Date().toLocaleString("en-SG", {
+        timeZone: "Asia/Singapore",
+        hour12: false, // 24-hour format, remove if 12-hour format is needed
+      });
+      const onDelete = (id: string) => {
+        const deleteSelectedBin = async () => {
+          startTransition(async () => {
+            const result = await deleteBin(id);
+            if (result?.success) {
+              setSuccess(result?.success as string);
+              toast({
+                title: "Bin deleted successfully",
+                description: (
+                  <div>
+                    Bin deleted at{" "}
+                    {new Date().toLocaleString("en-SG", {
+                      timeZone: "Asia/Singapore",
+                      hour12: false,
+                    })}
+                    <br />
+                    <br />
+                    <strong>Bin ID: </strong> {id}
+                  </div>
+                ),
+                duration: 2000,
+                variant: "default",
+              });
+
+              redirect("/admin/bin");
+            }
+          });
+        };
+        deleteSelectedBin();
+      };
 
       return (
         <DropdownMenu modal={false}>
@@ -70,15 +112,14 @@ export const columns: ColumnDef<Bin>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-            //onClick={() => navigator.clipboard.writeText("Dropdown")}
-            >
-              Edit
-            </DropdownMenuItem>
-            {/* <DropdownMenuSeparator /> */}
-            {/* Add a line below something like <br/> */}
-            <DropdownMenuItem>Delete</DropdownMenuItem>
             <DropdownMenuSeparator />
+            <Link href={`/admin/bin/update/${bin.binId}`} passHref>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+            </Link>
+            <DropdownMenuItem onClick={() => onDelete(bin.binId)}>
+              Delete
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="border-t-2 border-gray-200" />
             <DropdownMenuItem>View Chart</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
