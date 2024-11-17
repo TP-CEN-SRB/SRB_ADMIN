@@ -8,20 +8,41 @@ const ViewStudentPage = async ({
 }: {
   searchParams: { [key: string]: string };
 }) => {
-  const page = parseInt(searchParams.page) || 1;
+  const page = Number(searchParams?.page) || 1;
   if (page < 1) notFound();
-  const query = searchParams.query;
+  const query = searchParams.query
+    ? decodeURIComponent(searchParams.query)
+    : null;
+  const sortItem = searchParams.sortItem as "disposal" | "point" | undefined;
+  const sortOrder = searchParams.sortOrder as "asc" | "desc" | undefined;
+  let orderBy;
+
+  if (sortOrder && sortOrder !== "asc" && sortOrder !== "desc") {
+    orderBy = { createdAt: "desc" as "desc" };
+  } else if (sortItem && sortOrder) {
+    if (sortItem === "disposal") {
+      orderBy = { disposals: { _count: sortOrder } };
+    } else if (sortItem === "point") {
+      orderBy = { point: { balance: sortOrder } };
+    }
+  } else {
+    orderBy = { createdAt: "desc" as "desc" };
+  }
   const [studentCount, students] = await Promise.all([
     prisma.user.count({
       where: {
         role: "STUDENT",
-        email: query ? { contains: query, mode: "insensitive" } : undefined,
+        OR: query
+          ? [
+              { email: { contains: query, mode: "insensitive" } },
+              { name: { contains: query, mode: "insensitive" } },
+            ]
+          : undefined,
       },
     }),
     prisma.user.findMany({
       where: {
         role: "STUDENT",
-
         OR: query
           ? [
               { email: { contains: query, mode: "insensitive" } },
@@ -31,7 +52,7 @@ const ViewStudentPage = async ({
       },
       take: 10,
       skip: (page - 1) * 10,
-      orderBy: { createdAt: "desc" },
+      orderBy: orderBy,
       select: {
         id: true,
         name: true,
@@ -42,6 +63,9 @@ const ViewStudentPage = async ({
       },
     }),
   ]);
+  if (!students) {
+    return <h1>Not found</h1>;
+  }
   return <DataTable columns={columns} data={students} count={studentCount} />;
 };
 export default ViewStudentPage;

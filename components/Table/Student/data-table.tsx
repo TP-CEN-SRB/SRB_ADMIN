@@ -8,7 +8,7 @@ import {
   SortingState,
   getSortedRowModel,
 } from "@tanstack/react-table";
-
+import { useDebouncedCallback } from "use-debounce";
 import {
   Table,
   TableBody,
@@ -18,10 +18,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { Input } from "@/components/ui/input";
+import TableFilter from "./filter";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -51,61 +51,68 @@ export function DataTable<TData, TValue>({
   });
 
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState("");
-  const page = parseInt(searchParams.get("page") as string);
+  const path = usePathname();
+  const page = Number(searchParams.get("page")) || 1;
   const router = useRouter();
+
   const handlePreviousClick = () => {
+    const params = new URLSearchParams(searchParams);
     if (page > Math.ceil(count / 10)) {
-      router.push(`/admin/user?page=${1}`);
+      params.set("page", "1");
     } else if (!isNaN(page)) {
-      router.push(`/admin/user?page=${page - 1}`);
+      params.set("page", `${page - 1}`);
     }
+    router.push(`${path}?${params.toString()}`);
   };
+
   const handleNextClick = () => {
+    const params = new URLSearchParams(searchParams);
     if (!isNaN(page)) {
-      router.push(`/admin/user?page=${page + 1}`);
+      params.set("page", `${page + 1}`);
     } else {
-      router.push(`/admin/user?page=${2}`);
+      params.set("page", "2");
     }
+    router.push(`${path}?${params.toString()}`);
   };
-  const handleSearch = (e: FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      router.push(`/admin/user?page=1&query=${query}`);
+
+  const handleSearch = useDebouncedCallback((query: string) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", "1");
+    if (query) {
+      params.set("query", encodeURIComponent(query));
+    } else {
+      params.delete("query");
     }
+    router.replace(`${path}?${params.toString()}`);
+  }, 300);
+
+  const handleApplyFilter = (sortItem: string, sortOrder: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (sortItem && sortOrder) {
+      params.set("sortItem", `${sortItem}`);
+      params.set("sortOrder", `${sortOrder}`);
+    } else {
+      params.delete("sortItem");
+      params.delete("sortOrder");
+    }
+    router.replace(`${path}?${params.toString()}`);
   };
-  const handleReset = () => {
-    router.push(`/admin/user?page=${page}`);
-    setQuery("");
+
+  const handleResetFilter = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("sortItem");
+    params.delete("sortOrder");
+    router.replace(`${path}?${params.toString()}`);
   };
+
   return (
     <div>
-      <div className="flex items-center p-3">
-        <form onSubmit={handleSearch}>
-          <div className="flex items-center gap-x-3 px-3">
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Filter students..."
-              className="max-w-sm"
-            />
-            <Button
-              type="submit"
-              className="bg-emerald-600 hover:bg-emerald-700"
-            >
-              Search
-            </Button>
-            <Button
-              type="button"
-              onClick={handleReset}
-              className="border border-emerald-600 bg-transparent text-emerald-700 hover:bg-emerald-50"
-            >
-              Reset
-            </Button>
-          </div>
-        </form>
-      </div>
-
+      <TableFilter
+        onResetFilter={handleResetFilter}
+        onApplyFilter={handleApplyFilter}
+        query={searchParams.get("query")}
+        onSearch={handleSearch}
+      />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -163,7 +170,8 @@ export function DataTable<TData, TValue>({
         </div>
         <div className="flex items-center space-x-2">
           <p>
-            Page {isNaN(page) ? "1" : page} of {Math.ceil(count / 10)}
+            Page {isNaN(page) ? "1" : page} of{" "}
+            {Math.max(Math.ceil(count / 10), 1)}
           </p>
           <Button
             disabled={page === 1 || isNaN(page)}
