@@ -59,6 +59,7 @@ const SignUpBinSchema = z.object({
   secondaryPassword: z
     .string()
     .regex(/^\d{6}$/, "Secondary password must be 6 digits"),
+  location: z.string().min(2, "Location is too short"),
 });
 const SecondaryPasswordSchema = SignUpBinSchema.pick({
   secondaryPassword: true,

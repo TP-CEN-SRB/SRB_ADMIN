@@ -8,39 +8,23 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { BinMaterial } from "@prisma/client";
 import { Bar, BarChart, XAxis, Pie, PieChart } from "recharts";
 
-class monthlyChartData {
+interface monthlyChartData {
   month: string;
   bin: number;
   binMetal: number;
   binPlastic: number;
-  constructor(
-    month: string,
-    binTotal: number,
-    binMetal: number,
-    binPlastic: number
-  ) {
-    this.month = month;
-    this.bin = binTotal;
-    this.binMetal = binMetal;
-    this.binPlastic = binPlastic;
-  }
 }
 
-class pieChartData {
-  binType: BinMaterial;
-  binCount: number;
-  constructor(binType: BinMaterial, binCount: number) {
-    this.binType = binType;
-    this.binCount = binCount;
-  }
+interface pieChartData {
+  binType?: string;
+  binCount?: number;
 }
 
 interface ChartProps {
-  chartData: monthlyChartData[];
-  pieChartData: pieChartData[];
+  chartData?: monthlyChartData[];
+  pieChartData?: pieChartData[];
 }
 
 const chartConfig = {
@@ -50,11 +34,11 @@ const chartConfig = {
   },
   binMetal: {
     label: "Metal",
-    color: "#6366f1",
+    color: "#4394E5",
   },
   binPlastic: {
     label: "Plastic",
-    color: "#10b981",
+    color: "#41B3A2",
   },
   bin: {
     label: "Bins",
@@ -117,7 +101,7 @@ export default function Chart({ chartData, pieChartData }: ChartProps) {
             </BarChart>
           </ChartContainer>
         </div>
-        <div className="bg-[var(--pale-mint)] shadow-md rounded-xl col-span-3 flex justify-center">
+        <div className="bg-white rounded-xl col-span-3 flex justify-center">
           <ChartContainer config={PieChartConfig} className="w-full">
             <PieChart>
               <Pie

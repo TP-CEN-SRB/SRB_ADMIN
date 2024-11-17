@@ -89,17 +89,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       role: Role.BIN,
       password: hashedPassword,
       secondaryPassword: hashedSecondaryPassword,
-      bins: {
-        createMany: {
-          data: [
-            {
-              location: `${location}`,
-              material: "PLASTIC",
-            },
-            { location: `${location}`, material: "METAL" },
-          ],
-        },
-      },
     },
   });
   return { success: "Bin successfully created!" };
@@ -381,6 +370,38 @@ const updateAdminEmail = async (
   return { success: "Confirmation email sent!" };
 };
 
+const getAllBinUsers = async () => {
+  const result = await prisma.user.findMany({
+    where: {
+      role: "BIN",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  });
+  return result;
+};
+
+const deleteBinUser = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (user) {
+    await prisma.user.delete({
+      where: {
+        id: id,
+      },
+    });
+    return { success: `User with ID ${id} deleted successfully` };
+  } else {
+    return { error: `User with ID ${id} does not exist` };
+  }
+};
+
 export {
   signUp,
   signUpBin,
@@ -392,4 +413,6 @@ export {
   getLoggedInUserById,
   updateAdmin,
   updateAdminEmail,
+  getAllBinUsers,
+  deleteBinUser,
 };

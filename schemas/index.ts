@@ -10,10 +10,13 @@ export const ACCEPTED_IMAGE_TYPES = [
 ];
 
 const BinSchema = z.object({
-  location: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+  location: z
+    .string()
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
-  material: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-  userId: z.string().min(1, "User ID is required"),
+  materialIds: z
+    .array(z.string())
+    .nonempty("At least one material must be selected"),
 });
 
 const DisposalSchema = z.object({
@@ -55,4 +58,26 @@ const RewardSchema = z.object({
     ),
 });
 
-export { BinSchema, DisposalSchema, RewardSchema };
+const BinMaterialSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name is too short")
+    .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+});
+
+const UpdateBinSchema = z.object({
+  location: z
+    .string()
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
+  status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
+  materialId: z.string().min(1, "Please select the material type"),
+  // userId: z.string().min(1, "User ID is required"),
+});
+
+export {
+  BinSchema,
+  DisposalSchema,
+  RewardSchema,
+  BinMaterialSchema,
+  UpdateBinSchema,
+};

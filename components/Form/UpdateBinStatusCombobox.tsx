@@ -13,20 +13,27 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ControllerRenderProps } from "react-hook-form";
-import { z } from "zod";
-import { BinSchema } from "@/schemas";
 
-const BinMaterialCombobox = ({
+const UpdateBinStatusCombobox = ({
   field,
 }: {
-  field: ControllerRenderProps<z.infer<typeof BinSchema>>;
+  field: ControllerRenderProps<
+    {
+      status: "FUNCTIONAL" | "UNDER_MAINTENANCE";
+      location: string;
+      materialId: string;
+    },
+    "status"
+  >;
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(field.value || "");
+  const [createValue, setCreateValue] = useState<
+    "FUNCTIONAL" | "UNDER_MAINTENANCE" | undefined
+  >(field?.value || "");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,34 +45,38 @@ const BinMaterialCombobox = ({
           className="flex"
         >
           <ChevronsUpDown className="-ml-2 mr-2 h-4 w-4 shrink-0 opacity-50" />
-          {value
-            ? Object.values(BinMaterial).find((material) => material === value)
-            : "Select material..."}
+          {createValue
+            ? Object.values(BinStatus).find((status) => status === createValue)
+            : "Select status..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search material..." />
+          <CommandInput placeholder="Search status..." />
           <CommandList>
-            <CommandEmpty>No material found.</CommandEmpty>
+            <CommandEmpty>No status found.</CommandEmpty>
             <CommandGroup>
-              {Object.values(BinMaterial).map((material, idx) => (
+              {Object.values(BinStatus).map((status, idx) => (
                 <CommandItem
                   key={idx}
-                  value={material}
+                  value={status}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
+                    setCreateValue(
+                      currentValue === createValue
+                        ? undefined
+                        : (currentValue as "FUNCTIONAL" | "UNDER_MAINTENANCE")
+                    );
                     setOpen(false);
-                    field.onChange(currentValue);
+                    field?.onChange(currentValue); // Handles both create and update
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === material ? "opacity-100" : "opacity-0"
+                      createValue === status ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {material}
+                  {status}
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -76,4 +87,4 @@ const BinMaterialCombobox = ({
   );
 };
 
-export default BinMaterialCombobox;
+export default UpdateBinStatusCombobox;

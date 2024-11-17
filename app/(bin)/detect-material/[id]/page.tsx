@@ -40,7 +40,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     };
 
     handleDisposal();
-  }, [thrown, material, params.id, router, weightInGrams]);
+  }, [thrown, material, params.id, router, weightInGrams, binCapacity]);
 
   /**
    *Pusher

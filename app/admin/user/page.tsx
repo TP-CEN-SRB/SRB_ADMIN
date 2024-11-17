@@ -18,7 +18,7 @@ const ViewStudentPage = async ({
   let orderBy;
 
   if (sortOrder && sortOrder !== "asc" && sortOrder !== "desc") {
-    orderBy = { createdAt: "desc" as "desc" };
+    orderBy = { createdAt: "desc" as const };
   } else if (sortItem && sortOrder) {
     if (sortItem === "disposal") {
       orderBy = { disposals: { _count: sortOrder } };
@@ -26,7 +26,7 @@ const ViewStudentPage = async ({
       orderBy = { point: { balance: sortOrder } };
     }
   } else {
-    orderBy = { createdAt: "desc" as "desc" };
+    orderBy = { createdAt: "desc" as const };
   }
   const [studentCount, students] = await Promise.all([
     prisma.user.count({

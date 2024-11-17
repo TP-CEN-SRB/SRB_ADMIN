@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import Image from "next/image";
 
 const RewardsGrid = () => {
   return (
@@ -20,11 +21,12 @@ const RewardsGrid = () => {
           </CardHeader>
           <CardContent className="flex justify-center px-4">
             <div className="h-[200px] flex items-center justify-center">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/1376/1376388.png"
-                className="w-3/4"
+              {/* <Image
+                fill
+                src="/qr_code.png"
+                className="w-3/4 object-cover"
                 alt="Voucher Icon"
-              />
+              /> */}
             </div>
           </CardContent>
           <CardFooter className="flex justify-start">

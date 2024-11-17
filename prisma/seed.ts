@@ -78,16 +78,16 @@ const rewardsData: Prisma.RewardCreateInput[] = [
     pointsRequired: 100,
     description: "big stuff toy bird",
     isAvailable: true,
-    image: "https://utfs.io/f/oCGZ90SRbWap5Ojx6jc1SjwIuQeqVB9Oop2mt3GkNXdZiWc7"
+    image: "https://utfs.io/f/oCGZ90SRbWap5Ojx6jc1SjwIuQeqVB9Oop2mt3GkNXdZiWc7",
   },
   {
     name: "flappy bird head",
     pointsRequired: 50,
     description: "no body no wing, only the head!",
     isAvailable: true,
-    image: "https://utfs.io/f/oCGZ90SRbWaptKqtKP9epDWxdTiRN82OruAqJZBz3Syskfgn"
-  }
-]
+    image: "https://utfs.io/f/oCGZ90SRbWaptKqtKP9epDWxdTiRN82OruAqJZBz3Syskfgn",
+  },
+];
 
 async function main() {
   for (const data of binMaterialData) {

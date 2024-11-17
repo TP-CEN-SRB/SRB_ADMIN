@@ -27,6 +27,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "app/(admin)/dashboard"
-  ],
+, "components/Form/CreateBinStatusCombobox"  ],
   "exclude": ["node_modules"]
 }

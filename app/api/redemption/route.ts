@@ -32,6 +32,28 @@ export const POST = async (req: NextRequest) => {
         { status: 404 }
       );
     }
+
+    const point = await prisma.point.findUnique({
+      where: { userId: decodedToken.userId },
+    });
+
+    if (!point) {
+      return NextResponse.json(
+        { message: "User not found!" },
+        { status: 404 }
+      );
+    }
+
+    // Check if the user has enough points to redeem the reward
+    // status 406 is for Not Acceptable
+    if (point.balance < reward.pointsRequired) {
+      return NextResponse.json(
+        { message: `Insufficient points. You need ${reward.pointsRequired} points to redeem this reward.` },
+        { status: 406 }
+      );
+    }
+
+
     const [redemption, updatedPoint] = await prisma.$transaction([
       prisma.redemption.create({
         data: {

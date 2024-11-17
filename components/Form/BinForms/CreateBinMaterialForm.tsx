@@ -1,7 +1,7 @@
 "use client";
 
-import { redirect, useRouter } from "next/navigation"; // Import useRouter
-import { UpdateBinSchema } from "@/schemas";
+import { useRouter } from "next/navigation"; // Import useRouter
+import { BinMaterialSchema, UpdateBinSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,13 +15,11 @@ import {
   FormMessage,
 } from "../../ui/form";
 import { Input } from "@/components/ui/input";
-import UpdateBinStatusCombobox from "../UpdateBinStatusCombobox";
-import BinMaterialCombobox from "@/components/Form/CreateBinMaterialCombobox";
 import { Button } from "../../ui/button";
-import { Loader2, Router } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Bin, BinMaterial } from "@prisma/client";
-import { updateBin } from "@/app/action/bin";
+import { createBinMaterial, updateBin } from "@/app/action/bin";
 import Card from "@/components/Card/Card";
 import FormHeader from "../FormHeader";
 
@@ -29,41 +27,36 @@ interface UpdateBinFormProps {
   id: string;
   initialData: Bin;
   materials: BinMaterial[];
-  location: string;
-  binMaterialName: string;
 }
 
-const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
+const CreateBinMaterialForm: React.FC<UpdateBinFormProps> = ({
   id,
   initialData,
   materials,
-  location,
-  binMaterialName,
 }) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // Initialize useRouter
-  const router = useRouter();
+  const [success, setSuccess] = useState("");
+  const router = useRouter(); // Initialize useRouter
 
-  const form = useForm<z.infer<typeof UpdateBinSchema>>({
-    resolver: zodResolver(UpdateBinSchema),
+  const form = useForm<z.infer<typeof BinMaterialSchema>>({
+    resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
-      location,
-      status: initialData.status,
-      materialId: initialData.binMaterialId,
+      name: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof UpdateBinSchema>) => {
+  const onSubmit = (values: z.infer<typeof BinMaterialSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
     });
+
     startTransition(async () => {
       setError("");
       try {
-        const result = await updateBin(id, values);
+        const result = await createBinMaterial(values);
         if (result?.success) {
           setSuccess(result.success);
           toast({
@@ -71,7 +64,7 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
             description: `Bin updated at ${datetime}`,
             variant: "default",
           });
-          router.push("/admin/bin");
+          router.push("/admin/bin"); // Use router.push for client-side navigation
         } else if (result?.error) {
           setError(result.error || "An error occurred");
           toast({
@@ -96,57 +89,21 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
 
   return (
     <Card rounded fullWidth>
-      <FormHeader>Update Bin</FormHeader>
+      <FormHeader>Create Material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="location"
+            name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold text-slate-700d">
-                  Location
-                </FormLabel>
+                <FormLabel className="font-bold text-slate-700">Name</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="Near Library"
+                    placeholder="PLASTIC"
                     {...field}
                     type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Status
-                </FormLabel>
-                <FormControl>
-                  <UpdateBinStatusCombobox field={field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="materialId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Material
-                </FormLabel>
-                <FormControl>
-                  <BinMaterialCombobox
-                    materials={materials}
-                    field={field}
-                    currentFieldName={binMaterialName}
                   />
                 </FormControl>
                 <FormMessage />
@@ -163,4 +120,4 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
   );
 };
 
-export default UpdateBinForm;
+export default CreateBinMaterialForm;

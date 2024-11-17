@@ -13,7 +13,7 @@ export async function createReward(
   if (!user) {
     return { error: "Unauthorized access!" };
   }
-  let data = Object.fromEntries(formData.entries());
+  const data = Object.fromEntries(formData.entries());
   if (isCustomDuration) {
     const jsonDate = JSON.parse(data.dates as string);
     data.dates = jsonDate;

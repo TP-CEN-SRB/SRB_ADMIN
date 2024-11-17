@@ -39,7 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaPlusCircle } from "react-icons/fa";
@@ -61,115 +61,20 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: 10,
   });
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const handleFilterChange = (status: string, checked: boolean) => {
-    // Update individual state for each status
-    const newFunctionalState =
-      status === "FUNCTIONAL" ? checked : showFunctional;
-    const newUnderMaintenanceState =
-      status === "UNDER_MAINTENANCE" ? checked : showUnderMaintenance;
-
-    // Set local states to update the checkbox UI immediately
-    setShowFunctional(newFunctionalState);
-    setShowUnderMaintenance(newUnderMaintenanceState);
-
-    // Determine filter behavior based on selected states
-    if (newFunctionalState && newUnderMaintenanceState) {
-      // Both statuses checked, clear the filter to show all rows
-      table.getColumn("status")?.setFilterValue(undefined);
-    } else if (newFunctionalState) {
-      // Only "Functional" checked, filter for "FUNCTIONAL" rows
-      table.getColumn("status")?.setFilterValue("FUNCTIONAL");
-    } else if (newUnderMaintenanceState) {
-      // Only "Under Maintenance" checked, filter for "UNDER_MAINTENANCE" rows
-      table.getColumn("status")?.setFilterValue("UNDER_MAINTENANCE");
-    } else {
-      // No statuses checked, clear the filter to show all rows
-      table.getColumn("status")?.setFilterValue(undefined);
-    }
-  };
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     state: {
       pagination,
-      columnFilters,
     },
   });
-  const [showFunctional, setShowFunctional] = useState<Checked>(false);
-  const [showUnderMaintenance, setShowUnderMaintenance] =
-    useState<Checked>(false);
-  const [filterValue, setFilterValue] = useState(
-    (table.getColumn("location")?.getFilterValue() as string) ?? ""
-  );
-
-  const handleClear = () => {
-    setFilterValue(""); // Clear the input
-    table.getColumn("location")?.setFilterValue(""); // Reset the table filter
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setFilterValue(value); // Update the input state
-    table.getColumn("location")?.setFilterValue(value); // Update the table filter
-  };
   return (
     <>
       <div className="px-4">
-        <div className="flex items-center py-4 space-x-2">
-          <div className="relative max-w-sm">
-            <Input
-              placeholder="Filter Location..."
-              value={filterValue}
-              onChange={handleInputChange}
-              className="pr-8" // Add padding to avoid overlap with the button
-            />
-            {filterValue && (
-              <button
-                onClick={handleClear}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-          {/* <AllBinsTableStatusDropdown/> */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <FaPlusCircle />
-                Status
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>Statuses</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem
-                checked={showFunctional}
-                onCheckedChange={(checked) =>
-                  handleFilterChange("FUNCTIONAL", checked)
-                }
-              >
-                Functional
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem
-                checked={showUnderMaintenance}
-                onCheckedChange={(checked) =>
-                  handleFilterChange("UNDER_MAINTENANCE", checked)
-                }
-              >
-                Under Maintenance
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>

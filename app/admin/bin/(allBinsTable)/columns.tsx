@@ -1,9 +1,6 @@
 "use client";
 
-import { BinSchema } from "@/schemas";
 import { ColumnDef } from "@tanstack/react-table";
-import { z } from "zod";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +11,69 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
+import Link from "next/link";
+import { deleteBin } from "@/app/action/bin";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export type Bin = {
   location: string;
   status: BinStatus;
-  material: BinMaterial;
-  userId: string;
+  material: string;
+  binId: string;
+  userName: string;
+};
+
+const BinActions = ({ bin }: { bin: Bin }) => {
+  const router = useRouter();
+  const datetime = new Date().toLocaleString("en-SG", {
+    timeZone: "Asia/Singapore",
+    hour12: false, // 24-hour format, remove if 12-hour format is needed
+  });
+
+  const onDelete = async (id: string) => {
+    const result = await deleteBin(id);
+    if (result?.success) {
+      toast({
+        title: "Bin deleted successfully",
+        description: (
+          <div>
+            Bin deleted at {datetime}
+            <br />
+            <br />
+            <strong>Bin ID: </strong> {id}
+          </div>
+        ),
+        duration: 2000,
+        variant: "default",
+      });
+      router.refresh();
+    }
+  };
+
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <Link href={`/admin/bin/update/${bin.binId}`} passHref>
+          <DropdownMenuItem>Edit</DropdownMenuItem>
+        </Link>
+        <DropdownMenuItem onClick={() => onDelete(bin.binId)}>
+          Delete
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="border-t-2 border-gray-200" />
+        <DropdownMenuItem>View Chart</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 };
 
 export const columns: ColumnDef<Bin>[] = [
@@ -51,38 +104,12 @@ export const columns: ColumnDef<Bin>[] = [
     header: "Material",
   },
   {
-    accessorKey: "userId",
+    accessorKey: "userName",
     header: "Name",
   },
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const bin = row.original;
-
-      return (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-            //onClick={() => navigator.clipboard.writeText("Dropdown")}
-            >
-              Edit
-            </DropdownMenuItem>
-            {/* <DropdownMenuSeparator /> */}
-            {/* Add a line below something like <br/> */}
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View Chart</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <BinActions bin={row.original} />,
   },
 ];
