@@ -16,8 +16,7 @@ import Link from "next/link";
 import { deleteBin } from "@/app/action/bin";
 import { useState, useTransition } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/router";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export type Bin = {
   location: string;
@@ -73,6 +72,7 @@ export const columns: ColumnDef<Bin>[] = [
       });
       const onDelete = (id: string) => {
         const deleteSelectedBin = async () => {
+          const router = useRouter();
           startTransition(async () => {
             const result = await deleteBin(id);
             if (result?.success) {
@@ -94,8 +94,7 @@ export const columns: ColumnDef<Bin>[] = [
                 duration: 2000,
                 variant: "default",
               });
-
-              redirect("/admin/bin");
+              router.refresh();
             }
           });
         };

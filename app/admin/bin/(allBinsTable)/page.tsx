@@ -1,13 +1,12 @@
 import React from "react";
 import { DataTable } from "./data-table";
-import { Bin, columns } from "./columns";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { columns } from "./columns";
 import { getAllBinsWithUser } from "@/app/action/bin";
 
 const getData = async () => {
   const allBins = await getAllBinsWithUser();
   return allBins.map((bin) => ({
-    location: bin.location,
+    location: bin.User.location as string,
     status: bin.status,
     material: bin.binMaterial.name,
     binId: bin.id as string,

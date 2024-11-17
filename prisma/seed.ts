@@ -35,32 +35,6 @@ const userData: Prisma.UserCreateInput[] = [
             status: BinStatus.FUNCTIONAL,
             binMaterialId: "5b058bae-7d4e-4198-b8d7-294b2a40c0cc",
           },
-
-          {
-            location: "Engine",
-            status: BinStatus.UNDER_MAINTENANCE,
-            binMaterialId: "126f6451-956f-44f3-a9c7-be31e2229ed0",
-          },
-          {
-            location: "IT",
-            status: BinStatus.UNDER_MAINTENANCE,
-            binMaterialId: "0ab11796-b46b-4c21-aecd-a80f850f78d4",
-          },
-          {
-            location: "Design",
-            status: BinStatus.UNDER_MAINTENANCE,
-            binMaterialId: "526b5a69-fc92-459b-b538-39310412f538",
-          },
-          {
-            location: "Business",
-            status: BinStatus.UNDER_MAINTENANCE,
-            binMaterialId: "7223ee16-49c8-4740-a79f-70c8e5983b8a",
-          },
-          {
-            location: "Applied Science",
-            status: BinStatus.UNDER_MAINTENANCE,
-            binMaterialId: "5b058bae-7d4e-4198-b8d7-294b2a40c0cc",
-          },
         ],
       },
     },
@@ -104,16 +78,16 @@ const rewardsData: Prisma.RewardCreateInput[] = [
     pointsRequired: 100,
     description: "big stuff toy bird",
     isAvailable: true,
-    image: "https://utfs.io/f/oCGZ90SRbWap5Ojx6jc1SjwIuQeqVB9Oop2mt3GkNXdZiWc7"
+    image: "https://utfs.io/f/oCGZ90SRbWap5Ojx6jc1SjwIuQeqVB9Oop2mt3GkNXdZiWc7",
   },
   {
     name: "flappy bird head",
     pointsRequired: 50,
     description: "no body no wing, only the head!",
     isAvailable: true,
-    image: "https://utfs.io/f/oCGZ90SRbWaptKqtKP9epDWxdTiRN82OruAqJZBz3Syskfgn"
-  }
-]
+    image: "https://utfs.io/f/oCGZ90SRbWaptKqtKP9epDWxdTiRN82OruAqJZBz3Syskfgn",
+  },
+];
 
 async function main() {
   for (const data of binMaterialData) {

@@ -45,10 +45,11 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
     })
     .toLowerCase()}
 `);
+  const router = useRouter();
 
   const refreshData = () => {
     setLoading(true);
-    //await router.refresh();
+    router.refresh();
     setDatetime(`${new Date().toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "2-digit",
@@ -74,7 +75,7 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
 
   return (
     <>
-      <div className="px-4 md:px-6 lg:px-8">
+      <div className="px-4 md:px-6 lg:px-8 mt-4">
         <div className="flex flex-col gap-6 md:flex-row md:items-center justify-between">
           {/* Refresh Button and Last Updated Info */}
           <div className="flex flex-col gap-2 md:gap-4">

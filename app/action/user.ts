@@ -384,6 +384,24 @@ const getAllBinUsers = async () => {
   return result;
 };
 
+const deleteBinUser = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (user) {
+    await prisma.user.delete({
+      where: {
+        id: id,
+      },
+    });
+    return { success: `User with ID ${id} deleted successfully` };
+  } else {
+    return { error: `User with ID ${id} does not exist` };
+  }
+};
+
 export {
   signUp,
   signUpBin,
@@ -396,4 +414,5 @@ export {
   updateAdmin,
   updateAdminEmail,
   getAllBinUsers,
+  deleteBinUser,
 };

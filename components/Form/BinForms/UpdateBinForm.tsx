@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation"; // Import useRouter
+import { redirect, useRouter } from "next/navigation"; // Import useRouter
 import { UpdateBinSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useTransition, useState } from "react";
@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import BinStatusCombobox from "../BinStatusCombobox";
 import BinMaterialCombobox from "../BinMaterialComboBox";
 import { Button } from "../../ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Router } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Bin, BinMaterial } from "@prisma/client";
 import { updateBin } from "@/app/action/bin";
@@ -29,23 +29,27 @@ interface UpdateBinFormProps {
   id: string;
   initialData: Bin;
   materials: BinMaterial[];
+  location: string;
+  binMaterialName: string;
 }
 
 const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
   id,
   initialData,
   materials,
+  location,
+  binMaterialName,
 }) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const router = useRouter(); // Initialize useRouter
+  const [success, setSuccess] = useState(""); // Initialize useRouter
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof UpdateBinSchema>>({
     resolver: zodResolver(UpdateBinSchema),
     defaultValues: {
-      location: initialData.location,
+      location,
       status: initialData.status,
       materialId: initialData.binMaterialId,
     },
@@ -56,7 +60,6 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
       timeZone: "Asia/Singapore",
       hour12: false,
     });
-
     startTransition(async () => {
       setError("");
       try {
@@ -68,7 +71,7 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
             description: `Bin updated at ${datetime}`,
             variant: "default",
           });
-          router.push("/admin/bin"); // Use router.push for client-side navigation
+          router.push("/admin/bin");
         } else if (result?.error) {
           setError(result.error || "An error occurred");
           toast({
@@ -140,7 +143,11 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
                   Material
                 </FormLabel>
                 <FormControl>
-                  <BinMaterialCombobox materials={materials} field={field} />
+                  <BinMaterialCombobox
+                    materials={materials}
+                    field={field}
+                    currentFieldName={binMaterialName}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

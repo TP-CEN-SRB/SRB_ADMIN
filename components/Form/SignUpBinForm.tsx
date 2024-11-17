@@ -43,6 +43,7 @@ const SignUpBinForm = () => {
       const data = await signUpBin(values);
       setError(data?.error as string);
       setSuccess(data?.success as string);
+      router.push("/admin/bin/manager");
     });
   };
   return (
@@ -129,6 +130,29 @@ const SignUpBinForm = () => {
                 </FormControl>
                 <FormDescription>
                   This password will be used for actions like signing out
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="location"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Location
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Block 1, Level 1 of Engine School"
+                    {...field}
+                    type="location"
+                  />
+                </FormControl>
+                <FormDescription>
+                  This will be the location of the bin(s)
                 </FormDescription>
                 <FormMessage />
               </FormItem>

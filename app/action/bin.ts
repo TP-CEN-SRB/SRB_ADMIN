@@ -37,7 +37,19 @@ export const getAllBins = async () => {
 export const getBinById = async (id: string) => {
   return await prisma.bin.findUnique({
     where: {
-      id: id,
+      id,
+    },
+    include: {
+      User: {
+        select: {
+          location: true,
+        },
+      },
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 };
@@ -95,8 +107,9 @@ export const createBin = async (
   const formData = validatedFields.data;
   for (var i = 0; i < formData.materialIds.length; i++) {
     const checkBinWithSimilarRecord = await checkExistingBinRecord(
-      formData,
-      formData.materialIds[i]
+      formData.location,
+      formData.materialIds[i],
+      binUserId
     );
     if (checkBinWithSimilarRecord) {
       return {
@@ -106,13 +119,20 @@ export const createBin = async (
     try {
       await prisma.bin.create({
         data: {
-          location: formData.location as string,
           status: formData.status as BinStatus,
           binMaterialId: formData.materialIds[i] as string,
           userId: binUserId,
         },
       });
-      if (i === formData.materialIds.length - 1) {
+      if (i == formData.materialIds.length - 1) {
+        try {
+          await prisma.user.update({
+            where: { id: binUserId },
+            data: { location: formData.location },
+          });
+        } catch (error) {
+          return { error: "Failed to update user location" };
+        }
         return {
           success: `Bin created successfully, Location: ${formData.location}`,
         };
@@ -135,14 +155,14 @@ export const updateBin = async (
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const checkBin = await prisma.bin.findUnique({
+  const checkIfBinExist = await prisma.bin.findUnique({
     where: { id },
   });
-  if (!checkBin) {
+  if (!checkIfBinExist) {
     return { error: "Bin does not exist" };
   }
   const checkBinWithSimilarRecord = await checkExistingBinRecord(
-    formData,
+    formData.location,
     formData.materialId
   );
   if (checkBinWithSimilarRecord) {
@@ -151,14 +171,21 @@ export const updateBin = async (
     };
   } else {
     try {
-      await prisma.bin.update({
-        where: { id },
-        data: {
-          location: formData.location,
-          status: formData.status as BinStatus,
-          binMaterialId: formData.materialId as string,
-        },
-      });
+      const [updateBin, updateLocation] = await Promise.all([
+        prisma.bin.update({
+          where: { id },
+          data: {
+            status: formData.status as BinStatus,
+            binMaterialId: formData.materialId as string,
+          },
+        }),
+        prisma.user.update({
+          where: { id: checkIfBinExist.userId },
+          data: {
+            location: formData.location,
+          },
+        }),
+      ]);
       return {
         success: `Bin updated successfully, Bin ID: ${id}`,
       };
@@ -187,21 +214,27 @@ export const deleteBin = async (id: string) => {
 };
 
 const checkExistingBinRecord = async (
-  binData: {
-    location: string;
-    status: BinStatus;
-  },
-  binMaterialId: string
+  binLocation: string,
+  binMaterialId: string,
+  userId?: string
 ) => {
-  const bin = await prisma.bin.findUnique({
+  const bin = await prisma.bin.findFirst({
     where: {
-      location_status_binMaterialId: {
-        location: binData.location,
-        status: binData.status,
-        binMaterialId: binMaterialId,
+      binMaterialId,
+      User: {
+        location: binLocation,
+        id: userId || undefined, // Ensure optional filtering on userId
+      },
+    },
+    include: {
+      User: {
+        select: {
+          location: true, // Include location if you want to retrieve it
+        },
       },
     },
   });
+
   return bin !== null;
 };
 
@@ -428,12 +461,33 @@ export const getBinDisposalsByTime = async () => {
   return hourlyDisposalData;
 };
 
-export const getAllBinsWithUser = async () => {
+export const getAllBinsWithUser = async (userId?: string) => {
+  if (userId) {
+    return await prisma.bin.findMany({
+      where: {
+        userId,
+      },
+      include: {
+        User: {
+          select: {
+            name: true,
+            location: true,
+          },
+        },
+        binMaterial: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
   return await prisma.bin.findMany({
     include: {
       User: {
         select: {
           name: true,
+          location: true,
         },
       },
       binMaterial: {

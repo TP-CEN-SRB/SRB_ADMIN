@@ -21,14 +21,16 @@ import { ControllerRenderProps } from "react-hook-form";
 interface BinMaterialComboboxProps {
   materials: BinMaterial[]; // `materials` is now a string array
   field: ControllerRenderProps<any, any>;
+  currentFieldName: string;
 }
 
 const BinMaterialCombobox: React.FC<BinMaterialComboboxProps> = ({
   materials,
   field,
+  currentFieldName,
 }) => {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(currentFieldName || "");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

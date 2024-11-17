@@ -22,6 +22,7 @@ import { BsFillBarChartFill } from "react-icons/bs";
 import { enableNav } from "@/utils/enableNav";
 import { usePathname } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
+import { RiRecycleFill } from "react-icons/ri";
 import {
   FaBell,
   FaTrash,
@@ -52,11 +53,6 @@ const collaspeItems = [
         title: "View",
         icon: FaEye,
         url: "/admin/bin",
-      },
-      {
-        title: "Create Material",
-        icon: FaPlus,
-        url: "/admin/bin/create/material",
       },
     ],
   },
@@ -89,6 +85,22 @@ const collaspeItems = [
         title: "Create",
         icon: FaPlus,
         url: "/admin/reward/create",
+      },
+    ],
+  },
+  {
+    title: "Materials",
+    icon: RiRecycleFill,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/bin/material",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/bin/material/create",
       },
     ],
   },

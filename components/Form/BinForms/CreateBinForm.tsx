@@ -28,11 +28,13 @@ import FormHeader from "../FormHeader";
 interface CreateBinFormProps {
   materials: BinMaterial[];
   binUserId: string;
+  binLocation: string | undefined | null;
 }
 
 const CreateBinForm: React.FC<CreateBinFormProps> = ({
   materials,
   binUserId,
+  binLocation,
 }) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
@@ -42,7 +44,7 @@ const CreateBinForm: React.FC<CreateBinFormProps> = ({
   const form = useForm<z.infer<typeof BinSchema>>({
     resolver: zodResolver(BinSchema),
     defaultValues: {
-      location: "",
+      location: binLocation || "",
       status: BinStatus.FUNCTIONAL,
       materialIds: [],
     },
