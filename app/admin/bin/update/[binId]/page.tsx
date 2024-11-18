@@ -18,7 +18,7 @@ async function Page({ params }: { params: { binId: string } }) {
           id={params.binId}
           initialData={bin}
           materials={getAllMaterials}
-          location={bin.User.location as string}
+          location={bin.user.location as string}
           binMaterialName={bin.binMaterial.name as string}
         />
       </div>

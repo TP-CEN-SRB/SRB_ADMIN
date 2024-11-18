@@ -147,7 +147,7 @@ model Reward {
 
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
-  Redemption Redemption[]
+  redemption Redemption[]
 
   @@map("rewards")
 }
