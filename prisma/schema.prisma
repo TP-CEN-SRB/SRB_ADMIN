@@ -86,7 +86,7 @@ model Bin {
   status          BinStatus   @default(FUNCTIONAL)
   currentCapacity Float       @default(0)
   userId          String
-  User            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   binMaterialId   String
   binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
   disposals       Disposal[]
