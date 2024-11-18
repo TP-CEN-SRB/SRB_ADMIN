@@ -3,8 +3,6 @@
 import { ControllerRenderProps } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BinMaterial } from "@prisma/client";
-import { z } from "zod";
-import { BinMaterialSchema } from "@/schemas";
 
 interface BinMaterialCheckBoxProps {
   materials: BinMaterial[]; // Array of material strings

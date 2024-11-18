@@ -47,7 +47,7 @@ const SignUpBinForm = () => {
     });
   };
   return (
-    <Card rounded fullWidth>
+    <Card isAdmin rounded fullWidth>
       <FormHeader>Create a bin user</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

@@ -402,6 +402,81 @@ const deleteBinUser = async (id: string) => {
   }
 };
 
+const getAllStudentUsers = async (
+  page: number,
+  query: string | null,
+  sortOrder: string,
+  sortItem: string
+) => {
+  const sortableEntities = ["point", "disposal"];
+  if (page < 0) {
+    return { studentCount: 0, students: [] };
+  }
+  if (sortOrder !== undefined && sortOrder !== "asc" && sortOrder != "desc") {
+    return { studentCount: 0, students: [] };
+  }
+  if (
+    sortItem !== undefined &&
+    !Object.values(sortableEntities).includes(sortItem)
+  ) {
+    return { studentCount: 0, students: [] };
+  }
+  const [studentCount, students] = await Promise.all([
+    prisma.user.count({
+      where: {
+        role: "STUDENT",
+        OR: query
+          ? [
+              { email: { contains: query, mode: "insensitive" } },
+              { name: { contains: query, mode: "insensitive" } },
+            ]
+          : undefined,
+      },
+    }),
+    prisma.user.findMany({
+      where: {
+        role: "STUDENT",
+        OR: query
+          ? [
+              { email: { contains: query, mode: "insensitive" } },
+              { name: { contains: query, mode: "insensitive" } },
+            ]
+          : undefined,
+      },
+      take: 10,
+      skip: (page - 1) * 10,
+      orderBy:
+        sortItem === "disposal"
+          ? { disposals: { _count: sortOrder } }
+          : sortItem === "point"
+          ? { point: { balance: sortOrder } }
+          : { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        emailVerified: true,
+        point: { select: { balance: true } },
+        _count: { select: { disposals: true } },
+      },
+    }),
+  ]);
+  return { studentCount, students };
+};
+
+const deleteUser = async (userId: string) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) {
+    return { error: "User not found" };
+  }
+  const deletedUser = await prisma.user.delete({ where: { id: userId } });
+  if (!deleteUser) {
+    return { error: "Failed to delete user" };
+  }
+  revalidatePath("/admin/user");
+  return { success: `User ${deletedUser.id} successfully deleted` };
+};
+
 export {
   signUp,
   signUpBin,
@@ -415,4 +490,6 @@ export {
   updateAdminEmail,
   getAllBinUsers,
   deleteBinUser,
+  getAllStudentUsers,
+  deleteUser,
 };

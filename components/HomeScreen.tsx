@@ -53,7 +53,7 @@ const HomeScreen = ({
       icon: <RiAdminFill />,
     },
   ];
-  const [isIdle] = useIdle(60000);
+  const [isIdle] = useIdle(5000);
 
   return isIdle && role === "BIN" ? (
     <IdleVideo />

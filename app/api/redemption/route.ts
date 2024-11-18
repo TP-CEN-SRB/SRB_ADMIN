@@ -38,21 +38,19 @@ export const POST = async (req: NextRequest) => {
     });
 
     if (!point) {
-      return NextResponse.json(
-        { message: "User not found!" },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found!" }, { status: 404 });
     }
 
     // Check if the user has enough points to redeem the reward
     // status 406 is for Not Acceptable
     if (point.balance < reward.pointsRequired) {
       return NextResponse.json(
-        { message: `Insufficient points. You need ${reward.pointsRequired} points to redeem this reward.` },
+        {
+          message: `Insufficient points. You need ${reward.pointsRequired} points to redeem this reward.`,
+        },
         { status: 406 }
       );
     }
-
 
     const [redemption, updatedPoint] = await prisma.$transaction([
       prisma.redemption.create({
@@ -66,6 +64,12 @@ export const POST = async (req: NextRequest) => {
         data: { balance: { decrement: reward.pointsRequired } },
       }),
     ]);
+    if (!updatedPoint || !redemption) {
+      return NextResponse.json(
+        { message: "Error redeeming reward!" },
+        { status: 500 }
+      );
+    }
     return NextResponse.json({ message: `Reward Redeemed!` }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

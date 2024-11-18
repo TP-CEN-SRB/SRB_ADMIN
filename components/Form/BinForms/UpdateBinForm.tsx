@@ -15,10 +15,10 @@ import {
   FormMessage,
 } from "../../ui/form";
 import { Input } from "@/components/ui/input";
-import UpdateBinStatusCombobox from "../UpdateBinStatusCombobox";
-import BinMaterialCombobox from "@/components/Form/CreateBinMaterialCombobox";
+import BinStatusCombobox from "./UpdateBinStatusCombobox";
+import BinMaterialCombobox from "@/components/Form/BinMaterialForms/BinMaterialCombobox";
 import { Button } from "../../ui/button";
-import { Loader2, Router } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Bin, BinMaterial } from "@prisma/client";
 import { updateBin } from "@/app/action/bin";
@@ -128,7 +128,7 @@ const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
                   Status
                 </FormLabel>
                 <FormControl>
-                  <UpdateBinStatusCombobox field={field} />
+                  <BinStatusCombobox field={field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

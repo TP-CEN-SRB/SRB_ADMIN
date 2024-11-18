@@ -1,19 +1,14 @@
 "use client";
 
 import { Column, ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 import { FaLongArrowAltUp } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
+import { MdVerified } from "react-icons/md";
+import { MdGppBad } from "react-icons/md";
+import Actions from "./actions";
 export type Student = {
   id: string;
   email: string;
@@ -79,11 +74,24 @@ export const columns: ColumnDef<Student>[] = [
           Name
           <Button
             variant="ghost"
-            className="hover:bg-[#e9eee0]"
+            className="hover:bg-gray-300"
             onClick={() => handleClick(column)}
           >
             <SortIcon column={column} />
           </Button>
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      const isVerified = row.original.emailVerified != null;
+      return (
+        <div className="flex items-center gap-1">
+          {isVerified ? (
+            <MdVerified className="text-green-500" />
+          ) : (
+            <MdGppBad className="text-red-600" />
+          )}
+          {row.original.name}
         </div>
       );
     },
@@ -99,7 +107,7 @@ export const columns: ColumnDef<Student>[] = [
           Points
           <Button
             variant="ghost"
-            className="hover:bg-[#e9eee0]"
+            className="hover:bg-gray-300"
             onClick={() => handleClick(column)}
           >
             <SortIcon column={column} />
@@ -117,7 +125,7 @@ export const columns: ColumnDef<Student>[] = [
           Disposals
           <Button
             variant="ghost"
-            className="hover:bg-[#e9eee0]"
+            className="hover:bg-gray-300"
             onClick={() => handleClick(column)}
           >
             <SortIcon column={column} />
@@ -132,30 +140,7 @@ export const columns: ColumnDef<Student>[] = [
     header: "Actions",
     id: "actions",
     cell: ({ row }) => {
-      const student = row.original;
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="hover:bg-[#e9eee0] h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                navigator.clipboard.writeText(student.email.split("@")[0])
-              }
-            >
-              Copy admin number
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View user details</DropdownMenuItem>
-            <DropdownMenuItem>Delete User</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
+      return <Actions data={row.original} />;
     },
   },
 ];

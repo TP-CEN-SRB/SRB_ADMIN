@@ -18,14 +18,14 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ControllerRenderProps } from "react-hook-form";
 
-const UpdateBinStatusCombobox = ({
+const CreateBinStatusCombobox = ({
   field,
 }: {
   field: ControllerRenderProps<
     {
-      status: "FUNCTIONAL" | "UNDER_MAINTENANCE";
       location: string;
-      materialId: string;
+      status: "FUNCTIONAL" | "UNDER_MAINTENANCE";
+      materialIds: [string, ...string[]];
     },
     "status"
   >;
@@ -87,4 +87,4 @@ const UpdateBinStatusCombobox = ({
   );
 };
 
-export default UpdateBinStatusCombobox;
+export default CreateBinStatusCombobox;
