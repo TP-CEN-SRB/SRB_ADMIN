@@ -1,7 +1,8 @@
 "use client";
 
 import { Column, ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+
+import { FaSort } from "react-icons/fa";
 import { FaLongArrowAltUp } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ const SortIcon = ({ column }: { column: Column<Student, unknown> }) => {
   ) : currentSort === "desc" ? (
     <FaLongArrowAltUp className="h-4 w-4 transition-transform duration-500" />
   ) : (
-    <ArrowUpDown className="h-4 w-4" />
+    <FaSort className="h-4 w-4" />
   );
 };
 export const columns: ColumnDef<Student>[] = [

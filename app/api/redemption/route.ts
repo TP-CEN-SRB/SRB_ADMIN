@@ -36,11 +36,9 @@ export const POST = async (req: NextRequest) => {
     const point = await prisma.point.findUnique({
       where: { userId: decodedToken.userId },
     });
-
     if (!point) {
       return NextResponse.json({ message: "User not found!" }, { status: 404 });
     }
-
     // Check if the user has enough points to redeem the reward
     // status 406 is for Not Acceptable
     if (point.balance < reward.pointsRequired) {
@@ -78,7 +76,10 @@ export const POST = async (req: NextRequest) => {
         { status: 401 }
       );
     } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json({ message: "Token is invalid!" });
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },

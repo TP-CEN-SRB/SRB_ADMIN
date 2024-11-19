@@ -72,7 +72,11 @@ const CreateRewardForm = () => {
       if (data?.success) {
         setCroppedFile(null);
         setImagePreview(null);
-        form.reset({ name: "", pointsRequired: 0, description: "" });
+        form.reset({
+          name: "",
+          pointsRequired: 0,
+          description: "",
+        });
       }
     });
   };
@@ -210,7 +214,7 @@ const CreateRewardForm = () => {
               disabled={isPending}
               onValueChange={(e) => {
                 setRadioSelection(e);
-                form.reset({ dates: undefined });
+                form.resetField("dates");
               }}
               defaultValue="option-one"
             >
@@ -244,7 +248,7 @@ const CreateRewardForm = () => {
                             to: dateRange.to,
                           });
                         } else {
-                          form.reset({ dates: undefined });
+                          form.resetField("dates");
                         }
                       }}
                     />

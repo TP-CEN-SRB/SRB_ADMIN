@@ -87,7 +87,7 @@ export const GET = async (
     // Combine disposal and redemption history
     const pointsHistory = [...disposalHistory, ...redemptionHistory].sort(
       (a, b) => {
-        return a.date.getTime() - b.date.getTime();
+        return b.date.getTime() - a.date.getTime();
       }
     );
     // Return the combined history

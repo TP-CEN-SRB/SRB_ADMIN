@@ -22,6 +22,8 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TableFilter from "./filter";
+import InputFilter from "./input-filter";
+import SortByFilter from "./sortBy";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -86,7 +88,7 @@ export function DataTable<TData, TValue>({
     router.replace(`${path}?${params.toString()}`);
   }, 300);
 
-  const handleApplyFilter = (sortItem: string, sortOrder: string) => {
+  const handleApplySortBy = (sortItem: string, sortOrder: string) => {
     const params = new URLSearchParams(searchParams);
     if (sortItem && sortOrder) {
       params.set("sortItem", `${sortItem}`);
@@ -98,21 +100,33 @@ export function DataTable<TData, TValue>({
     router.replace(`${path}?${params.toString()}`);
   };
 
-  const handleResetFilter = () => {
+  const handleResetSortBy = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("sortItem");
     params.delete("sortOrder");
     router.replace(`${path}?${params.toString()}`);
   };
 
+  const handleApplyFilter = () => {};
+
+  const handleResetFilter = () => {};
+
   return (
     <div>
-      <TableFilter
-        onResetFilter={handleResetFilter}
-        onApplyFilter={handleApplyFilter}
-        query={searchParams.get("query")}
-        onSearch={handleSearch}
-      />
+      <div className="flex justify-end items-center gap-3 p-3">
+        <InputFilter
+          query={searchParams.get("query")}
+          onSearch={handleSearch}
+        />
+        <SortByFilter
+          onResetSortBy={handleResetSortBy}
+          onApplySortBy={handleApplySortBy}
+        />
+        <TableFilter
+          onApplyFilter={handleApplyFilter}
+          onResetFilter={handleResetFilter}
+        />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>

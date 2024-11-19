@@ -49,7 +49,10 @@ export const GET = async (
         { status: 401 }
       );
     } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json({ message: "Token is invalid!" });
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
