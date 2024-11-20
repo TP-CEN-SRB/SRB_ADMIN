@@ -30,15 +30,16 @@ export const POST = async (
         { status: 404 }
       );
     }
-    const binUser = await prisma.user.findUnique({
-      where: { id: id },
-      include: {
-        bins: {
-          where: { binMaterialId: binMaterial.id },
+    const bin = await prisma.bin.findUnique({
+      where: {
+        userId_binMaterialId_status: {
+          userId: id,
+          binMaterialId: binMaterial.id,
+          status: "FUNCTIONAL",
         },
       },
     });
-    if (!binUser) {
+    if (!bin) {
       return NextResponse.json(
         { message: "No relevant bin found!" },
         { status: 404 }
@@ -46,10 +47,7 @@ export const POST = async (
     }
     await prisma.bin.update({
       where: {
-        userId_binMaterialId: {
-          userId: binUser.id,
-          binMaterialId: binMaterial.id,
-        },
+        id: bin.id,
       },
       data: { currentCapacity: 0 },
     });

@@ -12,7 +12,7 @@ export default async function AdminLayout({
   const sessionUser = await getSessionUser();
   const user = await prisma.user.findUnique({ where: { id: sessionUser?.id } });
   return (
-    <div className="bg-[var(--pastel-green)] min-h-screen">
+    <div className="bg-[#f0f1f4] min-h-screen">
       <SidebarProvider defaultOpen>
         <AppSidebar email={user?.email} />
         <div className="w-full mx-auto">{children}</div>

@@ -106,7 +106,7 @@ const CreateRewardForm = () => {
   };
 
   return (
-    <Card rounded fullWidth>
+    <Card isAdmin rounded fullWidth>
       <CropRewardDialog
         onCropComplete={handleCropComplete}
         isOpen={isDialogOpen}
@@ -116,7 +116,7 @@ const CreateRewardForm = () => {
       <FormHeader>Add a reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-3">
             <FormField
               control={form.control}
               name="name"
@@ -157,7 +157,7 @@ const CreateRewardForm = () => {
               )}
             />
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-3">
             <FormField
               control={form.control}
               name="description"
@@ -243,6 +243,8 @@ const CreateRewardForm = () => {
                             from: dateRange.from,
                             to: dateRange.to,
                           });
+                        } else {
+                          form.reset({ dates: undefined });
                         }
                       }}
                     />

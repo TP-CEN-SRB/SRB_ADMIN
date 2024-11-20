@@ -23,9 +23,9 @@ const BinStatusCombobox = ({
 }: {
   field: ControllerRenderProps<
     {
-      location: string;
       status: "FUNCTIONAL" | "UNDER_MAINTENANCE";
-      materialIds: [string, ...string[]];
+      location: string;
+      materialId: string;
     },
     "status"
   >;

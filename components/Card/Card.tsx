@@ -3,13 +3,19 @@ interface CardProps {
   children: ReactNode;
   fullWidth?: boolean;
   rounded?: boolean;
+  isAdmin?: boolean;
 }
-const Card = ({ children, fullWidth = false, rounded = false }: CardProps) => {
+const Card = ({
+  children,
+  fullWidth = false,
+  rounded = false,
+  isAdmin = false,
+}: CardProps) => {
   return (
     <div
-      className={`card ${fullWidth ? "w-full" : ""}  ${
-        rounded ? "rounded-lg" : ""
-      }`}
+      className={`${isAdmin ? "admin-card" : "card"} ${
+        fullWidth ? "w-full" : ""
+      }  ${rounded ? "rounded-lg" : ""}`}
     >
       {children}
     </div>

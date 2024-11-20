@@ -40,7 +40,7 @@ export const getBinById = async (id: string) => {
       id,
     },
     include: {
-      User: {
+      user: {
         select: {
           location: true,
         },
@@ -224,14 +224,14 @@ const checkExistingBinRecord = async (
   const bin = await prisma.bin.findFirst({
     where: {
       binMaterialId,
-      User: {
+      user: {
         location: binLocation,
         id: userId || undefined, // Ensure optional filtering on userId
       },
       status: binStatus,
     },
     include: {
-      User: {
+      user: {
         select: {
           location: true, // Include location if you want to retrieve it
         },
@@ -472,7 +472,7 @@ export const getAllBinsWithUser = async (userId?: string) => {
         userId,
       },
       include: {
-        User: {
+        user: {
           select: {
             name: true,
             location: true,
@@ -488,7 +488,7 @@ export const getAllBinsWithUser = async (userId?: string) => {
   }
   return await prisma.bin.findMany({
     include: {
-      User: {
+      user: {
         select: {
           name: true,
           location: true,

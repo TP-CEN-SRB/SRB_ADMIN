@@ -31,7 +31,7 @@ interface BinMaterialComboboxProps {
   currentFieldName: string;
 }
 
-const CreateBinMaterialCombobox = ({
+const BinMaterialCombobox = ({
   materials,
   field,
   currentFieldName,
@@ -85,4 +85,4 @@ const CreateBinMaterialCombobox = ({
   );
 };
 
-export default CreateBinMaterialCombobox;
+export default BinMaterialCombobox;

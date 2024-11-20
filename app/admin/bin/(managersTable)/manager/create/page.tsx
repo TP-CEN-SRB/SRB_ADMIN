@@ -1,4 +1,4 @@
-import SignUpBinForm from "@/components/Form/SignUpBinForm";
+import SignUpBinForm from "@/components/Form/AdminUserForms/SignUpBinForm";
 import { getSessionUser } from "@/utils/getAuth";
 import React from "react";
 

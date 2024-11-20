@@ -14,14 +14,14 @@ import {
   FormMessage,
 } from "../../ui/form";
 import { Input } from "@/components/ui/input";
-import BinStatusCombobox from "@/components/Form/BinStatusCombobox";
+import BinStatusCombobox from "@/components/Form/BinForms/CreateBinStatusCombobox";
 import { Button } from "../../ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { BinMaterial, BinStatus } from "@prisma/client";
 import { createBin } from "@/app/action/bin";
 import { redirect } from "next/navigation";
-import BinMaterialCheckBox from "@/components/Form/BinMaterialCheckbox";
+import BinMaterialCheckBox from "@/components/Form/BinMaterialForms/BinMaterialCheckbox";
 import Card from "@/components/Card/Card";
 import FormHeader from "../FormHeader";
 

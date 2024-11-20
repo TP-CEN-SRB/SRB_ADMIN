@@ -13,7 +13,7 @@ const AdminProfilePage = async () => {
 
   return (
     <div className="p-4 space-y-4">
-      <Card>
+      <Card isAdmin>
         <div className="flex items-center gap-x-10">
           <Avatar className="border border-slate-800 w-24 h-24 text-3xl font-bold">
             <AvatarFallback>
@@ -26,7 +26,7 @@ const AdminProfilePage = async () => {
           </div>
         </div>
       </Card>
-      <Card>
+      <Card isAdmin>
         <div className="flex justify-between items-center">
           <CardHeader>Profile Information</CardHeader>
           <AdminProfileMore email={user?.email as string} />

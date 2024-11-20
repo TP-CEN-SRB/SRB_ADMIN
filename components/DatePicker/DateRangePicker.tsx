@@ -118,7 +118,7 @@ export default function DateRangePicker({
           </div>
 
           <Calendar
-            className="h-[350px]"
+            className="min-h-[350px]"
             initialFocus
             mode="range"
             defaultMonth={new Date()}
