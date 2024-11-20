@@ -44,7 +44,7 @@ model User {
   role              Role
   disposals         Disposal[]
   bins              Bin[]
-  redemption        Redemption[]
+  redemptions        Redemption[]
   point             Point?
   location          String? // Outside library
 

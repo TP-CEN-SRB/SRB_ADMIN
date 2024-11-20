@@ -10,10 +10,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { MdVerified } from "react-icons/md";
 import { MdGppBad } from "react-icons/md";
 import Actions from "./actions";
+import { Faculty } from "@prisma/client";
 export type Student = {
   id: string;
   email: string;
   emailVerified: Date | null;
+  faculty: Faculty | null;
   name: string | null;
   point: {
     balance: number;
@@ -118,6 +120,10 @@ export const columns: ColumnDef<Student>[] = [
     },
     accessorKey: "point.balance",
     cell: ({ row }) => row.original.point?.balance ?? "N/A",
+  },
+  {
+    accessorKey: "faculty",
+    header: "Faculty",
   },
   {
     header: ({ column }) => {

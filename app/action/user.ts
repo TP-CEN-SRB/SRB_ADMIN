@@ -492,6 +492,7 @@ const getAllStudentUsers = async (
         name: true,
         email: true,
         emailVerified: true,
+        faculty: true,
         point: { select: { balance: true } },
         _count: { select: { disposals: true } },
       },

@@ -82,6 +82,7 @@ const SignUpStudentSchema = z.object({
     .email("Please enter a valid email address")
     // .regex(/^\d{7}@student\.tp\.edu\.sg$/, "Please use your personal TP email")
     .toLowerCase(),
+  faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
   password: z
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
