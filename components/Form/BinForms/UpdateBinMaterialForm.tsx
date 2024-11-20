@@ -18,32 +18,24 @@ import { Input } from "@/components/ui/input";
 import { Button } from "../../ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Bin, BinMaterial } from "@prisma/client";
 import Card from "@/components/Card/Card";
 import FormHeader from "../FormHeader";
-import { createBinMaterial } from "@/app/action/binMaterial";
+import { updateBinMaterial } from "@/app/action/binMaterial";
 
 interface UpdateBinFormProps {
   id: string;
-  initialData: Bin;
-  materials: BinMaterial[];
+  initialData?: string;
 }
 
-const CreateBinMaterialForm = ({
-  id,
-  initialData,
-  materials,
-}: UpdateBinFormProps) => {
+const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const router = useRouter(); // Initialize useRouter
 
   const form = useForm<z.infer<typeof BinMaterialSchema>>({
     resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
-      name: "",
+      name: initialData,
     },
   });
 
@@ -54,29 +46,25 @@ const CreateBinMaterialForm = ({
     });
 
     startTransition(async () => {
-      setError("");
       try {
-        const result = await createBinMaterial(values);
+        const result = await updateBinMaterial(id, values);
         if (result?.success) {
-          setSuccess(result.success);
           toast({
             title: "Success",
-            description: `Bin updated at ${datetime}`,
+            description: `Bin Material updated at ${datetime}`,
             variant: "default",
           });
-          router.push("/admin/bin"); // Use router.push for client-side navigation
+          router.push("/admin/bin/material");
         } else if (result?.error) {
-          setError(result.error || "An error occurred");
           toast({
             title: "Error",
-            description: result.error || "Failed to update bin",
+            description: result.error || "Failed to update material",
             duration: 2000,
             variant: "destructive",
           });
         }
       } catch (error) {
         console.error("Update error:", error);
-        setError("An unexpected error occurred");
         toast({
           title: "Error",
           description: "An unexpected error occurred",
@@ -89,7 +77,7 @@ const CreateBinMaterialForm = ({
 
   return (
     <Card rounded fullWidth>
-      <FormHeader>Create Material</FormHeader>
+      <FormHeader>Update Material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -120,4 +108,4 @@ const CreateBinMaterialForm = ({
   );
 };
 
-export default CreateBinMaterialForm;
+export default UpdateBinMaterialForm;

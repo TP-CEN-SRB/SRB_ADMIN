@@ -29,17 +29,17 @@ interface CreateBinFormProps {
   materials: BinMaterial[];
   binUserId: string;
   binLocation: string | undefined | null;
+  usedBinMaterials: { id: string; name: string }[];
 }
 
-const CreateBinForm: React.FC<CreateBinFormProps> = ({
+const CreateBinForm = ({
   materials,
   binUserId,
   binLocation,
-}) => {
+  usedBinMaterials,
+}: CreateBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
   const form = useForm<z.infer<typeof BinSchema>>({
     resolver: zodResolver(BinSchema),
@@ -56,11 +56,8 @@ const CreateBinForm: React.FC<CreateBinFormProps> = ({
       hour12: false, // 24-hour format, remove if 12-hour format is needed
     });
     startTransition(async () => {
-      setError(""); //reset error message
       const result = await createBin(values, binUserId);
-
       if (result?.success) {
-        setSuccess(result?.success as string);
         toast({
           title: "Bin created successfully",
           description: `Bin created at ${datetime}`,
@@ -75,7 +72,6 @@ const CreateBinForm: React.FC<CreateBinFormProps> = ({
         });
         redirect("/admin/bin");
       } else if (result?.error) {
-        setError(result?.error);
         toast({
           title: "Error creating bin",
           description: result?.error,
@@ -130,7 +126,11 @@ const CreateBinForm: React.FC<CreateBinFormProps> = ({
               <FormItem>
                 <FormLabel className="font-bold">Material(s)</FormLabel>
                 <FormControl>
-                  <BinMaterialCheckBox materials={materials} field={field} />
+                  <BinMaterialCheckBox
+                    materials={materials}
+                    field={field}
+                    usedBinMaterials={usedBinMaterials}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

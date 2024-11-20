@@ -156,6 +156,7 @@ export function DataTable<TData, TValue>({
                 onCheckedChange={(checked) =>
                   handleFilterChange("FUNCTIONAL", checked)
                 }
+                onSelect={(e) => e.preventDefault()}
               >
                 Functional
               </DropdownMenuCheckboxItem>
@@ -164,6 +165,7 @@ export function DataTable<TData, TValue>({
                 onCheckedChange={(checked) =>
                   handleFilterChange("UNDER_MAINTENANCE", checked)
                 }
+                onSelect={(e) => e.preventDefault()}
               >
                 Under Maintenance
               </DropdownMenuCheckboxItem>
