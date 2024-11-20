@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TableFilter from "./filter";
 import InputFilter from "./input-filter";
@@ -107,9 +107,22 @@ export function DataTable<TData, TValue>({
     router.replace(`${path}?${params.toString()}`);
   };
 
-  const handleApplyFilter = () => {};
+  const handleApplyFilter = (filters: Record<string, string[]>) => {
+    const params = new URLSearchParams(searchParams);
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value.length > 0) {
+        params.set(key, `${value.join(",")}`);
+      }
+    });
+    router.replace(`${path}?${params.toString()}`);
+  };
 
-  const handleResetFilter = () => {};
+  const handleResetFilter = () => {
+    const params = new URLSearchParams(searchParams);
+    params.delete("emailType");
+    params.delete("faculty");
+    router.replace(`${path}?${params.toString()}`);
+  };
 
   return (
     <div>

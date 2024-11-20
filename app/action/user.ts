@@ -23,7 +23,7 @@ import {
   getPasswordResetTokenByEmail,
   getPasswordResetTokenByToken,
 } from "@/utils/passwordResetToken";
-import { Role } from "@prisma/client";
+import { Faculty, Role } from "@prisma/client";
 import {
   ableToGenerateNewVerificationToken,
   getVerificationTokenByEmail,
@@ -406,18 +406,34 @@ const getAllStudentUsers = async (
   page: number,
   query: string | null,
   sortOrder: string,
-  sortItem: string
+  sortItem: string,
+  emailType: string | null,
+  faculty: string | null
 ) => {
   const sortableEntities = ["point", "disposal"];
-  if (page < 0) {
-    return { studentCount: 0, students: [] };
-  }
-  if (sortOrder !== undefined && sortOrder !== "asc" && sortOrder != "desc") {
-    return { studentCount: 0, students: [] };
-  }
-  if (
+  const allowedEmailTypes = ["verified", "non-verified"];
+  const pageCondition = page < 0;
+  const sortOrderCondition =
+    sortOrder !== undefined && sortOrder !== "asc" && sortOrder != "desc";
+  const sortItemCondition =
     sortItem !== undefined &&
-    !Object.values(sortableEntities).includes(sortItem)
+    !Object.values(sortableEntities).includes(sortItem);
+  const emailTypeCondition =
+    emailType &&
+    !emailType.split(",").every((type) => allowedEmailTypes.includes(type));
+  const facultyCondition =
+    faculty &&
+    !faculty
+      .split(",")
+      .every((f) => Object.values(Faculty).includes(f as Faculty));
+
+  // check if faculty condiiton is valid
+  if (
+    pageCondition ||
+    sortItemCondition ||
+    sortOrderCondition ||
+    emailTypeCondition ||
+    facultyCondition
   ) {
     return { studentCount: 0, students: [] };
   }
@@ -431,6 +447,16 @@ const getAllStudentUsers = async (
               { name: { contains: query, mode: "insensitive" } },
             ]
           : undefined,
+        emailVerified:
+          emailType?.split(",").includes(allowedEmailTypes[0]) &&
+          emailType?.split(",").includes(allowedEmailTypes[1])
+            ? undefined
+            : emailType?.split(",").includes(allowedEmailTypes[0])
+            ? { not: null }
+            : emailType?.split(",").includes(allowedEmailTypes[1])
+            ? null
+            : undefined,
+        faculty: faculty ? { in: faculty.split(",") as Faculty[] } : undefined,
       },
     }),
     prisma.user.findMany({
@@ -442,6 +468,16 @@ const getAllStudentUsers = async (
               { name: { contains: query, mode: "insensitive" } },
             ]
           : undefined,
+        emailVerified:
+          emailType?.split(",").includes(allowedEmailTypes[0]) &&
+          emailType?.split(",").includes(allowedEmailTypes[1])
+            ? undefined
+            : emailType?.split(",").includes(allowedEmailTypes[0])
+            ? { not: null }
+            : emailType?.split(",").includes(allowedEmailTypes[1])
+            ? null
+            : undefined,
+        faculty: faculty ? { in: faculty.split(",") as Faculty[] } : undefined,
       },
       take: 10,
       skip: (page - 1) * 10,

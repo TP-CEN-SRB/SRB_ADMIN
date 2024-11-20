@@ -1,12 +1,3 @@
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import {
@@ -16,30 +7,44 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuGroup,
+  DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { LuSettings2 } from "react-icons/lu";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaPlusCircle } from "react-icons/fa";
 import { RxCross1 } from "react-icons/rx";
 import { FaCircleDot } from "react-icons/fa6";
 import { Faculty } from "@prisma/client";
 
 interface TableFilterProps {
-  onApplyFilter: (sortItem: string, sortOrder: string) => void;
+  onApplyFilter: (filters: Record<string, string[]>) => void;
   onResetFilter: () => void;
 }
 const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
   const [filterOpen, setFilterOpen] = useState(false);
-  const [sortType, setSortType] = useState("");
+  const [selectedFilters, setSelectedFilters] = useState<
+    Record<string, string[]>
+  >({
+    emailType: [],
+    faculty: [],
+  });
+
+  const handleCheckboxChange = (group: string, value: string) => {
+    setSelectedFilters((prev) => {
+      const updatedGroup = prev[group]?.includes(value)
+        ? prev[group].filter((item) => item !== value)
+        : [...(prev[group] || []), value];
+      return { ...prev, [group]: updatedGroup };
+    });
+  };
 
   const handleResetFilter = () => {
-    setSortType("");
+    setSelectedFilters({ emailType: [], faculty: [] });
     onResetFilter();
     setFilterOpen(false);
   };
 
   const handleApplyFilter = () => {
-    const [sortItem, sortOrder] = sortType.split("-");
-    onApplyFilter(sortItem, sortOrder);
+    onApplyFilter(selectedFilters);
     setFilterOpen(false);
   };
   return (
@@ -50,41 +55,63 @@ const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
       <DropdownMenuContent side="bottom" align="end">
         <DropdownMenuLabel>Email type</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <Select>
-            <SelectTrigger className="w-full]">
-              <SelectValue placeholder="Default" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem className="flex" value="point-asc">
-                <div className="flex items-center gap-1">
-                  <FaCircleDot size={10} className="text-green-500" />
-                  Verified
-                </div>
-              </SelectItem>
-              <SelectItem value="point-desc">
-                <div className="flex items-center gap-1">
-                  <FaCircleDot size={10} className="text-red-600" />
-                  Non-verified
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="w-full" variant="outline">
+                <FaPlusCircle className="h-4 w-4 opacity-50" />
+                Add
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="min-w-52">
+              <DropdownMenuCheckboxItem
+                onSelect={(e) => e.preventDefault()}
+                checked={selectedFilters.emailType.includes("verified")}
+                onCheckedChange={() =>
+                  handleCheckboxChange("emailType", "verified")
+                }
+                className="flex gap-x-1"
+              >
+                <FaCircleDot size={10} className="text-green-500" />
+                Verified
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                onSelect={(e) => e.preventDefault()}
+                checked={selectedFilters.emailType.includes("non-verified")}
+                onCheckedChange={() =>
+                  handleCheckboxChange("emailType", "non-verified")
+                }
+                className="flex gap-x-1"
+              >
+                <FaCircleDot size={10} className="text-red-600" />
+                Non-verified
+              </DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </DropdownMenuGroup>
         <DropdownMenuSeparator className="mt-3" />
         <DropdownMenuLabel>Faculty</DropdownMenuLabel>
         <DropdownMenuGroup>
-          <Select>
-            <SelectTrigger className="w-full]">
-              <SelectValue placeholder="Default" />
-            </SelectTrigger>
-            <SelectContent>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="w-full" variant="outline">
+                <FaPlusCircle className="h-4 w-4 opacity-50" />
+                Add
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="min-w-52">
               {Object.values(Faculty).map((item, index) => (
-                <SelectItem key={index} className="flex" value={item}>
+                <DropdownMenuCheckboxItem
+                  onSelect={(e) => e.preventDefault()}
+                  checked={selectedFilters.faculty.includes(item)}
+                  onCheckedChange={() => handleCheckboxChange("faculty", item)}
+                  key={index}
+                  className="flex"
+                >
                   {item}
-                </SelectItem>
+                </DropdownMenuCheckboxItem>
               ))}
-            </SelectContent>
-          </Select>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup className="flex gap-x-3">

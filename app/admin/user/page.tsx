@@ -13,11 +13,19 @@ const ViewStudentPage = async ({
     : null;
   const sortItem = searchParams.sortItem;
   const sortOrder = searchParams.sortOrder;
+  const emailType = searchParams.emailType
+    ? decodeURIComponent(searchParams.emailType)
+    : null;
+  const faculty = searchParams.faculty
+    ? decodeURIComponent(searchParams.faculty)
+    : null;
   const { studentCount, students } = await getAllStudentUsers(
     page,
     query,
     sortOrder,
-    sortItem
+    sortItem,
+    emailType,
+    faculty
   );
   return <DataTable columns={columns} data={students} count={studentCount} />;
 };
