@@ -1,3 +1,4 @@
+import { getUsedMaterialsForBin } from "@/app/action/bin";
 import CreateBinForm from "@/components/Form/BinForms/CreateBinForm";
 import prisma from "@/lib/db";
 import React from "react";
@@ -7,18 +8,22 @@ const CreateBinFormPageWithBinUser = async ({
 }: {
   params: { binUserId: string };
 }) => {
-  const [getAllMaterials, getBinLocation] = await Promise.all([
-    prisma.binMaterial.findMany(),
-    prisma.user.findUnique({
-      where: { id: params.binUserId },
-      select: { location: true },
-    }),
-  ]);
-  // const getAllMaterials = await prisma.binMaterial.findMany();
-  // const getBinLocation = await prisma.user.findUnique({
-  //   where: { id: params.binUserId },
-  //   select: { location: true },
-  // });
+  const [getAllMaterials, getBinLocation, getUnavailableMaterialsForBin] =
+    await Promise.all([
+      prisma.binMaterial.findMany(),
+      prisma.user.findUnique({
+        where: { id: params.binUserId },
+        select: { location: true },
+      }),
+      prisma.bin.findMany({
+        select: {
+          binMaterial: true,
+        },
+        where: {
+          userId: params.binUserId,
+        },
+      }),
+    ]);
   return (
     <>
       <div className="flex justify-center min-h-screen items-center">
@@ -27,6 +32,9 @@ const CreateBinFormPageWithBinUser = async ({
             materials={getAllMaterials}
             binUserId={params.binUserId}
             binLocation={getBinLocation?.location}
+            usedBinMaterials={getUnavailableMaterialsForBin.map(
+              (bin) => bin.binMaterial
+            )}
           />
         </div>
       </div>

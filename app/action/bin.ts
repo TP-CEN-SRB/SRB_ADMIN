@@ -108,6 +108,7 @@ export const createBin = async (
   for (let i = 0; i < formData.materialIds.length; i++) {
     const checkBinWithSimilarRecord = await checkExistingBinRecord(
       formData.location,
+      formData.status,
       formData.materialIds[i],
       binUserId
     );
@@ -163,6 +164,7 @@ export const updateBin = async (
   }
   const checkBinWithSimilarRecord = await checkExistingBinRecord(
     formData.location,
+    formData.status,
     formData.materialId
   );
   if (checkBinWithSimilarRecord) {
@@ -215,6 +217,7 @@ export const deleteBin = async (id: string) => {
 
 const checkExistingBinRecord = async (
   binLocation: string,
+  binStatus: "FUNCTIONAL" | "UNDER_MAINTENANCE",
   binMaterialId: string,
   userId?: string
 ) => {
@@ -225,6 +228,7 @@ const checkExistingBinRecord = async (
         location: binLocation,
         id: userId || undefined, // Ensure optional filtering on userId
       },
+      status: binStatus,
     },
     include: {
       user: {
@@ -499,25 +503,18 @@ export const getAllBinsWithUser = async (userId?: string) => {
   });
 };
 
-export const createBinMaterial = async (
-  values: z.infer<typeof BinMaterialSchema>
-) => {
-  const validatedFields = BinMaterialSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields" };
-  }
-  const formData = validatedFields.data;
-  const checkExistingBinMaterial = await prisma.binMaterial.findUnique({
+export const getUsedMaterialsForBin = async (userId: string) => {
+  const usedBinMaterials = await prisma.bin.findMany({
     where: {
-      name: values.name,
+      userId,
+    },
+    select: {
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
-  if (!checkExistingBinMaterial) {
-    const result = await prisma.binMaterial.create({
-      data: {
-        name: formData.name,
-      },
-    });
-    return { success: "Bin Material created successfully" };
-  } else return { error: "Bin Material already exists" };
+  return usedBinMaterials;
 };
