@@ -13,18 +13,27 @@ interface BinMaterialCheckBoxProps {
       materialIds: [string, ...string[]];
     },
     "materialIds"
-  >; // React Hook Form field prop
+  >;
+  usedBinMaterials: { id: string; name: string }[];
 }
 
 const BinMaterialCheckBox = ({
   materials,
   field,
+  usedBinMaterials,
 }: BinMaterialCheckBoxProps) => {
+  const checkUsedMaterials = (materialId: string) => {
+    const usedMaterial = usedBinMaterials.some(
+      (usedMaterial) => usedMaterial.id === materialId
+    );
+    return usedMaterial;
+  };
   return (
     <div>
       {materials.map((material, index) => (
         <div key={index} className="flex items-center space-x-2">
           <Checkbox
+            disabled={checkUsedMaterials(material.id)}
             checked={field.value?.includes(material.id)}
             onCheckedChange={(checked) => {
               // Update the value array in the field
