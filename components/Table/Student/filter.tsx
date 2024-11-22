@@ -14,6 +14,7 @@ import { FaCheck, FaPlusCircle } from "react-icons/fa";
 import { RxCross1 } from "react-icons/rx";
 import { FaCircleDot } from "react-icons/fa6";
 import { Faculty } from "@prisma/client";
+import { useSearchParams } from "next/navigation";
 
 interface TableFilterProps {
   onApplyFilter: (filters: Record<string, string[]>) => void;
@@ -21,11 +22,12 @@ interface TableFilterProps {
 }
 const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
   const [filterOpen, setFilterOpen] = useState(false);
+  const searchParams = useSearchParams();
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({
-    emailType: [],
-    faculty: [],
+    emailType: [searchParams.get("emailVerified") as string],
+    faculty: (searchParams.get("faculty")?.split(",") as string[]) || [],
   });
 
   const handleCheckboxChange = (group: string, value: string) => {

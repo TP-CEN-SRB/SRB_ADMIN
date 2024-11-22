@@ -1,53 +1,72 @@
 "use client";
-import React, { useState, useTransition } from "react";
+import { SignUpStudentSchema, UpdateStudentSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { SignUpBinSchema } from "@/schemas/auth";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import FacultyComboBox from "@/components/Form/AuthForms/FacultyCombobox";
 import FormHeader from "@/components/Form/FormHeader";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "@/components/Form/CustomFormMessage";
-import { useRouter } from "next/navigation";
 import Card from "@/components/Card/Card";
-import { signUpBin } from "@/app/action/user";
+import { Button } from "@/components/ui/button";
+import { Faculty } from "@prisma/client";
+import { updateStudent } from "@/app/action/user";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
-const SignUpBinForm = () => {
-  const router = useRouter();
-  const form = useForm<z.infer<typeof SignUpBinSchema>>({
-    resolver: zodResolver(SignUpBinSchema),
+interface EditStudentFormProps {
+  id: string;
+  email: string;
+  name: string;
+  faculty: Faculty;
+  points: number | undefined;
+}
+const EditStudentForm = ({
+  id,
+  email,
+  name,
+  faculty,
+  points,
+}: EditStudentFormProps) => {
+  const form = useForm<z.infer<typeof UpdateStudentSchema>>({
+    resolver: zodResolver(UpdateStudentSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
+      name,
+      email,
+      faculty,
+      points,
     },
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const onSubmit = (values: z.infer<typeof SignUpBinSchema>) => {
+  const router = useRouter();
+  const onSubmit = (values: z.infer<typeof UpdateStudentSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await signUpBin(values);
+      const data = await updateStudent(values, id);
       setError(data?.error as string);
-      setSuccess(data?.success as string);
-      router.push("/admin/bin/manager");
+      if (!data?.error && data?.success !== undefined) {
+        router.push("/admin/user");
+        toast({
+          title: "Success!",
+          description: `${data.success}`,
+        });
+      }
     });
   };
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>Create a bin user</FormHeader>
+      <FormHeader>Update profile</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -78,7 +97,6 @@ const SignUpBinForm = () => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    disabled={isPending}
                     placeholder="johndoe@tp.edu.sg"
                     {...field}
                     type="email"
@@ -90,55 +108,45 @@ const SignUpBinForm = () => {
           />
           <FormField
             control={form.control}
-            name="password"
+            name="faculty"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">
-                  Password
+                  Faculty
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="At least 8 characters"
-                    {...field}
-                    type="password"
-                  />
+                  <FacultyComboBox disabled={isPending} field={field} />
                 </FormControl>
-                <FormDescription>
-                  We will never share your password
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={form.control}
-            name="location"
+            name="points"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="flex-1 min-w-[250px]">
                 <FormLabel className="font-bold text-slate-700">
-                  Location
+                  Points
                 </FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="Block 1, Level 1 of Engine School"
+                    placeholder="10"
                     {...field}
-                    type="location"
+                    type="number"
                   />
                 </FormControl>
-                <FormDescription>
-                  This will be the location of the bin(s)
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
-          {success && (
-            <CustomFormMessage type="Success">{success}</CustomFormMessage>
-          )}
-          <Button disabled={isPending} className="w-full" type="submit">
+          <Button
+            disabled={isPending}
+            type="submit"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
+          >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}
           </Button>
@@ -148,4 +156,4 @@ const SignUpBinForm = () => {
   );
 };
 
-export default SignUpBinForm;
+export default EditStudentForm;

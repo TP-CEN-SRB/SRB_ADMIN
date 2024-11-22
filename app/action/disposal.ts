@@ -29,6 +29,9 @@ const createDisposal = async (
     },
   });
   if (!bin) return { error: "No bin found" };
+  if (bin.status === "UNDER_MAINTENANCE") {
+    return { error: "Bin is currently under maintenance" };
+  }
   if (bin.currentCapacity === 100) {
     return { error: "Bin is already full!" };
   }

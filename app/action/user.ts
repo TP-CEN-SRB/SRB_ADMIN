@@ -8,6 +8,8 @@ import {
   NewPasswordSchema,
   SignUpBinSchema,
   UpdateAdminEmailSchema,
+  SignUpStudentSchema,
+  UpdateStudentSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -71,7 +73,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const name = capitalizeFirstLetter(formData.name);
   const email = formData.email;
   const password = formData.password;
-  const secondaryPassword = formData.secondaryPassword;
   const location = formData.location;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
@@ -80,7 +81,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     return { error: "User already exists!" };
   }
   const hashedPassword = await hash(password, 10);
-  const hashedSecondaryPassword = await hash(secondaryPassword, 10);
   await prisma.user.create({
     data: {
       name: name,
@@ -88,7 +88,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       emailVerified: new Date(), // automatically verify bin user
       role: Role.BIN,
       password: hashedPassword,
-      secondaryPassword: hashedSecondaryPassword,
     },
   });
   return { success: "Bin successfully created!" };
@@ -168,25 +167,6 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
 };
 
 const logout = async () => {
-  await signOut({
-    redirectTo: "/",
-  });
-};
-
-const logoutBin = async (userId: string, secondaryPassword: string) => {
-  const binUser = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-  if (!binUser) return { error: "User not found!" };
-  const isMatched = await compare(
-    secondaryPassword,
-    binUser.secondaryPassword!
-  );
-  if (!isMatched) {
-    return { error: "Invalid password!" };
-  }
   await signOut({
     redirectTo: "/",
   });
@@ -492,6 +472,7 @@ const getAllStudentUsers = async (
         name: true,
         email: true,
         emailVerified: true,
+        faculty: true,
         point: { select: { balance: true } },
         _count: { select: { disposals: true } },
       },
@@ -513,12 +494,43 @@ const deleteUser = async (userId: string) => {
   return { success: `User ${deletedUser.id} successfully deleted` };
 };
 
+const updateStudent = async (
+  values: z.infer<typeof UpdateStudentSchema>,
+  userId: string
+) => {
+  const validatedFields = UpdateStudentSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid credentials!" };
+  }
+  const { name, email, faculty, points } = validatedFields.data;
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId, role: "STUDENT" },
+  });
+  if (!existingUser) {
+    return { error: "Something went wrong!" };
+  }
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
+  const updatedUser = await prisma.user.update({
+    where: { id: existingUser.id },
+    data: {
+      name: capitalizeFirstLetter(name),
+      email,
+      faculty,
+      point: { update: { balance: points } },
+    },
+  });
+  revalidatePath("/admin/profile");
+  return { success: `User ${updatedUser.id} successfully updated` };
+};
+
 export {
   signUp,
   signUpBin,
   login,
   logout,
-  logoutBin,
   resetPassword,
   newPassword,
   getLoggedInUserById,
@@ -528,4 +540,5 @@ export {
   deleteBinUser,
   getAllStudentUsers,
   deleteUser,
+  updateStudent,
 };

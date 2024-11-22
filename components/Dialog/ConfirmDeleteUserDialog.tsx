@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { deleteUser } from "@/app/action/user";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "../Form/CustomFormMessage";
+import { useRouter } from "next/navigation";
 interface DialogProps {
   userId: string;
   isOpen: boolean;
@@ -24,6 +25,7 @@ const ConfirmDeleteUserDialog = ({
 }: DialogProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const router = useRouter();
   const handleConfirm = () => {
     startTransition(async () => {
       const data = await deleteUser(userId);
@@ -34,6 +36,7 @@ const ConfirmDeleteUserDialog = ({
           title: "Success!",
           description: data.success,
         });
+        router.push("/admin/user");
       }
     });
   };

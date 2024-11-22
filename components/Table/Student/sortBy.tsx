@@ -14,6 +14,7 @@ import { TbArrowsSort } from "react-icons/tb";
 import { HiSortAscending, HiSortDescending } from "react-icons/hi";
 import { FaCheck } from "react-icons/fa";
 import { RxCross1 } from "react-icons/rx";
+import { useSearchParams } from "next/navigation";
 
 interface SortByFilterProps {
   onApplySortBy: (sortItem: string, sortOrder: string) => void;
@@ -21,7 +22,10 @@ interface SortByFilterProps {
 }
 const SortByFilter = ({ onApplySortBy, onResetSortBy }: SortByFilterProps) => {
   const [filterOpen, setFilterOpen] = useState(false);
-  const [sortType, setSortType] = useState("");
+  const searchParams = useSearchParams();
+  const [sortType, setSortType] = useState(
+    searchParams.get("sortItem") + "-" + searchParams.get("sortOrder")
+  );
 
   const handleResetSortBy = () => {
     setSortType("");

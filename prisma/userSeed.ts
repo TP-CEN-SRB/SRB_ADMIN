@@ -13,6 +13,7 @@ for (let i = 1; i <= 30; i++) {
     password: password,
     name: `User ${i}`,
     role: "STUDENT", // Assuming the role is "STUDENT", you can change this if needed
+    faculty: "SCIENCE",
     createdAt: new Date(),
     updatedAt: new Date(),
     point: { create: { balance: Math.random() * 100 } },
