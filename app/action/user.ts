@@ -73,7 +73,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const name = capitalizeFirstLetter(formData.name);
   const email = formData.email;
   const password = formData.password;
-  const secondaryPassword = formData.secondaryPassword;
   const location = formData.location;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
@@ -82,7 +81,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     return { error: "User already exists!" };
   }
   const hashedPassword = await hash(password, 10);
-  const hashedSecondaryPassword = await hash(secondaryPassword, 10);
   await prisma.user.create({
     data: {
       name: name,
@@ -90,7 +88,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       emailVerified: new Date(), // automatically verify bin user
       role: Role.BIN,
       password: hashedPassword,
-      secondaryPassword: hashedSecondaryPassword,
     },
   });
   return { success: "Bin successfully created!" };
@@ -353,22 +350,6 @@ const updateAdminEmail = async (
   return { success: "Confirmation email sent!" };
 };
 
-const getBinUserById = async (userId: string) => {
-  const binUser = await prisma.user.findFirst({
-    where: { id: userId, role: "BIN" },
-    select: {
-      bins: {
-        select: {
-          status: true,
-          currentCapacity: true,
-          binMaterial: { select: { name: true } },
-        },
-      },
-    },
-  });
-  return binUser;
-};
-
 const getAllBinUsers = async () => {
   const result = await prisma.user.findMany({
     where: {
@@ -556,7 +537,6 @@ export {
   updateAdmin,
   updateAdminEmail,
   getAllBinUsers,
-  getBinUserById,
   deleteBinUser,
   getAllStudentUsers,
   deleteUser,

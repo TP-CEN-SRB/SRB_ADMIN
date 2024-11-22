@@ -4,12 +4,12 @@ import { FadeLoader } from "react-spinners";
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 import CardBody from "@/components/Card/CardBody";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { BeatLoader } from "react-spinners";
 import { createDisposal } from "@/app/action/disposal";
 import TimerRedirect from "@/components/TimerRedirect";
 import { pusherClient } from "@/lib/pusher";
-import { getBinUserById } from "@/app/action/user";
+import { getBinByUserIdAndMaterial } from "@/app/action/bin";
 
 const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
@@ -23,29 +23,21 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const checkIfBinIsInOrder = async () => {
-      const binUser = await getBinUserById(params.id);
-      if (!binUser || !binUser.bins) {
-        setDetecting(false);
-        setError("No bins found!");
-        return;
-      }
       if (material) {
-        const materialBin = binUser.bins.find(
-          (bin) => bin.binMaterial.name === material
-        );
-        if (!materialBin) {
+        const bin = await getBinByUserIdAndMaterial(params.id, material);
+        if (!bin) {
           setDetecting(false);
-          setError("Bin material not found!");
+          setError("No bins found!");
           return;
         }
-        if (materialBin.currentCapacity === 100) {
+        if (bin.currentCapacity === 100) {
           setDetecting(false);
-          setError(`${materialBin.binMaterial.name} bin is already full!`);
+          setError(`${bin.binMaterial.name} bin is already full!`);
           return;
         }
-        if (materialBin.status === "UNDER_MAINTENANCE") {
+        if (bin.status === "UNDER_MAINTENANCE") {
           setDetecting(false);
-          setError(`${materialBin.binMaterial.name} Bin is under maintenance!`);
+          setError(`${bin.binMaterial.name} bin is under maintenance!`);
           return;
         }
       }
@@ -153,7 +145,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
         weightInGrams === undefined &&
         binCapacity === undefined && (
           <TimerRedirect
-            delayInMs={30000}
+            delayInMs={45000}
             redirectTo={`/dispose-steps/${params.id}`}
           />
         )}
