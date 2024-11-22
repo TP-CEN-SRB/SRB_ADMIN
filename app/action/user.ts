@@ -8,6 +8,8 @@ import {
   NewPasswordSchema,
   SignUpBinSchema,
   UpdateAdminEmailSchema,
+  SignUpStudentSchema,
+  UpdateStudentSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -168,25 +170,6 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
 };
 
 const logout = async () => {
-  await signOut({
-    redirectTo: "/",
-  });
-};
-
-const logoutBin = async (userId: string, secondaryPassword: string) => {
-  const binUser = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
-  if (!binUser) return { error: "User not found!" };
-  const isMatched = await compare(
-    secondaryPassword,
-    binUser.secondaryPassword!
-  );
-  if (!isMatched) {
-    return { error: "Invalid password!" };
-  }
   await signOut({
     redirectTo: "/",
   });
@@ -370,6 +353,22 @@ const updateAdminEmail = async (
   return { success: "Confirmation email sent!" };
 };
 
+const getBinUserById = async (userId: string) => {
+  const binUser = await prisma.user.findFirst({
+    where: { id: userId, role: "BIN" },
+    select: {
+      bins: {
+        select: {
+          status: true,
+          currentCapacity: true,
+          binMaterial: { select: { name: true } },
+        },
+      },
+    },
+  });
+  return binUser;
+};
+
 const getAllBinUsers = async () => {
   const result = await prisma.user.findMany({
     where: {
@@ -514,19 +513,52 @@ const deleteUser = async (userId: string) => {
   return { success: `User ${deletedUser.id} successfully deleted` };
 };
 
+const updateStudent = async (
+  values: z.infer<typeof UpdateStudentSchema>,
+  userId: string
+) => {
+  const validatedFields = UpdateStudentSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid credentials!" };
+  }
+  const { name, email, faculty, points } = validatedFields.data;
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId, role: "STUDENT" },
+  });
+  if (!existingUser) {
+    return { error: "Something went wrong!" };
+  }
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
+  const updatedUser = await prisma.user.update({
+    where: { id: existingUser.id },
+    data: {
+      name: capitalizeFirstLetter(name),
+      email,
+      faculty,
+      point: { update: { balance: points } },
+    },
+  });
+  revalidatePath("/admin/profile");
+  return { success: `User ${updatedUser.id} successfully updated` };
+};
+
 export {
   signUp,
   signUpBin,
   login,
   logout,
-  logoutBin,
   resetPassword,
   newPassword,
   getLoggedInUserById,
   updateAdmin,
   updateAdminEmail,
   getAllBinUsers,
+  getBinUserById,
   deleteBinUser,
   getAllStudentUsers,
   deleteUser,
+  updateStudent,
 };

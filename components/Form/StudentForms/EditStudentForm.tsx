@@ -1,6 +1,5 @@
 "use client";
-
-import { SignUpAdminSchema } from "@/schemas/auth";
+import { SignUpStudentSchema, UpdateStudentSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -21,37 +20,46 @@ import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { Button } from "@/components/ui/button";
 import { Faculty } from "@prisma/client";
-import { updateAdmin } from "@/app/action/user";
+import { updateStudent } from "@/app/action/user";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
-interface EditAdminFormProps {
+interface EditStudentFormProps {
+  id: string;
   email: string;
   name: string;
   faculty: Faculty;
+  points: number | undefined;
 }
-const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
-  const form = useForm<z.infer<typeof SignUpAdminSchema>>({
-    resolver: zodResolver(SignUpAdminSchema.omit({ password: true })),
+const EditStudentForm = ({
+  id,
+  email,
+  name,
+  faculty,
+  points,
+}: EditStudentFormProps) => {
+  const form = useForm<z.infer<typeof UpdateStudentSchema>>({
+    resolver: zodResolver(UpdateStudentSchema),
     defaultValues: {
       name,
       email,
       faculty,
+      points,
     },
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const router = useRouter();
-  const onSubmit = (values: z.infer<typeof SignUpAdminSchema>) => {
+  const onSubmit = (values: z.infer<typeof UpdateStudentSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
-      const data = await updateAdmin(values);
+      const data = await updateStudent(values, id);
       setError(data?.error as string);
       if (!data?.error && data?.success !== undefined) {
-        router.push("/admin/profile");
+        router.push("/admin/user");
         toast({
           title: "Success!",
-          description: `Your profile has been updated!`,
+          description: `${data.success}`,
         });
       }
     });
@@ -89,7 +97,6 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    disabled
                     placeholder="johndoe@tp.edu.sg"
                     {...field}
                     type="email"
@@ -114,7 +121,26 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
               </FormItem>
             )}
           />
-
+          <FormField
+            control={form.control}
+            name="points"
+            render={({ field }) => (
+              <FormItem className="flex-1 min-w-[250px]">
+                <FormLabel className="font-bold text-slate-700">
+                  Points
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="10"
+                    {...field}
+                    type="number"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           <Button
             disabled={isPending}
@@ -130,4 +156,4 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
   );
 };
 
-export default EditAdminForm;
+export default EditStudentForm;

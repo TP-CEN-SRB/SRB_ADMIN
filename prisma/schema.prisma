@@ -34,19 +34,18 @@ enum Role {
 }
 
 model User {
-  id                String       @id @default(uuid())
-  email             String       @unique
-  emailVerified     DateTime?
-  password          String
-  secondaryPassword String?
-  name              String?
-  faculty           Faculty?
-  role              Role
-  disposals         Disposal[]
-  bins              Bin[]
-  redemptions        Redemption[]
-  point             Point?
-  location          String? // Outside library
+  id            String       @id @default(uuid())
+  email         String       @unique
+  emailVerified DateTime?
+  password      String
+  name          String?
+  faculty       Faculty?
+  role          Role
+  disposals     Disposal[]
+  bins          Bin[]
+  redemptions   Redemption[]
+  point         Point?
+  location      String? // Outside library
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

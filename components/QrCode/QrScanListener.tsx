@@ -1,7 +1,7 @@
 "use client";
 import { pusherClient } from "@/lib/pusher";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const QrScanListener = ({ userId }: { userId: string }) => {
   const router = useRouter();

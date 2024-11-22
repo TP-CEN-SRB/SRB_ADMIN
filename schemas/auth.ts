@@ -56,14 +56,9 @@ const SignUpBinSchema = z.object({
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
-  secondaryPassword: z
-    .string()
-    .regex(/^\d{6}$/, "Secondary password must be 6 digits"),
   location: z.string().min(2, "Location is too short"),
 });
-const SecondaryPasswordSchema = SignUpBinSchema.pick({
-  secondaryPassword: true,
-});
+
 const AdminNumberSchema = z.object({
   adminNumber: z.string().regex(/^\d{7}[A-Za-z]$/, "Invalid admin number"),
 });
@@ -89,13 +84,22 @@ const SignUpStudentSchema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
+const UpdateStudentSchema = SignUpStudentSchema.omit({
+  password: true,
+}).extend({
+  points: z.coerce
+    .number({ message: "Points must be a number" })
+    .int("Points must be an integer")
+    .gte(1, "Points cannot be negative"),
+});
+
 export {
   LoginSchema,
   SignUpAdminSchema,
   UpdateAdminEmailSchema,
   SignUpBinSchema,
   SignUpStudentSchema,
-  SecondaryPasswordSchema,
+  UpdateStudentSchema,
   ResetSchema,
   NewPasswordSchema,
   AdminNumberSchema,

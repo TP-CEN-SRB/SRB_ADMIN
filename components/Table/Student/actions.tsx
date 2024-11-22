@@ -48,7 +48,7 @@ const Actions = ({ data }: { data: Student }) => {
             onClick={() => router.push(`/admin/user/${data.id}`)}
           >
             <FaEye />
-            View user details
+            View user profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <MdDeleteForever /> Delete user

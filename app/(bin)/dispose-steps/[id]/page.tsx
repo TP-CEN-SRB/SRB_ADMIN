@@ -4,6 +4,8 @@ import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
 import { useIdle } from "@/hooks/use-idle";
+import { pusherClient } from "@/lib/pusher";
+import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
@@ -14,6 +16,18 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
     play();
     return () => stop();
   }, [sound, play, stop]);
+  const router = useRouter();
+
+  useEffect(() => {
+    pusherClient.subscribe(`start-detect-${params.id}`);
+    pusherClient.bind("start-update", (data: { start: boolean }) => {
+      if (data.start === true) {
+        router.push(`/detect-material/${params.id}`);
+      }
+    });
+    return () => pusherClient.unsubscribe(`start-detect-${params.id}`);
+  }, [router, params.id]);
+
   return (
     <Card rounded>
       <div className="flex items-center justify-center mb-6 gap-x-3">
@@ -35,16 +49,6 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
           ))}
         </div>
       </CardBody>
-      <ButtonRedirect
-        rounded
-        color="emerald"
-        href={`/detect-material/${params.id}`}
-      >
-        Continue
-      </ButtonRedirect>
-      <ButtonRedirect rounded color="emerald" variant="outline" href="/">
-        Back
-      </ButtonRedirect>
     </Card>
   );
 };

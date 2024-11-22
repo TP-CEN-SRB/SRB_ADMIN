@@ -26,17 +26,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // verifyRequest: "/auth/verify-request",
     // newUser: "/auth/new-user",
   },
-  events: {
-    // verify the email linked with providers, since google already authenticated it
-    async linkAccount({ user }) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: {
-          emailVerified: new Date(),
-        },
-      });
-    },
-  },
   callbacks: {
     async signIn({ user }) {
       const existingUser = await prisma.user.findUnique({

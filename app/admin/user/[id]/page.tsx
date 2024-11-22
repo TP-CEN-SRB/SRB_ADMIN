@@ -1,5 +1,6 @@
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
+import UserProfileMore from "@/components/Dropdown/UserProfileMore";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import prisma from "@/lib/db";
 import { getNameInitials } from "@/utils/getNameInitials";
@@ -35,25 +36,29 @@ const UserPage = async ({ params }: { params: { id: string } }) => {
       <Card isAdmin>
         <div className="flex justify-between items-center">
           <CardHeader>Profile Information</CardHeader>
-          {/* <AdminProfileMore email={user?.email as string} /> */}
+          <UserProfileMore id={user.id} />
         </div>
         <div className="mt-5">
           <div className="flex flex-wrap">
             <div className="flex flex-col flex-1 flex-shrink flex-basis-[200px] gap-6">
               <div>
                 <p className="text-slate-600">Name</p>
-                <p className="text-slate-700 font-bold text-xl">{user?.name}</p>
+                <p className="text-slate-700 font-bold text-xl">{user.name}</p>
               </div>
               <div>
                 <p className="text-slate-600">Email</p>
+                <p className="text-slate-700 font-bold text-xl">{user.email}</p>
+              </div>
+              <div>
+                <p className="text-slate-600">Admin Number</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user?.email}
+                  {user.email.split("@")[0].toUpperCase()}
                 </p>
               </div>
               <div>
                 <p className="text-slate-600">Faculty</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user?.faculty}
+                  {user.faculty}
                 </p>
               </div>
               <div>
@@ -62,36 +67,40 @@ const UserPage = async ({ params }: { params: { id: string } }) => {
                   {user.point?.balance}
                 </p>
               </div>
-              <div>
-                <p className="text-slate-600">Redemptions made</p>
-                <p className="text-slate-700 font-bold text-xl">
-                  {user?._count.redemptions}
-                </p>
-              </div>
             </div>
+
             <div className="flex flex-col flex-1 flex-shrink flex-basis-[200px] gap-6">
               <div>
                 <p className="text-slate-600">Account created</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user?.createdAt.toLocaleDateString()}
+                  {user.createdAt.toLocaleDateString()}
                 </p>
               </div>
               <div>
                 <p className="text-slate-600">Account verified</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user?.emailVerified?.toLocaleDateString()}
+                  {user.emailVerified
+                    ? user.emailVerified?.toLocaleDateString()
+                    : "Not available"}
+                  {}
                 </p>
               </div>
               <div>
                 <p className="text-slate-600">Last updated</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user?.updatedAt.toLocaleDateString()}
+                  {user.updatedAt.toLocaleDateString()}
                 </p>
               </div>
               <div>
                 <p className="text-slate-600">Disposals made</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user?._count.disposals}
+                  {user._count.disposals}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-600">Redemptions made</p>
+                <p className="text-slate-700 font-bold text-xl">
+                  {user._count.redemptions}
                 </p>
               </div>
             </div>
