@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FaPlusCircle } from "react-icons/fa";
@@ -50,20 +50,41 @@ export function DataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
     state: {
       pagination,
+      columnFilters,
     },
   });
+  const [filterValue, setFilterValue] = useState(
+    (table.getColumn("name")?.getFilterValue() as string) ?? ""
+  );
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setFilterValue(value); // Update the input state
+    table.getColumn("name")?.setFilterValue(value); // Update the table filter
+  };
   return (
     <>
       <div className="px-4">
+        <div className="flex flex-row justify-end items-center py-4 w-full">
+          <Input
+            placeholder="Filter Material..."
+            value={filterValue}
+            onChange={handleInputChange}
+            className="max-w-xs"
+          />
+        </div>
         <div className="rounded-md border">
           <Table>
             <TableHeader>

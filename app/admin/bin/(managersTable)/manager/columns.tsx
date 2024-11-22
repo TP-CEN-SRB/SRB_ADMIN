@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
-import { getAllBinsWithUser } from "@/app/action/bin";
+import { getAllBinsWithUserAndMaterial } from "@/app/action/bin";
 import { useEffect, useState } from "react";
 import {
   Tooltip,
@@ -22,6 +22,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
+import { BinStatus } from "@prisma/client";
 
 export type BinManager = {
   id: string;
@@ -39,8 +40,10 @@ const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
 
   useEffect(() => {
     const getAllBinsByManager = async () => {
-      const result = await getAllBinsWithUser(binManager.id);
-      setHasBins(result.length > 0);
+      const { bins, materials } = await getAllBinsWithUserAndMaterial(
+        binManager.id
+      );
+      setHasBins(bins.length > 0);
     };
     getAllBinsByManager();
   }, [binManager.id]);

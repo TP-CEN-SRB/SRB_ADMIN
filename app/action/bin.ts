@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/db";
 import { BinMaterialSchema, BinSchema, UpdateBinSchema } from "@/schemas";
-import { BinStatus } from "@prisma/client";
+import { BinMaterial, BinStatus } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -242,6 +242,7 @@ const checkExistingBinRecord = async (
   return bin !== null;
 };
 
+//barchart data
 export const getChartData = async () => {
   const months = [
     "January",
@@ -465,9 +466,9 @@ export const getBinDisposalsByTime = async () => {
   return hourlyDisposalData;
 };
 
-export const getAllBinsWithUser = async (userId?: string) => {
+export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
   if (userId) {
-    return await prisma.bin.findMany({
+    const bins = await prisma.bin.findMany({
       where: {
         userId,
       },
@@ -486,7 +487,7 @@ export const getAllBinsWithUser = async (userId?: string) => {
       },
     });
   }
-  return await prisma.bin.findMany({
+  const bins = await prisma.bin.findMany({
     include: {
       user: {
         select: {
@@ -501,6 +502,8 @@ export const getAllBinsWithUser = async (userId?: string) => {
       },
     },
   });
+  const materials = await prisma.binMaterial.findMany();
+  return { bins, materials };
 };
 
 export const getUsedMaterialsForBin = async (userId: string) => {
@@ -517,4 +520,29 @@ export const getUsedMaterialsForBin = async (userId: string) => {
     },
   });
   return usedBinMaterials;
+};
+
+export const getAllBinsAsync = async (
+  page: number,
+  query: string | null,
+  sortStatus: string,
+  sortMaterial: string
+) => {
+  const pageCondition = page < 0;
+  const sortableEntities = ["status", "material"];
+  const allowedStatusTypes = ["FUNCTIONAL", "UNDER_MAINTENANCE"];
+  const sortStatusCondition =
+    sortStatus !== undefined &&
+    !sortStatus
+      .split(",")
+      .every((status) => allowedStatusTypes.includes(status));
+  if (sortStatusCondition) {
+    return { binCount: 0, bins: [] };
+  }
+  const bins = await prisma.bin.findMany({
+    where: {
+      status: query as BinStatus,
+    },
+  });
+  return { binCount: bins.length, bins };
 };

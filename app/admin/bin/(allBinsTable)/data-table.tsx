@@ -49,6 +49,7 @@ import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  materials: { name: string; id: string }[];
 }
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
@@ -56,40 +57,13 @@ type Checked = DropdownMenuCheckboxItemProps["checked"];
 export function DataTable<TData, TValue>({
   columns,
   data,
+  materials,
 }: DataTableProps<TData, TValue>) {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const handleFilterChange = (status: string, checked: boolean) => {
-    // Update individual state for each status
-    const newFunctionalState =
-      status === "FUNCTIONAL" ? checked : showFunctional;
-    const newUnderMaintenanceState =
-      status === "UNDER_MAINTENANCE" ? checked : showUnderMaintenance;
-
-    // Set local states to update the checkbox UI immediately
-    setShowFunctional(newFunctionalState);
-    setShowUnderMaintenance(newUnderMaintenanceState);
-
-    // Determine filter behavior based on selected states
-    if (newFunctionalState && newUnderMaintenanceState) {
-      // Both statuses checked, clear the filter to show all rows
-      table.getColumn("status")?.setFilterValue(undefined);
-    } else if (newFunctionalState) {
-      // Only "Functional" checked, filter for "FUNCTIONAL" rows
-      table.getColumn("status")?.setFilterValue("FUNCTIONAL");
-    } else if (newUnderMaintenanceState) {
-      // Only "Under Maintenance" checked, filter for "UNDER_MAINTENANCE" rows
-      table.getColumn("status")?.setFilterValue("UNDER_MAINTENANCE");
-    } else {
-      // No statuses checked, clear the filter to show all rows
-      table.getColumn("status")?.setFilterValue(undefined);
-    }
-  };
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     data,
     columns,
@@ -106,55 +80,99 @@ export function DataTable<TData, TValue>({
   const [showFunctional, setShowFunctional] = useState<Checked>(false);
   const [showUnderMaintenance, setShowUnderMaintenance] =
     useState<Checked>(false);
-  const [filterValue, setFilterValue] = useState(
+  const [locationFilterValue, setLocationFilterValue] = useState(
     (table.getColumn("location")?.getFilterValue() as string) ?? ""
   );
+  const [selectedMaterial, setSelectedMaterial] = useState<string[]>([]);
 
-  const handleClear = () => {
-    setFilterValue(""); // Clear the input
-    table.getColumn("location")?.setFilterValue(""); // Reset the table filter
+  const handleMaterialFilterChange = (checked: boolean, material: string) => {
+    //update the selected material array based on the checked material state
+    //if state is checked, use spread operator to add the material to the array with the prev values
+    //if state is unchecked, use filter to remove the material from the array
+    const updatedMaterials = checked
+      ? [...selectedMaterial, material]
+      : selectedMaterial.filter((item) => item !== material);
+    setSelectedMaterial(updatedMaterials);
+    //apply the filter to the table
+    table
+      .getColumn("material")
+      ?.setFilterValue(updatedMaterials.length ? updatedMaterials : undefined);
   };
 
+  //update the location filter value and apply the filter to the table
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    setFilterValue(value); // Update the input state
+    setLocationFilterValue(value); // Update the input state
     table.getColumn("location")?.setFilterValue(value); // Update the table filter
   };
+
+  const handleFilterChange = (checked: boolean, status: string) => {
+    const newFunctionalState =
+      status === "FUNCTIONAL" ? checked : showFunctional;
+    const newUnderMaintenanceState =
+      status === "UNDER_MAINTENANCE" ? checked : showUnderMaintenance;
+    setShowFunctional(newFunctionalState);
+    setShowUnderMaintenance(newUnderMaintenanceState);
+    if (newFunctionalState && newUnderMaintenanceState) {
+      table.getColumn("status")?.setFilterValue(undefined);
+    } else if (newFunctionalState) {
+      table.getColumn("status")?.setFilterValue("FUNCTIONAL");
+    } else if (newUnderMaintenanceState) {
+      table.getColumn("status")?.setFilterValue("UNDER_MAINTENANCE");
+    } else {
+      table.getColumn("status")?.setFilterValue(undefined);
+    }
+  };
+
+  // const handleApplyFilter = (filters: Record<string, string[]>) => {
+  //   const filterValues = new Map<string, string[]>();
+  //   Object.entries(filters).forEach(([key, value]) => {
+  //     if (value.length > 0) {
+  //       filterValues.set(key, value);
+  //     }
+  //   });
+  // };
+
+  // const [selectedFilters, setSelectedFilters] = useState<
+  //   Record<string, string[]>
+  // >({
+  //   status: [],
+  //   material: [],
+  // });
+
+  // const handleCheckboxChange = (group: string, value: string) => {
+  //   setSelectedFilters((prev) => {
+  //     const updatedGroup = prev[group]?.includes(value)
+  //       ? prev[group].filter((item) => item !== value)
+  //       : [...(prev[group] || []), value];
+  //     return { ...prev, [group]: updatedGroup };
+  //   });
+  // };
   return (
     <>
       <div className="px-4">
-        <div className="flex items-center py-4 space-x-2">
+        <div className="flex justify-end items-center py-3 space-x-2">
           <div className="relative max-w-sm">
             <Input
+              type="search"
               placeholder="Filter Location..."
-              value={filterValue}
+              value={locationFilterValue}
               onChange={handleInputChange}
-              className="pr-8" // Add padding to avoid overlap with the button
+              className="pr-8"
             />
-            {filterValue && (
-              <button
-                onClick={handleClear}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-black"
-              >
-                ✕
-              </button>
-            )}
           </div>
-          {/* <AllBinsTableStatusDropdown/> */}
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <FaPlusCircle />
-                Status
-              </Button>
+            <DropdownMenuTrigger className="focus:outline-none bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 flex items-center gap-2 text-gray-100">
+              <FaPlusCircle />
+              Filters
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className="w-56" side="bottom" align="end">
               <DropdownMenuLabel>Statuses</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
                 checked={showFunctional}
                 onCheckedChange={(checked) =>
-                  handleFilterChange("FUNCTIONAL", checked)
+                  handleFilterChange(checked, "FUNCTIONAL")
                 }
                 onSelect={(e) => e.preventDefault()}
               >
@@ -163,12 +181,26 @@ export function DataTable<TData, TValue>({
               <DropdownMenuCheckboxItem
                 checked={showUnderMaintenance}
                 onCheckedChange={(checked) =>
-                  handleFilterChange("UNDER_MAINTENANCE", checked)
+                  handleFilterChange(checked, "UNDER_MAINTENANCE")
                 }
                 onSelect={(e) => e.preventDefault()}
               >
                 Under Maintenance
               </DropdownMenuCheckboxItem>
+              <DropdownMenuLabel>Materials</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {materials.map((item, index) => (
+                <DropdownMenuCheckboxItem
+                  key={index}
+                  checked={selectedMaterial.includes(item.name)}
+                  onCheckedChange={(checked) =>
+                    handleMaterialFilterChange(checked, item.name)
+                  }
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  {item.name}
+                </DropdownMenuCheckboxItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
