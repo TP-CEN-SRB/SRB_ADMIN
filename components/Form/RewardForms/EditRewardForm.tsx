@@ -18,14 +18,17 @@ import FormHeader from "@/components/Form/FormHeader";
 import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas";
-import { createReward } from "@/app/action/reward";
+import { updateReward } from "@/app/action/reward";
 import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
 import DateRangePicker from "@/components/DatePicker/DateRangePicker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-
-const CreateRewardForm = () => {
+import { Reward } from "@prisma/client";
+interface RewardProps {
+  reward: Reward;
+}
+const EditRewardForm = ({ reward }: RewardProps) => {
   const [radioSelection, setRadioSelection] = useState("option-one");
   const form = useForm<z.infer<typeof RewardSchema>>({
     resolver: zodResolver(
@@ -34,8 +37,14 @@ const CreateRewardForm = () => {
         : RewardSchema.omit({ dates: true })
     ),
     defaultValues: {
-      pointsRequired: undefined,
+      name: reward.name,
+      pointsRequired: reward.pointsRequired,
+      description: reward.description,
       image: undefined,
+      dates: {
+        from: reward.startDate ?? undefined,
+        to: reward.endDate ?? undefined,
+      },
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -63,7 +72,8 @@ const CreateRewardForm = () => {
         return;
       }
       formData.set("image", croppedFile);
-      const data = await createReward(
+      const data = await updateReward(
+        reward.id,
         formData,
         radioSelection === "option-two"
       );
@@ -117,7 +127,7 @@ const CreateRewardForm = () => {
         image={imagePreview as string}
         onDialogClose={handleDialogClose}
       />
-      <FormHeader>Add a reward</FormHeader>
+      <FormHeader>Update reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex flex-wrap gap-3">
@@ -241,6 +251,10 @@ const CreateRewardForm = () => {
                     <DateRangePicker
                       disabled={isPending}
                       className="w-full"
+                      initialDate={{
+                        from: reward.startDate ?? undefined,
+                        to: reward.endDate ?? undefined,
+                      }}
                       onDateChange={(dateRange) => {
                         if (dateRange?.from && dateRange?.to) {
                           field.onChange({
@@ -277,4 +291,4 @@ const CreateRewardForm = () => {
   );
 };
 
-export default CreateRewardForm;
+export default EditRewardForm;

@@ -109,13 +109,15 @@ const CropRewardDialog = ({
         <DialogHeader>
           <DialogTitle className="text-3xl">Resize your image</DialogTitle>
         </DialogHeader>
-        <ImagePreview
-          crop={crop}
-          setCrop={setCrop}
-          imgRef={imgRef}
-          image={image}
-          onImageLoad={handleImageLoad}
-        />
+        <div className="flex justify-center">
+          <ImagePreview
+            crop={crop}
+            setCrop={setCrop}
+            imgRef={imgRef}
+            image={image}
+            onImageLoad={handleImageLoad}
+          />
+        </div>
         <DialogFooter>
           <Button
             onClick={() => onDialogClose(undefined)}
