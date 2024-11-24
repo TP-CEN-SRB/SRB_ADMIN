@@ -127,8 +127,8 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div>
-      <div className="flex justify-end items-center gap-3 p-3">
+    <div className="px-4">
+      <div className="flex justify-end items-center gap-3 py-3">
         <InputFilter
           query={searchParams.get("query")}
           onSearch={handleSearch}
