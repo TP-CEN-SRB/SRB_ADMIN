@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MdMoreVert } from "react-icons/md";
+import { MdDeleteForever, MdMoreVert } from "react-icons/md";
 import Link from "next/link";
 import { FaEdit } from "react-icons/fa";
 
@@ -24,6 +24,13 @@ const RewardMore = ({ id }: { id: string }) => {
               <span>Edit reward</span>
             </DropdownMenuItem>
           </Link>
+          <DropdownMenuItem
+            // onClick={() => setDeleteUserDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <MdDeleteForever />
+            <span>Delete user</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

@@ -25,16 +25,22 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Reward } from "@prisma/client";
+import { Checkbox } from "@/components/ui/checkbox";
 interface RewardProps {
   reward: Reward;
 }
 const EditRewardForm = ({ reward }: RewardProps) => {
   const [radioSelection, setRadioSelection] = useState("option-one");
+  const [useExistingImage, setUseExistingImage] = useState(true);
   const form = useForm<z.infer<typeof RewardSchema>>({
     resolver: zodResolver(
-      radioSelection === "option-two"
-        ? RewardSchema
-        : RewardSchema.omit({ dates: true })
+      radioSelection === "option-one"
+        ? useExistingImage
+          ? RewardSchema.omit({ image: true, dates: true })
+          : RewardSchema.omit({ dates: true })
+        : useExistingImage
+        ? RewardSchema.omit({ image: true })
+        : RewardSchema
     ),
     defaultValues: {
       name: reward.name,
@@ -67,15 +73,19 @@ const EditRewardForm = ({ reward }: RewardProps) => {
         });
         formData.append("dates", dateData);
       }
-      if (!croppedFile) {
+      if (!croppedFile && !useExistingImage) {
         setError("Please select an image");
         return;
       }
-      formData.set("image", croppedFile);
+      if (croppedFile && !useExistingImage) {
+        formData.set("image", croppedFile);
+      }
+
       const data = await updateReward(
         reward.id,
         formData,
-        radioSelection === "option-two"
+        radioSelection === "option-two",
+        useExistingImage
       );
       setError(data?.error as string);
       setSuccess(data?.success as string);
@@ -201,7 +211,7 @@ const EditRewardForm = ({ reward }: RewardProps) => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isPending}
+                      disabled={isPending || useExistingImage}
                       placeholder="Select a image for the reward"
                       {...field}
                       type="file"
@@ -211,6 +221,18 @@ const EditRewardForm = ({ reward }: RewardProps) => {
                       }}
                     />
                   </FormControl>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={useExistingImage}
+                      onCheckedChange={() =>
+                        setUseExistingImage(!useExistingImage)
+                      }
+                      id="existingImage"
+                    />
+                    <label htmlFor="existingImage" className="text-sm">
+                      Use existing image
+                    </label>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

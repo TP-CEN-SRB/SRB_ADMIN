@@ -85,18 +85,47 @@ export async function createReward(
 export async function updateReward(
   id: string,
   formData: FormData,
-  isCustomDuration: boolean
+  isCustomDuration: boolean,
+  isUsingExistingImage: boolean
 ) {
   const user = await getSessionUser();
   if (!user) {
     return { error: "Unauthorized access!" };
   }
   const data = Object.fromEntries(formData.entries());
-  if (isCustomDuration) {
+  if (isCustomDuration && isUsingExistingImage) {
+    const jsonDate = JSON.parse(data.dates as string);
+    data.dates = jsonDate;
+    const validatedFields = RewardSchema.omit({ image: true }).safeParse(data);
+    if (!validatedFields.success) {
+      return { error: validatedFields.error };
+    }
+    const { name, pointsRequired, description, dates } = validatedFields.data;
+    const existingReward = await prisma.reward.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!existingReward) {
+      return { error: "Reward does not exist!" };
+    }
+
+    await prisma.reward.update({
+      where: {
+        id: existingReward.id,
+      },
+      data: {
+        name,
+        pointsRequired,
+        description,
+        startDate: dates.from,
+        endDate: dates.to,
+      },
+    });
+  } else if (isCustomDuration && !isUsingExistingImage) {
     const jsonDate = JSON.parse(data.dates as string);
     data.dates = jsonDate;
     const validatedFields = RewardSchema.safeParse(data);
-
     if (!validatedFields.success) {
       return { error: validatedFields.error };
     }
@@ -134,9 +163,39 @@ export async function updateReward(
         endDate: dates.to,
       },
     });
-  } else {
-    const validatedFields = RewardSchema.omit({ dates: true }).safeParse(data);
+  } else if (!isCustomDuration && isUsingExistingImage) {
+    const validatedFields = RewardSchema.omit({
+      dates: true,
+      image: true,
+    }).safeParse(data);
+    if (!validatedFields.success) {
+      return { error: validatedFields.error };
+    }
+    const { name, pointsRequired, description } = validatedFields.data;
 
+    const existingReward = await prisma.reward.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!existingReward) {
+      return { error: "Reward does not exist!" };
+    }
+
+    await prisma.reward.update({
+      where: {
+        id: existingReward.id,
+      },
+      data: {
+        name,
+        pointsRequired,
+        description,
+      },
+    });
+  } else {
+    const validatedFields = RewardSchema.omit({
+      dates: true,
+    }).safeParse(data);
     if (!validatedFields.success) {
       return { error: validatedFields.error };
     }
@@ -169,8 +228,6 @@ export async function updateReward(
         pointsRequired,
         description,
         image: createRes.data.appUrl,
-        startDate: null,
-        endDate: null,
       },
     });
   }
