@@ -1,7 +1,7 @@
 "use client";
 import React, { useTransition, useState, ChangeEvent } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -26,14 +26,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 const CreateRewardForm = () => {
-  const [radioSelection, setRadioSelection] = useState("option-one");
   const form = useForm<z.infer<typeof RewardSchema>>({
-    resolver: zodResolver(
-      radioSelection === "option-two"
-        ? RewardSchema
-        : RewardSchema.omit({ dates: true })
-    ),
+    resolver: zodResolver(RewardSchema),
     defaultValues: {
+      isExistingImage: false,
+      isCustomDateRange: false,
       pointsRequired: undefined,
       image: undefined,
     },
@@ -43,6 +40,11 @@ const CreateRewardForm = () => {
   const [success, setSuccess] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>();
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  const isCustomDateRange = useWatch({
+    control: form.control,
+    name: "isCustomDateRange",
+    defaultValue: false,
+  });
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
@@ -51,7 +53,9 @@ const CreateRewardForm = () => {
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
       formData.append("description", values.description);
-      if (radioSelection === "option-two") {
+      formData.append("isExistingImage", values.isExistingImage.toString());
+      formData.append("isCustomDateRange", values.isCustomDateRange.toString());
+      if (values.isCustomDateRange) {
         const dateData = JSON.stringify({
           from: values.dates.from.toISOString(),
           to: values.dates.to.toISOString(),
@@ -63,10 +67,7 @@ const CreateRewardForm = () => {
         return;
       }
       formData.set("image", croppedFile);
-      const data = await createReward(
-        formData,
-        radioSelection === "option-two"
-      );
+      const data = await createReward(formData);
       setError(data?.error as string);
       setSuccess(data?.success as string);
       if (data?.success) {
@@ -76,6 +77,8 @@ const CreateRewardForm = () => {
           name: "",
           pointsRequired: 0,
           description: "",
+          isExistingImage: false,
+          isCustomDateRange: false,
         });
       }
     });
@@ -213,22 +216,22 @@ const CreateRewardForm = () => {
             <RadioGroup
               disabled={isPending}
               onValueChange={(e) => {
-                setRadioSelection(e);
+                form.setValue("isCustomDateRange", e === "true");
                 form.resetField("dates");
               }}
-              defaultValue="option-one"
+              defaultValue={isCustomDateRange.toString() ?? "false"}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="option-one" id="option-one" />
+                <RadioGroupItem value="false" id="option-one" />
                 <Label htmlFor="option-one">Default</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="option-two" id="option-two" />
+                <RadioGroupItem value="true" id="option-two" />
                 <Label htmlFor="option-two">Specify start and end dates</Label>
               </div>
             </RadioGroup>
           </FormItem>
-          {radioSelection == "option-two" && (
+          {isCustomDateRange === true && (
             <FormField
               control={form.control}
               name="dates"
