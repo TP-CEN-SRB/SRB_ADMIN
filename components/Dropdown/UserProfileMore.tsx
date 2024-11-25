@@ -38,7 +38,7 @@ const UserProfileMore = ({ id }: { id: string }) => {
             className="cursor-pointer"
           >
             <MdDeleteForever />
-            <span>Delete user</span>
+            <span>Delete reward</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

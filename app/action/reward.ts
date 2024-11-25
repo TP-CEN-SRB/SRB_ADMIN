@@ -10,11 +10,13 @@ export const createReward = async (formData: FormData) => {
   if (!user) {
     return { error: "Unauthorized access!" };
   }
-  const data: Record<string, any> = Object.fromEntries(formData.entries());
+  const data: Record<string, string | number | boolean | File> =
+    Object.fromEntries(formData.entries());
   if (data.isCustomDateRange === "true") {
     const jsonDate = JSON.parse(data.dates as string);
     data.dates = jsonDate;
   }
+  data.isAvailable = data.isAvailable === "true";
   data.isExistingImage = data.isExistingImage === "true";
   data.isCustomDateRange = data.isCustomDateRange === "true";
   const validatedFields = RewardSchema.safeParse(data);
@@ -26,6 +28,7 @@ export const createReward = async (formData: FormData) => {
     name,
     pointsRequired,
     description,
+    isAvailable,
     isCustomDateRange,
     isExistingImage,
   } = validatedFields.data;
@@ -53,6 +56,7 @@ export const createReward = async (formData: FormData) => {
       name,
       pointsRequired,
       description,
+      isAvailable,
       image: res.data.appUrl,
       startDate: from ?? null,
       endDate: to ?? null,
@@ -68,11 +72,13 @@ export const updateReward = async (id: string, formData: FormData) => {
   if (!user) {
     return { error: "Unauthorized access!" };
   }
-  const data: Record<string, any> = Object.fromEntries(formData.entries());
+  const data: Record<string, string | number | boolean | File> =
+    Object.fromEntries(formData.entries());
   if (data.isCustomDateRange === "true") {
     const jsonDate = JSON.parse(data.dates as string);
     data.dates = jsonDate;
   }
+  data.isAvailable = data.isAvailable === "true";
   data.isExistingImage = data.isExistingImage === "true";
   data.isCustomDateRange = data.isCustomDateRange === "true";
   const validatedFields = RewardSchema.safeParse(data);
@@ -84,6 +90,7 @@ export const updateReward = async (id: string, formData: FormData) => {
     name,
     pointsRequired,
     description,
+    isAvailable,
     isCustomDateRange,
     isExistingImage,
   } = validatedFields.data;
@@ -127,6 +134,7 @@ export const updateReward = async (id: string, formData: FormData) => {
         name,
         pointsRequired,
         description,
+        isAvailable,
         image: createRes.data.appUrl,
         startDate: from ?? null,
         endDate: to ?? null,
@@ -142,6 +150,7 @@ export const updateReward = async (id: string, formData: FormData) => {
       name,
       pointsRequired,
       description,
+      isAvailable,
       ...(from !== undefined ? { startDate: from } : { startDate: null }),
       ...(to !== undefined ? { endDate: to } : { endDate: null }),
     },

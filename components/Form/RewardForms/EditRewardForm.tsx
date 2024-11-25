@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,6 +29,7 @@ import { Reward } from "@prisma/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
+import { Switch } from "@/components/ui/switch";
 interface RewardProps {
   reward: Reward;
 }
@@ -40,6 +42,7 @@ const EditRewardForm = ({ reward }: RewardProps) => {
       description: reward.description,
       isCustomDateRange: reward.startDate !== null && reward.endDate !== null,
       isExistingImage: true,
+      isAvailable: reward.isAvailable,
       dates: {
         from: reward.startDate ?? undefined,
         to: reward.endDate ?? undefined,
@@ -69,6 +72,7 @@ const EditRewardForm = ({ reward }: RewardProps) => {
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
       formData.append("description", values.description);
+      formData.append("isAvailable", values.isAvailable.toString());
       formData.append("isExistingImage", values.isExistingImage.toString());
       formData.append("isCustomDateRange", values.isCustomDateRange.toString());
       if (values.isCustomDateRange) {
@@ -234,6 +238,28 @@ const EditRewardForm = ({ reward }: RewardProps) => {
               )}
             />
           </div>
+          <FormField
+            control={form.control}
+            name="isAvailable"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Availability
+                </FormLabel>
+                <div className="flex flex-row gap-3 items-center justify-between rounded-lg border p-4 w-full">
+                  <FormDescription>
+                    Enable the reward to be used now
+                  </FormDescription>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
           <FormItem>
             <FormLabel className="font-bold text-slate-700">
               Reward Duration

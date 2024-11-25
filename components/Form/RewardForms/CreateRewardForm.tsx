@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,6 +25,7 @@ import DateRangePicker from "@/components/DatePicker/DateRangePicker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 
 const CreateRewardForm = () => {
   const form = useForm<z.infer<typeof RewardSchema>>({
@@ -33,6 +35,7 @@ const CreateRewardForm = () => {
       isCustomDateRange: false,
       pointsRequired: undefined,
       image: undefined,
+      isAvailable: true,
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -53,6 +56,7 @@ const CreateRewardForm = () => {
       formData.append("name", values.name);
       formData.append("pointsRequired", values.pointsRequired.toString());
       formData.append("description", values.description);
+      formData.append("isAvailable", values.isAvailable.toString());
       formData.append("isExistingImage", values.isExistingImage.toString());
       formData.append("isCustomDateRange", values.isCustomDateRange.toString());
       if (values.isCustomDateRange) {
@@ -205,6 +209,28 @@ const CreateRewardForm = () => {
                     />
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="isAvailable"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="font-bold text-slate-700">
+                    Availability
+                  </FormLabel>
+                  <div className="flex flex-row gap-3 items-center justify-between rounded-lg border p-4 w-full">
+                    <FormDescription>
+                      Enable the reward to be used now
+                    </FormDescription>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </div>
                 </FormItem>
               )}
             />
