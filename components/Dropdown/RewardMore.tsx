@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,10 +9,19 @@ import {
 import { MdDeleteForever, MdMoreVert } from "react-icons/md";
 import Link from "next/link";
 import { FaEdit } from "react-icons/fa";
+import ConfirmDeleteRewardDialog from "../Dialog/ConfirmDeleteRewardDialog";
 
 const RewardMore = ({ id }: { id: string }) => {
+  const [isDeleteRewardDialogOpen, setDeleteRewardDialogOpen] = useState(false);
   return (
     <div>
+      <ConfirmDeleteRewardDialog
+        isOpen={isDeleteRewardDialogOpen}
+        handleDialogOpen={() =>
+          setDeleteRewardDialogOpen(!isDeleteRewardDialogOpen)
+        }
+        rewardId={id}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2">
           <MdMoreVert />
@@ -25,11 +34,11 @@ const RewardMore = ({ id }: { id: string }) => {
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem
-            // onClick={() => setDeleteUserDialogOpen(true)}
+            onClick={() => setDeleteRewardDialogOpen(true)}
             className="cursor-pointer"
           >
             <MdDeleteForever />
-            <span>Delete user</span>
+            <span>Delete reward</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -3,11 +3,12 @@ import prisma from "@/lib/db";
 import { RewardSchema } from "@/schemas";
 import { utapi } from "@/server/uploadthing";
 import { getSessionUser } from "@/utils/getAuth";
+import { revalidatePath } from "next/cache";
 
 // form action needed to pass file type as a parameter to server action
-export const createReward = async (formData: FormData) => {
+const createReward = async (formData: FormData) => {
   const user = await getSessionUser();
-  if (!user) {
+  if (!user || user.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
   const data: Record<string, string | number | boolean | File> =
@@ -67,9 +68,9 @@ export const createReward = async (formData: FormData) => {
   };
 };
 
-export const updateReward = async (id: string, formData: FormData) => {
+const updateReward = async (id: string, formData: FormData) => {
   const user = await getSessionUser();
-  if (!user) {
+  if (!user || user.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
   const data: Record<string, string | number | boolean | File> =
@@ -140,6 +141,7 @@ export const updateReward = async (id: string, formData: FormData) => {
         endDate: to ?? null,
       },
     });
+    revalidatePath("/admin/reward");
     return { success: `Reward ${updatedReward.id} successfully updated` };
   }
   const updatedReward = await prisma.reward.update({
@@ -155,5 +157,37 @@ export const updateReward = async (id: string, formData: FormData) => {
       ...(to !== undefined ? { endDate: to } : { endDate: null }),
     },
   });
-  return { success: `Reward ${updatedReward.id}successfully updated` };
+  return { success: `Reward ${updatedReward.id} successfully updated` };
 };
+
+const deleteReward = async (id: string) => {
+  const user = await getSessionUser();
+  if (!user || user.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
+  const reward = await prisma.reward.findUnique({
+    where: {
+      id,
+    },
+  });
+  if (!reward) {
+    return { error: "Reward not found" };
+  }
+  const deleteRes = await utapi.deleteFiles(
+    reward.image.split("/").pop() as string
+  );
+  if (!deleteRes.success) {
+    return { error: "Unable to delete image!" };
+  }
+  const deletedReward = await prisma.reward.delete({
+    where: {
+      id,
+    },
+  });
+  if (!deletedReward) {
+    return { error: "Failed to delete reward" };
+  }
+  revalidatePath("/admin/reward");
+  return { success: `Reward ${deletedReward.id} successfully deleted` };
+};
+export { createReward, updateReward, deleteReward };

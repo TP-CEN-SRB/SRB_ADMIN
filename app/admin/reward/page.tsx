@@ -4,6 +4,7 @@ import prisma from "@/lib/db";
 import RewardCard from "@/components/Card/RewardCard";
 import Image from "next/image";
 import RewardMore from "@/components/Dropdown/RewardMore";
+import { FaCircleDot } from "react-icons/fa6";
 
 const RewardPage = async () => {
   const rewards = await prisma.reward.findMany({
@@ -28,7 +29,14 @@ const RewardPage = async () => {
               </div>
             </div>
             <div className="p-3">
-              <h2 className="md:text-xl text-lg">{reward.name}</h2>
+              <div className="flex items-center gap-2">
+                {reward.isAvailable ? (
+                  <FaCircleDot className="text-green-500" />
+                ) : (
+                  <FaCircleDot className="text-red-600" />
+                )}
+                <h2 className="md:text-xl text-lg">{reward.name}</h2>
+              </div>
               <h2 className="md:text-lg text-base">
                 {reward.pointsRequired} pts
               </h2>

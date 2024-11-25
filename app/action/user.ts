@@ -390,6 +390,10 @@ const getAllStudentUsers = async (
   emailType: string | null,
   faculty: string | null
 ) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
   const sortableEntities = ["point", "disposal"];
   const allowedEmailTypes = ["verified", "non-verified"];
   const pageCondition = page < 0;
@@ -482,6 +486,10 @@ const getAllStudentUsers = async (
 };
 
 const deleteUser = async (userId: string) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     return { error: "User not found" };
@@ -498,6 +506,10 @@ const updateStudent = async (
   values: z.infer<typeof UpdateStudentSchema>,
   userId: string
 ) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
   const validatedFields = UpdateStudentSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid credentials!" };
@@ -508,10 +520,6 @@ const updateStudent = async (
   });
   if (!existingUser) {
     return { error: "Something went wrong!" };
-  }
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
   }
   const updatedUser = await prisma.user.update({
     where: { id: existingUser.id },
