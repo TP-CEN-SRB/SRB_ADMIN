@@ -23,7 +23,7 @@ const RewardMore = ({ id }: { id: string }) => {
         rewardId={id}
       />
       <DropdownMenu>
-        <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2">
+        <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2 bg-gray-50">
           <MdMoreVert />
         </DropdownMenuTrigger>
         <DropdownMenuContent side="bottom" align="end">

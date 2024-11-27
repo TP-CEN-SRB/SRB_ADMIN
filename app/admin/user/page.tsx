@@ -27,6 +27,12 @@ const ViewStudentPage = async ({
     emailType,
     faculty
   );
-  return <DataTable columns={columns} data={students} count={studentCount} />;
+  return (
+    <DataTable
+      columns={columns}
+      data={students === undefined ? [] : students}
+      count={studentCount === undefined ? 0 : studentCount}
+    />
+  );
 };
 export default ViewStudentPage;

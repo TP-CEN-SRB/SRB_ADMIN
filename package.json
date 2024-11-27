@@ -47,6 +47,7 @@
     "pusher-js": "^8.4.0-rc2",
     "qrcode": "^1.5.4",
     "react": "^17.0.0 || ^18.0.0",
+    "react-csv": "^2.2.2",
     "react-day-picker": "^8.10.1",
     "react-dom": "^17.0.0 || ^18.0.0",
     "react-hook-form": "^7.53.0",

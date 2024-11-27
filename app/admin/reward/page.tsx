@@ -5,6 +5,8 @@ import RewardCard from "@/components/Card/RewardCard";
 import Image from "next/image";
 import RewardMore from "@/components/Dropdown/RewardMore";
 import { FaCircleDot } from "react-icons/fa6";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const RewardPage = async () => {
   const rewards = await prisma.reward.findMany({
@@ -12,8 +14,18 @@ const RewardPage = async () => {
     orderBy: { updatedAt: "desc" },
   });
   return (
-    <div className="max-w-screen-2xl mx-auto p-4">
+    <div className="mx-auto p-4">
       <RewardStatsGrid />
+      <div className="flex justify-end mt-5">
+        <Button
+          asChild
+          variant="secondary"
+          className="bg-white shadow-md text-slate-800 font-semibold w-[200px] flex items-center justify-center"
+        >
+          <Link href="/admin/reward/all">View all</Link>
+        </Button>
+      </div>
+      <h1 className="mt-3 text-slate-800">Recent Rewards</h1>
       <div className="grid lg:grid-cols-3 md:grid-cols-3 grid-cols-2 mt-10 gap-5">
         {rewards.map((reward, index) => (
           <RewardCard rounded key={index}>
@@ -28,7 +40,7 @@ const RewardPage = async () => {
                 <RewardMore id={reward.id} />
               </div>
             </div>
-            <div className="p-3">
+            <div className="p-3 text-slate-700">
               <div className="flex items-center gap-2">
                 {reward.isAvailable ? (
                   <FaCircleDot className="text-green-500" />

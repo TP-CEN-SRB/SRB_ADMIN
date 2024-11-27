@@ -37,7 +37,6 @@ const ConfirmDeleteRewardDialog = ({
           title: "Success!",
           description: data.success,
         });
-        router.push("/admin/reward");
       }
     });
   };

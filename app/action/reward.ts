@@ -141,7 +141,7 @@ const updateReward = async (id: string, formData: FormData) => {
         endDate: to ?? null,
       },
     });
-    revalidatePath("/admin/reward");
+    revalidatePath("/admin/reward/**");
     return { success: `Reward ${updatedReward.id} successfully updated` };
   }
   const updatedReward = await prisma.reward.update({
@@ -157,6 +157,7 @@ const updateReward = async (id: string, formData: FormData) => {
       ...(to !== undefined ? { endDate: to } : { endDate: null }),
     },
   });
+  revalidatePath("/admin/reward/**");
   return { success: `Reward ${updatedReward.id} successfully updated` };
 };
 
@@ -187,7 +188,7 @@ const deleteReward = async (id: string) => {
   if (!deletedReward) {
     return { error: "Failed to delete reward" };
   }
-  revalidatePath("/admin/reward");
+  revalidatePath("/admin/reward/**");
   return { success: `Reward ${deletedReward.id} successfully deleted` };
 };
 export { createReward, updateReward, deleteReward };
