@@ -37,72 +37,102 @@ const LeaderboardItems = [
   },
 ];
 
-const UsersDashboard = () => {
+interface leaderBoardData {
+  username: string | undefined;
+  userId: string | undefined;
+  balance: number;
+  disposalCount: number;
+  redemptionCount: number | { _count: { id: number } };
+}
+
+interface userDashboardProps {
+  leaderBoardData: leaderBoardData[];
+}
+
+const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
+  const topThree = leaderBoardData.slice(0, 3);
+  const [isActive, setIsActive] = React.useState("week");
+  const [filterChange, setFilterChange] = React.useState(false);
   return (
     <div className="p-4 w-full">
       <div className="flex flex-col w-full justify-center text-center items-center gap-4 py-4">
         <h1 className="text-4xl font-bold">Leaderboard</h1>
         <div className="flex rounded-lg w-1/60 border-solid border-2 border-slate-400">
           <Button
-            className="rounded-r-none hover:bg-slate-300"
+            className={`rounded-r-none hover:bg-slate-300 ${
+              isActive == "week" ? "bg-gray-400" : ""
+            }`}
             variant="secondary"
+            onClick={() => setIsActive("week")}
           >
             Week
           </Button>
           <div className="w-[2px] bg-slate-300" /> {/* Separator */}
           <Button
             variant="secondary"
-            className="hover:bg-slate-300 rounded-none"
+            className={`rounded-none hover:bg-slate-300 ${
+              isActive == "month" ? "bg-gray-400" : ""
+            }`}
+            onClick={() => (setIsActive("month"), setFilterChange(true))}
           >
             Month
           </Button>
           <div className="w-[2px] bg-slate-300" /> {/* Separator */}
           <Button
             variant="secondary"
-            className="hover:bg-slate-300 rounded-l-none"
+            className={`rounded-l-none hover:bg-slate-300 ${
+              isActive == "year" ? "bg-gray-400" : ""
+            }`}
+            onClick={() => setIsActive("year")}
           >
             Year
           </Button>
         </div>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        {LeaderboardItems.map((item, index) => (
+        {topThree.map((item, index) => (
           <div
             key={index}
             className="bg-white rounded-lg shadow-md flex flex-col relative w-full max-w-md"
           >
             {/* Gradient background header */}
             <div
-              className={`flex justify-end w-full h-40 bg-gradient-to-tr from-white ${item.toColour} px-4 rounded-t-lg`}
+              className={`flex justify-end w-full h-40 bg-gradient-to-tr from-white ${LeaderboardItems[index].toColour} px-4 rounded-t-lg`}
             >
               <Image
-                src={item.image}
-                alt={`${item.altImage}`}
+                src={LeaderboardItems[index].image}
+                alt={`${LeaderboardItems[index].altImage}`}
                 className="h-32 w-28"
               />
             </div>
 
             {/* Profile picture container */}
             <div className="absolute top-24 left-8">
-              <div className="w-28 h-28 bg-white rounded-full shadow-md"></div>
+              <div className="w-28 h-28 bg-white rounded-full shadow-md flex justify-center items-center text-center">
+                <span className="text-4xl font-bold">
+                  {item.username?.split("", 1)}
+                </span>
+              </div>
             </div>
 
             {/* Content area */}
             <div className=" ml-8 mt-2 mb-4 h-20 flex justify-start items-end">
-              <span className="text-3xl font-bold">{item.name}</span>
+              <span className="text-3xl font-bold">{item.username}</span>
             </div>
             {/* Data */}
             <div className="flex w-full px-8 justify-between mb-8 flex-wrap">
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">{item.disposals}</span>
+                <span className="text-2xl font-bold">{item.disposalCount}</span>
                 <span className="text-sm">Disposals</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">{item.points}</span>
+                <span className="text-2xl font-bold">{item.balance}</span>
                 <span className="text-sm">Points</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-bold">{item.redemptions}</span>
+                <span className="text-2xl font-bold">
+                  {item.redemptionCount.toString()}
+                </span>
                 <span className="text-sm">Redemptions</span>
               </div>
             </div>
