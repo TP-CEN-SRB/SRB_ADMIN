@@ -197,6 +197,7 @@ export const updateBin = async (
           },
         }),
       ]);
+      revalidatePath("/admin/bin");
       return {
         success: `Bin updated successfully, Bin ID: ${id}`,
       };

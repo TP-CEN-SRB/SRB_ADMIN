@@ -2,6 +2,7 @@ import { getBinById } from "@/app/action/bin";
 import NotFoundPage from "@/app/not-found";
 import UpdateBinForm from "@/components/Form/BinForms/UpdateBinForm";
 import prisma from "@/lib/db";
+import { notFound } from "next/navigation";
 import React from "react";
 
 const UpdateBinManagerPage = async ({
@@ -12,7 +13,7 @@ const UpdateBinManagerPage = async ({
   // Fetch the bin data first
   const bin = await getBinById(params.binId);
   if (!bin) {
-    return <NotFoundPage />;
+    notFound();
   }
   const getAllMaterials = await prisma.binMaterial.findMany();
   return (

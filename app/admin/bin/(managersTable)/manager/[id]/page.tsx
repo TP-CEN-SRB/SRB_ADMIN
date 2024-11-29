@@ -1,17 +1,14 @@
 import { getBinsByUserId } from "@/app/action/bin";
-import ButtonRedirect from "@/components/Button/ButtonRedirect";
 import BinCapacityChart from "@/components/Chart/BinCapacityChart";
-import { getSessionUser } from "@/utils/getAuth";
 import { notFound } from "next/navigation";
 import React from "react";
 
-const BinCapacityPage = async () => {
-  const user = await getSessionUser();
-  const bins = await getBinsByUserId(user?.id as string);
+const BinCapacityPage = async ({ params }: { params: { id: string } }) => {
+  const userId = params.id;
+  const bins = await getBinsByUserId(userId);
   if (bins.length === 0) {
     notFound();
   }
-
   return (
     <div className="flex flex-col justify-center items-center h-full">
       <h1 className="text-slate-800 mb-8">Bin Capacity</h1>
@@ -33,9 +30,6 @@ const BinCapacityPage = async () => {
           />
         ))}
       </div>
-      <ButtonRedirect rounded href="/" variant="outline" color="indigo">
-        Back
-      </ButtonRedirect>
     </div>
   );
 };

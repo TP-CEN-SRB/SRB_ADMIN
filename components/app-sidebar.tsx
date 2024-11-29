@@ -31,7 +31,6 @@ import {
   FaPlus,
 } from "react-icons/fa";
 import { IoSettings } from "react-icons/io5";
-import { logout } from "@/app/action/user";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";

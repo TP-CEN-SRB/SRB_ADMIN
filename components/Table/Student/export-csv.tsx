@@ -65,7 +65,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
           <IoIosDocument />
           <CSVLink
             className="cursor-default"
-            filename={`${new Date().getTime()}_current_page`}
+            filename={`students_current_page_${new Date().getTime()}`}
             data={(data as Student[]).map((student) => ({
               id: student.id,
               name: student.name,
@@ -99,7 +99,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
             pointBalance: student.point?.balance ?? "N/A",
             disposals: student._count?.disposals ?? 0,
           }))}
-          filename={`${new Date().getTime()}_entire_dataset`}
+          filename={`students_dataset_${new Date().getTime()}`}
         >
           <span ref={csvLinkRef} />
         </CSVLink>
