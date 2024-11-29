@@ -8,7 +8,6 @@ import {
   getPaginationRowModel,
   PaginationState,
   getFilteredRowModel,
-  ColumnFiltersState,
 } from "@tanstack/react-table";
 
 import {
@@ -30,19 +29,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FaPlusCircle } from "react-icons/fa";
 
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 

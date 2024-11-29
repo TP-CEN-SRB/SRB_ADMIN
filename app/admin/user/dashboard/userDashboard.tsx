@@ -67,7 +67,10 @@ const UsersDashboard = () => {
       </div>
       <div className="grid grid-cols-3 gap-4">
         {LeaderboardItems.map((item, index) => (
-          <div className="bg-white rounded-lg shadow-md flex flex-col relative w-full max-w-md">
+          <div
+            key={index}
+            className="bg-white rounded-lg shadow-md flex flex-col relative w-full max-w-md"
+          >
             {/* Gradient background header */}
             <div
               className={`flex justify-end w-full h-40 bg-gradient-to-tr from-white ${item.toColour} px-4 rounded-t-lg`}

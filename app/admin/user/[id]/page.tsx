@@ -11,7 +11,7 @@ const UserPage = async ({ params }: { params: { id: string } }) => {
   const user = await prisma.user.findUnique({
     where: { id: params.id },
     include: {
-      _count: { select: { disposals: true, redemptions: true } },
+      _count: { select: { disposals: true, redemption: true } },
       point: { select: { balance: true } },
     },
   });
@@ -100,7 +100,7 @@ const UserPage = async ({ params }: { params: { id: string } }) => {
               <div>
                 <p className="text-slate-600">Redemptions made</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user._count.redemptions}
+                  {user._count.redemption}
                 </p>
               </div>
             </div>

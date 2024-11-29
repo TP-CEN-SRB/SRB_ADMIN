@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import React from "react";
+import React, { useMemo } from "react";
 import { Bar, BarChart, XAxis, Pie, PieChart, Label, Legend } from "recharts";
 
 interface monthlyChartData {
@@ -36,9 +36,9 @@ export default function Chart({
   pieChartConfig,
 }: ChartProps) {
   const { month, bin, ...materials } = chartData![0];
-  const totalBins = React.useMemo(() => {
-    return chartData!.reduce((acc, curr) => acc + curr.bin, 0);
-  }, []);
+  const totalBins = useMemo(() => {
+    return chartData?.reduce((acc, curr) => acc + curr.bin, 0);
+  }, [chartData]);
   return (
     <>
       <div className="grid md:grid-cols-8 grid-cols-1 px-4 md:px-6 lg:px-8 py-4 gap-4 font-semibold">
@@ -100,7 +100,7 @@ export default function Chart({
                             y={viewBox.cy}
                             className="fill-foreground text-3xl font-bold"
                           >
-                            {totalBins.toLocaleString()}
+                            {totalBins!.toLocaleString()}
                           </tspan>
                           <tspan
                             x={viewBox.cx}

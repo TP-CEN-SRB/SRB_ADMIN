@@ -22,7 +22,6 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
-import { BinStatus } from "@prisma/client";
 
 export type BinManager = {
   id: string;
@@ -78,6 +77,9 @@ const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <Link href={`/admin/bin/manager/update/${binManager.id}`} passHref>
+          <DropdownMenuItem>Edit Manager</DropdownMenuItem>
+        </Link>
         <Link href={`/admin/bin/create/${binManager.id}`} passHref>
           <DropdownMenuItem>Create Bin</DropdownMenuItem>
         </Link>

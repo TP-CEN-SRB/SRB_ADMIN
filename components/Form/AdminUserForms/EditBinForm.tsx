@@ -3,11 +3,12 @@
 import Card from "@/components/Card/Card";
 import React, { useTransition } from "react";
 import FormHeader from "../FormHeader";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { UpdateBinFormSchema } from "@/schemas/auth";
 import { Faculty } from "@prisma/client";
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -17,16 +18,27 @@ import {
 import { Input } from "@/components/ui/input";
 import FacultyComboBox from "../AuthForms/FacultyCombobox";
 import { Button } from "@/components/ui/button";
+import { updateBinUser } from "@/app/action/user";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 interface EditBinFormProps {
-  name: string;
+  id: string;
   email: string;
+  name: string;
   faculty: Faculty;
   location: string;
 }
 
-const EditBinForm = ({ name, email, faculty, location }: EditBinFormProps) => {
+const EditBinForm = ({
+  id,
+  name,
+  email,
+  faculty,
+  location,
+}: EditBinFormProps) => {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const form = useForm<z.infer<typeof UpdateBinFormSchema>>({
     defaultValues: {
       name,
@@ -35,11 +47,39 @@ const EditBinForm = ({ name, email, faculty, location }: EditBinFormProps) => {
       location,
     },
   });
+  const onSubmit = (values: z.infer<typeof UpdateBinFormSchema>) => {
+    const datetime = new Date().toLocaleString("en-SG", {
+      timeZone: "Asia/Singapore",
+      hour12: false,
+    });
+    startTransition(async () => {
+      try {
+        const result = await updateBinUser(id, values);
+        if (result?.success) {
+          toast({
+            title: `Manager updated at ${datetime}`,
+            description: `Manager ${name} has been updated successfully`,
+            variant: "default",
+          });
+          router.push("/admin/bin/manager");
+        }
+        if (result?.error) {
+          toast({
+            title: "Error in updating Bin Manager",
+            description: result.error,
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  };
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Edit Bin Manager</FormHeader>
       <Form {...form}>
-        <form className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="name"
@@ -92,7 +132,7 @@ const EditBinForm = ({ name, email, faculty, location }: EditBinFormProps) => {
                   Faculty
                 </FormLabel>
                 <FormControl>
-                  {/* <FacultyComboBox  disabled={isPending}/> */}
+                  <FacultyComboBox disabled={isPending} field={field} />
                 </FormControl>
               </FormItem>
             )}

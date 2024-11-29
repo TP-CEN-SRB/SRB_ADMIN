@@ -10,6 +10,7 @@ import {
   UpdateAdminEmailSchema,
   SignUpStudentSchema,
   UpdateStudentSchema,
+  UpdateBinFormSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -91,6 +92,34 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     },
   });
   return { success: "Bin successfully created!" };
+};
+
+const updateBinUser = async (
+  id: string,
+  values: z.infer<typeof UpdateBinFormSchema>
+) => {
+  const validatedFields = UpdateBinFormSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid fields!" };
+  }
+  const formData = validatedFields.data;
+  const name = capitalizeFirstLetter(formData.name);
+  const email = formData.email;
+  const location = formData.location;
+  const faculty = formData.faculty;
+  const existingBinUser = await prisma.user.findUnique({
+    where: { id },
+  });
+
+  if (existingBinUser) {
+    await prisma.user.update({
+      where: { id },
+      data: { name, email, location, faculty },
+    });
+    return { success: "Bin Manager updated!" };
+  } else {
+    return { error: "Bin Manager does not exist!" };
+  }
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
@@ -529,6 +558,7 @@ const updateStudent = async (
 export {
   signUp,
   signUpBin,
+  updateBinUser,
   login,
   logout,
   resetPassword,
