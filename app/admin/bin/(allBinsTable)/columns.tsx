@@ -11,18 +11,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { BinStatus } from "@prisma/client";
+import { BinMaterial, BinStatus } from "@prisma/client";
 import Link from "next/link";
 import { deleteBin } from "@/app/action/bin";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
 export type Bin = {
-  location: string;
+  id: string;
+  user: { name: string | null; location: string | null };
   status: BinStatus;
-  material: string;
-  binId: string;
-  userName: string;
+  binMaterial: { name: string };
 };
 
 const BinActions = ({ bin }: { bin: Bin }) => {
@@ -63,10 +62,10 @@ const BinActions = ({ bin }: { bin: Bin }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href={`/admin/bin/update/${bin.binId}`} passHref>
+        <Link href={`/admin/bin/update/${bin.id}`} passHref>
           <DropdownMenuItem>Edit</DropdownMenuItem>
         </Link>
-        <DropdownMenuItem onClick={() => onDelete(bin.binId)}>
+        <DropdownMenuItem onClick={() => onDelete(bin.id)}>
           Delete
         </DropdownMenuItem>
         <DropdownMenuSeparator className="border-t-2 border-gray-200" />
@@ -78,10 +77,12 @@ const BinActions = ({ bin }: { bin: Bin }) => {
 
 export const columns: ColumnDef<Bin>[] = [
   {
-    accessorKey: "location",
+    id: "location",
+    accessorKey: "user.location",
     header: "Location",
   },
   {
+    id: "status",
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
@@ -100,11 +101,19 @@ export const columns: ColumnDef<Bin>[] = [
     },
   },
   {
-    accessorKey: "material",
+    id: "material",
+    accessorKey: "binMaterial.name",
     header: "Material",
+    filterFn: (row, columnId, filterValue) => {
+      if (Array.isArray(filterValue)) {
+        return filterValue.includes(row.getValue(columnId));
+      }
+      return true; // No filter applied
+    },
   },
   {
-    accessorKey: "userName",
+    id: "username",
+    accessorKey: "user.name",
     header: "Name",
   },
   {

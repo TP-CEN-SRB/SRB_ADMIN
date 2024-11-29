@@ -19,55 +19,30 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Button } from "@/components/ui/button";
+import { object } from "zod";
 
-class BinDisposalsByTime {
+interface BinDisposalsByTime {
   hour: string;
-  totalDisposals: number;
-  metalDisposals: number;
-  plasticDisposals: number;
-  constructor(hour: string, metalDisposals: number, plasticDisposals: number) {
-    this.hour = hour;
-    this.metalDisposals = metalDisposals;
-    this.plasticDisposals = plasticDisposals;
-    this.totalDisposals = metalDisposals + plasticDisposals;
-  }
+  [key: string]: string | number; // Index signature to allow dynamic material properties
 }
 
 interface ChartProps {
   chartData: BinDisposalsByTime[];
+  binTimeLineChartConfig: ChartConfig;
 }
 
-const chartConfig = {
-  totalDisposals: {
-    label: "Total Disposals",
-    color: "#0066CC",
-  },
-  metalDisposals: {
-    label: "Metal",
-    color: "#4394E5",
-  },
-  plasticDisposals: {
-    label: "Plastic",
-    color: "#41B3A2",
-  },
-  binToolTipLabel: {
-    label: "Bins Disposals Hourly",
-    color: "#0066CC",
-  },
-} satisfies ChartConfig;
-
-const BinTimeChart = ({ chartData }: ChartProps) => {
+const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
   const [activeChart, setActiveChart] =
-    React.useState<keyof typeof chartConfig>("totalDisposals");
+    React.useState<keyof typeof binTimeLineChartConfig>("totalDisposals");
   const [totalDisposalsSelected, setTotalDisposalsSelected] = useState(true);
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 ">
       <div className="bg-white rounded-xl">
         <div className="flex mb-4 justify-end pr-4">
-          {["totalDisposals", "metalDisposals", "plasticDisposals"].map(
-            (key) => {
-              const chart = key as keyof typeof chartConfig;
-              return (
+          {Object.keys(binTimeLineChartConfig).map((key) => {
+            const chart = key as keyof typeof binTimeLineChartConfig;
+            return (
+              binTimeLineChartConfig[chart].label !== "Disposals Hourly" && (
                 <Button
                   variant="secondary"
                   key={chart}
@@ -81,14 +56,17 @@ const BinTimeChart = ({ chartData }: ChartProps) => {
                   className="ml-4 bg-white data-[active=true]:bg-muted"
                 >
                   <span className="px-4 font-bold text-gray-600">
-                    {chartConfig[chart].label}
+                    {binTimeLineChartConfig[chart].label}
                   </span>
                 </Button>
-              );
-            }
-          )}
+              )
+            );
+          })}
         </div>
-        <ChartContainer config={chartConfig} className="h-[500px] w-full">
+        <ChartContainer
+          config={binTimeLineChartConfig}
+          className="h-[500px] w-full"
+        >
           <LineChart
             accessibilityLayer
             data={chartData}
@@ -111,22 +89,18 @@ const BinTimeChart = ({ chartData }: ChartProps) => {
               }
             />
             <Line
-              dataKey={
-                totalDisposalsSelected ? "plasticDisposals" : activeChart
-              }
+              dataKey={totalDisposalsSelected ? "PLASTIC" : activeChart}
               type="monotone"
               stroke={`var(--color-${
-                totalDisposalsSelected ? "plasticDisposals" : activeChart
+                totalDisposalsSelected ? "PLASTIC" : activeChart
               })`}
               strokeWidth={3}
               dot={false}
             />
             <Line
-              dataKey={totalDisposalsSelected ? "metalDisposals" : ""}
+              dataKey={totalDisposalsSelected ? "METAL" : ""}
               type="monotone"
-              stroke={`var(--color-${
-                totalDisposalsSelected ? "metalDisposals" : ""
-              })`}
+              stroke={`var(--color-${totalDisposalsSelected ? "METAL" : ""})`}
               strokeWidth={3}
               dot={false}
               className={totalDisposalsSelected ? "" : "hidden"}

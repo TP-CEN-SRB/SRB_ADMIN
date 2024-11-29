@@ -5,14 +5,12 @@ import {
   getBinCountsByMaterial,
   getBinCountsByStatus,
   getBinDisposalsByTime,
-  getChartData,
+  getPieChartData,
   getDisposals,
 } from "../action/bin";
 import BinTimeChart from "./components/binTimeChart";
 import StatsGrid from "./components/statsGrid";
-import { BsActivity } from "react-icons/bs";
-import { RiDeleteBin6Line, RiRecycleFill } from "react-icons/ri";
-import { IoTrashBinSharp } from "react-icons/io5";
+import { ChartConfig } from "@/components/ui/chart";
 interface StatsData {
   color?: string;
   icon?: React.ReactNode;
@@ -22,59 +20,108 @@ interface StatsData {
 }
 const Page = async () => {
   const [
-    DBChartData,
-    pieChartData,
+    DBBarChartData,
+    DBPieChartData,
     totalCount,
-    totalCountByStatus,
+    totalFuncBins,
     totalDisposalCount,
     binDisposalsTimeLine,
+    totalUMBins,
   ] = await Promise.all([
-    getChartData(),
+    getPieChartData(),
     getBinCountsByMaterial(),
     getAllBins(),
     getBinCountsByStatus(),
     getDisposals(),
     getBinDisposalsByTime(),
+    getBinCountsByStatus(undefined, undefined, true),
   ]);
-  const binStatsData: StatsData[] = [
-    {
-      color: "#34b7eb",
-      icon: <BsActivity className="text-xl sm:text-2xl text-[#34b7eb] mr-2" />,
-      title: "Bins Status",
-      value: totalCountByStatus,
-      description: "Functional Bins",
-    },
-    {
-      color: "#54666b",
-      icon: (
-        <RiDeleteBin6Line className="text-xl sm:text-2xl text-[#54666b] mr-2" />
-      ),
-      title: "Total Bins",
-      value: totalCount.length,
-      description: "All locations",
-    },
-    {
-      color: "#22e38f",
-      icon: (
-        <RiRecycleFill className="text-xl sm:text-2xl text-[#22e38f] mr-2" />
-      ),
-      title: "Total Recycled Items",
-      value: totalDisposalCount,
-      description: "Items",
-    },
-    {
-      color: "gray",
-      icon: <IoTrashBinSharp />,
-      title: "Total Waste Collected",
-      value: 4,
-      description: "Kg",
-    },
+
+  const binStatsData = [
+    totalFuncBins,
+    totalCount.length,
+    totalDisposalCount,
+    totalUMBins,
   ];
+  type ChartDataItem = {
+    month: string;
+    bin: number;
+    [key: string]: string | number; // This allows for any additional string properties
+  };
+  const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
+  const barChartConfig = {
+    binTotal: {
+      label: "Total",
+      color: "#0066CC",
+    },
+    bin: {
+      label: "Bins",
+      color: "#0066CC",
+    },
+    binToolTipLabel: {
+      label: "Bins Deployed Per Month",
+    },
+    ...Object.entries(materials).reduce(
+      (acc, [material, _], index) => ({
+        ...acc,
+        [material]: {
+          label: material,
+          color: `hsl(${170 + index * 15}, 70%, 50%)`,
+        },
+      }),
+      {}
+    ),
+  };
+  const PieChartConfig = {
+    binCount: {
+      label: "Count",
+    },
+    ...Object.entries(DBPieChartData).reduce(
+      (acc, [material, _], index) => ({
+        ...acc,
+        [material]: {
+          label: material,
+          color: `hsl(${170 + index * 15}, 70%, 50%)`,
+        },
+      }),
+      {}
+    ),
+  } satisfies ChartConfig;
+
+  const binDisposalsTimeLineConfig = {
+    totalDisposals: {
+      label: "Total Disposals",
+      color: "#0066CC",
+    },
+    binToolTipLabel: {
+      label: "Disposals Hourly",
+      color: "#0066CC",
+    },
+    ...Object.entries(materials).reduce(
+      (acc, [material, _], index) => ({
+        ...acc,
+        [material]: {
+          label: material,
+          color: `hsl(${170 + index * 15}, 70%, 50%)`,
+        },
+      }),
+      {}
+    ),
+  } satisfies ChartConfig;
+
   return (
     <div className="w-full">
-      <StatsGrid statsData={binStatsData} />
-      <Chart chartData={DBChartData} pieChartData={pieChartData} />
-      <BinTimeChart chartData={binDisposalsTimeLine} />
+      <StatsGrid initialStatsData={binStatsData} />
+      <Chart
+        chartData={DBBarChartData}
+        pieChartData={DBPieChartData}
+        barChartConfig={barChartConfig}
+        pieChartConfig={PieChartConfig}
+      />
+      <BinTimeChart
+        chartData={binDisposalsTimeLine}
+        binTimeLineChartConfig={binDisposalsTimeLineConfig}
+      />
     </div>
   );
 };

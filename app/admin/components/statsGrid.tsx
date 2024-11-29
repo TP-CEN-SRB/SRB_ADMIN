@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -14,23 +14,65 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getAllBins } from "@/app/action/bin";
+import {
+  getAllBins,
+  getBinCountsByStatus,
+  getDisposals,
+} from "@/app/action/bin";
+import { BsActivity } from "react-icons/bs";
+import { RiDeleteBin6Line, RiRecycleFill } from "react-icons/ri";
+import { TiWarningOutline } from "react-icons/ti";
 
-interface StatsData {
-  color?: string;
-  icon?: React.ReactNode;
-  title?: string;
-  value?: number;
-  description?: string;
-}
 interface StatsGridProps {
-  statsData: StatsData[];
+  initialStatsData: number[];
 }
 
-const StatsGrid = ({ statsData }: StatsGridProps) => {
+interface IState {
+  totalBins: number;
+  totalDisposals: number;
+  totalFunctionalBins: number;
+  totalUMBins: number;
+}
+
+interface IAction {
+  type: string;
+  values?: number[];
+}
+
+const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
+  const initialState: IState = {
+    totalBins: initialStatsData[0],
+    totalDisposals: initialStatsData[1],
+    totalFunctionalBins: initialStatsData[2],
+    totalUMBins: initialStatsData[3],
+  };
+
+  const statsReducer = (state: IState, action: IAction) => {
+    switch (action.type) {
+      case "UPDATE_STATS":
+        return {
+          ...state,
+          totalBins: action.values![0],
+          totalDisposals: action.values![1],
+          totalFunctionalBins: action.values![2],
+          totalUMBins: action.values![3],
+        };
+      case "RESET_STATS":
+        return initialState;
+      default:
+        return state;
+    }
+  };
+
+  const [state, dispatch] = useReducer(statsReducer, {
+    totalBins: initialStatsData[1],
+    totalDisposals: initialStatsData[2],
+    totalFunctionalBins: initialStatsData[0],
+    totalUMBins: initialStatsData[3],
+  });
+
   const [loading, setLoading] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>();
-  const [totalBinsByDate, setTotalBinsByDate] = useState(statsData[1].value);
   const [datetime, setDatetime] = useState(`${new Date().toLocaleDateString(
     "en-GB",
     {
@@ -45,11 +87,9 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
     })
     .toLowerCase()}
 `);
-  const router = useRouter();
 
   const refreshData = () => {
     setLoading(true);
-    router.refresh();
     setDatetime(`${new Date().toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "2-digit",
@@ -61,17 +101,75 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
       })
       .toLowerCase()}
 `);
+    dispatch({ type: "RESET_STATS" });
     setLoading(false);
   };
 
-  // const filterByDate = () => {
-  //   const fetchDateBySelectedDate = async () => {
-  //     //const result = await getAllBins(date?.from, date?.to);
-  //     const result = await getAllBins();
-  //     setTotalBinsByDate(result.length);
-  //   };
-  //   fetchDateBySelectedDate();
-  // };
+  const filterByDate = async () => {
+    setLoading(true);
+    const fetchedData = await fetchDataBasedOnDateRange(date); // Fetch data based on selected date range
+    dispatch({
+      type: "UPDATE_STATS",
+      values: fetchedData, // Assuming fetchedData is an array of [totalFunctionalBins, totalBins, totalDisposals, totalUMBins]
+    });
+    setLoading(false);
+  };
+
+  const fetchDataBasedOnDateRange = async (
+    date: DateRange | undefined
+  ): Promise<number[]> => {
+    const updateBinCountByStatus = await getBinCountsByStatus(
+      date?.from,
+      date?.to
+    );
+    const updateAllBins = await getAllBins(date?.from, date?.to);
+    const updateDisposals = await getDisposals(date?.from, date?.to);
+    const updateUMBins = await getBinCountsByStatus(date?.from, date?.to, true);
+    return [
+      updateBinCountByStatus,
+      updateAllBins.length,
+      updateDisposals,
+      updateUMBins,
+    ]; // Example data
+  };
+
+  const binDashBoardItems = [
+    {
+      color: "#34b7eb",
+      icon: <BsActivity className="text-xl sm:text-2xl text-[#34b7eb] mr-2" />,
+      title: "Bins Status",
+      value: state.totalFunctionalBins,
+      description: "Functional Bins",
+    },
+    {
+      color: "#54666b",
+      icon: (
+        <RiDeleteBin6Line className="text-xl sm:text-2xl text-[#54666b] mr-2" />
+      ),
+      title: "Total Bins",
+      value: state.totalBins,
+      description: "All locations",
+    },
+    {
+      color: "#22e38f",
+      icon: (
+        <RiRecycleFill className="text-xl sm:text-2xl text-[#22e38f] mr-2" />
+      ),
+      title: "Total Items Collected",
+      value: state.totalDisposals,
+      description: "Items",
+    },
+    {
+      color: "#f44336",
+      icon: (
+        <TiWarningOutline className="text-xl sm:text-2xl text-[#f44336] mr-2" />
+      ),
+      title: "Alerts",
+      value: state.totalUMBins,
+      description: "Issues found",
+      button: "View",
+    },
+  ];
 
   return (
     <>
@@ -141,7 +239,7 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
             <Button
               variant="outline"
               className="shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-300"
-              //onClick={filterByDate}
+              onClick={filterByDate}
             >
               Filter
             </Button>
@@ -149,7 +247,7 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {statsData.map((data, index) => {
+          {binDashBoardItems.map((data, index) => {
             return (
               <div
                 key={index}
@@ -161,13 +259,24 @@ const StatsGrid = ({ statsData }: StatsGridProps) => {
                 ></div>
 
                 <div className="pl-4">
-                  <div className="flex items-center gap-2">
-                    <span className="" style={{ color: data.color }}>
-                      {data.icon}
-                    </span>
-                    <span className="text-lg sm:text-xl font-bold">
-                      {data.title}
-                    </span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="" style={{ color: data.color }}>
+                        {data.icon}
+                      </span>
+                      {data.button ? (
+                        <span className="text-lg sm:text-xl font-bold text-[#f44336]">
+                          {data.title}
+                        </span>
+                      ) : (
+                        <span className="text-lg sm:text-xl font-bold">
+                          {data.title}
+                        </span>
+                      )}
+                    </div>
+                    {data.button && (
+                      <Button variant="secondary">{data.button}</Button>
+                    )}
                   </div>
                   <div className="flex flex-col">
                     <span className="font-bold text-3xl sm:text-4xl">

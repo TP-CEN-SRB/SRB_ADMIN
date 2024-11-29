@@ -8,13 +8,13 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { Bar, BarChart, XAxis, Pie, PieChart } from "recharts";
+import React from "react";
+import { Bar, BarChart, XAxis, Pie, PieChart, Label, Legend } from "recharts";
 
 interface monthlyChartData {
   month: string;
   bin: number;
-  binMetal: number;
-  binPlastic: number;
+  [material: string]: number | string;
 }
 
 interface pieChartData {
@@ -25,52 +25,25 @@ interface pieChartData {
 interface ChartProps {
   chartData?: monthlyChartData[];
   pieChartData?: pieChartData[];
+  barChartConfig: ChartConfig;
+  pieChartConfig: ChartConfig;
 }
 
-const chartConfig = {
-  binTotal: {
-    label: "Total",
-    color: "#0066CC",
-  },
-  binMetal: {
-    label: "Metal",
-    color: "#4394E5",
-  },
-  binPlastic: {
-    label: "Plastic",
-    color: "#41B3A2",
-  },
-  bin: {
-    label: "Bins",
-    color: "#0066CC",
-  },
-  binToolTipLabel: {
-    label: "Bins Deployed Monthly",
-    color: "#0066CC",
-  },
-} satisfies ChartConfig;
-
-const PieChartConfig = {
-  binType: {
-    label: "Material",
-  },
-  binCount: {
-    label: "Count",
-  },
-  METAL: {
-    label: "Metal",
-  },
-  PLASTIC: {
-    label: "Plastic",
-  },
-} satisfies ChartConfig;
-
-export default function Chart({ chartData, pieChartData }: ChartProps) {
+export default function Chart({
+  chartData,
+  pieChartData,
+  barChartConfig,
+  pieChartConfig,
+}: ChartProps) {
+  const { month, bin, ...materials } = chartData![0];
+  const totalBins = React.useMemo(() => {
+    return chartData!.reduce((acc, curr) => acc + curr.bin, 0);
+  }, []);
   return (
     <>
-      <div className="grid md:grid-cols-8 grid-cols-1 px-4 md:px-6 lg:px-8 py-4 gap-4 font-bold">
+      <div className="grid md:grid-cols-8 grid-cols-1 px-4 md:px-6 lg:px-8 py-4 gap-4 font-semibold">
         <div className="bg-white rounded-xl col-span-5">
-          <ChartContainer config={chartConfig} className="w-full h-[500px]">
+          <ChartContainer config={barChartConfig} className="w-full h-[500px]">
             <BarChart accessibilityLayer data={chartData}>
               <XAxis
                 dataKey="month"
@@ -82,42 +55,74 @@ export default function Chart({ chartData, pieChartData }: ChartProps) {
               <ChartTooltip
                 content={
                   <ChartTooltipContent
+                    labelClassName="font-bold text-sm"
                     labelKey="binToolTipLabel"
                     indicator="line"
+                    className="text-xs"
                   />
                 }
               />
-              <ChartLegend
-                content={<ChartLegendContent />}
-                className="text-sm"
-              />
-              <Bar dataKey="bin" fill="var(--color-bin)" radius={4} />
-              <Bar dataKey="binMetal" fill="var(--color-binMetal)" radius={4} />
-              <Bar
-                dataKey="binPlastic"
-                fill="var(--color-binPlastic)"
-                radius={4}
-              />
+              <ChartLegend content={<ChartLegendContent />} />
+              {/* Dynamically create Bars for each material */}
+              {Object.keys(materials).map((material) => (
+                <Bar
+                  key={material}
+                  stackId="a"
+                  dataKey={material}
+                  fill={`var(--color-${material})`}
+                />
+              ))}
             </BarChart>
           </ChartContainer>
         </div>
         <div className="bg-white rounded-xl col-span-3 flex justify-center">
-          <ChartContainer config={PieChartConfig} className="w-full">
-            <PieChart>
+          <ChartContainer config={pieChartConfig} className="w-full">
+            <PieChart accessibilityLayer data={pieChartData}>
               <Pie
                 data={pieChartData}
                 dataKey="binCount"
                 nameKey="binType"
                 stroke="0"
                 innerRadius={100}
+              >
+                <Label
+                  content={({ viewBox }) => {
+                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                      return (
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan
+                            x={viewBox.cx}
+                            y={viewBox.cy}
+                            className="fill-foreground text-3xl font-bold"
+                          >
+                            {totalBins.toLocaleString()}
+                          </tspan>
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 24}
+                            className="fill-muted-foreground"
+                          >
+                            Bins Deployed
+                          </tspan>
+                        </text>
+                      );
+                    }
+                  }}
+                />
+              </Pie>
+              <Legend
+                formatter={(value, entry) => (
+                  <span style={{ color: "black" }}>{value}</span> // Change 'red' to any color you want
+                )}
               />
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent hideLabel />}
-              />
-              <ChartLegend
-                content={<ChartLegendContent />}
-                className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center text-sm"
               />
             </PieChart>
           </ChartContainer>

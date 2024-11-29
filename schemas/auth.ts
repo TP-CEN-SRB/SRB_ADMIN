@@ -56,7 +56,10 @@ const SignUpBinSchema = z.object({
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
-  location: z.string().min(2, "Location is too short"),
+  location: z
+    .string()
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
+    .min(2, "Location is too short"),
 });
 
 const AdminNumberSchema = z.object({
@@ -93,6 +96,19 @@ const UpdateStudentSchema = SignUpStudentSchema.omit({
     .gte(1, "Points cannot be negative"),
 });
 
+const UpdateBinFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name is too short")
+    .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+  email: z.string().email("Please enter a valid email address").toLowerCase(),
+  faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
+  location: z
+    .string()
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
+    .min(2, "Location is too short"),
+});
+
 export {
   LoginSchema,
   SignUpAdminSchema,
@@ -103,4 +119,5 @@ export {
   ResetSchema,
   NewPasswordSchema,
   AdminNumberSchema,
+  UpdateBinFormSchema,
 };

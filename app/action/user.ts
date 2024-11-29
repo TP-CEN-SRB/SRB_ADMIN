@@ -398,7 +398,7 @@ const getAllStudentUsers = async (
   const allowedEmailTypes = ["verified", "non-verified"];
   const pageCondition = page != null && page < 0;
   const sortOrderCondition =
-    sortOrder !== undefined && sortOrder !== "asc" && sortOrder != "desc";
+    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
   const sortItemCondition =
     sortItem !== undefined &&
     !Object.values(sortableEntities).includes(sortItem);

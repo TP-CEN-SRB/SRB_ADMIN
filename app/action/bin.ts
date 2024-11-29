@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/db";
 import { BinMaterialSchema, BinSchema, UpdateBinSchema } from "@/schemas";
-import { BinStatus } from "@prisma/client";
+import { Bin, BinMaterial, BinStatus } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -26,7 +26,19 @@ import { z } from "zod";
 //     },
 //   });
 // };
-export const getAllBins = async () => {
+export const getAllBins = async (dateFrom?: Date, dateTo?: Date) => {
+  if (dateFrom !== undefined && dateTo !== undefined) {
+    const adjustedEndDate = new Date(dateTo);
+    adjustedEndDate.setHours(23, 59, 59, 999);
+    return await prisma.bin.findMany({
+      where: {
+        createdAt: {
+          gte: dateFrom,
+          lte: adjustedEndDate,
+        },
+      },
+    });
+  }
   return await prisma.bin.findMany({
     orderBy: {
       createdAt: "desc",
@@ -239,27 +251,24 @@ const checkExistingBinRecord = async (
   return bin !== null;
 };
 
-export const getChartData = async () => {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
+//barchart data
+export const getPieChartData = async () => {
+  //create an array of months
+  const months = Array.from({ length: 12 }, (item, i) => {
+    return new Date(0, i).toLocaleString("en-US", { month: "long" });
+  });
+  //fetch all unique material names from the database
+  const materialNames = await prisma.binMaterial.findMany({
+    select: {
+      name: true,
+    },
+  });
+  //get data for each month
   const yearlyData = await Promise.all(
     months.map(async (month, index) => {
       const startDate = new Date(2024, index, 1);
       const endDate = new Date(2024, index + 1, 0); // Last day of the month
-
+      // fetch bins for the specific month
       const monthlyBins = await prisma.bin.findMany({
         where: {
           createdAt: {
@@ -267,7 +276,7 @@ export const getChartData = async () => {
             lte: endDate,
           },
         },
-        include: {
+        select: {
           binMaterial: {
             select: {
               name: true,
@@ -275,23 +284,31 @@ export const getChartData = async () => {
           },
         },
       });
-
+      const materialCounts = materialNames.reduce((acc, material) => {
+        acc[material.name] = 0; // Initialize each material's count to 0
+        return acc;
+      }, {} as Record<string, number>);
+      //acc is an object that stores the count of each material,
+      //reduce is used to iterate over the bins and increment the count of each material, updating the acc
       const binsByMaterial = monthlyBins.reduce(
         (acc, bin) => {
-          const materialName = bin.binMaterial.name;
-          if (materialName === "METAL") acc.metal++;
-          if (materialName === "PLASTIC") acc.plastic++;
+          const material = bin.binMaterial.name; // Get the material name
+          if (acc[material] !== undefined) {
+            acc[material]++;
+          }
           return acc;
         },
-        { metal: 0, plastic: 0 }
+        { ...materialCounts }
       );
-
-      return {
+      // Use the dynamic materialCounts as the initial value // Initialize counts for all materials { METAL: 0, PLASTIC: 0 }
+      // return monthly data including bin counts for each material
+      const returnObj = {
         month,
         bin: monthlyBins.length,
-        binMetal: binsByMaterial.metal,
-        binPlastic: binsByMaterial.plastic,
+        ...binsByMaterial,
       };
+
+      return returnObj;
     })
   );
 
@@ -304,42 +321,38 @@ interface BinCount {
   fill: string;
 }
 
-const MATERIAL_COLORS = {
-  METAL: "#2D88FF",
-  PLASTIC: "#41B3A2",
-} as const;
-
-type MaterialType = keyof typeof MATERIAL_COLORS;
-
 export const getBinCountsByMaterial = async (): Promise<BinCount[]> => {
-  try {
-    const binsCountWithMaterial = await prisma.bin.findMany({
-      select: {
-        binMaterial: {
-          select: {
-            name: true,
-          },
+  // First, get all materials from the BinMaterial table
+  const allMaterials = await prisma.binMaterial.findMany({
+    select: {
+      name: true,
+    },
+  });
+
+  // Then get the bin counts
+  const binsCountWithMaterial = await prisma.bin.findMany({
+    select: {
+      binMaterial: {
+        select: {
+          name: true,
         },
       },
-    });
+    },
+  });
 
-    const materialCounts = binsCountWithMaterial.reduce((acc, bin) => {
-      const materialName = bin.binMaterial.name as MaterialType;
-      if (materialName in MATERIAL_COLORS) {
-        acc[materialName] = (acc[materialName] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<MaterialType, number>);
+  // Count the materials
+  const materialCounts = binsCountWithMaterial.reduce((acc, bin) => {
+    const materialName = bin.binMaterial.name;
+    acc[materialName] = (acc[materialName] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
 
-    return Object.entries(materialCounts).map(([binType, count]) => ({
-      binType,
-      binCount: count,
-      fill: MATERIAL_COLORS[binType as MaterialType],
-    }));
-  } catch (error) {
-    console.error("Failed to fetch bin counts:", error);
-    throw new Error("Failed to fetch bin counts by material");
-  }
+  // Map all materials, including those with zero counts
+  return allMaterials.map((material, index) => ({
+    binType: material.name,
+    binCount: materialCounts[material.name] || 0,
+    fill: `hsl(${170 + index * 15}, 70%, 50%)`,
+  }));
 };
 
 // export const getBinCountsByStatus = async () => {
@@ -371,56 +384,97 @@ export const getBinCountsByMaterial = async (): Promise<BinCount[]> => {
 //   return pieChartData;
 // };
 
-export const getBinCountsByStatus = async () => {
-  const bins = await prisma.bin.findMany({
-    where: {
-      status: BinStatus.FUNCTIONAL,
-    },
-  });
+export const getBinCountsByStatus = async (
+  dateFrom?: Date,
+  dateTo?: Date,
+  notFunctional?: boolean
+) => {
+  var bins: Bin[] = [];
+  if (dateFrom !== undefined && dateTo !== undefined) {
+    const adjustedEndDate = new Date(dateTo);
+    adjustedEndDate.setHours(23, 59, 59, 999);
+    if (notFunctional) {
+      bins = await prisma.bin.findMany({
+        where: {
+          createdAt: {
+            gte: dateFrom,
+            lte: adjustedEndDate,
+          },
+          status: BinStatus.UNDER_MAINTENANCE,
+        },
+      });
+    } else {
+      bins = await prisma.bin.findMany({
+        where: {
+          createdAt: {
+            gte: dateFrom,
+            lte: adjustedEndDate,
+          },
+          status: BinStatus.FUNCTIONAL,
+        },
+      });
+    }
+  } else {
+    notFunctional
+      ? (bins = await prisma.bin.findMany({
+          where: {
+            status: BinStatus.UNDER_MAINTENANCE,
+          },
+        }))
+      : (bins = await prisma.bin.findMany({
+          where: {
+            status: BinStatus.FUNCTIONAL,
+          },
+        }));
+  }
   return bins.length;
 };
 
-export const getDisposals = async () => {
+export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
+  if (dateFrom !== undefined && dateTo !== undefined) {
+    const adjustedEndDate = new Date(dateTo);
+    adjustedEndDate.setHours(23, 59, 59, 999);
+    const disposals = await prisma.disposal.findMany({
+      where: {
+        createdAt: {
+          gte: dateFrom,
+          lte: adjustedEndDate,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    return disposals.length;
+  }
   const disposals = await prisma.disposal.findMany();
   return disposals.length;
 };
 
-export const getBinDisposalsByTime = async () => {
-  const hourlyDisposalData: {
-    hour: string;
-    totalDisposals: number;
-    metalDisposals: number;
-    plasticDisposals: number;
-  }[] = [];
-  const metalDisposals = [];
-  const plasticDisposals = [];
-  const hours: string[] = [
-    "0600",
-    "0700",
-    "0800",
-    "0900",
-    "1000",
-    "1100",
-    "1200",
-    "1300",
-    "1400",
-    "1500",
-    "1600",
-    "1700",
-    "1800",
-    "1900",
-    "2000",
-    "2100",
-    "2200",
-    "2300",
-    "0000",
-  ];
+// Define the type for our result objects
+type DisposalsByHour = {
+  hour: string;
+  [key: string]: string | number; // Index signature to allow dynamic material properties
+};
 
+export const getBinDisposalsByTime = async (): Promise<DisposalsByHour[]> => {
+  // Get all bin materials from the database
+  const binMaterials = await prisma.binMaterial.findMany({
+    select: {
+      name: true,
+    },
+  });
+
+  // Get all disposals with their bin material information
   const totalDisposals = await prisma.disposal.findMany({
     include: {
       bin: {
         select: {
-          binMaterial: true,
+          binMaterial: {
+            select: {
+              name: true,
+            },
+          },
         },
       },
     },
@@ -428,63 +482,41 @@ export const getBinDisposalsByTime = async () => {
       createdAt: "asc",
     },
   });
-  const formatHour = (hour: string): string => {
-    return `${hour.slice(0, 2)}`;
-  };
-  for (let i = 0; i < totalDisposals.length; i++) {
-    if (totalDisposals[i].bin.binMaterial.name == "METAL") {
-      metalDisposals.push(totalDisposals[i]);
-    } else if (totalDisposals[i].bin.binMaterial.name == "PLASTIC") {
-      plasticDisposals.push(totalDisposals[i]);
+
+  // Generate array of hours from 06:00 to 23:00
+  const hours = Array.from({ length: 18 }, (_, i) => {
+    const hour = i + 6;
+    return hour.toString().padStart(2, "0") + "00";
+  });
+
+  // Initialize result array with hour objects
+  const result: DisposalsByHour[] = hours.map((hour) => ({
+    hour,
+    ...Object.fromEntries(binMaterials.map((material) => [material.name, 0])),
+  }));
+
+  // Count disposals for each hour and material
+  totalDisposals.forEach((disposal) => {
+    const hour = disposal.createdAt.getHours();
+    if (hour >= 6 && hour <= 23) {
+      const hourIndex = hour - 6;
+      const materialName = disposal.bin.binMaterial.name;
+      if (result[hourIndex]) {
+        result[hourIndex][materialName] =
+          (result[hourIndex][materialName] as number) + 1;
+      }
     }
-  }
+  });
 
-  for (let i = 0; i < hours.length - 1; i++) {
-    const startHour = parseInt(formatHour(hours[i]));
-    const endHour = parseInt(formatHour(hours[i + 1]));
-    const hourlyMetalDisposals = metalDisposals.filter((disposal) => {
-      const disposalTime = disposal.createdAt.getHours();
-      return disposalTime >= startHour && disposalTime < endHour;
-    }).length;
-
-    const hourlyPlasticDisposals = plasticDisposals.filter((disposal) => {
-      const disposalTime = disposal.createdAt.getHours();
-      return disposalTime >= startHour && disposalTime < endHour;
-    }).length;
-
-    hourlyDisposalData.push({
-      hour: hours[i],
-      totalDisposals: hourlyMetalDisposals + hourlyPlasticDisposals,
-      metalDisposals: hourlyMetalDisposals,
-      plasticDisposals: hourlyPlasticDisposals,
-    });
-  }
-  return hourlyDisposalData;
+  return result;
 };
 
-export const getAllBinsWithUser = async (userId?: string) => {
-  if (userId) {
-    return await prisma.bin.findMany({
-      where: {
-        userId,
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            location: true,
-          },
-        },
-        binMaterial: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-  }
-  return await prisma.bin.findMany({
-    include: {
+export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
+  const bins = await prisma.bin.findMany({
+    where: userId ? { userId } : undefined,
+    select: {
+      id: true,
+      status: true,
       user: {
         select: {
           name: true,
@@ -498,6 +530,8 @@ export const getAllBinsWithUser = async (userId?: string) => {
       },
     },
   });
+  const materials = await prisma.binMaterial.findMany();
+  return { bins, materials };
 };
 
 export const getUsedMaterialsForBin = async (userId: string) => {
@@ -515,3 +549,28 @@ export const getUsedMaterialsForBin = async (userId: string) => {
   });
   return usedBinMaterials;
 };
+
+// export const getAllBinsAsync = async (
+//   page: number,
+//   query: string | null,
+//   sortStatus: string,
+//   sortMaterial: string
+// ) => {
+//   const pageCondition = page < 0;
+//   const sortableEntities = ["status", "material"];
+//   const allowedStatusTypes = ["FUNCTIONAL", "UNDER_MAINTENANCE"];
+//   const sortStatusCondition =
+//     sortStatus !== undefined &&
+//     !sortStatus
+//       .split(",")
+//       .every((status) => allowedStatusTypes.includes(status));
+//   if (sortStatusCondition) {
+//     return { binCount: 0, bins: [] };
+//   }
+//   const bins = await prisma.bin.findMany({
+//     where: {
+//       status: query as BinStatus,
+//     },
+//   });
+//   return { binCount: bins.length, bins };
+// };
