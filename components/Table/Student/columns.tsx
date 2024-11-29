@@ -6,7 +6,6 @@ import { FaSort } from "react-icons/fa";
 import { FaLongArrowAltUp } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { MdVerified } from "react-icons/md";
 import { MdGppBad } from "react-icons/md";
 import Actions from "./actions";
@@ -47,28 +46,6 @@ const SortIcon = ({ column }: { column: Column<Student, unknown> }) => {
   );
 };
 export const columns: ColumnDef<Student>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "name",
     header: ({ column }) => {

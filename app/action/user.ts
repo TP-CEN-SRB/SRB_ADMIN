@@ -10,6 +10,7 @@ import {
   UpdateAdminEmailSchema,
   SignUpStudentSchema,
   UpdateStudentSchema,
+  UpdateBinFormSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -91,6 +92,34 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     },
   });
   return { success: "Bin successfully created!" };
+};
+
+const updateBinUser = async (
+  id: string,
+  values: z.infer<typeof UpdateBinFormSchema>
+) => {
+  const validatedFields = UpdateBinFormSchema.safeParse(values);
+  if (!validatedFields.success) {
+    return { error: "Invalid fields!" };
+  }
+  const formData = validatedFields.data;
+  const name = capitalizeFirstLetter(formData.name);
+  const email = formData.email;
+  const location = formData.location;
+  const faculty = formData.faculty;
+  const existingBinUser = await prisma.user.findUnique({
+    where: { id },
+  });
+
+  if (existingBinUser) {
+    await prisma.user.update({
+      where: { id },
+      data: { name, email, location, faculty },
+    });
+    return { success: "Bin Manager updated!" };
+  } else {
+    return { error: "Bin Manager does not exist!" };
+  }
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
@@ -383,16 +412,20 @@ const deleteBinUser = async (id: string) => {
 };
 
 const getAllStudentUsers = async (
-  page: number,
+  page: number | null,
   query: string | null,
-  sortOrder: string,
-  sortItem: string,
+  sortOrder: string | undefined,
+  sortItem: string | undefined,
   emailType: string | null,
   faculty: string | null
 ) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
   const sortableEntities = ["point", "disposal"];
   const allowedEmailTypes = ["verified", "non-verified"];
-  const pageCondition = page < 0;
+  const pageCondition = page != null && page < 0;
   const sortOrderCondition =
     sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
   const sortItemCondition =
@@ -459,8 +492,8 @@ const getAllStudentUsers = async (
             : undefined,
         faculty: faculty ? { in: faculty.split(",") as Faculty[] } : undefined,
       },
-      take: 10,
-      skip: (page - 1) * 10,
+      take: page ? 10 : undefined,
+      skip: page ? (page - 1) * 10 : 0,
       orderBy:
         sortItem === "disposal"
           ? { disposals: { _count: sortOrder } }
@@ -482,6 +515,10 @@ const getAllStudentUsers = async (
 };
 
 const deleteUser = async (userId: string) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) {
     return { error: "User not found" };
@@ -498,6 +535,10 @@ const updateStudent = async (
   values: z.infer<typeof UpdateStudentSchema>,
   userId: string
 ) => {
+  const sessionUser = await getSessionUser();
+  if (!sessionUser || sessionUser.role !== "ADMIN") {
+    return { error: "Unauthorized access!" };
+  }
   const validatedFields = UpdateStudentSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid credentials!" };
@@ -508,10 +549,6 @@ const updateStudent = async (
   });
   if (!existingUser) {
     return { error: "Something went wrong!" };
-  }
-  const sessionUser = await getSessionUser();
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
   }
   const updatedUser = await prisma.user.update({
     where: { id: existingUser.id },
@@ -529,6 +566,7 @@ const updateStudent = async (
 export {
   signUp,
   signUpBin,
+  updateBinUser,
   login,
   logout,
   resetPassword,

@@ -389,10 +389,11 @@ export const getBinCountsByStatus = async (
   dateTo?: Date,
   notFunctional?: boolean
 ) => {
-  var bins: Bin[] = [];
+  let bins: Bin[] = [];
   if (dateFrom !== undefined && dateTo !== undefined) {
     const adjustedEndDate = new Date(dateTo);
     adjustedEndDate.setHours(23, 59, 59, 999);
+
     if (notFunctional) {
       bins = await prisma.bin.findMany({
         where: {
@@ -415,17 +416,19 @@ export const getBinCountsByStatus = async (
       });
     }
   } else {
-    notFunctional
-      ? (bins = await prisma.bin.findMany({
-          where: {
-            status: BinStatus.UNDER_MAINTENANCE,
-          },
-        }))
-      : (bins = await prisma.bin.findMany({
-          where: {
-            status: BinStatus.FUNCTIONAL,
-          },
-        }));
+    if (notFunctional) {
+      bins = await prisma.bin.findMany({
+        where: {
+          status: BinStatus.UNDER_MAINTENANCE,
+        },
+      });
+    } else {
+      bins = await prisma.bin.findMany({
+        where: {
+          status: BinStatus.FUNCTIONAL,
+        },
+      });
+    }
   }
   return bins.length;
 };

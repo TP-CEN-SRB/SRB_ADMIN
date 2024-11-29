@@ -1,117 +1,121 @@
-import { Nunito } from "next/font/google";
 import React from "react";
-import { BsActivity } from "react-icons/bs";
-import { GrLineChart } from "react-icons/gr";
-import { MdOutlineAccessTime } from "react-icons/md";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { IoMdTrendingDown } from "react-icons/io";
 import { LuTrophy } from "react-icons/lu";
 import { MdCardGiftcard } from "react-icons/md";
-import { BsPeople } from "react-icons/bs";
+import { FaFire } from "react-icons/fa";
+import prisma from "@/lib/db";
 
-const nunito600 = Nunito({
-  weight: "600",
-  subsets: ["latin"],
-});
-
-const nunito400 = Nunito({
-  weight: "300",
-  subsets: ["latin"],
-});
-
-const RewardStatsGrid = () => {
+const RewardStatsGrid = async () => {
+  const [
+    totalRewards,
+    totalRedemptions,
+    mostPopularReward,
+    mostExpensiveReward,
+  ] = await Promise.all([
+    prisma.reward.count(),
+    prisma.redemption.count(),
+    prisma.redemption.groupBy({
+      by: ["rewardId"],
+      _count: {
+        rewardId: true,
+      },
+      orderBy: {
+        _count: {
+          rewardId: "desc",
+        },
+      },
+      take: 1,
+    }),
+    prisma.reward.findFirst({
+      orderBy: { pointsRequired: "desc" },
+      select: { pointsRequired: true, name: true },
+    }),
+  ]);
+  const reward = await prisma.reward.findUnique({
+    where: { id: mostPopularReward[0].rewardId },
+    select: { name: true },
+  });
+  const rewardStatsData = [
+    {
+      color: "#34b7eb",
+      icon: <LuTrophy className="text-xl sm:text-2xl text-[#34b7eb] mr-2" />,
+      title: "Total rewards",
+      value: totalRewards,
+      description: "Rewards",
+    },
+    {
+      color: "#22e38f",
+      icon: (
+        <MdCardGiftcard className="text-xl sm:text-2xl text-[#22e38f] mr-2" />
+      ),
+      title: "Total redemptions",
+      value: totalRedemptions,
+      description: "Redemptions",
+    },
+    {
+      color: "#ef4444",
+      icon: <FaFire className="text-xl sm:text-2xl text-red-500 mr-2" />,
+      title: "Most popular reward",
+      value:
+        mostPopularReward[0]?._count.rewardId === 0
+          ? 0
+          : mostPopularReward[0]?._count.rewardId,
+      description: (
+        <>
+          Redemptions
+          <span className="font-bold text-lg line-clamp-1">{reward?.name}</span>
+        </>
+      ),
+    },
+    {
+      color: "gray",
+      icon: <IoMdTrendingDown />,
+      title: "Most expensive reward",
+      value: mostExpensiveReward?.pointsRequired,
+      description: (
+        <>
+          Points
+          <span className="font-bold line-clamp-1">
+            {mostExpensiveReward?.name}
+          </span>
+        </>
+      ),
+    },
+  ];
   return (
-    <>
-      <div className="px-4 md:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {/* Total Redemptions Made */}
-          <div className="bg-white rounded-xl p-4 flex flex-col gap-2">
-            <div className="flex items-center">
-              <LuTrophy className="text-xl sm:text-2xl text-yellow-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Total Rewards Distributed
-              </span>
-            </div>
-
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">1</span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Redemptions made
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-2">
-              <div className="flex flex-col">
-                <span className="font-bold text-sm sm:text-base">8 Counts</span>
-                <div
-                  className={`flex items-center ${nunito400.className} text-xs`}
-                >
-                  <GrLineChart className="text-blue-500 mr-1" />
-                  <span>+2.5% from last month</span>
-                </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+      {rewardStatsData.map((data, index) => {
+        return (
+          <div
+            key={index}
+            className="relative bg-white p-4 flex flex-col gap-2 rounded-lg overflow-hidden"
+          >
+            <div
+              className={`absolute inset-y-0 left-0 w-2.5 rounded-l-lg`}
+              style={{ backgroundColor: data.color }}
+            />
+            <div className="pl-4 text-slate-700">
+              <div className="flex items-center gap-2">
+                <span className="" style={{ color: data.color }}>
+                  {data.icon}
+                </span>
+                <span className="text-lg sm:text-xl font-bold">
+                  {data.title}
+                </span>
               </div>
-
               <div className="flex flex-col">
-                <div className="font-bold flex items-center">
-                  <MdOutlineAccessTime className="text-lg sm:text-xl mr-1" />
-                  <span className="text-sm sm:text-base">Last updated</span>
-                </div>
-                <span className={`${nunito400.className} text-xs`}>
-                  2 hours ago
+                <span className="font-bold text-3xl sm:text-4xl">
+                  {data.value}
+                </span>
+                <span className="font-light text-sm sm:text-base">
+                  {data.description}
                 </span>
               </div>
             </div>
           </div>
-
-          {/* Active Users */}
-          <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col gap-2">
-            <div className="flex items-center">
-              <BsPeople className="text-xl sm:text-2xl text-gray-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Total Active Users
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">100</span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Users
-              </span>
-            </div>
-          </div>
-
-          {/* Top Rewards */}
-          <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col gap-2">
-            <div className="flex items-center">
-              <MdCardGiftcard className="text-xl sm:text-2xl text-green-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Top Rewards
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl"></span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Items
-              </span>
-            </div>
-          </div>
-
-          {/* Percentage Card */}
-          <div className="bg-white rounded-xl p-4 shadow-sm flex flex-col gap-2">
-            <div className="flex items-center">
-              <GrLineChart className="text-xl sm:text-2xl text-blue-500 mr-2" />
-              <span className={`text-lg sm:text-xl ${nunito600.className}`}>
-                Points Redeemed
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-3xl sm:text-4xl">92%</span>
-              <span className={`${nunito400.className} text-sm sm:text-base`}>
-                Redeemed
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+        );
+      })}
+    </div>
   );
 };
 
