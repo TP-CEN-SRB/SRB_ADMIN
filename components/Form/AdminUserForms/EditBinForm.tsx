@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { updateBinUser } from "@/app/action/user";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface EditBinFormProps {
   id: string;
@@ -40,6 +41,7 @@ const EditBinForm = ({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const form = useForm<z.infer<typeof UpdateBinFormSchema>>({
+    resolver: zodResolver(UpdateBinFormSchema),
     defaultValues: {
       name,
       email,
@@ -85,9 +87,7 @@ const EditBinForm = ({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold text-slate-700d">
-                  Name
-                </FormLabel>
+                <FormLabel className="font-bold text-slate-700">Name</FormLabel>
                 <FormControl>
                   <Input
                     disabled={isPending}
@@ -106,7 +106,7 @@ const EditBinForm = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold text-slate-700d">
+                <FormLabel className="font-bold text-slate-700">
                   Email
                 </FormLabel>
                 <FormControl>
@@ -128,12 +128,13 @@ const EditBinForm = ({
             disabled={isPending}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold text-slate-700d">
+                <FormLabel className="font-bold text-slate-700">
                   Faculty
                 </FormLabel>
                 <FormControl>
                   <FacultyComboBox disabled={isPending} field={field} />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -144,7 +145,7 @@ const EditBinForm = ({
             disabled={isPending}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold text-slate-700d">
+                <FormLabel className="font-bold text-slate-700">
                   Location
                 </FormLabel>
                 <FormControl>
@@ -155,6 +156,7 @@ const EditBinForm = ({
                     type="text"
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />

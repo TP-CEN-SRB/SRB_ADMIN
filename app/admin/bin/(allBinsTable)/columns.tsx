@@ -16,6 +16,8 @@ import Link from "next/link";
 import { deleteBin } from "@/app/action/bin";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { MdDeleteForever } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
 export type Bin = {
   id: string;
@@ -54,22 +56,23 @@ const BinActions = ({ bin }: { bin: Bin }) => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <Link href={`/admin/bin/update/${bin.id}`} passHref>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaEdit />
+            Edit
+          </DropdownMenuItem>
         </Link>
         <DropdownMenuItem onClick={() => onDelete(bin.id)}>
+          <MdDeleteForever />
           Delete
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="border-t-2 border-gray-200" />
-        <DropdownMenuItem>View Chart</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

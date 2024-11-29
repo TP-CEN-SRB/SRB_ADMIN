@@ -95,7 +95,7 @@ const UpdateBinForm = ({
   };
 
   return (
-    <Card rounded fullWidth>
+    <Card isAdmin rounded fullWidth>
       <FormHeader>Update Bin</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

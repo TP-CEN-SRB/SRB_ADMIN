@@ -45,6 +45,7 @@ import { Input } from "@/components/ui/input";
 import { FaPlusCircle } from "react-icons/fa";
 
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import ExportCSV from "./export-csv";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -162,12 +163,12 @@ export function DataTable<TData, TValue>({
             />
           </div>
           <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 flex items-center gap-2 text-gray-100">
+            <DropdownMenuTrigger className="bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 text-gray-50 flex items-center gap-x-2 text-sm">
               <FaPlusCircle />
-              Filters
+              Filter
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" side="bottom" align="end">
-              <DropdownMenuLabel>Statuses</DropdownMenuLabel>
+              <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
                 checked={showFunctional}
@@ -176,7 +177,7 @@ export function DataTable<TData, TValue>({
                 }
                 onSelect={(e) => e.preventDefault()}
               >
-                Functional
+                FUNCTIONAL
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={showUnderMaintenance}
@@ -185,9 +186,9 @@ export function DataTable<TData, TValue>({
                 }
                 onSelect={(e) => e.preventDefault()}
               >
-                Under Maintenance
+                UNDER MAINTENANCE
               </DropdownMenuCheckboxItem>
-              <DropdownMenuLabel>Materials</DropdownMenuLabel>
+              <DropdownMenuLabel>Material</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {materials.map((item, index) => (
                 <DropdownMenuCheckboxItem
@@ -203,6 +204,7 @@ export function DataTable<TData, TValue>({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          <ExportCSV data={data} />
         </div>
         <div className="rounded-md border">
           <Table>

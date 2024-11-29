@@ -25,6 +25,8 @@ import {
   TooltipContent,
 } from "@radix-ui/react-tooltip";
 import { useEffect, useState } from "react";
+import { FaEdit } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
 
 const MaterialActions = ({ material }: { material: BinMaterial }) => {
   const router = useRouter();
@@ -63,7 +65,7 @@ const MaterialActions = ({ material }: { material: BinMaterial }) => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
@@ -72,7 +74,10 @@ const MaterialActions = ({ material }: { material: BinMaterial }) => {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <Link href={`/admin/bin/material/update/${material.id}`} passHref>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaEdit />
+            Edit material
+          </DropdownMenuItem>
         </Link>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -82,7 +87,8 @@ const MaterialActions = ({ material }: { material: BinMaterial }) => {
                 className={hasBins ? "cursor-not-allowed opacity-50" : ""}
                 disabled={hasBins}
               >
-                Delete
+                <MdDeleteForever />
+                Delete material
               </DropdownMenuItem>
             </div>
           </TooltipTrigger>
