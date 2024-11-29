@@ -14,9 +14,11 @@ import ConfirmDeleteUserDialog from "../../Dialog/ConfirmDeleteUserDialog";
 import { FaCopy } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
+import { useRouter } from "next/navigation";
 
 const Actions = ({ data }: { data: Student }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
   return (
     <div>
       <ConfirmDeleteUserDialog
@@ -42,9 +44,11 @@ const Actions = ({ data }: { data: Student }) => {
             Copy admin number
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/user/${data.id}`)}
+          >
             <FaEye />
-            View user details
+            View user profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <MdDeleteForever /> Delete user

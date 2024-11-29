@@ -3,10 +3,17 @@ import { useIdle } from "@/hooks/use-idle";
 import Link from "next/link";
 import { FaRecycle } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa";
-import { FaCoins } from "react-icons/fa";
-import { IoSettings } from "react-icons/io5";
+import { FaPowerOff } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 import IdleVideo from "./Video/IdleVideo";
+import { useState } from "react";
+import SignOutDialog from "./Dialog/SignOutDialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 const HomeScreen = ({
   userId,
   role,
@@ -29,20 +36,6 @@ const HomeScreen = ({
       hoverColor: "hover:bg-indigo-600",
       icon: <FaTrash />,
     },
-    {
-      href: `/my-points`,
-      label: "My points",
-      color: "bg-amber-500",
-      hoverColor: "hover:bg-amber-600",
-      icon: <FaCoins />,
-    },
-    {
-      href: `/bin-settings`,
-      label: "Settings",
-      color: "bg-slate-500",
-      hoverColor: "hover:bg-slate-600",
-      icon: <IoSettings />,
-    },
   ];
   const adminButtons = [
     {
@@ -54,11 +47,12 @@ const HomeScreen = ({
     },
   ];
   const [isIdle] = useIdle(60000);
+  const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false);
 
   return isIdle && role === "BIN" ? (
     <IdleVideo />
   ) : (
-    <div className="bg-hero bg-cover bg-center antialiased">
+    <div className="bg-[var(--pastel-green)] antialiased">
       <div className="h-screen max-w-screen-lg flex items-center justify-center container mx-auto px-4">
         <div className="text-center max-w-screen-lg w-full">
           <h1 className="text-slate-800 mb-4">
@@ -69,11 +63,11 @@ const HomeScreen = ({
           </p>
           {role === "ADMIN" ? (
             <div className="flex justify-center">
-              <div className="max-w-screen-md w-full">
+              <div className="w-full">
                 {adminButtons.map((button, index) => (
                   <Link key={index} href={button.href}>
                     <button
-                      className={`${button.color} ${button.hoverColor} text-gray-50 lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
+                      className={`${button.color} ${button.hoverColor} text-gray-50  min-h-[100px] lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
                     >
                       {button.icon}
                       {button.label}
@@ -83,11 +77,35 @@ const HomeScreen = ({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 mb-8 min-h-[200px]">
+            <div className="flex flex-col gap-3 items-center justify-center">
+              <SignOutDialog
+                isOpen={isSignOutDialogOpen}
+                handleDialogOpen={() =>
+                  setSignOutDialogOpen(!isSignOutDialogOpen)
+                }
+              />
+              {role === "BIN" && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setSignOutDialogOpen(true)}
+                        className="absolute top-5 right-5 p-3 text-white bg-red-500 rounded-full"
+                      >
+                        <FaPowerOff size={30} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Sign out</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
               {binButtons.map((button, index) => (
-                <Link key={index} href={button.href}>
+                <Link className="w-full" key={index} href={button.href}>
                   <button
-                    className={`${button.color} ${button.hoverColor} text-gray-50 lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
+                    className={`${button.color} ${button.hoverColor} text-gray-50 min-h-[100px] lg:text-3xl md:text-2xl text-lg font-semibold py-4 rounded shadow-lg transition-colors h-full w-full flex items-center justify-center gap-x-3`}
                   >
                     {button.icon}
                     {button.label}

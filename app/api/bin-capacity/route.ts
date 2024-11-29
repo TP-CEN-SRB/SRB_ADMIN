@@ -18,17 +18,70 @@ export const GET = async (req: NextRequest) => {
         { status: 401 }
       );
     }
+
+    // Fetch bins with the necessary details
     const bins = await prisma.bin.findMany({
       select: {
-        binMaterial: { select: { name: true } },
+        id: true,
+        status: true,
         currentCapacity: true,
+        binMaterial: { select: { name: true } },
         user: { select: { location: true, id: true } },
       },
     });
-    if (!bins) {
+
+    if (!bins || bins.length === 0) {
       return NextResponse.json({ message: "No bins found!" }, { status: 404 });
     }
-    return NextResponse.json({ bins }, { status: 200 });
+
+    // Transform data to provide a more meaningful API response
+    const transformedBins = bins.map((bin) => ({
+      binId: bin.id,
+      material: bin.binMaterial.name,
+      currentCapacity: bin.currentCapacity,
+      status: bin.status,
+      location: bin.user.location,
+      userId: bin.user.id,
+    }));
+    type GroupedBins = {
+      [location: string]: {
+        location: string;
+        bins: {
+          binId: string;
+          material: string;
+          currentCapacity: number;
+          status: string;
+        }[];
+      };
+    };
+
+    const groupedBins = transformedBins.reduce<GroupedBins>((acc, bin) => {
+      // Ensure location exists and use "Unknown Location" if it's missing
+      const locationKey = bin.location || "Unknown Location";
+
+      // Initialize the group if it doesn't exist
+      if (!acc[locationKey]) {
+        acc[locationKey] = {
+          location: locationKey,
+          bins: [],
+        };
+      }
+
+      // Add the current bin to the corresponding location group
+      acc[locationKey].bins.push({
+        binId: bin.binId,
+        material: bin.material,
+        currentCapacity: bin.currentCapacity,
+        status: bin.status,
+      });
+
+      return acc;
+    }, {});
+
+    // Convert groupedBins object into an array format
+    const responseData = Object.values(groupedBins);
+
+    return NextResponse.json({ data: responseData }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(

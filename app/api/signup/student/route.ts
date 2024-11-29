@@ -3,17 +3,19 @@ import { sendVerificationEmail } from "@/lib/mail";
 import { generateVerificationToken } from "@/lib/tokens";
 import { SignUpStudentSchema } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { Role } from "@prisma/client";
+import { Faculty, Role } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const { name, email, password } = await req.json();
+    const { name, email, password, faculty } = await req.json();
+    const formattedFaculty = faculty.toUpperCase() as Faculty;
     const validatedFields = SignUpStudentSchema.safeParse({
       name,
       email,
       password,
+      faculty: formattedFaculty,
     });
     if (!validatedFields.success) {
       const errors = validatedFields.error.flatten();
@@ -41,6 +43,7 @@ export const POST = async (req: NextRequest) => {
         name: capitalizeFirstLetter(data.name),
         email: data.email,
         password: hashedPassword,
+        faculty: formattedFaculty,
         role: Role.STUDENT,
         point: {
           create: {},

@@ -83,29 +83,26 @@ export const getBinsByUserId = async (id: string) => {
   });
 };
 
-export const emptyBinsByUserId = async (
-  userId: string,
-  secondaryPassword: string
+export const getBinByUserIdAndMaterial = async (
+  id: string,
+  material: string
 ) => {
-  const binUser = await prisma.user.findUnique({
+  const bin = await prisma.bin.findFirst({
     where: {
-      id: userId,
+      binMaterial: {
+        name: material.toUpperCase(),
+      },
+      userId: id,
+    },
+    include: {
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
-  if (!binUser) return { error: "User not found!" };
-  const isMatched = await compare(
-    secondaryPassword,
-    binUser.secondaryPassword!
-  );
-  if (!isMatched) {
-    return { error: "Invalid password!" };
-  }
-  await prisma.bin.updateMany({
-    where: { userId: userId },
-    data: { currentCapacity: 0 },
-  });
-  revalidatePath("/bin-capacity");
-  return { success: "All bins emptied successfully!" };
+  return bin;
 };
 
 export const createBin = async (

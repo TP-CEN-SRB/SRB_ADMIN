@@ -112,6 +112,8 @@ export function DataTable<TData, TValue>({
     Object.entries(filters).forEach(([key, value]) => {
       if (value.length > 0) {
         params.set(key, `${value.join(",")}`);
+      } else {
+        params.delete(key);
       }
     });
     router.replace(`${path}?${params.toString()}`);

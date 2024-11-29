@@ -18,15 +18,16 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ControllerRenderProps } from "react-hook-form";
 import { z } from "zod";
-import { SignUpAdminSchema } from "@/schemas/auth";
 
-const FacultyComboBox = ({
+type FacultyComboBoxProps<T extends z.ZodTypeAny> = {
+  field: ControllerRenderProps<z.infer<T>>;
+  disabled: boolean;
+};
+
+const FacultyComboBox = <T extends z.ZodTypeAny>({
   field,
   disabled,
-}: {
-  field: ControllerRenderProps<z.infer<typeof SignUpAdminSchema>>;
-  disabled: boolean;
-}) => {
+}: FacultyComboBoxProps<T>) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(field.value || "");
 

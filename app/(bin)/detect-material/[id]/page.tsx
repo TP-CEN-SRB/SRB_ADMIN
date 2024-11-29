@@ -8,8 +8,8 @@ import { useRouter } from "next/navigation";
 import { BeatLoader } from "react-spinners";
 import { createDisposal } from "@/app/action/disposal";
 import TimerRedirect from "@/components/TimerRedirect";
-import { Button } from "@/components/ui/button";
 import { pusherClient } from "@/lib/pusher";
+import { getBinByUserIdAndMaterial } from "@/app/action/bin";
 
 const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [detecting, setDetecting] = useState(true);
@@ -21,6 +21,29 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    const checkIfBinIsInOrder = async () => {
+      if (material) {
+        const bin = await getBinByUserIdAndMaterial(params.id, material);
+        if (!bin) {
+          setDetecting(false);
+          setError("No bins found!");
+          return;
+        }
+        if (bin.currentCapacity === 100) {
+          setDetecting(false);
+          setError(`${bin.binMaterial.name} bin is already full!`);
+          return;
+        }
+        if (bin.status === "UNDER_MAINTENANCE") {
+          setDetecting(false);
+          setError(`${bin.binMaterial.name} bin is under maintenance!`);
+          return;
+        }
+      }
+    };
+    checkIfBinIsInOrder();
+  }, [params.id, material]);
   useEffect(() => {
     const handleDisposal = async () => {
       if (thrown === true && material && weightInGrams && binCapacity) {
@@ -79,11 +102,6 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
     return () => pusherClient.unsubscribe(`detect-material-${params.id}`);
   }, [material, weightInGrams, thrown, params.id, router]);
 
-  const handleCancel = () => {
-    setDetecting(false);
-    setError("Cancelling detection process. Please wait");
-  };
-
   return (
     <Card rounded>
       <div className="flex flex-col items-center justify-center gap-y-3 mb-6">
@@ -116,24 +134,21 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
           )}
         </div>
       )}
-      {error && <TimerRedirect delayInMs={3000} redirectTo="/" />}
+      {error && (
+        <TimerRedirect
+          delayInMs={3000}
+          redirectTo={`/dispose-steps/${params.id}`}
+        />
+      )}
       {!error &&
         !thrown &&
         weightInGrams === undefined &&
         binCapacity === undefined && (
-          <TimerRedirect delayInMs={90000} redirectTo="/" />
+          <TimerRedirect
+            delayInMs={45000}
+            redirectTo={`/dispose-steps/${params.id}`}
+          />
         )}
-      {!error && detecting && (
-        <div className="flex justify-center mt-4">
-          <Button
-            onClick={handleCancel}
-            type="submit"
-            className="bg-red-500 hover:bg-red-600 text-gray-50 text-xl font-semibold py-6 px-6 min-w-56 rounded-full transition-all"
-          >
-            Cancel
-          </Button>
-        </div>
-      )}
     </Card>
   );
 };

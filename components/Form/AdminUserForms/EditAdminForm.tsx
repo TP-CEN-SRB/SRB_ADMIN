@@ -48,16 +48,16 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
       const data = await updateAdmin(values);
       setError(data?.error as string);
       if (!data?.error && data?.success !== undefined) {
+        router.push("/admin/profile");
         toast({
           title: "Success!",
           description: `Your profile has been updated!`,
         });
-        router.push("/admin/profile");
       }
     });
   };
   return (
-    <Card rounded fullWidth>
+    <Card isAdmin rounded fullWidth>
       <FormHeader>Update profile</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
