@@ -24,6 +24,7 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TableFilter from "./filter";
 import InputFilter from "./input-filter";
 import SortByFilter from "./sortBy";
+import ExportCSV from "./export-csv";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -141,6 +142,7 @@ export function DataTable<TData, TValue>({
           onApplyFilter={handleApplyFilter}
           onResetFilter={handleResetFilter}
         />
+        <ExportCSV data={data} />
       </div>
       <div className="rounded-md border">
         <Table>

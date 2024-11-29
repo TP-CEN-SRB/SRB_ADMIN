@@ -6,7 +6,6 @@ import { FaSort } from "react-icons/fa";
 import { FaLongArrowAltUp } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { MdVerified } from "react-icons/md";
 import { MdGppBad } from "react-icons/md";
 import Actions from "./actions";

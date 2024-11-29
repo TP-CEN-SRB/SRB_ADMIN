@@ -383,10 +383,10 @@ const deleteBinUser = async (id: string) => {
 };
 
 const getAllStudentUsers = async (
-  page: number,
+  page: number | null,
   query: string | null,
-  sortOrder: string,
-  sortItem: string,
+  sortOrder: string | undefined,
+  sortItem: string | undefined,
   emailType: string | null,
   faculty: string | null
 ) => {
@@ -396,7 +396,7 @@ const getAllStudentUsers = async (
   }
   const sortableEntities = ["point", "disposal"];
   const allowedEmailTypes = ["verified", "non-verified"];
-  const pageCondition = page < 0;
+  const pageCondition = page != null && page < 0;
   const sortOrderCondition =
     sortOrder !== undefined && sortOrder !== "asc" && sortOrder != "desc";
   const sortItemCondition =
@@ -463,8 +463,8 @@ const getAllStudentUsers = async (
             : undefined,
         faculty: faculty ? { in: faculty.split(",") as Faculty[] } : undefined,
       },
-      take: 10,
-      skip: (page - 1) * 10,
+      take: page ? 10 : undefined,
+      skip: page ? (page - 1) * 10 : 0,
       orderBy:
         sortItem === "disposal"
           ? { disposals: { _count: sortOrder } }
