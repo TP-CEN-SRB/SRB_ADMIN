@@ -12,7 +12,8 @@ export const ACCEPTED_IMAGE_TYPES = [
 const BinSchema = z.object({
   location: z
     .string()
-    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
+    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
+    .min(2, "Location is too short"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   materialIds: z
     .array(z.string())

@@ -33,13 +33,13 @@ interface UpdateBinFormProps {
   binMaterialName: string;
 }
 
-const UpdateBinForm: React.FC<UpdateBinFormProps> = ({
+const UpdateBinForm = ({
   id,
   initialData,
   materials,
   location,
   binMaterialName,
-}) => {
+}: UpdateBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const [error, setError] = useState("");
