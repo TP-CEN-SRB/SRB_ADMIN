@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BsFillBarChartFill } from "react-icons/bs";
-import { enableNav } from "@/utils/enableNav";
 import { usePathname } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
@@ -43,7 +42,7 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { useState } from "react";
-import { MdLeaderboard } from "react-icons/md";
+import SignOutDialog from "./Dialog/SignOutDialog";
 
 const collaspeItems = [
   {
@@ -143,6 +142,7 @@ const dropdownItems = [
 
 export function AppSidebar({ email }: { email: string | null | undefined }) {
   const path = usePathname();
+  const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false);
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
 
   const handleToggle = (index: number) => {
@@ -151,7 +151,11 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
     );
   };
   return (
-    enableNav.some((route) => path.startsWith(route)) && (
+    <>
+      <SignOutDialog
+        isOpen={isSignOutDialogOpen}
+        handleDialogOpen={() => setSignOutDialogOpen(!isSignOutDialogOpen)}
+      />
       <Sidebar>
         <SidebarHeader>
           <SidebarMenu className="p-4">
@@ -234,15 +238,14 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                   ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <form action={logout}>
-                      <button
-                        className="flex items-center gap-x-2"
-                        type="submit"
-                      >
-                        <PiSignOutBold />
-                        Log out
-                      </button>
-                    </form>
+                    <button
+                      onClick={() => setSignOutDialogOpen(true)}
+                      className="flex items-center gap-x-2"
+                      type="submit"
+                    >
+                      <PiSignOutBold />
+                      Log out
+                    </button>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -250,6 +253,6 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-    )
+    </>
   );
 }

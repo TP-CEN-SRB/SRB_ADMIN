@@ -97,6 +97,7 @@ const EditStudentForm = ({
                 </FormLabel>
                 <FormControl>
                   <Input
+                    disabled={isPending}
                     placeholder="johndoe@tp.edu.sg"
                     {...field}
                     type="email"

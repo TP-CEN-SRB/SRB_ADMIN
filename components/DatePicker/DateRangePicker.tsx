@@ -25,6 +25,7 @@ interface DatePickerProps {
   startYear?: number;
   endYear?: number;
   className?: string;
+  initialDate?: DateRange;
   onDateChange: (dateRange: DateRange | undefined) => void;
   disabled?: boolean;
 }
@@ -33,10 +34,11 @@ export default function DateRangePicker({
   endYear = getYear(new Date()) + 100,
   className,
   onDateChange,
+  initialDate = undefined,
   disabled = false,
 }: DatePickerProps) {
   const years = getYears(startYear, endYear);
-  const [date, setDate] = React.useState<DateRange | undefined>();
+  const [date, setDate] = React.useState<DateRange | undefined>(initialDate);
   const [calendarMonth, setCalendarMonth] = React.useState<number>(
     getMonth(new Date())
   );

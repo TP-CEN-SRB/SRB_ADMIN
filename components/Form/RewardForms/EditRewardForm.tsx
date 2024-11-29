@@ -2,7 +2,7 @@
 import React, { useTransition, useState, ChangeEvent } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
+import { date, z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {
@@ -19,37 +19,53 @@ import FormHeader from "@/components/Form/FormHeader";
 import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas";
-import { createReward } from "@/app/action/reward";
+import { updateReward } from "@/app/action/reward";
 import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
 import DateRangePicker from "@/components/DatePicker/DateRangePicker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Reward } from "@prisma/client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
-
-const CreateRewardForm = () => {
+interface RewardProps {
+  reward: Reward;
+}
+const EditRewardForm = ({ reward }: RewardProps) => {
   const form = useForm<z.infer<typeof RewardSchema>>({
     resolver: zodResolver(RewardSchema),
     defaultValues: {
-      isExistingImage: false,
-      isCustomDateRange: false,
-      pointsRequired: undefined,
-      image: undefined,
-      isAvailable: true,
+      name: reward.name,
+      pointsRequired: reward.pointsRequired,
+      description: reward.description,
+      isCustomDateRange: reward.startDate !== null && reward.endDate !== null,
+      isExistingImage: true,
+      isAvailable: reward.isAvailable,
+      dates: {
+        from: reward.startDate ?? undefined,
+        to: reward.endDate ?? undefined,
+      },
     },
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>();
   const [croppedFile, setCroppedFile] = useState<File | null>(null);
+
+  const isExistingImage = useWatch({
+    control: form.control,
+    name: "isExistingImage",
+  });
   const isCustomDateRange = useWatch({
     control: form.control,
     name: "isCustomDateRange",
-    defaultValue: false,
+    defaultValue: reward.startDate !== null && reward.endDate !== null,
   });
 
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const router = useRouter();
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
     startTransition(async () => {
       const formData = new FormData();
@@ -66,23 +82,20 @@ const CreateRewardForm = () => {
         });
         formData.append("dates", dateData);
       }
-      if (!croppedFile) {
+      if (!croppedFile && !values.isExistingImage) {
         setError("Please select an image");
         return;
       }
-      formData.set("image", croppedFile);
-      const data = await createReward(formData);
+      if (croppedFile && !values.isExistingImage) {
+        formData.set("image", croppedFile);
+      }
+      const data = await updateReward(reward.id, formData);
       setError(data?.error as string);
-      setSuccess(data?.success as string);
-      if (data?.success) {
-        setCroppedFile(null);
-        setImagePreview(null);
-        form.reset({
-          name: "",
-          pointsRequired: 0,
-          description: "",
-          isExistingImage: false,
-          isCustomDateRange: false,
+      if (!data?.error && data?.success !== undefined) {
+        router.push("/admin/reward");
+        toast({
+          title: "Success!",
+          description: `${data.success}`,
         });
       }
     });
@@ -124,7 +137,7 @@ const CreateRewardForm = () => {
         image={imagePreview as string}
         onDialogClose={handleDialogClose}
       />
-      <FormHeader>Add a reward</FormHeader>
+      <FormHeader>Update reward</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex flex-wrap gap-3">
@@ -198,7 +211,7 @@ const CreateRewardForm = () => {
                   </FormLabel>
                   <FormControl>
                     <Input
-                      disabled={isPending}
+                      disabled={isPending || isExistingImage}
                       placeholder="Select a image for the reward"
                       {...field}
                       type="file"
@@ -208,33 +221,45 @@ const CreateRewardForm = () => {
                       }}
                     />
                   </FormControl>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={form.watch("isExistingImage")}
+                      onCheckedChange={(value) =>
+                        form.setValue("isExistingImage", value as boolean)
+                      }
+                      id="existingImage"
+                    />
+                    <label htmlFor="existingImage" className="text-sm">
+                      Use existing image
+                    </label>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="isAvailable"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="font-bold text-slate-700">
-                    Availability
-                  </FormLabel>
-                  <div className="flex flex-row gap-3 items-center justify-between rounded-lg border p-4 w-full">
-                    <FormDescription>
-                      Enable the reward to be used now
-                    </FormDescription>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </div>
-                </FormItem>
-              )}
-            />
           </div>
+          <FormField
+            control={form.control}
+            name="isAvailable"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Availability
+                </FormLabel>
+                <div className="flex flex-row gap-3 items-center justify-between rounded-lg border p-4 w-full">
+                  <FormDescription>
+                    Enable the reward to be used now
+                  </FormDescription>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
           <FormItem>
             <FormLabel className="font-bold text-slate-700">
               Reward Duration
@@ -270,6 +295,10 @@ const CreateRewardForm = () => {
                     <DateRangePicker
                       disabled={isPending}
                       className="w-full"
+                      initialDate={{
+                        from: reward.startDate ?? undefined,
+                        to: reward.endDate ?? undefined,
+                      }}
                       onDateChange={(dateRange) => {
                         if (dateRange?.from && dateRange?.to) {
                           field.onChange({
@@ -289,9 +318,6 @@ const CreateRewardForm = () => {
           )}
 
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
-          {success && (
-            <CustomFormMessage type="Success">{success}</CustomFormMessage>
-          )}
           <Button
             disabled={isPending}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
@@ -306,4 +332,4 @@ const CreateRewardForm = () => {
   );
 };
 
-export default CreateRewardForm;
+export default EditRewardForm;

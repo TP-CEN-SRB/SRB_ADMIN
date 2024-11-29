@@ -26,7 +26,7 @@ const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({
-    emailType: [searchParams.get("emailVerified") as string],
+    emailType: (searchParams.get("emailType")?.split(",") as string[]) || [],
     faculty: (searchParams.get("faculty")?.split(",") as string[]) || [],
   });
 
