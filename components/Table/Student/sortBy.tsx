@@ -81,6 +81,24 @@ const SortByFilter = ({ onApplySortBy, onResetSortBy }: SortByFilterProps) => {
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuLabel>Redemptions</DropdownMenuLabel>
+        <DropdownMenuRadioGroup value={sortType} onValueChange={setSortType}>
+          <DropdownMenuRadioItem
+            onSelect={(e) => e.preventDefault()}
+            value="redemption-asc"
+          >
+            <HiSortAscending />
+            Ascending
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem
+            onSelect={(e) => e.preventDefault()}
+            value="redemption-desc"
+          >
+            <HiSortDescending />
+            Descending
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+        <DropdownMenuSeparator />
         <DropdownMenuGroup className="flex gap-x-3">
           <Button
             onClick={handleResetSortBy}

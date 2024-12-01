@@ -21,9 +21,13 @@ import { FaEdit } from "react-icons/fa";
 
 export type Bin = {
   id: string;
+  currentCapacity: number;
+  _count: { disposals: number };
   user: { name: string | null; location: string | null };
   status: BinStatus;
   binMaterial: { name: string };
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 const BinActions = ({ bin }: { bin: Bin }) => {
@@ -66,12 +70,12 @@ const BinActions = ({ bin }: { bin: Bin }) => {
         <Link href={`/admin/bin/update/${bin.id}`} passHref>
           <DropdownMenuItem>
             <FaEdit />
-            Edit
+            Edit bin
           </DropdownMenuItem>
         </Link>
         <DropdownMenuItem onClick={() => onDelete(bin.id)}>
           <MdDeleteForever />
-          Delete
+          Delete bin
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -118,6 +122,19 @@ export const columns: ColumnDef<Bin>[] = [
     id: "username",
     accessorKey: "user.name",
     header: "Name",
+  },
+  {
+    id: "capacity",
+    accessorKey: "currentCapacity",
+    header: "Bin Capacity",
+    cell: ({ row }) => {
+      return <div>{row.original.currentCapacity.toFixed(2)}%</div>;
+    },
+  },
+  {
+    id: "disposals",
+    header: "Disposals",
+    accessorKey: "_count.disposals",
   },
   {
     id: "actions",

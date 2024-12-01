@@ -27,7 +27,7 @@ import { MdDeleteForever, MdOutlineBarChart } from "react-icons/md";
 
 export type BinManager = {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
 };
 

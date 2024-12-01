@@ -423,7 +423,7 @@ const getAllStudentUsers = async (
   if (!sessionUser || sessionUser.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
-  const sortableEntities = ["point", "disposal"];
+  const sortableEntities = ["disposal", "point", "redemption"];
   const allowedEmailTypes = ["verified", "non-verified"];
   const pageCondition = page != null && page < 0;
   const sortOrderCondition =
@@ -495,10 +495,12 @@ const getAllStudentUsers = async (
       take: page ? 10 : undefined,
       skip: page ? (page - 1) * 10 : 0,
       orderBy:
-        sortItem === "disposal"
+        sortItem === sortableEntities[0]
           ? { disposals: { _count: sortOrder } }
-          : sortItem === "point"
+          : sortItem === sortableEntities[1]
           ? { point: { balance: sortOrder } }
+          : sortItem === sortableEntities[2]
+          ? { redemptions: { _count: sortOrder } }
           : { createdAt: "desc" },
       select: {
         id: true,
@@ -507,7 +509,9 @@ const getAllStudentUsers = async (
         emailVerified: true,
         faculty: true,
         point: { select: { balance: true } },
-        _count: { select: { disposals: true } },
+        _count: { select: { disposals: true, redemptions: true } },
+        createdAt: true,
+        updatedAt: true,
       },
     }),
   ]);
@@ -559,7 +563,7 @@ const updateStudent = async (
       point: { update: { balance: points } },
     },
   });
-  revalidatePath("/admin/profile");
+  revalidatePath("/admin/user");
   return { success: `User ${updatedUser.id} successfully updated` };
 };
 

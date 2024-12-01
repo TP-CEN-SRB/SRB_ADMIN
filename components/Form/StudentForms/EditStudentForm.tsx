@@ -1,5 +1,5 @@
 "use client";
-import { SignUpStudentSchema, UpdateStudentSchema } from "@/schemas/auth";
+import { UpdateStudentSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
