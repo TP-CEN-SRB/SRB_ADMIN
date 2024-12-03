@@ -34,8 +34,8 @@ enum Role {
 }
 
 model User {
-  id            String       @id @default(uuid())
-  email         String       @unique
+  id            String        @id @default(uuid())
+  email         String        @unique
   emailVerified DateTime?
   password      String
   name          String?
@@ -44,6 +44,7 @@ model User {
   disposals     Disposal[]
   bins          Bin[]
   redemptions   Redemption[]
+  subscription  Subscription?
   point         Point?
   location      String? // Outside library
 
@@ -144,8 +145,8 @@ model Reward {
   startDate DateTime?
   endDate   DateTime?
 
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   redemptions Redemption[]
 
   @@map("rewards")
@@ -162,4 +163,16 @@ model Redemption {
   updatedAt DateTime @updatedAt
 
   @@map("redemptions")
+}
+
+model Subscription {
+  id           String  @id @default(uuid())
+  isSubscribed Boolean @default(true)
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("subscriptions")
 }
