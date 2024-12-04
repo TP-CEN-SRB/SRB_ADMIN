@@ -567,6 +567,74 @@ const updateStudent = async (
   return { success: `User ${updatedUser.id} successfully updated` };
 };
 
+const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
+  const data = await prisma.point.groupBy({
+    by: ["userId", "balance"],
+    where: {
+      user: {
+        role: "STUDENT" as Role,
+      },
+      createdAt: {
+        gte: dateFrom ?? undefined,
+        lte: dateTo ?? undefined,
+      },
+    },
+    orderBy: {
+      balance: "desc", // Order by the count of points, descending
+    },
+    take: 10, // Get the top 10 users
+  });
+  const userIds = data.map((user) => user.userId); // Extract the user IDs in order
+
+  const userDisposals = await prisma.disposal.groupBy({
+    by: ["userId"],
+    _count: {
+      id: true, // Count disposals
+    },
+    where: {
+      userId: {
+        in: userIds, // Filter by the top user IDs
+      },
+    },
+  });
+
+  const userRedemptions = await prisma.redemption.groupBy({
+    by: ["userId"],
+    _count: {
+      id: true,
+    },
+    where: {
+      userId: {
+        in: userIds, // Filter by the top user IDs
+      },
+    },
+  });
+
+  const orderedDisposals = await Promise.all(
+    userIds.map(async (userId) => {
+      const disposal = userDisposals.find((d) => d.userId === userId);
+      const name = await prisma.user.findUnique({
+        where: {
+          id: userId,
+        },
+        select: {
+          name: true,
+          id: true,
+        },
+      });
+      return {
+        username: name?.name || undefined,
+        userId: name?.id || undefined,
+        balance: data.find((d) => d.userId === userId)?.balance || 0, // Include balance or 0 if no balance
+        disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
+        redemptionCount: userRedemptions.find((r) => r.userId === userId) || 0,
+      };
+    })
+  );
+
+  return orderedDisposals;
+};
+
 export {
   signUp,
   signUpBin,
@@ -583,4 +651,5 @@ export {
   getAllStudentUsers,
   deleteUser,
   updateStudent,
+  getTopTenUsers,
 };
