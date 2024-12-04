@@ -75,6 +75,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const email = formData.email;
   const password = formData.password;
   const location = formData.location;
+  const faculty = formData.faculty;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
   });
@@ -87,6 +88,8 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       name: name,
       email: email,
       emailVerified: new Date(), // automatically verify bin user
+      location: location,
+      faculty: faculty,
       role: Role.BIN,
       password: hashedPassword,
     },

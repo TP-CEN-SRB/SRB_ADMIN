@@ -52,6 +52,7 @@ const SignUpBinSchema = z.object({
     .email("Please enter a valid email address")
     .endsWith("@tp.bin.sg", "Please ensure your bin ends with @tp.bin.sg")
     .toLowerCase(),
+  faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
   password: z
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")

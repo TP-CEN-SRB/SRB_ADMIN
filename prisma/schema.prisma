@@ -38,15 +38,15 @@ model User {
   email         String        @unique
   emailVerified DateTime?
   password      String
-  name          String?
-  faculty       Faculty?
+  name          String
+  faculty       Faculty
   role          Role
   disposals     Disposal[]
   bins          Bin[]
   redemptions   Redemption[]
   subscription  Subscription?
   point         Point?
-  location      String? // Outside library
+  location      String?       @unique // Outside library
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

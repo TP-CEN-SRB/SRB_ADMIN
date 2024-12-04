@@ -9,6 +9,7 @@ const userData: Prisma.UserCreateInput[] = [
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
+    faculty: "ENGINEERING",
     location: "Library",
     bins: {
       createMany: {

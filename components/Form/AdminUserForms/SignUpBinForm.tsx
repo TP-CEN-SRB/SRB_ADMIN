@@ -21,6 +21,7 @@ import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import { useRouter } from "next/navigation";
 import Card from "@/components/Card/Card";
 import { signUpBin } from "@/app/action/user";
+import FacultyComboBox from "../AuthForms/FacultyCombobox";
 
 const SignUpBinForm = () => {
   const router = useRouter();
@@ -85,6 +86,21 @@ const SignUpBinForm = () => {
                     {...field}
                     type="email"
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="faculty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Faculty
+                </FormLabel>
+                <FormControl>
+                  <FacultyComboBox disabled={isPending} field={field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
