@@ -28,9 +28,9 @@ interface StatsGridProps {
 }
 
 interface IState {
-  totalBins: number;
-  totalDisposals: number;
   totalFunctionalBins: number;
+  totalDisposals: number;
+  totalBins: number;
   totalUMBins: number;
 }
 
@@ -41,9 +41,9 @@ interface IAction {
 
 const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
   const initialState: IState = {
-    totalBins: initialStatsData[0],
+    totalFunctionalBins: initialStatsData[0],
     totalDisposals: initialStatsData[1],
-    totalFunctionalBins: initialStatsData[2],
+    totalBins: initialStatsData[2],
     totalUMBins: initialStatsData[3],
   };
 
@@ -52,9 +52,9 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
       case "UPDATE_STATS":
         return {
           ...state,
-          totalBins: action.values![0],
+          totalFunctionalBins: action.values![0],
           totalDisposals: action.values![1],
-          totalFunctionalBins: action.values![2],
+          totalBins: action.values![2],
           totalUMBins: action.values![3],
         };
       case "RESET_STATS":
@@ -65,9 +65,9 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
   };
 
   const [state, dispatch] = useReducer(statsReducer, {
-    totalBins: initialStatsData[1],
-    totalDisposals: initialStatsData[2],
     totalFunctionalBins: initialStatsData[0],
+    totalDisposals: initialStatsData[1],
+    totalBins: initialStatsData[2],
     totalUMBins: initialStatsData[3],
   });
 
