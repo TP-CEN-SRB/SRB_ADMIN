@@ -70,22 +70,29 @@ const binMaterialData: Prisma.BinMaterialCreateInput[] = [
   },
 ];
 
-// const rewardsData: Prisma.RewardCreateInput[] = [
-//   {
-//     name: "flappy bird",
-//     pointsRequired: 100,
-//     description: "big stuff toy bird",
-//     isAvailable: true,
-//     image: "https://utfs.io/f/oCGZ90SRbWap5Ojx6jc1SjwIuQeqVB9Oop2mt3GkNXdZiWc7",
-//   },
-//   {
-//     name: "flappy bird head",
-//     pointsRequired: 50,
-//     description: "no body no wing, only the head!",
-//     isAvailable: true,
-//     image: "https://utfs.io/f/oCGZ90SRbWaptKqtKP9epDWxdTiRN82OruAqJZBz3Syskfgn",
-//   },
-// ];
+const rewardsData: Prisma.RewardCreateInput[] = [
+  {
+    name: "Thermo Flask",
+    pointsRequired: 100,
+    description: "Water bottle that can keep your water cold for 24 hours",
+    isAvailable: true,
+    image: "https://utfs.io/f/oCGZ90SRbWapL2uLFIplCE3Zanesr5UxFyJfNVqiIzkOjDvX",
+  },
+  {
+    name: "$10 Voucher",
+    pointsRequired: 100,
+    description: "$10 Voucher for any purchase",
+    isAvailable: true,
+    image: "https://utfs.io/f/oCGZ90SRbWapvpFBCziJ9wlydo0JqmYXNfAeHBbSGzO8U1Zg",
+  },
+  {
+    name: "$5 Voucher",
+    pointsRequired: 50,
+    description: "$5 Voucher for any purchase",
+    isAvailable: true,
+    image: "https://utfs.io/f/oCGZ90SRbWapNPIZsn3lfDP1q9EKkgxoQhystSaZBMvCm0Fu",
+  },
+];
 
 async function main() {
   for (const data of binMaterialData) {
@@ -98,11 +105,11 @@ async function main() {
       data: data,
     });
   }
-  // for (const data of rewardsData) {
-  //   const reward = await prisma.reward.create({
-  //     data: data,
-  //   });
-  // }
+  for (const data of rewardsData) {
+    const reward = await prisma.reward.create({
+      data: data,
+    });
+  }
 }
 
 main()
