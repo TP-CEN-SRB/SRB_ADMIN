@@ -53,6 +53,8 @@ const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
   const topThree = leaderBoardData.slice(0, 3);
   const [isActive, setIsActive] = React.useState("week");
   const [filterChange, setFilterChange] = React.useState(false);
+  if (filterChange) {
+  }
   return (
     <div className="p-4 w-full">
       <div className="flex flex-col w-full justify-center text-center items-center gap-4 py-4">
