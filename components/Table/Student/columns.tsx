@@ -21,7 +21,10 @@ export type Student = {
   } | null;
   _count: {
     disposals: number;
+    redemptions: number;
   };
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 const handleClick = (column: Column<Student, unknown>) => {
@@ -119,6 +122,24 @@ export const columns: ColumnDef<Student>[] = [
     },
     accessorKey: "_count.disposals",
     cell: ({ row }) => row.original._count?.disposals ?? 0,
+  },
+  {
+    header: ({ column }) => {
+      return (
+        <div className="flex items-center gap-x-3">
+          Redemptions
+          <Button
+            variant="ghost"
+            className="hover:bg-gray-300"
+            onClick={() => handleClick(column)}
+          >
+            <SortIcon column={column} />
+          </Button>
+        </div>
+      );
+    },
+    accessorKey: "_count.redemptions",
+    cell: ({ row }) => row.original._count?.redemptions ?? 0,
   },
   {
     header: "Actions",

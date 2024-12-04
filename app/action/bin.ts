@@ -197,6 +197,7 @@ export const updateBin = async (
           },
         }),
       ]);
+      revalidatePath("/admin/bin");
       return {
         success: `Bin updated successfully, Bin ID: ${id}`,
       };
@@ -491,6 +492,10 @@ export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
     select: {
       id: true,
       status: true,
+      currentCapacity: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: { select: { disposals: true } },
       user: {
         select: {
           name: true,

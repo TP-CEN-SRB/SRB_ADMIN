@@ -83,7 +83,7 @@ const CreateBinForm = ({
   };
 
   return (
-    <Card rounded fullWidth>
+    <Card isAdmin rounded fullWidth>
       <FormHeader>Create a bin</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

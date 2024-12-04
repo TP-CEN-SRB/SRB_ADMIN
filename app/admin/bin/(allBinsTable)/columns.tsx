@@ -16,12 +16,18 @@ import Link from "next/link";
 import { deleteBin } from "@/app/action/bin";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { MdDeleteForever } from "react-icons/md";
+import { FaEdit } from "react-icons/fa";
 
 export type Bin = {
   id: string;
+  currentCapacity: number;
+  _count: { disposals: number };
   user: { name: string | null; location: string | null };
   status: BinStatus;
   binMaterial: { name: string };
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 const BinActions = ({ bin }: { bin: Bin }) => {
@@ -54,22 +60,23 @@ const BinActions = ({ bin }: { bin: Bin }) => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <Link href={`/admin/bin/update/${bin.id}`} passHref>
-          <DropdownMenuItem>Edit</DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaEdit />
+            Edit bin
+          </DropdownMenuItem>
         </Link>
         <DropdownMenuItem onClick={() => onDelete(bin.id)}>
-          Delete
+          <MdDeleteForever />
+          Delete bin
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="border-t-2 border-gray-200" />
-        <DropdownMenuItem>View Chart</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -115,6 +122,19 @@ export const columns: ColumnDef<Bin>[] = [
     id: "username",
     accessorKey: "user.name",
     header: "Name",
+  },
+  {
+    id: "capacity",
+    accessorKey: "currentCapacity",
+    header: "Bin Capacity",
+    cell: ({ row }) => {
+      return <div>{row.original.currentCapacity.toFixed(2)}%</div>;
+    },
+  },
+  {
+    id: "disposals",
+    header: "Disposals",
+    accessorKey: "_count.disposals",
   },
   {
     id: "actions",

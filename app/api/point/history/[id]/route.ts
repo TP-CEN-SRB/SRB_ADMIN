@@ -67,7 +67,7 @@ export const GET = async (
       type: "DISPOSAL",
       points: disposal.pointsAwarded,
       description: `Points awarded for disposal (${disposal.weightInGrams} grams)`,
-      date: disposal.createdAt,
+      date: disposal.createdAt.toISOString().split("T")[0], // Group by date (YYYY-MM-DD)
     }));
 
     // Map redemption history to a common format
@@ -75,8 +75,8 @@ export const GET = async (
       id: redemption.id,
       type: "REDEMPTION",
       points: -redemption.reward.pointsRequired,
-      description: `Redeemed reward: ${redemption.reward.name}`,
-      date: redemption.createdAt,
+      description: redemption.reward.name,
+      date: redemption.createdAt.toISOString().split("T")[0], // Group by date (YYYY-MM-DD)
       reward: {
         name: redemption.reward.name,
         description: redemption.reward.description,
@@ -85,13 +85,27 @@ export const GET = async (
     }));
 
     // Combine disposal and redemption history
-    const pointsHistory = [...disposalHistory, ...redemptionHistory].sort(
-      (a, b) => {
-        return b.date.getTime() - a.date.getTime();
+    const combinedHistory = [...disposalHistory, ...redemptionHistory];
+
+    // Group the history by date
+    const groupedHistory = combinedHistory.reduce((acc, entry) => {
+      if (!acc[entry.date]) {
+        acc[entry.date] = [];
       }
-    );
-    // Return the combined history
-    return NextResponse.json({ history: pointsHistory }, { status: 200 });
+      acc[entry.date].push(entry);
+      return acc;
+    }, {} as Record<string, typeof combinedHistory>);
+
+    // Return the grouped history as an array of objects
+    const groupedHistoryArray = Object.keys(groupedHistory).map((date) => ({
+      date,
+      entries: groupedHistory[date],
+    }));
+
+    // Sort the grouped history by date (descending)
+    groupedHistoryArray.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return NextResponse.json({ history: groupedHistoryArray }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(

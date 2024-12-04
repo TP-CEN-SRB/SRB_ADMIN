@@ -76,7 +76,7 @@ const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
   };
 
   return (
-    <Card rounded fullWidth>
+    <Card isAdmin rounded fullWidth>
       <FormHeader>Update Material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -98,7 +98,11 @@ const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
               </FormItem>
             )}
           />
-          <Button disabled={isPending} className="w-full" type="submit">
+          <Button
+            disabled={isPending}
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            type="submit"
+          >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}
           </Button>

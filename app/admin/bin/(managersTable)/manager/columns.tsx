@@ -22,10 +22,12 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
+import { FaEdit, FaPlus } from "react-icons/fa";
+import { MdDeleteForever, MdOutlineBarChart } from "react-icons/md";
 
 export type BinManager = {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
 };
 
@@ -70,7 +72,7 @@ const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
           <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
@@ -78,12 +80,17 @@ const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <Link href={`/admin/bin/manager/update/${binManager.id}`} passHref>
-          <DropdownMenuItem>Edit Manager</DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaEdit />
+            Edit manager
+          </DropdownMenuItem>
         </Link>
         <Link href={`/admin/bin/create/${binManager.id}`} passHref>
-          <DropdownMenuItem>Create Bin</DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaPlus />
+            Create bin
+          </DropdownMenuItem>
         </Link>
-        <DropdownMenuSeparator />
         <Tooltip>
           <TooltipTrigger asChild>
             <div>
@@ -92,14 +99,16 @@ const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
                 className={hasBins ? "cursor-not-allowed opacity-50" : ""}
                 disabled={hasBins}
               >
-                Delete
+                <MdDeleteForever />
+                Delete bin
               </DropdownMenuItem>
             </div>
           </TooltipTrigger>
           {hasBins && (
             <TooltipContent
-              side="bottom"
-              align="center"
+              side="left"
+              align="start"
+              sideOffset={10}
               className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
             >
               <div className="flex items-start space-x-2">
@@ -127,6 +136,14 @@ const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
             </TooltipContent>
           )}
         </Tooltip>
+        <DropdownMenuSeparator />
+
+        <Link href={`/admin/bin/manager/${binManager.id}`} passHref>
+          <DropdownMenuItem>
+            <MdOutlineBarChart />
+            View bin capacity
+          </DropdownMenuItem>
+        </Link>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,11 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation"; // Import useRouter
-import { BinMaterialSchema, UpdateBinSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useTransition, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import Card from "@/components/Card/Card";
+import React, { useState, useTransition } from "react";
+import FormHeader from "../FormHeader";
 import {
   Form,
   FormControl,
@@ -14,32 +11,22 @@ import {
   FormLabel,
   FormMessage,
 } from "../../ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "../../ui/button";
-import { Loader2 } from "lucide-react";
+import { BinMaterialSchema } from "@/schemas";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { Bin, BinMaterial } from "@prisma/client";
-import Card from "@/components/Card/Card";
-import FormHeader from "../FormHeader";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { createBinMaterial } from "@/app/action/binMaterial";
+import CustomFormMessage from "../CustomFormMessage";
 
-interface UpdateBinFormProps {
-  id: string;
-  initialData: Bin;
-  materials: BinMaterial[];
-}
-
-const CreateBinMaterialForm = ({
-  id,
-  initialData,
-  materials,
-}: UpdateBinFormProps) => {
+const CreateBinMaterialForm = () => {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const router = useRouter(); // Initialize useRouter
-
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof BinMaterialSchema>>({
     resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
@@ -50,46 +37,38 @@ const CreateBinMaterialForm = ({
   const onSubmit = (values: z.infer<typeof BinMaterialSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
-      hour12: false,
+      hour12: false, // 24-hour format, remove if 12-hour format is needed
     });
-
     startTransition(async () => {
       setError("");
-      try {
-        const result = await createBinMaterial(values);
-        if (result?.success) {
-          setSuccess(result.success);
-          toast({
-            title: "Success",
-            description: `Bin updated at ${datetime}`,
-            variant: "default",
-          });
-          router.push("/admin/bin"); // Use router.push for client-side navigation
-        } else if (result?.error) {
-          setError(result.error || "An error occurred");
-          toast({
-            title: "Error",
-            description: result.error || "Failed to update bin",
-            duration: 2000,
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error("Update error:", error);
-        setError("An unexpected error occurred");
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          duration: 2000,
-          variant: "destructive",
+      setSuccess("");
+      const result = await createBinMaterial(values);
+      if (result?.success) {
+        setSuccess(result?.success);
+        // toast({
+        //   title: "Bin Material created successfully",
+        //   description: `Material created at ${datetime}`,
+        //   duration: 2000,
+        //   variant: "default",
+        // });
+        form.reset({
+          name: "",
         });
+        //redirect("/admin/bin");
+      } else if (result?.error) {
+        setError(result?.error);
+        // toast({
+        //   title: "Error creating bin",
+        //   description: result?.error,
+        //   duration: 2000,
+        //   variant: "destructive",
+        // });
       }
     });
   };
-
   return (
-    <Card rounded fullWidth>
-      <FormHeader>Create Material</FormHeader>
+    <Card isAdmin rounded fullWidth>
+      <FormHeader>Create Bin Material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -101,7 +80,7 @@ const CreateBinMaterialForm = ({
                 <FormControl>
                   <Input
                     disabled={isPending}
-                    placeholder="PLASTIC"
+                    placeholder="Plastic"
                     {...field}
                     type="text"
                   />
@@ -110,7 +89,15 @@ const CreateBinMaterialForm = ({
               </FormItem>
             )}
           />
-          <Button disabled={isPending} className="w-full" type="submit">
+          {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+          {success && (
+            <CustomFormMessage type="Success">{success}</CustomFormMessage>
+          )}
+          <Button
+            disabled={isPending}
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            type="submit"
+          >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}
           </Button>

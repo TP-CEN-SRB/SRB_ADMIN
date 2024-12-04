@@ -1,10 +1,7 @@
-import { Button } from "@/components/ui/button";
 import React, { useEffect, useRef, useState, useTransition } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
@@ -65,13 +62,17 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
           <IoIosDocument />
           <CSVLink
             className="cursor-default"
-            filename={`${new Date().getTime()}_current_page`}
+            filename={`students_current_page_${new Date().getTime()}`}
             data={(data as Student[]).map((student) => ({
               id: student.id,
               name: student.name,
               email: student.email,
+              faculty: student.faculty,
               pointBalance: student.point?.balance ?? "N/A",
               disposals: student._count?.disposals ?? 0,
+              redemptions: student._count.redemptions ?? 0,
+              createdAt: student.createdAt,
+              updatedAt: student.updatedAt,
             }))}
           >
             Export this page
@@ -96,10 +97,14 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
             id: student.id,
             name: student.name,
             email: student.email,
+            faculty: student.faculty,
             pointBalance: student.point?.balance ?? "N/A",
             disposals: student._count?.disposals ?? 0,
+            redemptions: student._count.redemptions ?? 0,
+            createdAt: student.createdAt,
+            updatedAt: student.updatedAt,
           }))}
-          filename={`${new Date().getTime()}_entire_dataset`}
+          filename={`students_dataset_${new Date().getTime()}`}
         >
           <span ref={csvLinkRef} />
         </CSVLink>
