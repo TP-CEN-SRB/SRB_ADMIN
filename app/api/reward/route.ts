@@ -4,22 +4,32 @@ import prisma from "@/lib/db";
 
 export const GET = async (req: NextRequest) => {
   try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json(
-        { message: "Missing authorization header!" },
-        { status: 401 }
-      );
-    }
-    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    if (typeof decodedToken === "string") {
-      return NextResponse.json(
-        { message: "Unauthorized access!" },
-        { status: 401 }
-      );
-    }
+    // const token = req.headers.get("Authorization")?.split(" ")[1];
+    // if (!token) {
+    //   return NextResponse.json(
+    //     { message: "Missing authorization header!" },
+    //     { status: 401 }
+    //   );
+    // }
+    // const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+    // if (typeof decodedToken === "string") {
+    //   return NextResponse.json(
+    //     { message: "Unauthorized access!" },
+    //     { status: 401 }
+    //   );
+    // }
     const rewards = await prisma.reward.findMany({
-      where: { isAvailable: true },
+      where: {
+        isAvailable: true,
+        OR: [
+          { startDate: null, endDate: null },
+
+          {
+            startDate: { lte: new Date() },
+            endDate: { gte: new Date() },
+          },
+        ],
+      },
     });
     if (!rewards) {
       return NextResponse.json(

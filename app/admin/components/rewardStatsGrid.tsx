@@ -31,10 +31,14 @@ const RewardStatsGrid = async () => {
       select: { pointsRequired: true, name: true },
     }),
   ]);
-  const reward = await prisma.reward.findUnique({
-    where: { id: mostPopularReward[0].rewardId },
-    select: { name: true },
-  });
+  let reward;
+  if (mostPopularReward.length) {
+    reward = await prisma.reward.findUnique({
+      where: { id: mostPopularReward[0].rewardId },
+      select: { name: true },
+    });
+  }
+
   const rewardStatsData = [
     {
       color: "#34b7eb",
@@ -63,7 +67,9 @@ const RewardStatsGrid = async () => {
       description: (
         <>
           Redemptions
-          <span className="font-bold text-lg line-clamp-1">{reward?.name}</span>
+          <span className="font-bold text-lg line-clamp-1">
+            {reward?.name || "Not available"}
+          </span>
         </>
       ),
     },
@@ -76,7 +82,7 @@ const RewardStatsGrid = async () => {
         <>
           Points
           <span className="font-bold line-clamp-1">
-            {mostExpensiveReward?.name}
+            {mostExpensiveReward?.name || "Not available"}
           </span>
         </>
       ),

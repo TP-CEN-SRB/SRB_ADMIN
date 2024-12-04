@@ -1,5 +1,6 @@
 "use server";
 import prisma from "@/lib/db";
+import { sendBinWarningEmail } from "@/lib/mail";
 import { DisposalSchema } from "@/schemas";
 import { getSessionUser } from "@/utils/getAuth";
 import { revalidatePath } from "next/cache";
@@ -27,6 +28,14 @@ const createDisposal = async (
       },
       userId: userId,
     },
+    select: {
+      id: true,
+      status: true,
+      currentCapacity: true,
+      emailSent: true,
+      user: { select: { location: true, faculty: true } },
+      binMaterial: { select: { name: true } },
+    },
   });
   if (!bin) return { error: "No bin found" };
   if (bin.status === "UNDER_MAINTENANCE") {
@@ -51,6 +60,30 @@ const createDisposal = async (
         currentCapacity: parseFloat(binCapacity.toFixed(2)),
       },
     });
+    if (binCapacity > 85 && !bin.emailSent) {
+      const subscriptions = await prisma.subscription.findMany({
+        where: { isSubscribed: true },
+        select: { user: { select: { email: true } } },
+      });
+      if (subscriptions.length > 0) {
+        await sendBinWarningEmail(
+          subscriptions.map((subscription) => subscription.user.email),
+          binCapacity,
+          bin.binMaterial.name,
+          bin.user.location
+        );
+        await prisma.bin.update({
+          where: { id: bin.id },
+          data: { emailSent: true },
+        });
+      }
+    }
+    if (binCapacity < 85 && bin.emailSent) {
+      await prisma.bin.update({
+        where: { id: bin.id },
+        data: { emailSent: false },
+      });
+    }
   }
   revalidatePath("/bin-capacity");
   return { id: disposal.id };

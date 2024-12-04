@@ -39,8 +39,8 @@ const Page = async () => {
 
   const binStatsData = [
     totalFuncBins,
-    totalCount.length,
     totalDisposalCount,
+    totalCount.length,
     totalUMBins,
   ];
   type ChartDataItem = {

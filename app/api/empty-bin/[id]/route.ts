@@ -48,6 +48,7 @@ export const POST = async (
     await prisma.bin.update({
       where: {
         id: bin.id,
+        emailSent: false,
       },
       data: { currentCapacity: 0 },
     });

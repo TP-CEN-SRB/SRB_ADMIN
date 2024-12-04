@@ -39,7 +39,6 @@ export const GET = async (
       },
       take: 10, // Get the top 10 users
     });
-    console.log(data);
     const userIds = data.map((user) => user.userId); // Extract the user IDs in order
 
     const userDisposals = await prisma.disposal.groupBy({

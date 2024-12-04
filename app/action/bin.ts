@@ -356,35 +356,6 @@ export const getBinCountsByMaterial = async (): Promise<BinCount[]> => {
   }));
 };
 
-// export const getBinCountsByStatus = async () => {
-//   let pieChartData: {
-//     binStatus: BinStatus;
-//     binCount: number;
-//     fill: String;
-//   }[] = [];
-//   const activeBinCount = await prisma.bin.count({
-//     where: {
-//       status: BinStatus.FUNCTIONAL,
-//     },
-//   });
-//   const inactiveBinCount = await prisma.bin.count({
-//     where: {
-//       status: BinStatus.UNDER_MAINTENANCE,
-//     },
-//   });
-//     pieChartData.push({
-//       binStatus: BinStatus.FUNCTIONAL,
-//       binCount: activeBinCount,
-//       fill: "#2D88FF",
-//     });
-//   pieChartData.push({
-//     binStatus: BinStatus.UNDER_MAINTENANCE,
-//     binCount: inactiveBinCount,
-//     fill: "#41B3A2",
-//   });
-//   return pieChartData;
-// };
-
 export const getBinCountsByStatus = async (
   dateFrom?: Date,
   dateTo?: Date,
@@ -521,6 +492,10 @@ export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
     select: {
       id: true,
       status: true,
+      currentCapacity: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: { select: { disposals: true } },
       user: {
         select: {
           name: true,
@@ -553,28 +528,3 @@ export const getUsedMaterialsForBin = async (userId: string) => {
   });
   return usedBinMaterials;
 };
-
-// export const getAllBinsAsync = async (
-//   page: number,
-//   query: string | null,
-//   sortStatus: string,
-//   sortMaterial: string
-// ) => {
-//   const pageCondition = page < 0;
-//   const sortableEntities = ["status", "material"];
-//   const allowedStatusTypes = ["FUNCTIONAL", "UNDER_MAINTENANCE"];
-//   const sortStatusCondition =
-//     sortStatus !== undefined &&
-//     !sortStatus
-//       .split(",")
-//       .every((status) => allowedStatusTypes.includes(status));
-//   if (sortStatusCondition) {
-//     return { binCount: 0, bins: [] };
-//   }
-//   const bins = await prisma.bin.findMany({
-//     where: {
-//       status: query as BinStatus,
-//     },
-//   });
-//   return { binCount: bins.length, bins };
-// };

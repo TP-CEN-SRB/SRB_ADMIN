@@ -104,7 +104,7 @@ const UpdateBinForm = ({
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-bold text-slate-700d">
+                <FormLabel className="font-bold text-slate-700">
                   Location
                 </FormLabel>
                 <FormControl>
@@ -153,7 +153,11 @@ const UpdateBinForm = ({
               </FormItem>
             )}
           />
-          <Button disabled={isPending} className="w-full" type="submit">
+          <Button
+            disabled={isPending}
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
+            type="submit"
+          >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Submit"}
           </Button>

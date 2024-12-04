@@ -85,6 +85,10 @@ const BinMaterialSchema = z.object({
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
 });
 
+const SubscriptionSchema = z.object({
+  isSubscribed: z.boolean(),
+});
+
 const UpdateBinSchema = z.object({
   location: z
     .string()
@@ -100,4 +104,5 @@ export {
   RewardSchema,
   BinMaterialSchema,
   UpdateBinSchema,
+  SubscriptionSchema,
 };
