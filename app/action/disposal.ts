@@ -28,6 +28,14 @@ const createDisposal = async (
       },
       userId: userId,
     },
+    select: {
+      id: true,
+      status: true,
+      currentCapacity: true,
+      emailSent: true,
+      user: { select: { location: true, faculty: true } },
+      binMaterial: { select: { name: true } },
+    },
   });
   if (!bin) return { error: "No bin found" };
   if (bin.status === "UNDER_MAINTENANCE") {
@@ -44,20 +52,15 @@ const createDisposal = async (
     },
   });
   if (disposal) {
-    const updatedBin = await prisma.bin.update({
+    await prisma.bin.update({
       where: {
         id: bin.id,
       },
       data: {
         currentCapacity: parseFloat(binCapacity.toFixed(2)),
       },
-      select: {
-        currentCapacity: true,
-        user: { select: { location: true, faculty: true } },
-        binMaterial: { select: { name: true } },
-      },
     });
-    if (binCapacity > 85) {
+    if (binCapacity > 85 && !bin.emailSent) {
       const subscriptions = await prisma.subscription.findMany({
         where: { isSubscribed: true },
         select: { user: { select: { email: true } } },
@@ -65,11 +68,21 @@ const createDisposal = async (
       if (subscriptions.length > 0) {
         await sendBinWarningEmail(
           subscriptions.map((subscription) => subscription.user.email),
-          updatedBin.currentCapacity,
-          updatedBin.binMaterial.name,
-          updatedBin.user.location
+          binCapacity,
+          bin.binMaterial.name,
+          bin.user.location
         );
+        await prisma.bin.update({
+          where: { id: bin.id },
+          data: { emailSent: true },
+        });
       }
+    }
+    if (binCapacity < 85 && bin.emailSent) {
+      await prisma.bin.update({
+        where: { id: bin.id },
+        data: { emailSent: false },
+      });
     }
   }
   revalidatePath("/bin-capacity");

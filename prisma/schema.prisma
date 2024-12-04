@@ -87,6 +87,7 @@ model Bin {
   currentCapacity Float       @default(0)
   userId          String
   user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  emailSent       Boolean     @default(false) // ensure warning email only sends once when threshold is met
   binMaterialId   String
   binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
   disposals       Disposal[]
