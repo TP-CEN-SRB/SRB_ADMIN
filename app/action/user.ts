@@ -391,6 +391,7 @@ const getAllBinUsers = async () => {
       id: true,
       name: true,
       email: true,
+      faculty: true,
     },
   });
   return result;

@@ -1,6 +1,7 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { Faculty } from "@prisma/client";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -26,7 +27,7 @@ export const GET = async (req: NextRequest) => {
         status: true,
         currentCapacity: true,
         binMaterial: { select: { name: true } },
-        user: { select: { location: true, id: true } },
+        user: { select: { location: true, id: true, faculty: true } },
       },
     });
 
@@ -34,9 +35,10 @@ export const GET = async (req: NextRequest) => {
       return NextResponse.json({ message: "No bins found!" }, { status: 404 });
     }
 
-    // Transform data to provide a more meaningful API response
+    //Transform data to provide a more meaningful API response
     const transformedBins = bins.map((bin) => ({
       binId: bin.id,
+      faculty: bin.user.faculty,
       material: bin.binMaterial.name,
       currentCapacity: bin.currentCapacity,
       status: bin.status,
@@ -46,6 +48,7 @@ export const GET = async (req: NextRequest) => {
     type GroupedBins = {
       [location: string]: {
         location: string;
+        faculty: Faculty | undefined;
         bins: {
           binId: string;
           material: string;
@@ -63,6 +66,7 @@ export const GET = async (req: NextRequest) => {
       if (!acc[locationKey]) {
         acc[locationKey] = {
           location: locationKey,
+          faculty: undefined,
           bins: [],
         };
       }
@@ -72,7 +76,7 @@ export const GET = async (req: NextRequest) => {
         binId: bin.binId,
         material: bin.material,
         currentCapacity: bin.currentCapacity,
-        status: bin.status,
+        status: bin.status.replace("_", " "),
       });
 
       return acc;

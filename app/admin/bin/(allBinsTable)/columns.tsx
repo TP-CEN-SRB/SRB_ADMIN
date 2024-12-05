@@ -17,6 +17,7 @@ import { deleteBin } from "@/app/action/bin";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { MdDeleteForever } from "react-icons/md";
+import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
 import { FaEdit } from "react-icons/fa";
 
 export type Bin = {
@@ -84,28 +85,27 @@ const BinActions = ({ bin }: { bin: Bin }) => {
 
 export const columns: ColumnDef<Bin>[] = [
   {
+    id: "name",
+    accessorKey: "user.name",
+    header: "Name",
+    cell: ({ row }) => {
+      const isFunctional = row.original.status != "UNDER_MAINTENANCE";
+      return (
+        <div className="flex items-center gap-1">
+          {isFunctional ? (
+            <TbSettingsCheck className="text-green-500" />
+          ) : (
+            <TbSettingsX className="text-red-600" />
+          )}
+          {row.original.user.name}
+        </div>
+      );
+    },
+  },
+  {
     id: "location",
     accessorKey: "user.location",
     header: "Location",
-  },
-  {
-    id: "status",
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const bin = row.original;
-      return (
-        <span
-          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-            bin.status === "FUNCTIONAL"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
-        >
-          {bin.status}
-        </span>
-      );
-    },
   },
   {
     id: "material",
@@ -117,11 +117,6 @@ export const columns: ColumnDef<Bin>[] = [
       }
       return true; // No filter applied
     },
-  },
-  {
-    id: "username",
-    accessorKey: "user.name",
-    header: "Name",
   },
   {
     id: "capacity",

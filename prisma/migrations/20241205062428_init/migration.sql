@@ -13,10 +13,10 @@ CREATE TABLE "users" (
     "email" TEXT NOT NULL,
     "emailVerified" TIMESTAMP(3),
     "password" TEXT NOT NULL,
-    "secondaryPassword" TEXT,
-    "name" TEXT,
-    "faculty" "Faculty",
+    "name" TEXT NOT NULL,
+    "faculty" "Faculty" NOT NULL,
     "role" "Role" NOT NULL,
+    "location" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -51,10 +51,10 @@ CREATE TABLE "password_reset_tokens" (
 -- CreateTable
 CREATE TABLE "bins" (
     "id" TEXT NOT NULL,
-    "location" TEXT NOT NULL,
     "status" "BinStatus" NOT NULL DEFAULT 'FUNCTIONAL',
     "currentCapacity" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "userId" TEXT NOT NULL,
+    "emailSent" BOOLEAN NOT NULL DEFAULT false,
     "binMaterialId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -100,8 +100,11 @@ CREATE TABLE "rewards" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "pointsRequired" INTEGER NOT NULL,
+    "description" TEXT NOT NULL,
     "isAvailable" BOOLEAN NOT NULL DEFAULT true,
     "image" TEXT NOT NULL,
+    "startDate" TIMESTAMP(3),
+    "endDate" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -113,12 +116,28 @@ CREATE TABLE "redemptions" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "rewardId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "redemptions_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "subscriptions" (
+    "id" TEXT NOT NULL,
+    "isSubscribed" BOOLEAN NOT NULL DEFAULT true,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "users_location_key" ON "users"("location");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "verification_tokens_token_key" ON "verification_tokens"("token");
@@ -133,7 +152,7 @@ CREATE UNIQUE INDEX "password_reset_tokens_token_key" ON "password_reset_tokens"
 CREATE UNIQUE INDEX "password_reset_tokens_email_token_key" ON "password_reset_tokens"("email", "token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "bins_location_status_binMaterialId_key" ON "bins"("location", "status", "binMaterialId");
+CREATE UNIQUE INDEX "bins_userId_binMaterialId_status_key" ON "bins"("userId", "binMaterialId", "status");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "bin_materials_name_key" ON "bin_materials"("name");
@@ -143,6 +162,9 @@ CREATE UNIQUE INDEX "points_userId_key" ON "points"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "rewards_name_key" ON "rewards"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "subscriptions_userId_key" ON "subscriptions"("userId");
 
 -- AddForeignKey
 ALTER TABLE "bins" ADD CONSTRAINT "bins_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -164,3 +186,6 @@ ALTER TABLE "redemptions" ADD CONSTRAINT "redemptions_userId_fkey" FOREIGN KEY (
 
 -- AddForeignKey
 ALTER TABLE "redemptions" ADD CONSTRAINT "redemptions_rewardId_fkey" FOREIGN KEY ("rewardId") REFERENCES "rewards"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

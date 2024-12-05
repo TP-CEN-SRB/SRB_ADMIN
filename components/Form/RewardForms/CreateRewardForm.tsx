@@ -222,7 +222,7 @@ const CreateRewardForm = () => {
                   </FormLabel>
                   <div className="flex flex-row gap-3 items-center justify-between rounded-lg border p-4 w-full">
                     <FormDescription>
-                      Enable the reward to be used now
+                      Enable the reward to be used within the reward duration
                     </FormDescription>
                     <FormControl>
                       <Switch
@@ -249,7 +249,7 @@ const CreateRewardForm = () => {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="false" id="option-one" />
-                <Label htmlFor="option-one">Default</Label>
+                <Label htmlFor="option-one">Unlimited</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="true" id="option-two" />

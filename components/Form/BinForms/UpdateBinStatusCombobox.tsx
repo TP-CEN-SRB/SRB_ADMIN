@@ -76,7 +76,7 @@ const BinStatusCombobox = ({
                       createValue === status ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  {status}
+                  {status.replace("_", " ")}
                 </CommandItem>
               ))}
             </CommandGroup>
