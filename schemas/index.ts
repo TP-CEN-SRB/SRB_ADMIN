@@ -12,6 +12,7 @@ export const ACCEPTED_IMAGE_TYPES = [
 const BinSchema = z.object({
   location: z
     .string()
+    .trim()
     .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
     .min(2, "Location is too short"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
@@ -66,7 +67,10 @@ const ImageSchema = z.discriminatedUnion("isExistingImage", [
 
 const RewardSchema = z
   .object({
-    name: z.string({ message: "Name is required" }).min(2, "Name is too short"),
+    name: z
+      .string({ message: "Name is required" })
+      .trim()
+      .min(2, "Name is too short"),
     pointsRequired: z.coerce
       .number({ message: "Points must be a number" })
       .int("Points must be an integer")
@@ -81,6 +85,7 @@ const RewardSchema = z
 const BinMaterialSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
 });
@@ -92,6 +97,7 @@ const SubscriptionSchema = z.object({
 const UpdateBinSchema = z.object({
   location: z
     .string()
+    .trim()
     .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   materialId: z.string().min(1, "Please select the material type"),

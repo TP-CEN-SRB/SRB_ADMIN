@@ -10,12 +10,11 @@ import { NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest) => {
   try {
     const { name, email, password, faculty } = await req.json();
-    const formattedFaculty = faculty.toUpperCase() as Faculty;
     const validatedFields = SignUpStudentSchema.safeParse({
       name,
       email,
       password,
-      faculty: formattedFaculty,
+      faculty: faculty as Faculty,
     });
     if (!validatedFields.success) {
       const errors = validatedFields.error.flatten();
@@ -43,7 +42,7 @@ export const POST = async (req: NextRequest) => {
         name: capitalizeFirstLetter(data.name),
         email: data.email,
         password: hashedPassword,
-        faculty: formattedFaculty,
+        faculty: data.faculty,
         role: Role.STUDENT,
         point: {
           create: {},

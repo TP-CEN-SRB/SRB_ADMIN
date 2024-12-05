@@ -15,6 +15,7 @@ const LoginSchema = z.object({
 const SignUpAdminSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   email: z.string().email("Please enter a valid email address").toLowerCase(),
@@ -45,6 +46,7 @@ const NewPasswordSchema = SignUpAdminSchema.pick({ password: true });
 const SignUpBinSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   email: z
@@ -74,6 +76,7 @@ const AdminNumberSchema = z.object({
 const SignUpStudentSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   email: z
@@ -94,12 +97,13 @@ const UpdateStudentSchema = SignUpStudentSchema.omit({
   points: z.coerce
     .number({ message: "Points must be a number" })
     .int("Points must be an integer")
-    .gte(1, "Points cannot be negative"),
+    .gte(0, "Points cannot be negative"),
 });
 
 const UpdateBinFormSchema = z.object({
   name: z
     .string()
+    .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   email: z.string().email("Please enter a valid email address").toLowerCase(),
