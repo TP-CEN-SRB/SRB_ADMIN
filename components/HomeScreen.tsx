@@ -1,11 +1,9 @@
 "use client";
-import { useIdle } from "@/hooks/use-idle";
 import Link from "next/link";
 import { FaRecycle } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa";
 import { FaPowerOff } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
-import IdleVideo from "./Video/IdleVideo";
 import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
 import {
@@ -46,12 +44,8 @@ const HomeScreen = ({
       icon: <RiAdminFill />,
     },
   ];
-  const [isIdle] = useIdle(60000);
   const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false);
-
-  return isIdle && role === "BIN" ? (
-    <IdleVideo />
-  ) : (
+  return (
     <div className="bg-[var(--pastel-green)] antialiased">
       <div className="h-screen max-w-screen-lg flex items-center justify-center container mx-auto px-4">
         <div className="text-center max-w-screen-lg w-full">

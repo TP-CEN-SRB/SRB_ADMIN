@@ -125,7 +125,7 @@ const updateReward = async (id: string, formData: FormData) => {
     }
     const createRes = await utapi.uploadFiles(image as File);
     if (createRes.error) {
-      return { error: "Unable to upload image!" };
+      return { error: "Unable to upload image!" };  
     }
     const updatedReward = await prisma.reward.update({
       where: {
