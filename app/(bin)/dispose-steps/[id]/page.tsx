@@ -28,7 +28,7 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
     return () => pusherClient.unsubscribe(`start-detect-${params.id}`);
   }, [router, params.id]);
 
-  const [isIdle] = useIdle(5000);
+  const [isIdle] = useIdle(60000);
   const path = usePathname();
   useEffect(() => {
     const checkServer = async () => {
