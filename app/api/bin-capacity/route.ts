@@ -61,12 +61,13 @@ export const GET = async (req: NextRequest) => {
     const groupedBins = transformedBins.reduce<GroupedBins>((acc, bin) => {
       // Ensure location exists and use "Unknown Location" if it's missing
       const locationKey = bin.location || "Unknown Location";
+      const faculty = bin.faculty || "Unknown Faculty";
 
       // Initialize the group if it doesn't exist
       if (!acc[locationKey]) {
         acc[locationKey] = {
           location: locationKey,
-          faculty: undefined,
+          faculty: faculty,
           bins: [],
         };
       }
