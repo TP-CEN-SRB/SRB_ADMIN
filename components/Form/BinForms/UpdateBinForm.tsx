@@ -42,8 +42,6 @@ const UpdateBinForm = ({
 }: UpdateBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(""); // Initialize useRouter
   const router = useRouter();
 
   const form = useForm<z.infer<typeof UpdateBinSchema>>({
@@ -61,11 +59,9 @@ const UpdateBinForm = ({
       hour12: false,
     });
     startTransition(async () => {
-      setError("");
       try {
         const result = await updateBin(id, values);
         if (result?.success) {
-          setSuccess(result.success);
           toast({
             title: "Success",
             description: `Bin updated at ${datetime}`,
@@ -73,7 +69,6 @@ const UpdateBinForm = ({
           });
           router.push("/admin/bin");
         } else if (result?.error) {
-          setError(result.error || "An error occurred");
           toast({
             title: "Error",
             description: result.error || "Failed to update bin",
@@ -83,7 +78,6 @@ const UpdateBinForm = ({
         }
       } catch (error) {
         console.error("Update error:", error);
-        setError("An unexpected error occurred");
         toast({
           title: "Error",
           description: "An unexpected error occurred",
@@ -109,10 +103,11 @@ const UpdateBinForm = ({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    disabled={isPending}
+                    disabled={true}
                     placeholder="Near Library"
                     {...field}
                     type="text"
+                    className="bg-gray-200"
                   />
                 </FormControl>
                 <FormMessage />

@@ -46,7 +46,7 @@ model User {
   redemptions   Redemption[]
   subscription  Subscription?
   point         Point?
-  location      String? // Outside library
+  location      String?  @unique// Outside library
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

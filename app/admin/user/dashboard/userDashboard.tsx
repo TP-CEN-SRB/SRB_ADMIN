@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useReducer } from "react";
 import Firsticon from "../../../../public/first_icon.png";
 import Secondicon from "../../../../public/second_icon.png";
 import Thirdicon from "../../../../public/third_icon.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { getTopTenUsers } from "@/app/action/user";
 
 const LeaderboardItems = [
   {
@@ -49,12 +50,103 @@ interface userDashboardProps {
   leaderBoardData: leaderBoardData[];
 }
 
+interface IState {
+  updatedLeaderBoardData: leaderBoardData[];
+}
+
+interface IAction {
+  type: string;
+  values: leaderBoardData[];
+}
+
 const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
-  const topThree = leaderBoardData.slice(0, 3);
   const [isActive, setIsActive] = React.useState("week");
-  const [filterChange, setFilterChange] = React.useState(false);
-  if (filterChange) {
-  }
+  const initialState: IState = {
+    updatedLeaderBoardData: leaderBoardData,
+  };
+  const statsReducer = (state: IState, action: IAction) => {
+    switch (action.type) {
+      case "week":
+        return {
+          ...state,
+          updatedLeaderBoardData: action.values,
+        };
+      case "month":
+        return {
+          ...state,
+          updatedLeaderBoardData: action.values,
+        };
+      case "year":
+        return {
+          ...state,
+          updatedLeaderBoardData: action.values,
+        };
+      default:
+        return state;
+    }
+  };
+
+  const [state, dispatch] = useReducer(statsReducer, {
+    updatedLeaderBoardData: leaderBoardData.slice(0, 3),
+  });
+
+  const dateFilter = async (filterValue: string) => {
+    const date = new Date();
+    switch (filterValue) {
+      case "week": {
+        const firstDayofWeek = new Date(
+          date.setDate(date.getDate() - date.getDay())
+        );
+        const lastDayofWeek = new Date(
+          date.setDate(date.getDate() - date.getDay() + 6)
+        );
+        const weeklyFilter = await fetchDataBasedOnDateRange(
+          firstDayofWeek,
+          lastDayofWeek
+        );
+        dispatch({ type: "week", values: weeklyFilter });
+        break;
+      }
+      case "month": {
+        const firstDayofMonth = new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          1
+        );
+        const lastDayofMonth = new Date(
+          date.getFullYear(),
+          date.getMonth() + 1,
+          0
+        );
+        const monthlyFilter = await fetchDataBasedOnDateRange(
+          firstDayofMonth,
+          lastDayofMonth
+        );
+        dispatch({ type: "month", values: monthlyFilter });
+        break;
+      }
+      case "year": {
+        const firstDayofYear = new Date(date.getFullYear(), 0, 1);
+        const lastDayofYear = new Date(date.getFullYear(), 11, 31);
+        const yearlyFilter = await fetchDataBasedOnDateRange(
+          firstDayofYear,
+          lastDayofYear
+        );
+        dispatch({ type: "year", values: yearlyFilter });
+        break;
+      }
+    }
+  };
+
+  const fetchDataBasedOnDateRange = async (
+    dateFrom: Date,
+    dateTo: Date
+  ): Promise<leaderBoardData[]> => {
+    const updatedLeaderboardArr = await getTopTenUsers(dateFrom, dateTo);
+    return updatedLeaderboardArr;
+  };
+
+  const topThree = state.updatedLeaderBoardData.slice(0, 3);
   return (
     <div className="p-4 w-full">
       <div className="flex flex-col w-full justify-center text-center items-center gap-4 py-4">
@@ -65,7 +157,7 @@ const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
               isActive == "week" ? "bg-gray-400" : ""
             }`}
             variant="secondary"
-            onClick={() => setIsActive("week")}
+            onClick={() => (setIsActive("week"), dateFilter("week"))}
           >
             Week
           </Button>
@@ -75,7 +167,7 @@ const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
             className={`rounded-none hover:bg-slate-300 ${
               isActive == "month" ? "bg-gray-400" : ""
             }`}
-            onClick={() => (setIsActive("month"), setFilterChange(true))}
+            onClick={() => (setIsActive("month"), dateFilter("month"))}
           >
             Month
           </Button>
@@ -85,7 +177,7 @@ const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
             className={`rounded-l-none hover:bg-slate-300 ${
               isActive == "year" ? "bg-gray-400" : ""
             }`}
-            onClick={() => setIsActive("year")}
+            onClick={() => (setIsActive("year"), dateFilter("year"))}
           >
             Year
           </Button>

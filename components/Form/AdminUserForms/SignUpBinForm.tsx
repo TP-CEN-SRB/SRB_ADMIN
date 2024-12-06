@@ -18,18 +18,17 @@ import { Input } from "@/components/ui/input";
 import FormHeader from "@/components/Form/FormHeader";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "@/components/Form/CustomFormMessage";
-import { useRouter } from "next/navigation";
 import Card from "@/components/Card/Card";
 import { signUpBin } from "@/app/action/user";
 
 const SignUpBinForm = () => {
-  const router = useRouter();
   const form = useForm<z.infer<typeof SignUpBinSchema>>({
     resolver: zodResolver(SignUpBinSchema),
     defaultValues: {
       name: "",
       email: "",
       password: "",
+      location: "",
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -39,10 +38,16 @@ const SignUpBinForm = () => {
   const onSubmit = (values: z.infer<typeof SignUpBinSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
+      setSuccess(""); // clear success message
+      console.log(values);
       const data = await signUpBin(values);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
-      router.push("/admin/bin/manager");
+      if (data?.error) {
+        setError(data?.error as string);
+      }
+      if (data?.success) {
+        setSuccess(data?.success as string);
+        form.reset();
+      }
     });
   };
   return (
@@ -126,7 +131,7 @@ const SignUpBinForm = () => {
                     disabled={isPending}
                     placeholder="Block 1, Level 1 of Engine School"
                     {...field}
-                    type="location"
+                    type="text"
                   />
                 </FormControl>
                 <FormDescription>

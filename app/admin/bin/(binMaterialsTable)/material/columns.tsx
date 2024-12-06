@@ -35,13 +35,20 @@ const MaterialActions = ({ material }: { material: BinMaterial }) => {
     hour12: false, // 24-hour format, remove if 12-hour format is needed
   });
   const [hasBins, setHasBins] = useState(false);
+  const [addBin, setAddBin] = useState<{ id: string }[]>([]);
+
   useEffect(() => {
     const getAllBinsByManager = async () => {
       const result = await getAllBinsWithMaterial(material.id);
       setHasBins(result.length > 0);
+      result.forEach((bin) => {
+        addBin.push({
+          id: bin.binMaterialId,
+        });
+      });
     };
     getAllBinsByManager();
-  }, [material.id]);
+  }, []);
   const onDelete = async (id: string) => {
     const result = await deleteBinMaterial(id);
     if (result?.success) {
@@ -73,7 +80,11 @@ const MaterialActions = ({ material }: { material: BinMaterial }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <Link href={`/admin/bin/material/update/${material.id}`} passHref>
+        <Link
+          href={`/admin/bin/material/update/${material.id}`}
+          passHref
+          prefetch
+        >
           <DropdownMenuItem>
             <FaEdit />
             Edit material
@@ -85,7 +96,7 @@ const MaterialActions = ({ material }: { material: BinMaterial }) => {
               <DropdownMenuItem
                 onClick={() => onDelete(material.id)}
                 className={hasBins ? "cursor-not-allowed opacity-50" : ""}
-                disabled={hasBins}
+                disabled={addBin.includes({ id: material.id })}
               >
                 <MdDeleteForever />
                 Delete material

@@ -71,27 +71,31 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name);
-  const email = formData.email;
-  const password = formData.password;
-  const location = formData.location;
-  const existingUser = await prisma.user.findUnique({
-    where: { email: email },
-  });
-  if (existingUser) {
-    return { error: "User already exists!" };
+  const name = capitalizeFirstLetter(formData.name).trim();
+  const email = formData.email.trim().toLowerCase();
+  const password = formData.password.trim();
+  const location = capitalizeFirstLetter(formData.location).trim();
+  const existingBinUser = await checkBinUserWithSimilarRecord(
+    name,
+    email,
+    location
+  );
+  if (existingBinUser) {
+    return { error: "Duplicate found. Bin Manager already exists!" };
   }
   const hashedPassword = await hash(password, 10);
   await prisma.user.create({
     data: {
-      name: name,
-      email: email,
+      name,
+      email,
       emailVerified: new Date(), // automatically verify bin user
       role: Role.BIN,
       password: hashedPassword,
+      location,
+      //to update faculty (cfm have merge conflict)
     },
   });
-  return { success: "Bin successfully created!" };
+  return { success: "Bin user successfully created!" };
 };
 
 const updateBinUser = async (
@@ -103,15 +107,25 @@ const updateBinUser = async (
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name);
-  const email = formData.email;
-  const location = formData.location;
+  const name = capitalizeFirstLetter(formData.name).trim();
+  const email = formData.email.toLowerCase().trim();
+  const location = formData.location.trim();
   const faculty = formData.faculty;
   const existingBinUser = await prisma.user.findUnique({
     where: { id },
   });
 
   if (existingBinUser) {
+    const existingBinUser = await checkBinUserWithSimilarRecord(
+      name,
+      email,
+      location,
+      true,
+      id
+    );
+    if (existingBinUser) {
+      return { error: "Duplicate found. Bin Manager already exists!" };
+    }
     await prisma.user.update({
       where: { id },
       data: { name, email, location, faculty },
@@ -120,6 +134,29 @@ const updateBinUser = async (
   } else {
     return { error: "Bin Manager does not exist!" };
   }
+};
+
+const checkBinUserWithSimilarRecord = async (
+  name: string,
+  email: string,
+  location: string,
+  update?: boolean,
+  id?: string
+) => {
+  if (update) {
+    const binUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ name }, { email }, { location }],
+      },
+    });
+  }
+  const binUser = await prisma.user.findFirst({
+    where: {
+      id: { not: id },
+      OR: [{ name }, { email }, { location }],
+    },
+  });
+  return binUser ? true : false;
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {

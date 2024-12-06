@@ -3,10 +3,7 @@ import jwt from "jsonwebtoken";
 import prisma from "@/lib/db";
 import { Role } from "@prisma/client";
 
-export const GET = async (
-  req: NextRequest
-  //   { params }: { params: { dateFrom?: Date; dateTo?: Date } }
-) => {
+export const GET = async (req: NextRequest) => {
   try {
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
@@ -22,17 +19,19 @@ export const GET = async (
         { status: 401 }
       );
     }
-    //const { dateFrom, dateTo } = params;
+    const date = new Date();
+    const firstDayofMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const lastDayofMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     const data = await prisma.point.groupBy({
       by: ["userId", "balance"],
       where: {
         user: {
           role: "STUDENT" as Role,
         },
-        // createdAt: {
-        //   gte: dateFrom,
-        //   lte: dateTo,
-        // },
+        createdAt: {
+          gte: firstDayofMonth,
+          lte: lastDayofMonth,
+        },
       },
       orderBy: {
         balance: "desc", // Order by the count of points, descending
@@ -77,6 +76,7 @@ export const GET = async (
           },
         });
         return {
+          rank: userIds.indexOf(userId) + 1,
           username: name?.name || null,
           adminNo: name?.email.split("@")[0].toUpperCase() || null,
           balance: data.find((d) => d.userId === userId)?.balance || 0, // Include balance or 0 if no balance

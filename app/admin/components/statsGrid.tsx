@@ -107,10 +107,10 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
 
   const filterByDate = async () => {
     setLoading(true);
-    const fetchedData = await fetchDataBasedOnDateRange(date); // Fetch data based on selected date range
+    const fetchedData = await fetchDataBasedOnDateRange(date);
     dispatch({
       type: "UPDATE_STATS",
-      values: fetchedData, // Assuming fetchedData is an array of [totalFunctionalBins, totalBins, totalDisposals, totalUMBins]
+      values: fetchedData,
     });
     setLoading(false);
   };
