@@ -40,7 +40,7 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
           // redirect only if the server live
           router.push(
             `http://localhost:8080/index.html?referrer=${encodeURIComponent(
-              `${process.env.BASE_URL}${path}`
+              `${process.env.NEXT_PUBLIC_BASE_URL}${path}`
             )}`
           );
         } else {
