@@ -127,7 +127,7 @@ const warningEmailTemplate = (
 `;
 };
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const confirmLink = `${process.env.NEXT_PUBLIC_BASE_URL}/new-verification?token=${token}`;
+  const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -163,7 +163,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  const resetLink = `${process.env.NEXT_PUBLIC_BASE_URL}/new-password?token=${token}`;
+  const resetLink = `${process.env.BASE_URL}/new-password?token=${token}`;
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
