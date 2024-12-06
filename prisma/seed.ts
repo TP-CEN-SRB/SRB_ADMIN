@@ -9,7 +9,7 @@ const userData: Prisma.UserCreateInput[] = [
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
-    faculty: "ENGINEERING",
+    faculty: "BUSINESS",
     location: "Library",
     bins: {
       createMany: {
@@ -32,6 +32,78 @@ const userData: Prisma.UserCreateInput[] = [
           },
           {
             status: BinStatus.FUNCTIONAL,
+            binMaterialId: "5b058bae-7d4e-4198-b8d7-294b2a40c0cc",
+          },
+        ],
+      },
+    },
+  },
+  {
+    id: "eabc24b6-ca1c-4c94-86e1-2ebbc4944a78",
+    name: "testBin",
+    email: "dawdawd@tp.bin.sg",
+    emailVerified: new Date(),
+    password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
+    role: "BIN",
+    faculty: "ENGINEERING",
+    location: "Blk 12 Level 5",
+    bins: {
+      createMany: {
+        data: [
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "126f6451-956f-44f3-a9c7-be31e2229ed0",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "0ab11796-b46b-4c21-aecd-a80f850f78d4",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "526b5a69-fc92-459b-b538-39310412f538",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "7223ee16-49c8-4740-a79f-70c8e5983b8a",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "5b058bae-7d4e-4198-b8d7-294b2a40c0cc",
+          },
+        ],
+      },
+    },
+  },
+  {
+    id: "eppp24b6-ca1c-4c94-86e1-2ebbc4952a78",
+    name: "testBin",
+    email: "dwadawda@tp.bin.sg",
+    emailVerified: new Date(),
+    password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
+    role: "BIN",
+    faculty: "ENGINEERING",
+    location: "Front of engine block",
+    bins: {
+      createMany: {
+        data: [
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "126f6451-956f-44f3-a9c7-be31e2229ed0",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "0ab11796-b46b-4c21-aecd-a80f850f78d4",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "526b5a69-fc92-459b-b538-39310412f538",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
+            binMaterialId: "7223ee16-49c8-4740-a79f-70c8e5983b8a",
+          },
+          {
+            status: BinStatus.UNDER_MAINTENANCE,
             binMaterialId: "5b058bae-7d4e-4198-b8d7-294b2a40c0cc",
           },
         ],
