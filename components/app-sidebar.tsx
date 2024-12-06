@@ -236,15 +236,12 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     </Link>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <button
-                      onClick={() => setSignOutDialogOpen(true)}
-                      className="flex items-center gap-x-2"
-                      type="submit"
-                    >
-                      <PiSignOutBold />
-                      Log out
-                    </button>
+                  <DropdownMenuItem
+                    className="flex items-center gap-x-2 cursor-pointer"
+                    onClick={() => setSignOutDialogOpen(true)}
+                  >
+                    <PiSignOutBold />
+                    Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

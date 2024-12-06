@@ -75,6 +75,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const email = formData.email.trim().toLowerCase();
   const password = formData.password.trim();
   const location = capitalizeFirstLetter(formData.location).trim();
+  const faculty = formData.faculty;
   const existingBinUser = await checkBinUserWithSimilarRecord(
     name,
     email,
@@ -89,9 +90,10 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       name,
       email,
       emailVerified: new Date(), // automatically verify bin user
+      location: location,
+      faculty: faculty,
       role: Role.BIN,
       password: hashedPassword,
-      location,
       //to update faculty (cfm have merge conflict)
     },
   });
@@ -425,6 +427,7 @@ const getAllBinUsers = async () => {
       id: true,
       name: true,
       email: true,
+      faculty: true,
     },
   });
   return result;

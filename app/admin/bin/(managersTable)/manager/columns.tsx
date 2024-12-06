@@ -24,11 +24,13 @@ import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
 import { FaEdit, FaPlus } from "react-icons/fa";
 import { MdDeleteForever, MdOutlineBarChart } from "react-icons/md";
+import { Faculty } from "@prisma/client";
 
 export type BinManager = {
   id: string;
   name: string | null;
   email: string;
+  faculty: Faculty;
 };
 
 const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
@@ -157,6 +159,10 @@ export const columns: ColumnDef<BinManager>[] = [
   {
     accessorKey: "email",
     header: "Email",
+  },
+  {
+    accessorKey: "faculty",
+    header: "Faculty",
   },
   {
     id: "actions",
