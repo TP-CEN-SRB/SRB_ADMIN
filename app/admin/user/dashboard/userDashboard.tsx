@@ -147,6 +147,7 @@ const UsersDashboard = ({ leaderBoardData }: userDashboardProps) => {
   };
 
   const topThree = state.updatedLeaderBoardData.slice(0, 3);
+  const rest = state.updatedLeaderBoardData.slice(3);
   return (
     <div className="p-4 w-full">
       <div className="flex flex-col w-full justify-center text-center items-center gap-4 py-4">

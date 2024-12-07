@@ -608,32 +608,37 @@ const updateStudent = async (
 };
 
 const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
-  const data = await prisma.point.groupBy({
-    by: ["userId", "balance"],
+  const data = await prisma.disposal.groupBy({
+    by: ["userId", "pointsAwarded"],
     where: {
       user: {
         role: "STUDENT" as Role,
       },
       createdAt: {
-        gte: dateFrom ?? undefined,
-        lte: dateTo ?? undefined,
+        gte: dateFrom,
+        lte: dateTo,
       },
     },
-    orderBy: {
-      balance: "desc", // Order by the count of points, descending
+    _sum: {
+      pointsAwarded: true,
     },
-    take: 10, // Get the top 10 users
+    orderBy: {
+      _sum: { pointsAwarded: "desc" },
+    },
+    take: 10,
   });
-  const userIds = data.map((user) => user.userId); // Extract the user IDs in order
+  const userIds = data
+    .map((user) => user.userId)
+    .filter((id): id is string => id !== null); // Extract the user IDs in order
 
   const userDisposals = await prisma.disposal.groupBy({
     by: ["userId"],
     _count: {
-      id: true, // Count disposals
+      id: true,
     },
     where: {
       userId: {
-        in: userIds, // Filter by the top user IDs
+        in: userIds,
       },
     },
   });
@@ -645,11 +650,10 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
     },
     where: {
       userId: {
-        in: userIds, // Filter by the top user IDs
+        in: userIds,
       },
     },
   });
-
   const orderedDisposals = await Promise.all(
     userIds.map(async (userId) => {
       const disposal = userDisposals.find((d) => d.userId === userId);
@@ -659,13 +663,13 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
         },
         select: {
           name: true,
-          id: true,
+          email: true,
         },
       });
       return {
         username: name?.name || undefined,
-        userId: name?.id || undefined,
-        balance: data.find((d) => d.userId === userId)?.balance || 0, // Include balance or 0 if no balance
+        userId: userId,
+        balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
         disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
         redemptionCount: userRedemptions.find((r) => r.userId === userId) || 0,
       };
