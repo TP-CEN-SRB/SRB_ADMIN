@@ -22,8 +22,8 @@ export const GET = async (req: NextRequest) => {
     const date = new Date();
     const firstDayofMonth = new Date(date.getFullYear(), date.getMonth(), 1);
     const lastDayofMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    const data = await prisma.point.groupBy({
-      by: ["userId", "balance"],
+    const data = await prisma.disposal.groupBy({
+      by: ["userId", "pointsAwarded"],
       where: {
         user: {
           role: "STUDENT" as Role,
@@ -33,21 +33,26 @@ export const GET = async (req: NextRequest) => {
           lte: lastDayofMonth,
         },
       },
-      orderBy: {
-        balance: "desc", // Order by the count of points, descending
+      _sum: {
+        pointsAwarded: true,
       },
-      take: 10, // Get the top 10 users
+      orderBy: {
+        _sum: { pointsAwarded: "desc" },
+      },
+      take: 10,
     });
-    const userIds = data.map((user) => user.userId); // Extract the user IDs in order
+    const userIds = data
+      .map((user) => user.userId)
+      .filter((id): id is string => id !== null); // Extract the user IDs in order
 
     const userDisposals = await prisma.disposal.groupBy({
       by: ["userId"],
       _count: {
-        id: true, // Count disposals
+        id: true,
       },
       where: {
         userId: {
-          in: userIds, // Filter by the top user IDs
+          in: userIds,
         },
       },
     });
@@ -59,7 +64,7 @@ export const GET = async (req: NextRequest) => {
       },
       where: {
         userId: {
-          in: userIds, // Filter by the top user IDs
+          in: userIds,
         },
       },
     });
@@ -79,7 +84,8 @@ export const GET = async (req: NextRequest) => {
           rank: userIds.indexOf(userId) + 1,
           username: name?.name || null,
           adminNo: name?.email.split("@")[0].toUpperCase() || null,
-          balance: data.find((d) => d.userId === userId)?.balance || 0, // Include balance or 0 if no balance
+          points:
+            data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
           disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
           redemptionCount:
             userRedemptions.find((r) => r.userId === userId) || 0,
