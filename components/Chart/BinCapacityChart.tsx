@@ -33,7 +33,7 @@ export default function BinCapacityChart({
     currentCapacity: {
       label: "Filled",
       color: `${
-        currentCapacity > 90
+        currentCapacity > 85
           ? "#DC2626"
           : currentCapacity > 60
           ? "#eab308"
