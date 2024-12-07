@@ -3,7 +3,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
@@ -45,14 +44,13 @@ const CreateBinStatusCombobox = ({
           className="flex"
         >
           <ChevronsUpDown className="-ml-2 mr-2 h-4 w-4 shrink-0 opacity-50" />
-          {createValue
-            ? Object.values(BinStatus).find((status) => status === createValue)
+          {createValue !== undefined
+            ? createValue.replace("_", " ")
             : "Select status..."}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search status..." />
           <CommandList>
             <CommandEmpty>No status found.</CommandEmpty>
             <CommandGroup>
