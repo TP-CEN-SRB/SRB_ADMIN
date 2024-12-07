@@ -117,7 +117,9 @@ const LoginForm = () => {
           </Button>
         </form>
       </Form>
-      <FormRedirect href="/sign-up">Don&apos;t have an account?</FormRedirect>
+      <FormRedirect disabled={isPending} href="/sign-up">
+        Don&apos;t have an account?
+      </FormRedirect>
     </div>
   );
 };
