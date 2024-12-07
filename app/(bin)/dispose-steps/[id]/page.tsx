@@ -5,7 +5,7 @@ import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
 import { useIdle } from "@/hooks/use-idle";
 import { pusherClient } from "@/lib/pusher";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { RingLoader } from "react-spinners";
 import useSound from "use-sound";
@@ -27,6 +27,33 @@ const DisposeStepsPage = ({ params }: { params: { id: string } }) => {
     });
     return () => pusherClient.unsubscribe(`start-detect-${params.id}`);
   }, [router, params.id]);
+
+  const [isIdle] = useIdle(60000);
+  const path = usePathname();
+  useEffect(() => {
+    const checkServer = async () => {
+      try {
+        const response = await fetch("http://localhost:8080", {
+          method: "HEAD", // HEAD requests are lightweight and only check if the server is live
+        });
+        if (response.ok) {
+          // redirect only if the server live
+          router.push(
+            `http://localhost:8080/index.html?referrer=${encodeURIComponent(
+              `https://major-project-tp.vercel.app${path}`
+            )}`
+          );
+        } else {
+          console.error("Server is not live");
+        }
+      } catch (error) {
+        console.error("Unable to connect to the server:", error);
+      }
+    };
+    if (isIdle && typeof window !== "undefined") {
+      checkServer();
+    }
+  }, [router, isIdle, path]);
 
   return (
     <Card rounded>
