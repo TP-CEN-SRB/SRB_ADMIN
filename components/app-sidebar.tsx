@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BsFillBarChartFill } from "react-icons/bs";
-import { usePathname } from "next/navigation";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
 import {
@@ -43,7 +42,7 @@ import {
 import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
 
-const collaspeItems = [
+export const collaspeItems = [
   {
     title: "Bins",
     icon: FaTrash,
@@ -121,7 +120,7 @@ const collaspeItems = [
   },
 ];
 
-const dropdownItems = [
+export const dropdownItems = [
   {
     title: "Profile",
     icon: FaUser,
@@ -140,7 +139,6 @@ const dropdownItems = [
 ];
 
 export function AppSidebar({ email }: { email: string | null | undefined }) {
-  const path = usePathname();
   const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false);
   const [openIndexes, setOpenIndexes] = useState<number[]>([]);
 

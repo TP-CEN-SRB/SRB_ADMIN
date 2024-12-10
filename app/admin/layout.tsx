@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { MobileAppSidebar } from "@/components/mobile-app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import prisma from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
@@ -11,11 +12,13 @@ export default async function AdminLayout({
 }) {
   const sessionUser = await getSessionUser();
   const user = await prisma.user.findUnique({ where: { id: sessionUser?.id } });
+
   return (
-    <div className="bg-[#f0f1f4] min-h-screen">
+    <div>
+      <MobileAppSidebar />
       <SidebarProvider defaultOpen>
         <AppSidebar email={user?.email} />
-        <div className="w-full mx-auto">{children}</div>
+        <div className="w-full mx-auto bg-[#f0f1f4]">{children}</div>
       </SidebarProvider>
     </div>
   );

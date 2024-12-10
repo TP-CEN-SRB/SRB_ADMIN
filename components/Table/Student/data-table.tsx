@@ -129,20 +129,22 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="px-4">
-      <div className="flex justify-end items-center gap-3 py-3">
+      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
         <InputFilter
           query={searchParams.get("query")}
           onSearch={handleSearch}
         />
-        <SortByFilter
-          onResetSortBy={handleResetSortBy}
-          onApplySortBy={handleApplySortBy}
-        />
-        <TableFilter
-          onApplyFilter={handleApplyFilter}
-          onResetFilter={handleResetFilter}
-        />
-        <ExportCSV data={data} />
+        <div className="flex gap-3">
+          <SortByFilter
+            onResetSortBy={handleResetSortBy}
+            onApplySortBy={handleApplySortBy}
+          />
+          <TableFilter
+            onApplyFilter={handleApplyFilter}
+            onResetFilter={handleResetFilter}
+          />
+          <ExportCSV data={data} />
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
