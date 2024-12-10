@@ -121,10 +121,12 @@ export function MobileAppSidebar() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     {item.child.map((child, subIndex) => (
-                      <div className="p-2 hover:bg-[#D0D6E0] rounded-md mx-4">
+                      <div
+                        key={subIndex}
+                        className="p-2 hover:bg-[#D0D6E0] rounded-md mx-4"
+                      >
                         <Link
                           className="flex items-center gap-2"
-                          key={subIndex}
                           href={child.url}
                         >
                           <child.icon />
