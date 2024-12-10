@@ -197,7 +197,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     <SidebarMenuSub>
                       {item.child.map((child, subIndex) => (
                         <Link key={subIndex} href={child.url}>
-                          <SidebarMenuSubItem className="pl-2 ml-2 hover:!bg-[#f5f2b3] rounded-lg">
+                          <SidebarMenuSubItem className="pl-2 ml-2 rounded-lg">
                             <SidebarMenuButton>
                               <child.icon />
                               <span>{child.title}</span>

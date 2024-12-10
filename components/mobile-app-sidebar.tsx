@@ -50,8 +50,8 @@ export function MobileAppSidebar() {
           handleDialogOpen={() => setSignOutDialogOpen(!isSignOutDialogOpen)}
         />
         <Sheet>
-          <div className="w-full p-4 shadow-lg flex justify-between md:hidden border-b-2 border-gray-200 bg-[#f7f6c9]">
-            <SheetTrigger className="text-slate-800 border border-x-gray-300 rounded-lg p-1 bg-[#f7f6c9] hover:!bg-[#f5f2b3]">
+          <div className="w-full p-4 shadow-lg flex justify-between md:hidden border-b-2 border-gray-200 bg-[#E6ECF0]">
+            <SheetTrigger className="text-slate-800 border border-x-gray-300 rounded-lg p-1 bg-[#E6ECF0] hover:!bg-[#D0D6E0]">
               <GiHamburgerMenu size={40} />
             </SheetTrigger>
             <DropdownMenu modal={false}>
@@ -81,7 +81,7 @@ export function MobileAppSidebar() {
             </DropdownMenu>
           </div>
           <SheetContent
-            className="max-w-[300px] text-slate-800 bg-[#f7f6c9]"
+            className="max-w-[300px] text-slate-800 bg-[#E6ECF0]"
             side="left"
           >
             <SheetHeader>
@@ -93,7 +93,7 @@ export function MobileAppSidebar() {
               />
             </SheetHeader>
             <div className="mt-5 flex flex-col gap-1">
-              <div className="p-2 hover:bg-[#f5f2b3] rounded-md">
+              <div className="p-2 hover:bg-[#D0D6E0] rounded-md">
                 <Link className="flex items-center gap-2" href="/admin">
                   <BsFillBarChartFill />
                   <span>Dashboard</span>
@@ -107,7 +107,7 @@ export function MobileAppSidebar() {
                   open={openIndexes.includes(index)}
                 >
                   <CollapsibleTrigger asChild>
-                    <div className="flex p-2 items-center gap-2 ml-auto hover:bg-[#f5f2b3] cursor-pointer rounded-md">
+                    <div className="flex p-2 items-center gap-2 ml-auto hover:bg-[#D0D6E0] cursor-pointer rounded-md">
                       <item.icon />
                       <span>{item.title}</span>
                       <FaChevronDown
@@ -121,7 +121,7 @@ export function MobileAppSidebar() {
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     {item.child.map((child, subIndex) => (
-                      <div className="p-2 hover:bg-[#f5f2b3] rounded-md mx-4">
+                      <div className="p-2 hover:bg-[#D0D6E0] rounded-md mx-4">
                         <Link
                           className="flex items-center gap-2"
                           key={subIndex}
