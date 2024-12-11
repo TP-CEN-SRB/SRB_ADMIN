@@ -20,6 +20,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
   const [error, setError] = useState<string>();
   const [thrown, setThrown] = useState(false);
   const router = useRouter();
+  const [resetCondition, setResetCondition] = useState(false);
 
   useEffect(() => {
     const checkIfBinIsInOrder = async () => {
@@ -86,6 +87,7 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
         ) {
           setMaterial(data.material.toUpperCase() as string);
           setDetecting(false);
+          setResetCondition(true);
         }
         if (
           material &&
@@ -145,7 +147,9 @@ const DetectMaterialPage = ({ params }: { params: { id: string } }) => {
         weightInGrams === undefined &&
         binCapacity === undefined && (
           <TimerRedirect
-            delayInMs={45000}
+            delayInMs={30000}
+            resetTimeInMs={30000}
+            resetCondition={resetCondition}
             redirectTo={`/dispose-steps/${params.id}`}
           />
         )}
