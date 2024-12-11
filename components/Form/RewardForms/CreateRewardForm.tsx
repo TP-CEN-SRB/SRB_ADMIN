@@ -220,7 +220,7 @@ const CreateRewardForm = () => {
                   <FormLabel className="font-bold text-slate-700">
                     Availability
                   </FormLabel>
-                  <div className="flex flex-row gap-3 items-center justify-between rounded-lg border p-4 w-full">
+                  <div className="flex flex-row gap-3 items-center justify-between rounded-lg border border-gray-300 p-4 w-full">
                     <FormDescription>
                       Enable the reward to be used within the reward duration
                     </FormDescription>
