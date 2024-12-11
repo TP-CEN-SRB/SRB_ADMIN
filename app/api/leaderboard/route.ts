@@ -81,7 +81,7 @@ export const GET = async (req: NextRequest) => {
           },
         });
         return {
-          usrerId: userId,
+          userId: userId,
           rank: userIds.indexOf(userId) + 1,
           username: name?.name || null,
           adminNo: name?.email.split("@")[0].toUpperCase() || null,
