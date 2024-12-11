@@ -31,7 +31,11 @@ const AdminProfileMore = ({ email }: { email: string }) => {
         <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2">
           <MdMoreVert />
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end">
+        <DropdownMenuContent
+          className="border-gray-300"
+          side="bottom"
+          align="end"
+        >
           <Link href="/admin/profile/edit">
             <DropdownMenuItem className="cursor-pointer">
               <FaEdit />

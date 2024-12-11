@@ -27,8 +27,10 @@ const AdminProfilePage = async () => {
         </div>
       </Card>
       <Card isAdmin>
-        <div className="flex justify-between items-center">
-          <CardHeader>Profile Information</CardHeader>
+        <div className="flex flex-wrap justify-between items-center">
+          <h1 className="text-4xl text-left text-slate-800">
+            Profile Information
+          </h1>
           <AdminProfileMore email={user?.email as string} />
         </div>
         <div className="mt-5">

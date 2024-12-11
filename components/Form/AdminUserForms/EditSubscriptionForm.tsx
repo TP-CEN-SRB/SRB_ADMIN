@@ -50,7 +50,7 @@ const EditSubscriptionForm = ({ id, isSubscribed }: SubscriptionFormProps) => {
               control={form.control}
               name="isSubscribed"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-300 p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">Bin Alerts</FormLabel>
                     <FormDescription>
