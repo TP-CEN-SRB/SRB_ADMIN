@@ -103,6 +103,12 @@ export const columns: ColumnDef<Bin>[] = [
     },
   },
   {
+    id: "status",
+    accessorKey: "status",
+    header: () => null,
+    cell: () => null,
+  },
+  {
     id: "location",
     accessorKey: "user.location",
     header: "Location",

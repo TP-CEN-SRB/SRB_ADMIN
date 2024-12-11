@@ -654,24 +654,86 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       },
     },
   });
+  // const orderedDisposals = await Promise.all(
+  //   userIds.map(async (userId) => {
+  //     const disposal = userDisposals.find((d) => d.userId === userId);
+  //     const name = await prisma.user.findUnique({
+  //       where: {
+  //         id: userId,
+  //       },
+  //       select: {
+  //         name: true,
+  //         email: true,
+  //       },
+  //     });
+  //     return {
+  //       username: name?.name || undefined,
+  //       userId: userId,
+  //       balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
+  //       disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
+  //       redemptionCount: userRedemptions.find((r) => r.userId === userId) || 0,
+  //     };
+  //   })
+  // );
+  const test = await prisma.disposal.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+        },
+      },
+      bin: {
+        include: {
+          binMaterial: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  //map the array of data to its corresponding user id
   const orderedDisposals = await Promise.all(
     userIds.map(async (userId) => {
-      const disposal = userDisposals.find((d) => d.userId === userId);
+      const disposal = userDisposals.find((d) => d.userId === userId) || {
+        _count: { id: 0 },
+      };
       const name = await prisma.user.findUnique({
-        where: {
-          id: userId,
-        },
+        where: { id: userId },
         select: {
           name: true,
           email: true,
         },
       });
+
+      const userTestData = test.filter((t) => t.user?.id === userId);
+
+      const materialCounts = userTestData.reduce((acc, item) => {
+        const materialName = item.bin?.binMaterial?.name;
+        if (materialName) {
+          acc[materialName] = (acc[materialName] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<string, number>);
+
+      const mostFrequentMaterial = Object.keys(materialCounts).reduce(
+        (maxMaterial, material) =>
+          materialCounts[material] > (materialCounts[maxMaterial] || 0)
+            ? material
+            : maxMaterial,
+        ""
+      );
+
       return {
         username: name?.name || undefined,
         userId: userId,
-        balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
-        disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
-        redemptionCount: userRedemptions.find((r) => r.userId === userId) || 0,
+        balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
+        disposalCount: disposal._count.id || 0,
+        redemptionCount:
+          userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
+        mostFrequentMaterial: mostFrequentMaterial || undefined,
       };
     })
   );
