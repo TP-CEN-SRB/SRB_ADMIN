@@ -57,17 +57,17 @@ export const GET = async (req: NextRequest) => {
       },
     });
 
-    const userRedemptions = await prisma.redemption.groupBy({
-      by: ["userId"],
-      _count: {
-        id: true,
-      },
-      where: {
-        userId: {
-          in: userIds,
-        },
-      },
-    });
+    // const userRedemptions = await prisma.redemption.groupBy({
+    //   by: ["userId"],
+    //   _count: {
+    //     id: true,
+    //   },
+    //   where: {
+    //     userId: {
+    //       in: userIds,
+    //     },
+    //   },
+    // });
     const orderedDisposals = await Promise.all(
       userIds.map(async (userId) => {
         const disposal = userDisposals.find((d) => d.userId === userId);
@@ -81,14 +81,15 @@ export const GET = async (req: NextRequest) => {
           },
         });
         return {
+          usrerId: userId,
           rank: userIds.indexOf(userId) + 1,
           username: name?.name || null,
           adminNo: name?.email.split("@")[0].toUpperCase() || null,
           points:
             data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
           disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
-          redemptionCount:
-            userRedemptions.find((r) => r.userId === userId) || 0,
+          // redemptionCount:
+          //   userRedemptions.find((r) => r.userId === userId) || 0,
         };
       })
     );
