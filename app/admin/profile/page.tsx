@@ -32,7 +32,7 @@ const AdminProfilePage = async () => {
           <AdminProfileMore email={user?.email as string} />
         </div>
         <div className="mt-5">
-          <div className="flex flex-wrap">
+          <div className="flex md:flex-row flex-col md:gap-0 gap-6">
             <div className="flex flex-col flex-1 flex-shrink flex-basis-[200px] gap-6">
               <div>
                 <p className="text-slate-600">Name</p>
