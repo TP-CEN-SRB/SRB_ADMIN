@@ -66,7 +66,7 @@ const EditStudentForm = ({
   };
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>Update profile</FormHeader>
+      <FormHeader>Update user</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

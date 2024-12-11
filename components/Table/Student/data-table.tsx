@@ -196,11 +196,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="p-4 flex justify-between items-center">
-        <div>
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
+      <div className="p-4 flex justify-end items-center">
         <div className="flex items-center space-x-2">
           <p>
             Page {isNaN(page) ? "1" : page} of{" "}

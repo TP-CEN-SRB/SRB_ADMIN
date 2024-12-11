@@ -34,7 +34,7 @@ const UserProfileMore = ({ id }: { id: string }) => {
           <Link href={`/admin/user/edit/${id}`}>
             <DropdownMenuItem className="cursor-pointer">
               <FaEdit />
-              <span>Edit profile</span>
+              <span>Edit user</span>
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem
