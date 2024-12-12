@@ -92,31 +92,29 @@ const UsersDashboard = ({
   useEffect(() => {
     const filterData = async () => {
       const date = new Date();
-      var startDate: Date;
-      var endDate: Date;
 
-      switch (isActive) {
-        case "week":
-          startDate = new Date(
-            date.setDate(date.getDate() - date.getDay() - 6)
-          );
-          endDate = new Date(date.setDate(date.getDate() - date.getDay() + 7));
-          console.log(startDate, endDate);
-          break;
-        case "month":
-          startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-          endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-          console.log(startDate, endDate);
-          break;
-        case "year":
-          startDate = new Date(date.getFullYear(), 0, 1);
-          endDate = new Date(date.getFullYear(), 11, 31);
-          console.log(startDate, endDate);
-          break;
-        default:
-          startDate = new Date();
-          endDate = new Date();
-      }
+      const { startDate, endDate } = (() => {
+        if (isActive === "week") {
+          return {
+            startDate: new Date(
+              date.setDate(date.getDate() - date.getDay() - 6)
+            ),
+            endDate: new Date(date.setDate(date.getDate() - date.getDay() + 7)),
+          };
+        } else if (isActive === "month") {
+          return {
+            startDate: new Date(date.getFullYear(), date.getMonth(), 1),
+            endDate: new Date(date.getFullYear(), date.getMonth() + 1, 0),
+          };
+        } else if (isActive === "year") {
+          return {
+            startDate: new Date(date.getFullYear(), 0, 1),
+            endDate: new Date(date.getFullYear(), 11, 31),
+          };
+        }
+        return { startDate: new Date(), endDate: new Date() };
+      })();
+
       try {
         const filteredData = await getTopTenUsers(startDate, endDate);
         setLeaderBoard(filteredData);

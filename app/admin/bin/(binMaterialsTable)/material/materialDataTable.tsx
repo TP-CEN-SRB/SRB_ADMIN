@@ -28,7 +28,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
@@ -41,16 +40,13 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { MdDeleteForever } from "react-icons/md";
-import { deleteBinMaterial } from "@/app/action/binMaterial";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import ConfirmDeleteMaterialDialog from "@/components/Dialog/ConfirmDeleteMaterialDialog";
 
 interface MaterialActionsProps {
   allBinMaterials: { name: string | undefined }[];
@@ -58,6 +54,95 @@ interface MaterialActionsProps {
 }
 
 const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
+  const BinMaterialActions = ({
+    binMaterial,
+  }: {
+    binMaterial: BinMaterial;
+  }) => {
+    const [isDialogOpen, setDialogOpen] = useState(false);
+    const [hasBins, setHasBins] = useState(
+      allBinMaterials.some((material) => material.name == binMaterial.name)
+    );
+    const datetime = new Date().toLocaleString("en-SG", {
+      timeZone: "Asia/Singapore",
+      hour12: false, // 24-hour format, remove if 12-hour format is needed
+    });
+    return (
+      <div>
+        <ConfirmDeleteMaterialDialog
+          isOpen={isDialogOpen}
+          handleDialogOpen={() => setDialogOpen(!isDialogOpen)}
+          materialId={binMaterial.id}
+        />
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <Link
+              href={`/admin/bin/material/update/${binMaterial.id}`}
+              passHref
+              prefetch
+            >
+              <DropdownMenuItem>
+                <FaEdit />
+                Edit material
+              </DropdownMenuItem>
+            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <DropdownMenuItem
+                    onClick={() => setDialogOpen(true)}
+                    className={hasBins ? "cursor-not-allowed opacity-50" : ""}
+                    disabled={hasBins}
+                  >
+                    <MdDeleteForever />
+                    Delete material
+                  </DropdownMenuItem>
+                </div>
+              </TooltipTrigger>
+              {hasBins && (
+                <TooltipContent
+                  side="bottom"
+                  align="center"
+                  className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
+                >
+                  <div className="flex items-start space-x-2">
+                    <svg
+                      className="w-5 h-5 text-red-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M12 20c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"
+                      />
+                    </svg>
+                    <div>
+                      <p className="font-semibold text-gray-800">Warning</p>
+                      <p className="mt-1 text-sm">
+                        This material type is in use. Deleting is not allowed.
+                      </p>
+                    </div>
+                  </div>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    );
+  };
   const columns: ColumnDef<BinMaterial>[] = [
     {
       accessorKey: "name",
@@ -66,111 +151,7 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
     {
       accessorKey: "actions",
       header: "Actions",
-      cell: ({ row }) => {
-        const router = useRouter();
-        const datetime = new Date().toLocaleString("en-SG", {
-          timeZone: "Asia/Singapore",
-          hour12: false, // 24-hour format, remove if 12-hour format is needed
-        });
-        const onDelete = async (id: string) => {
-          const result = await deleteBinMaterial(id);
-          if (result?.success) {
-            toast({
-              title: "Material type deleted successfully",
-              description: (
-                <div>
-                  Material deleted at {datetime}
-                  <br />
-                  <br />
-                  <strong>Material ID: </strong> {id}
-                </div>
-              ),
-              duration: 2000,
-              variant: "default",
-            });
-            router.refresh();
-          }
-        };
-
-        return (
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <Link
-                href={`/admin/bin/material/update/${row.original.id}`}
-                passHref
-                prefetch
-              >
-                <DropdownMenuItem>
-                  <FaEdit />
-                  Edit material
-                </DropdownMenuItem>
-              </Link>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <DropdownMenuItem
-                      onClick={() => onDelete(row.original.id)}
-                      className={
-                        allBinMaterials.includes({
-                          name: row.original.name,
-                        })
-                          ? "cursor-not-allowed opacity-50"
-                          : ""
-                      }
-                      disabled={allBinMaterials.some(
-                        (material) => material.name == row.original.name
-                      )}
-                    >
-                      <MdDeleteForever />
-                      Delete material
-                    </DropdownMenuItem>
-                  </div>
-                </TooltipTrigger>
-                {allBinMaterials.some(
-                  (material) => material.name == row.original.name
-                ) && (
-                  <TooltipContent
-                    side="bottom"
-                    align="center"
-                    className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
-                  >
-                    <div className="flex items-start space-x-2">
-                      <svg
-                        className="w-5 h-5 text-red-500"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 16h-1v-4h-1m1-4h.01M12 20c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"
-                        />
-                      </svg>
-                      <div>
-                        <p className="font-semibold text-gray-800">Warning</p>
-                        <p className="mt-1 text-sm">
-                          This material type is in use. Deleting is not allowed.
-                        </p>
-                      </div>
-                    </div>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+      cell: ({ row }) => <BinMaterialActions binMaterial={row.original} />,
     },
   ];
   const [pagination, setPagination] = useState<PaginationState>({

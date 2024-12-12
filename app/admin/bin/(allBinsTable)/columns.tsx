@@ -19,6 +19,8 @@ import { useRouter } from "next/navigation";
 import { MdDeleteForever } from "react-icons/md";
 import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
 import { FaEdit } from "react-icons/fa";
+import { useState } from "react";
+import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog";
 
 export type Bin = {
   id: string;
@@ -33,53 +35,41 @@ export type Bin = {
 
 const BinActions = ({ bin }: { bin: Bin }) => {
   const router = useRouter();
+  const [isDialogOpen, setDialogOpen] = useState(false);
   const datetime = new Date().toLocaleString("en-SG", {
     timeZone: "Asia/Singapore",
     hour12: false, // 24-hour format, remove if 12-hour format is needed
   });
 
-  const onDelete = async (id: string) => {
-    const result = await deleteBin(id);
-    if (result?.success) {
-      toast({
-        title: "Bin deleted successfully",
-        description: (
-          <div>
-            Bin deleted at {datetime}
-            <br />
-            <br />
-            <strong>Bin ID: </strong> {id}
-          </div>
-        ),
-        duration: 2000,
-        variant: "default",
-      });
-      router.refresh();
-    }
-  };
-
   return (
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <Link href={`/admin/bin/update/${bin.id}`} passHref>
-          <DropdownMenuItem>
-            <FaEdit />
-            Edit bin
+    <div>
+      <ConfirmDeleteBinDialog
+        binId={bin.id}
+        isOpen={isDialogOpen}
+        handleDialogOpen={() => setDialogOpen(!isDialogOpen)}
+      />
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <Link href={`/admin/bin/update/${bin.id}`} passHref>
+            <DropdownMenuItem>
+              <FaEdit />
+              Edit bin
+            </DropdownMenuItem>
+          </Link>
+          <DropdownMenuItem onClick={() => setDialogOpen(true)}>
+            <MdDeleteForever />
+            Delete bin
           </DropdownMenuItem>
-        </Link>
-        <DropdownMenuItem onClick={() => onDelete(bin.id)}>
-          <MdDeleteForever />
-          Delete bin
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 
