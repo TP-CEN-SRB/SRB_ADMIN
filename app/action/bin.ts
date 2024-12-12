@@ -528,3 +528,20 @@ export const getUsedMaterialsForBin = async (userId: string) => {
   });
   return usedBinMaterials;
 };
+
+export const listOfBinMaterialInUse = async () => {
+  const binsArr = await prisma.bin.groupBy({
+    by: ["binMaterialId"],
+  });
+  const binMaterialsArr = await prisma.binMaterial.findMany();
+  const binMaterialsMappedArr = await Promise.all(
+    binsArr.map(async (bin) => {
+      return {
+        name: binMaterialsArr.find(
+          (material) => material.id === bin.binMaterialId
+        )?.name,
+      };
+    })
+  );
+  return binMaterialsMappedArr;
+};

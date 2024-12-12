@@ -741,6 +741,34 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   return orderedDisposals;
 };
 
+const listOfBinManagersUsed = async () => {
+  const binsArr = await prisma.bin.groupBy({
+    by: ["userId"],
+  });
+  const binManagersArr = await prisma.user.groupBy({
+    by: ["id", "name", "email", "faculty"],
+    where: {
+      role: "BIN",
+    },
+  });
+  const binManagersMappedArr = await Promise.all(
+    binsArr.map(async (bin) => {
+      const binManager = binManagersArr.find(
+        (manager) => manager.id === bin.userId
+      );
+      if (binManager) {
+        return {
+          id: binManager.id,
+          name: binManager.name,
+          email: binManager.email,
+          faculty: binManager.faculty,
+        };
+      }
+    })
+  );
+  return binManagersMappedArr;
+};
+
 export {
   signUp,
   signUpBin,
@@ -758,4 +786,5 @@ export {
   deleteUser,
   updateStudent,
   getTopTenUsers,
+  listOfBinManagersUsed,
 };

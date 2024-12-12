@@ -34,7 +34,6 @@ type User = {
   redemptionCount: number | { _count: { id: number } };
   mostFrequentMaterial: string | undefined;
 };
-const columnHelper = createColumnHelper<User>();
 
 interface LeaderboardData {
   username: string | undefined;
@@ -75,7 +74,7 @@ const UsersDashboard = ({
       cell: ({ row }) => {
         return (
           <button
-            className="flex bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
+            className="flex bg-blue-500 hover:bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
             onClick={() => router.push(`/admin/user/${row.original.userId}`)}
           >
             View Profile
@@ -226,7 +225,7 @@ const UsersDashboard = ({
                 <span className="text-sm">Redemptions</span>
               </div>
             </div>
-            <div className="flex justify-center items-center h-12 mx-4 mb-4 bg-blue-300 rounded-lg">
+            <div className="flex justify-center items-center h-12 mx-4 mb-4 bg-blue-500 hover:bg-blue-300 rounded-lg">
               <button
                 className="flex justify-center items-center text-white font-bold py-2 rounded-lg w-full"
                 onClick={() => {

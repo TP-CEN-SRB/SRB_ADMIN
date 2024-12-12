@@ -30,8 +30,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface StatsGridProps {
   initialStatsData: number[];
@@ -306,8 +312,8 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
                               issue has been corrected.
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="py-4">
-                            <table className="min-w-full bg-white border border-gray-300">
+                          <div className="rounded-md border">
+                            {/* <table className="min-w-full bg-white border border-gray-300 rounded-b-lg">
                               <thead>
                                 <tr className="bg-gray-200 text-gray-700">
                                   <th className="py-2 px-4 border-b">
@@ -323,11 +329,13 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
                                   <td className="py-2 px-4 border-b text-center">
                                     Block A
                                   </td>
-                                  <td className="py-2 px-4 border-b">
+                                  <td className="py-2 px-4 border-b text-center">
                                     Recycling
                                   </td>
-                                  <td className="py-2 px-4 border-b">Full</td>
-                                  <td className="py-2 px-4 border-b">
+                                  <td className="py-2 px-4 border-b text-center">
+                                    Full
+                                  </td>
+                                  <td className="py-2 px-4 border-b flex justify-center">
                                     <Button
                                       className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
                                       variant="secondary"
@@ -337,7 +345,46 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
                                   </td>
                                 </tr>
                               </tbody>
-                            </table>
+                            </table> */}
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-center">
+                                    Location
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Type
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Status
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Action
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="text-center">
+                                    Block A
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    Recycling
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    Full
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Button
+                                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                      variant="secondary"
+                                    >
+                                      Resolve
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
                           </div>
                           <DialogFooter></DialogFooter>
                         </DialogContent>
