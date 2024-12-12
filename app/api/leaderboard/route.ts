@@ -81,9 +81,9 @@ export const GET = async (req: NextRequest) => {
           },
         });
         return {
+          userId: userId,
           rank: userIds.indexOf(userId) + 1,
           username: name?.name || null,
-          userId: userId,
           adminNo: name?.email.split("@")[0].toUpperCase() || null,
           points:
             data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance

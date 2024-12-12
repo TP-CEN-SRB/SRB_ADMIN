@@ -4,12 +4,16 @@ import React from "react";
 interface RedirectProps {
   href: string;
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
-const FormRedirect = ({ href, children }: RedirectProps) => {
+const FormRedirect = ({ href, children, disabled = false }: RedirectProps) => {
   return (
     <div className="flex justify-center mt-3">
-      <Link className="link-underline" href={href}>
+      <Link
+        className={`link-underline ${disabled ? "pointer-events-none" : ""}`}
+        href={href}
+      >
         {children}
       </Link>
     </div>

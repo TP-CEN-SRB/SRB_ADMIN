@@ -1,5 +1,4 @@
 "use client";
-
 import * as React from "react";
 import { format, getMonth, getYear, setMonth, setYear } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -20,6 +19,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { getYears, months } from "@/utils/dateUtils";
+import { useMediaQuery } from "react-responsive";
 
 interface DatePickerProps {
   startYear?: number;
@@ -37,6 +37,9 @@ export default function DateRangePicker({
   initialDate = undefined,
   disabled = false,
 }: DatePickerProps) {
+  const isDesktop = useMediaQuery({
+    query: "(min-width: 768px)",
+  });
   const years = getYears(startYear, endYear);
   const [date, setDate] = React.useState<DateRange | undefined>(initialDate);
   const [calendarMonth, setCalendarMonth] = React.useState<number>(
@@ -126,7 +129,7 @@ export default function DateRangePicker({
             defaultMonth={new Date()}
             selected={date}
             onSelect={handleDateChange}
-            numberOfMonths={2}
+            numberOfMonths={isDesktop ? 2 : 1}
             onMonthChange={(newMonth) => {
               setCalendarMonth(getMonth(newMonth));
               setCalendarYear(getYear(newMonth));

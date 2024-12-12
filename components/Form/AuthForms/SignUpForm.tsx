@@ -154,7 +154,9 @@ const SignUpForm = () => {
           </Button>
         </form>
       </Form>
-      <FormRedirect href="/login">Already have an account?</FormRedirect>
+      <FormRedirect disabled={isPending} href="/login">
+        Already have an account?
+      </FormRedirect>
     </div>
   );
 };

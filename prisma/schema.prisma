@@ -45,8 +45,9 @@ model User {
   bins          Bin[]
   redemptions   Redemption[]
   subscription  Subscription?
+  transactions  Transaction[]
   point         Point?
-  location      String?  @unique// Outside library
+  location      String?       @unique // Outside library
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -109,16 +110,17 @@ model BinMaterial {
 }
 
 model Disposal {
-  id            String   @id @default(uuid())
+  id            String        @id @default(uuid())
   weightInGrams Int
   binId         String
-  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
-  isRedeemed    Boolean  @default(false)
+  bin           Bin           @relation(fields: [binId], references: [id], onDelete: Cascade)
+  isRedeemed    Boolean       @default(false)
   pointsAwarded Int
   userId        String?
-  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@map("disposals")
 }
@@ -154,11 +156,12 @@ model Reward {
 }
 
 model Redemption {
-  id       String @id @default(uuid())
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String
-  reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  rewardId String
+  id           String        @id @default(uuid())
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  reward       Reward        @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  rewardId     String
+  transactions Transaction[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -176,4 +179,21 @@ model Subscription {
   updatedAt DateTime @updatedAt
 
   @@map("subscriptions")
+}
+
+model Transaction {
+  id           String     @id @default(uuid())
+  pointsChange Int
+  description  String
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  disposalId   String
+  disposal     Disposal   @relation(fields: [disposalId], references: [id], onDelete: Cascade)
+  redemptionId String
+  redemption   Redemption @relation(fields: [redemptionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("transactions")
 }

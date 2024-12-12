@@ -7,6 +7,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Button } from "../ui/button";
 import { toast } from "@/hooks/use-toast";
 
@@ -14,6 +22,7 @@ import { Loader2 } from "lucide-react";
 import CustomFormMessage from "../Form/CustomFormMessage";
 import { useRouter } from "next/navigation";
 import { deleteReward } from "@/app/action/reward";
+import { useMediaQuery } from "react-responsive";
 interface DialogProps {
   rewardId: string;
   isOpen: boolean;
@@ -26,7 +35,6 @@ const ConfirmDeleteRewardDialog = ({
 }: DialogProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const router = useRouter();
   const handleConfirm = () => {
     startTransition(async () => {
       const data = await deleteReward(rewardId);
@@ -40,7 +48,10 @@ const ConfirmDeleteRewardDialog = ({
       }
     });
   };
-  return (
+  const isDesktop = useMediaQuery({
+    query: "(min-width: 768px)",
+  });
+  return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
         <DialogHeader>
@@ -71,6 +82,37 @@ const ConfirmDeleteRewardDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  ) : (
+    <Drawer open={isOpen} onOpenChange={handleDialogOpen}>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle className="text-2xl">Are you sure?</DrawerTitle>
+          <DrawerDescription className="text-slate-500 text-md">
+            You are about to delete reward {rewardId}
+          </DrawerDescription>
+        </DrawerHeader>
+        {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+        <DrawerFooter>
+          <Button
+            disabled={isPending}
+            onClick={handleConfirm}
+            type="button"
+            className="bg-red-500 hover:bg-red-600 text-gray-50"
+          >
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+            {isPending ? "Loading..." : "Confirm"}
+          </Button>
+          <Button
+            disabled={isPending}
+            onClick={handleDialogOpen}
+            type="button"
+            className="border border-red-500 bg-gray-50 text-red-500 hover:bg-gray-200"
+          >
+            Cancel
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 };
 

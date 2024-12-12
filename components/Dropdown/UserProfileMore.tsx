@@ -26,11 +26,15 @@ const UserProfileMore = ({ id }: { id: string }) => {
         <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2">
           <MdMoreVert />
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end">
+        <DropdownMenuContent
+          className="border-gray-300"
+          side="bottom"
+          align="end"
+        >
           <Link href={`/admin/user/edit/${id}`}>
             <DropdownMenuItem className="cursor-pointer">
               <FaEdit />
-              <span>Edit profile</span>
+              <span>Edit user</span>
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem

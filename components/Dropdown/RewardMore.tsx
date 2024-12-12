@@ -26,7 +26,11 @@ const RewardMore = ({ id }: { id: string }) => {
         <DropdownMenuTrigger className="rounded-full border border-black text-xl p-2 bg-gray-50">
           <MdMoreVert />
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="bottom" align="end">
+        <DropdownMenuContent
+          className="border-gray-300"
+          side="bottom"
+          align="end"
+        >
           <Link href={`/admin/reward/edit/${id}`}>
             <DropdownMenuItem className="cursor-pointer">
               <FaEdit />

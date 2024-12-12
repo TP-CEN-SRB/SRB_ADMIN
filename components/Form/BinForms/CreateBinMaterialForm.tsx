@@ -68,7 +68,7 @@ const CreateBinMaterialForm = () => {
   };
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>Create Bin Material</FormHeader>
+      <FormHeader>Add a bin material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

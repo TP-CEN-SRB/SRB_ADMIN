@@ -77,8 +77,7 @@ const createDisposal = async (
           data: { emailSent: true },
         });
       }
-    }
-    if (binCapacity < 85 && bin.emailSent) {
+    } else if (binCapacity < 85 && bin.emailSent) {
       await prisma.bin.update({
         where: { id: bin.id },
         data: { emailSent: false },

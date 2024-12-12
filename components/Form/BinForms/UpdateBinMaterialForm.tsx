@@ -77,7 +77,7 @@ const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
 
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>Update Material</FormHeader>
+      <FormHeader>Update material</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField

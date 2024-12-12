@@ -6,9 +6,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import ImagePreview from "../Image/ImagePreview";
 import { Button } from "../ui/button";
 import { centerCrop, makeAspectCrop, type Crop } from "react-image-crop";
+import { useMediaQuery } from "react-responsive";
 
 interface DialogProps {
   isOpen: boolean;
@@ -97,14 +106,17 @@ const CropRewardDialog = ({
       onCropComplete(file);
     }
   };
+  const isDesktop = useMediaQuery({
+    query: "(min-width: 768px)",
+  });
 
-  return (
+  return isDesktop ? (
     <Dialog open={isOpen}>
       <DialogContent
         className="[&>button]:hidden"
-        onInteractOutside={(e) => {
-          e.preventDefault();
-        }}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onPointerDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
       >
         <DialogHeader>
           <DialogTitle className="text-3xl">Resize your image</DialogTitle>
@@ -136,6 +148,42 @@ const CropRewardDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  ) : (
+    <Drawer dismissible={false} open={isOpen}>
+      <DrawerContent>
+        <DrawerHeader className="text-left">
+          <DrawerTitle className="text-2xl">Resize your image</DrawerTitle>
+          <DrawerDescription className="text-slate-500 text-md">
+            We will send you an email with instructions to reset your password
+          </DrawerDescription>
+        </DrawerHeader>
+        <div className="flex justify-center">
+          <ImagePreview
+            crop={crop}
+            setCrop={setCrop}
+            imgRef={imgRef}
+            image={image}
+            onImageLoad={handleImageLoad}
+          />
+        </div>
+        <DrawerFooter>
+          <Button
+            type="button"
+            className="bg-emerald-500 hover:bg-emerald-600 text-gray-50"
+            onClick={handleCropSave}
+          >
+            Save
+          </Button>
+          <Button
+            onClick={() => onDialogClose(undefined)}
+            type="button"
+            className="border border-emerald-500 bg-gray-50 text-emerald-500 hover:bg-gray-200"
+          >
+            Cancel
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 };
 
