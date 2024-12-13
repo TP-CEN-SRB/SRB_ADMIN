@@ -33,10 +33,6 @@ import {
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FaPlusCircle } from "react-icons/fa";
-
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import { BinMaterial } from "@prisma/client";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
