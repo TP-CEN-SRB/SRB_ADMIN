@@ -63,7 +63,7 @@ const EditBinForm = ({
             description: `Manager ${name} has been updated successfully`,
             variant: "default",
           });
-          router.push("/admin/bin/manager");
+          router.replace("/admin/bin/manager");
         }
         if (result?.error) {
           toast({

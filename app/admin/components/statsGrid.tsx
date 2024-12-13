@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import React, { useReducer, useState } from "react";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { format } from "date-fns";
@@ -22,6 +20,24 @@ import {
 import { BsActivity } from "react-icons/bs";
 import { RiDeleteBin6Line, RiRecycleFill } from "react-icons/ri";
 import { TiWarningOutline } from "react-icons/ti";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface StatsGridProps {
   initialStatsData: number[];
@@ -165,11 +181,15 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
         <TiWarningOutline className="text-xl sm:text-2xl text-[#f44336] mr-2" />
       ),
       title: "Alerts",
-      value: state.totalUMBins,
+      value: initialStatsData[3],
       description: "Issues found",
       button: "View",
     },
   ];
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const onDialogClick = () => {
+    setIsDialogOpen(true);
+  };
 
   return (
     <>
@@ -275,7 +295,100 @@ const StatsGrid = ({ initialStatsData }: StatsGridProps) => {
                       )}
                     </div>
                     {data.button && (
-                      <Button variant="secondary">{data.button}</Button>
+                      <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="secondary" onClick={onDialogClick}>
+                            {data.button}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-screen-sm">
+                          <DialogHeader>
+                            <DialogTitle>Bins with issues</DialogTitle>
+                            <DialogDescription>
+                              Update the status of the bin. Click resolve if
+                              issue has been corrected.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="rounded-md border">
+                            {/* <table className="min-w-full bg-white border border-gray-300 rounded-b-lg">
+                              <thead>
+                                <tr className="bg-gray-200 text-gray-700">
+                                  <th className="py-2 px-4 border-b">
+                                    Location
+                                  </th>
+                                  <th className="py-2 px-4 border-b">Type</th>
+                                  <th className="py-2 px-4 border-b">Status</th>
+                                  <th className="py-2 px-4 border-b">Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="hover:bg-gray-100">
+                                  <td className="py-2 px-4 border-b text-center">
+                                    Block A
+                                  </td>
+                                  <td className="py-2 px-4 border-b text-center">
+                                    Recycling
+                                  </td>
+                                  <td className="py-2 px-4 border-b text-center">
+                                    Full
+                                  </td>
+                                  <td className="py-2 px-4 border-b flex justify-center">
+                                    <Button
+                                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                      variant="secondary"
+                                    >
+                                      Resolve
+                                    </Button>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table> */}
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-center">
+                                    Location
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Type
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Status
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Action
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="text-center">
+                                    Block A
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    Recycling
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    Full
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Button
+                                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                      variant="secondary"
+                                    >
+                                      Resolve
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+                          <DialogFooter></DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     )}
                   </div>
                   <div className="flex flex-col">

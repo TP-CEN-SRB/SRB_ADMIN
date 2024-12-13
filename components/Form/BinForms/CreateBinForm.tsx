@@ -95,10 +95,11 @@ const CreateBinForm = ({
                 <FormLabel className="font-bold">Location</FormLabel>
                 <FormControl>
                   <Input
-                    disabled={isPending}
+                    disabled={true}
                     placeholder="Near Library"
                     {...field}
                     type="text"
+                    className="bg-gray-200"
                   />
                 </FormControl>
                 <FormMessage />

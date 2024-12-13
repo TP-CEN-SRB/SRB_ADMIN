@@ -46,6 +46,7 @@ import { FaPlusCircle } from "react-icons/fa";
 
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import ExportCSV from "./export-csv";
+import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -81,6 +82,9 @@ export function DataTable<TData, TValue>({
   const [showFunctional, setShowFunctional] = useState<Checked>(false);
   const [showUnderMaintenance, setShowUnderMaintenance] =
     useState<Checked>(false);
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(
+    undefined
+  );
   const [locationFilterValue, setLocationFilterValue] = useState(
     (table.getColumn("location")?.getFilterValue() as string) ?? ""
   );
@@ -108,47 +112,27 @@ export function DataTable<TData, TValue>({
   };
 
   const handleFilterChange = (checked: boolean, status: string) => {
-    const newFunctionalState =
-      status === "FUNCTIONAL" ? checked : showFunctional;
-    const newUnderMaintenanceState =
-      status === "UNDER_MAINTENANCE" ? checked : showUnderMaintenance;
-    setShowFunctional(newFunctionalState);
-    setShowUnderMaintenance(newUnderMaintenanceState);
-    if (newFunctionalState && newUnderMaintenanceState) {
-      table.getColumn("status")?.setFilterValue(undefined);
-    } else if (newFunctionalState) {
-      table.getColumn("status")?.setFilterValue("FUNCTIONAL");
-    } else if (newUnderMaintenanceState) {
-      table.getColumn("status")?.setFilterValue("UNDER_MAINTENANCE");
-    } else {
-      table.getColumn("status")?.setFilterValue(undefined);
-    }
+    setStatusFilter((prevFilter) => {
+      let newFilter;
+      if (checked) {
+        if (!prevFilter) {
+          newFilter = status;
+        } else if (
+          (prevFilter === "FUNCTIONAL" && status === "UNDER_MAINTENANCE") ||
+          (prevFilter === "UNDER_MAINTENANCE" && status === "FUNCTIONAL")
+        ) {
+          newFilter = undefined;
+        } else {
+          newFilter = prevFilter;
+        }
+      } else {
+        newFilter = prevFilter === status ? undefined : prevFilter;
+      }
+      table.getColumn("status")?.setFilterValue(newFilter);
+      return newFilter;
+    });
   };
 
-  // const handleApplyFilter = (filters: Record<string, string[]>) => {
-  //   const filterValues = new Map<string, string[]>();
-  //   Object.entries(filters).forEach(([key, value]) => {
-  //     if (value.length > 0) {
-  //       filterValues.set(key, value);
-  //     }
-  //   });
-  // };
-
-  // const [selectedFilters, setSelectedFilters] = useState<
-  //   Record<string, string[]>
-  // >({
-  //   status: [],
-  //   material: [],
-  // });
-
-  // const handleCheckboxChange = (group: string, value: string) => {
-  //   setSelectedFilters((prev) => {
-  //     const updatedGroup = prev[group]?.includes(value)
-  //       ? prev[group].filter((item) => item !== value)
-  //       : [...(prev[group] || []), value];
-  //     return { ...prev, [group]: updatedGroup };
-  //   });
-  // };
   return (
     <>
       <div className="px-4">
@@ -171,22 +155,26 @@ export function DataTable<TData, TValue>({
               <DropdownMenuLabel>Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
-                checked={showFunctional}
+                checked={statusFilter == "FUNCTIONAL"}
                 onCheckedChange={(checked) =>
                   handleFilterChange(checked, "FUNCTIONAL")
                 }
                 onSelect={(e) => e.preventDefault()}
+                className="flex items-center gap-2"
               >
-                FUNCTIONAL
+                <TbSettingsCheck className="text-green-500" />
+                Functional
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
-                checked={showUnderMaintenance}
+                checked={statusFilter == "UNDER_MAINTENANCE"}
                 onCheckedChange={(checked) =>
                   handleFilterChange(checked, "UNDER_MAINTENANCE")
                 }
                 onSelect={(e) => e.preventDefault()}
+                className="flex items-center gap-2"
               >
-                UNDER MAINTENANCE
+                <TbSettingsX className="text-red-600" />
+                Under maintenance
               </DropdownMenuCheckboxItem>
               <DropdownMenuLabel>Material</DropdownMenuLabel>
               <DropdownMenuSeparator />
