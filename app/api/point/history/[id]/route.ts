@@ -61,22 +61,23 @@ export const GET = async (
       },
     });
 
-    // Map disposal history to a common format
+    const formatDate = (date: string | number | Date) =>
+      new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date));
+
     const disposalHistory = disposals.map((disposal) => ({
       id: disposal.id,
       type: "DISPOSAL",
       points: disposal.pointsAwarded,
       description: `Points awarded for disposal (${disposal.weightInGrams} grams)`,
-      date: disposal.createdAt.toISOString().split("T")[0], // Group by date (YYYY-MM-DD)
+      date: formatDate(disposal.createdAt), // Updated format
     }));
 
-    // Map redemption history to a common format
     const redemptionHistory = redemptions.map((redemption) => ({
       id: redemption.id,
       type: "REDEMPTION",
       points: -redemption.reward.pointsRequired,
       description: redemption.reward.name,
-      date: redemption.createdAt.toISOString().split("T")[0], // Group by date (YYYY-MM-DD)
+      date: formatDate(redemption.createdAt), // Updated format
       reward: {
         name: redemption.reward.name,
         description: redemption.reward.description,
