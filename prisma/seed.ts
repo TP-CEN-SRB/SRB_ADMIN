@@ -146,13 +146,6 @@ const binMaterialData: Prisma.BinMaterialCreateInput[] = [
 
 const rewardsData: Prisma.RewardCreateInput[] = [
   {
-    name: "Thermo Flask",
-    pointsRequired: 100,
-    description: "Water bottle that can keep your water cold for 24 hours",
-    isAvailable: true,
-    image: "https://utfs.io/f/oCGZ90SRbWapL2uLFIplCE3Zanesr5UxFyJfNVqiIzkOjDvX",
-  },
-  {
     name: "$10 Voucher",
     pointsRequired: 100,
     description: "$10 Voucher for any purchase",
@@ -165,6 +158,27 @@ const rewardsData: Prisma.RewardCreateInput[] = [
     description: "$5 Voucher for any purchase",
     isAvailable: true,
     image: "https://utfs.io/f/oCGZ90SRbWapNPIZsn3lfDP1q9EKkgxoQhystSaZBMvCm0Fu",
+  },
+  {
+    name: "Airpods Pro Lucky Draw",
+    pointsRequired: 3000,
+    description: "Stand a chance to win an AirPods Pro",
+    isAvailable: true,
+    image: "https://utfs.io/f/oCGZ90SRbWapJfURlwLzQkoOu3UtsWAj9Z4a7iqRDYGNL2c1",
+  },
+  {
+    name: "Recycled Tote Bag",
+    pointsRequired: 100,
+    description: "A recycled tote bag to fit your items",
+    isAvailable: true,
+    image: "https://utfs.io/f/oCGZ90SRbWapvajbyjJ9wlydo0JqmYXNfAeHBbSGzO8U1Zgr",
+  },
+  {
+    name: "Pokka Botted Drinks",
+    pointsRequired: 300,
+    description: "Any pokka drink of your choice",
+    isAvailable: true,
+    image: "https://utfs.io/f/oCGZ90SRbWapl61FyKqA5mhpsex0kJjiROr3492wgyFaUKnN",
   },
 ];
 

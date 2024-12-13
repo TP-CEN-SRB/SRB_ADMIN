@@ -34,7 +34,6 @@ export default auth(async (req) => {
   });
   const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
   const isBinRoute = binRoutes.some((route) => path.startsWith(route));
-  console.log(token);
   if (isApiAuthRoute) {
     return Response.redirect(new URL("/not-found", req.nextUrl));
   }
