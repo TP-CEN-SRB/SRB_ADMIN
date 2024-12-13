@@ -57,7 +57,6 @@ const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
       email: email,
       role: Role.ADMIN,
       password: hashedPassword,
-      subscription: { create: {} },
     },
   });
   const verificationToken = await generateVerificationToken(email);

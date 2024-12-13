@@ -91,7 +91,7 @@ const BinMaterialSchema = z.object({
 });
 
 const SubscriptionSchema = z.object({
-  isSubscribed: z.boolean(),
+  email: z.string().email("Please enter a valid email address").toLowerCase(),
 });
 
 const UpdateBinSchema = z.object({

@@ -21,7 +21,11 @@ import { toast } from "@/hooks/use-toast";
 import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
 import { FaEdit, FaPlus } from "react-icons/fa";
-import { MdDeleteForever, MdOutlineBarChart } from "react-icons/md";
+import {
+  MdDeleteForever,
+  MdMarkEmailRead,
+  MdOutlineBarChart,
+} from "react-icons/md";
 import { Faculty } from "@prisma/client";
 import {
   ColumnDef,
@@ -155,6 +159,15 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
               <DropdownMenuItem>
                 <MdOutlineBarChart />
                 View bin capacity
+              </DropdownMenuItem>
+            </Link>
+            <Link
+              href={`/admin/bin/manager/subscription/${binManager.id}`}
+              passHref
+            >
+              <DropdownMenuItem>
+                <MdMarkEmailRead />
+                Manage Subscriptions
               </DropdownMenuItem>
             </Link>
           </DropdownMenuContent>

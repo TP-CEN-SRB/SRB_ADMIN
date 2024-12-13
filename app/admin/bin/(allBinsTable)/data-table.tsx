@@ -137,7 +137,7 @@ export function DataTable<TData, TValue>({
     <>
       <div className="px-4">
         <div className="flex justify-end items-center py-3 space-x-2">
-          <div className="relative max-w-sm">
+          <div className="relative max-w-xs">
             <Input
               type="search"
               placeholder="Filter Location..."

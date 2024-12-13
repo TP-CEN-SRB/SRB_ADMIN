@@ -62,12 +62,11 @@ const createDisposal = async (
     });
     if (binCapacity > 85 && !bin.emailSent) {
       const subscriptions = await prisma.subscription.findMany({
-        where: { isSubscribed: true },
-        select: { user: { select: { email: true } } },
+        where: { userId: userId },
       });
       if (subscriptions.length > 0) {
         await sendBinWarningEmail(
-          subscriptions.map((subscription) => subscription.user.email),
+          subscriptions.map((subscription) => subscription.email),
           binCapacity,
           bin.binMaterial.name,
           bin.user.location

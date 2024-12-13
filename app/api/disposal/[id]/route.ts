@@ -97,7 +97,9 @@ export const PUT = async (
       await prisma.transaction.create({
         data: {
           pointsChange: disposal.pointsAwarded,
-          description: `Recycled ${disposal.weightInGrams}g of ${disposal.bin.binMaterial.name}`,
+          description: `Awarded ${disposal.pointsAwarded} pts for recycling ${
+            disposal.weightInGrams
+          }g of ${disposal.bin.binMaterial.name.toLowerCase()}`,
           transactionType: TransactionType.DISPOSAL,
           userId: userId,
         },

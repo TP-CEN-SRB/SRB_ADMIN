@@ -37,6 +37,7 @@ const userData: Prisma.UserCreateInput[] = [
         ],
       },
     },
+    subscriptions: { create: { email: "testadmin@tp.edu.sg" } },
   },
   {
     id: "eabc24b6-ca1c-4c94-86e1-2ebbc4944a78",
@@ -117,7 +118,6 @@ const userData: Prisma.UserCreateInput[] = [
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "ADMIN",
     faculty: "ENGINEERING",
-    subscription: { create: {} },
   },
 ];
 

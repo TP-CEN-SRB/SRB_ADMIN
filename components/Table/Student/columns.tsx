@@ -27,44 +27,10 @@ export type Student = {
   updatedAt: Date;
 };
 
-const handleClick = (column: Column<Student, unknown>) => {
-  const currentSort = column.getIsSorted();
-  if (currentSort === "asc") {
-    column.toggleSorting(true);
-  } else if (currentSort === "desc") {
-    column.clearSorting();
-  } else {
-    column.toggleSorting(false);
-  }
-};
-
-const SortIcon = ({ column }: { column: Column<Student, unknown> }) => {
-  const currentSort = column.getIsSorted();
-  return currentSort === "asc" ? (
-    <FaLongArrowAltUp className="h-4 w-4 -rotate-180 transition-transform duration-500" />
-  ) : currentSort === "desc" ? (
-    <FaLongArrowAltUp className="h-4 w-4 transition-transform duration-500" />
-  ) : (
-    <FaSort className="h-4 w-4" />
-  );
-};
 export const columns: ColumnDef<Student>[] = [
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <div className="flex items-center gap-x-3">
-          Name
-          <Button
-            variant="ghost"
-            className="hover:bg-gray-300"
-            onClick={() => handleClick(column)}
-          >
-            <SortIcon column={column} />
-          </Button>
-        </div>
-      );
-    },
+    header: "Name",
     cell: ({ row }) => {
       const isVerified = row.original.emailVerified != null;
       return (
@@ -84,20 +50,7 @@ export const columns: ColumnDef<Student>[] = [
     header: "Email",
   },
   {
-    header: ({ column }) => {
-      return (
-        <div className="flex items-center gap-x-3">
-          Points
-          <Button
-            variant="ghost"
-            className="hover:bg-gray-300"
-            onClick={() => handleClick(column)}
-          >
-            <SortIcon column={column} />
-          </Button>
-        </div>
-      );
-    },
+    header: "Points",
     accessorKey: "point.balance",
     cell: ({ row }) => row.original.point?.balance ?? "N/A",
   },
@@ -106,38 +59,12 @@ export const columns: ColumnDef<Student>[] = [
     header: "Faculty",
   },
   {
-    header: ({ column }) => {
-      return (
-        <div className="flex items-center gap-x-3">
-          Disposals
-          <Button
-            variant="ghost"
-            className="hover:bg-gray-300"
-            onClick={() => handleClick(column)}
-          >
-            <SortIcon column={column} />
-          </Button>
-        </div>
-      );
-    },
+    header: "Disposals",
     accessorKey: "_count.disposals",
     cell: ({ row }) => row.original._count?.disposals ?? 0,
   },
   {
-    header: ({ column }) => {
-      return (
-        <div className="flex items-center gap-x-3">
-          Redemptions
-          <Button
-            variant="ghost"
-            className="hover:bg-gray-300"
-            onClick={() => handleClick(column)}
-          >
-            <SortIcon column={column} />
-          </Button>
-        </div>
-      );
-    },
+    header: "Redemptions",
     accessorKey: "_count.redemptions",
     cell: ({ row }) => row.original._count?.redemptions ?? 0,
   },

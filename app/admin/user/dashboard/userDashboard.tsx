@@ -89,41 +89,41 @@ const UsersDashboard = ({
     useState<LeaderboardData[]>(leaderBoardData);
   const [tableData, setTableData] = useState<LeaderboardData[]>([]);
 
-  useEffect(() => {
-    const filterData = async () => {
-      const date = new Date();
+  // useEffect(() => {
+  //   const filterData = async () => {
+  //     const date = new Date();
 
-      const { startDate, endDate } = (() => {
-        if (isActive === "week") {
-          return {
-            startDate: new Date(
-              date.setDate(date.getDate() - date.getDay() - 6)
-            ),
-            endDate: new Date(date.setDate(date.getDate() - date.getDay() + 7)),
-          };
-        } else if (isActive === "month") {
-          return {
-            startDate: new Date(date.getFullYear(), date.getMonth(), 1),
-            endDate: new Date(date.getFullYear(), date.getMonth() + 1, 0),
-          };
-        } else if (isActive === "year") {
-          return {
-            startDate: new Date(date.getFullYear(), 0, 1),
-            endDate: new Date(date.getFullYear(), 11, 31),
-          };
-        }
-        return { startDate: new Date(), endDate: new Date() };
-      })();
+  //     const { startDate, endDate } = (() => {
+  //       if (isActive === "week") {
+  //         return {
+  //           startDate: new Date(
+  //             date.setDate(date.getDate() - date.getDay() - 6)
+  //           ),
+  //           endDate: new Date(date.setDate(date.getDate() - date.getDay() + 7)),
+  //         };
+  //       } else if (isActive === "month") {
+  //         return {
+  //           startDate: new Date(date.getFullYear(), date.getMonth(), 1),
+  //           endDate: new Date(date.getFullYear(), date.getMonth() + 1, 0),
+  //         };
+  //       } else if (isActive === "year") {
+  //         return {
+  //           startDate: new Date(date.getFullYear(), 0, 1),
+  //           endDate: new Date(date.getFullYear(), 11, 31),
+  //         };
+  //       }
+  //       return { startDate: new Date(), endDate: new Date() };
+  //     })();
 
-      try {
-        const filteredData = await getTopTenUsers(startDate, endDate);
-        setLeaderBoard(filteredData);
-      } catch (error) {
-        console.error("Failed to fetch leaderboard data:", error);
-      }
-    };
-    filterData();
-  }, [isActive]);
+  //     try {
+  //       const filteredData = await getTopTenUsers(startDate, endDate);
+  //       setLeaderBoard(filteredData);
+  //     } catch (error) {
+  //       console.error("Failed to fetch leaderboard data:", error);
+  //     }
+  //   };
+  //   filterData();
+  // }, [isActive]);
 
   useEffect(() => {
     const rest = leaderBoard.slice(3);
@@ -144,7 +144,7 @@ const UsersDashboard = ({
         <h1 className="text-4xl font-bold">Leaderboard</h1>
         <div className="flex rounded-lg w-1/60 border-solid border-2 border-slate-400">
           <Button
-            className={`rounded-r-none hover:bg-slate-300 ${
+            className={`rounded-r-none hover:bg-gray-300 ${
               isActive === "week" ? "bg-gray-400" : ""
             }`}
             variant="secondary"
@@ -155,7 +155,7 @@ const UsersDashboard = ({
           <div className="w-[2px] bg-slate-300" />
           <Button
             variant="secondary"
-            className={`rounded-none hover:bg-slate-300 ${
+            className={`rounded-none hover:bg-gray-300 ${
               isActive === "month" ? "bg-gray-400" : ""
             }`}
             onClick={() => setIsActive("month")}
@@ -165,7 +165,7 @@ const UsersDashboard = ({
           <div className="w-[2px] bg-slate-300" />
           <Button
             variant="secondary"
-            className={`rounded-l-none hover:bg-slate-300 ${
+            className={`rounded-l-none hover:bg-gray-300 ${
               isActive === "year" ? "bg-gray-400" : ""
             }`}
             onClick={() => setIsActive("year")}

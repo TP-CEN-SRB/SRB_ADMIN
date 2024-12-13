@@ -2,11 +2,8 @@
 import {
   ColumnDef,
   flexRender,
-  getPaginationRowModel,
   getCoreRowModel,
   useReactTable,
-  SortingState,
-  getSortedRowModel,
 } from "@tanstack/react-table";
 import { useDebouncedCallback } from "use-debounce";
 import {
@@ -19,8 +16,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useState } from "react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import TableFilter from "./filter";
 import InputFilter from "./input-filter";
 import SortByFilter from "./sortBy";
@@ -37,20 +32,10 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [rowSelection, setRowSelection] = useState({});
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      rowSelection,
-    },
   });
 
   const searchParams = useSearchParams();
@@ -208,7 +193,7 @@ export function DataTable<TData, TValue>({
             variant="outline"
             size="sm"
           >
-            <FaChevronLeft />
+            {"<"}
           </Button>
           <Button
             variant="outline"
@@ -216,7 +201,7 @@ export function DataTable<TData, TValue>({
             disabled={page >= Math.ceil(count / 10)}
             onClick={handleNextClick}
           >
-            <FaChevronRight />
+            {">"}
           </Button>
         </div>
       </div>

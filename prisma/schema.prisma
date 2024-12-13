@@ -40,8 +40,8 @@ enum TransactionType {
 }
 
 model User {
-  id            String        @id @default(uuid())
-  email         String        @unique
+  id            String         @id @default(uuid())
+  email         String         @unique
   emailVerified DateTime?
   password      String
   name          String
@@ -50,10 +50,10 @@ model User {
   disposals     Disposal[]
   bins          Bin[]
   redemptions   Redemption[]
-  subscription  Subscription?
+  subscriptions Subscription[]
   transactions  Transaction[]
   point         Point?
-  location      String?       @unique // Outside library
+  location      String?        @unique // Outside library
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -126,7 +126,6 @@ model Disposal {
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  transactionId String?
 
   @@map("disposals")
 }
@@ -168,18 +167,17 @@ model Redemption {
   reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
   rewardId String
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  transactionId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("redemptions")
 }
 
 model Subscription {
-  id           String  @id @default(uuid())
-  isSubscribed Boolean @default(true)
-  userId       String  @unique
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  email  String @unique
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
