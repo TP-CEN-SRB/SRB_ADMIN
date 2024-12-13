@@ -22,6 +22,7 @@ import { updateBinUser } from "@/app/action/user";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 
 interface EditBinFormProps {
   id: string;
@@ -163,10 +164,11 @@ const EditBinForm = ({
 
           <Button
             disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
             type="submit"
           >
-            Submit
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+            {isPending ? "Loading..." : "Submit"}
           </Button>
         </form>
       </Form>

@@ -97,6 +97,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       //to update faculty (cfm have merge conflict)
     },
   });
+  revalidatePath("/admin/bin/manager");
   return { success: "Bin user successfully created!" };
 };
 
@@ -132,6 +133,7 @@ const updateBinUser = async (
       where: { id },
       data: { name, email, location, faculty },
     });
+    revalidatePath("/admin/bin/manager");
     return { success: "Bin Manager updated!" };
   } else {
     return { error: "Bin Manager does not exist!" };
@@ -445,6 +447,7 @@ const deleteBinUser = async (id: string) => {
         id: id,
       },
     });
+    revalidatePath("/admin/bin/manager");
     return { success: `User with ID ${id} deleted successfully` };
   } else {
     return { error: `User with ID ${id} does not exist` };

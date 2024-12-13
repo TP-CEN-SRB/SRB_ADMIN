@@ -143,6 +143,7 @@ export const createBin = async (
         } catch (error) {
           return { error: "Failed to update user location" };
         }
+        revalidatePath("/admin/bin");
         return {
           success: `Bin created successfully, Location: ${formData.location}`,
         };
@@ -221,6 +222,7 @@ export const deleteBin = async (id: string) => {
         id,
       },
     });
+    revalidatePath("/admin/bin");
     return { success: `Bin with ID ${id} deleted successfully` };
   } else return { error: `Bin with ID ${id} does not exist` };
 };
