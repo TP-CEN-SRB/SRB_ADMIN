@@ -625,81 +625,73 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
     orderBy: {
       _sum: { pointsAwarded: "desc" },
     },
-    take: 10,
+    take: 50,
   });
+
   const userIds = data
     .map((user) => user.userId)
-    .filter((id): id is string => id !== null); // Extract the user IDs in order
+    .filter((id): id is string => id !== null);
 
-  const userDisposals = await prisma.disposal.groupBy({
-    by: ["userId"],
-    _count: {
-      id: true,
-    },
-    where: {
-      userId: {
-        in: userIds,
+  const [userDisposals, userRedemptions, allTestData] = await Promise.all([
+    prisma.disposal.groupBy({
+      by: ["userId"],
+      _count: {
+        id: true,
       },
-    },
-  });
-
-  const userRedemptions = await prisma.redemption.groupBy({
-    by: ["userId"],
-    _count: {
-      id: true,
-    },
-    where: {
-      userId: {
-        in: userIds,
-      },
-    },
-  });
-  // const orderedDisposals = await Promise.all(
-  //   userIds.map(async (userId) => {
-  //     const disposal = userDisposals.find((d) => d.userId === userId);
-  //     const name = await prisma.user.findUnique({
-  //       where: {
-  //         id: userId,
-  //       },
-  //       select: {
-  //         name: true,
-  //         email: true,
-  //       },
-  //     });
-  //     return {
-  //       username: name?.name || undefined,
-  //       userId: userId,
-  //       balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
-  //       disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
-  //       redemptionCount: userRedemptions.find((r) => r.userId === userId) || 0,
-  //     };
-  //   })
-  // );
-  const test = await prisma.disposal.findMany({
-    include: {
-      user: {
-        select: {
-          id: true,
+      where: {
+        userId: {
+          in: userIds,
         },
       },
-      bin: {
-        include: {
-          binMaterial: {
-            select: {
-              id: true,
-              name: true,
+    }),
+    prisma.redemption.groupBy({
+      by: ["userId"],
+      _count: {
+        id: true,
+      },
+      where: {
+        userId: {
+          in: userIds,
+        },
+      },
+      orderBy: {
+        _count: {
+          id: "desc",
+        },
+      },
+    }),
+    prisma.disposal.findMany({
+      where: {
+        userId: {
+          in: userIds,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+          },
+        },
+        bin: {
+          include: {
+            binMaterial: {
+              select: {
+                id: true,
+                name: true,
+              },
             },
           },
         },
       },
-    },
-  });
-  //map the array of data to its corresponding user id
+    }),
+  ]);
+
   const orderedDisposals = await Promise.all(
     userIds.map(async (userId) => {
       const disposal = userDisposals.find((d) => d.userId === userId) || {
         _count: { id: 0 },
       };
+
       const name = await prisma.user.findUnique({
         where: { id: userId },
         select: {
@@ -708,7 +700,7 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
         },
       });
 
-      const userTestData = test.filter((t) => t.user?.id === userId);
+      const userTestData = allTestData.filter((t) => t.user?.id === userId);
 
       const materialCounts = userTestData.reduce((acc, item) => {
         const materialName = item.bin?.binMaterial?.name;

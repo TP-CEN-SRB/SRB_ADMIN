@@ -426,21 +426,18 @@ export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
   return disposals.length;
 };
 
-// Define the type for our result objects
 type DisposalsByHour = {
   hour: string;
-  [key: string]: string | number; // Index signature to allow dynamic material properties
+  [key: string]: string | number;
 };
 
 export const getBinDisposalsByTime = async (): Promise<DisposalsByHour[]> => {
-  // Get all bin materials from the database
   const binMaterials = await prisma.binMaterial.findMany({
     select: {
       name: true,
     },
   });
 
-  // Get all disposals with their bin material information
   const totalDisposals = await prisma.disposal.findMany({
     include: {
       bin: {
@@ -472,7 +469,11 @@ export const getBinDisposalsByTime = async (): Promise<DisposalsByHour[]> => {
 
   // Count disposals for each hour and material
   totalDisposals.forEach((disposal) => {
-    const hour = disposal.createdAt.getHours();
+    // Convert UTC to UTC+8
+    const localTime = new Date(disposal.createdAt);
+    localTime.setHours(localTime.getUTCHours() + 8);
+
+    const hour = localTime.getHours();
     if (hour >= 6 && hour <= 23) {
       const hourIndex = hour - 6;
       const materialName = disposal.bin.binMaterial.name;

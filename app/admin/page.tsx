@@ -11,13 +11,6 @@ import {
 import BinTimeChart from "./components/binTimeChart";
 import StatsGrid from "./components/statsGrid";
 import { ChartConfig } from "@/components/ui/chart";
-interface StatsData {
-  color?: string;
-  icon?: React.ReactNode;
-  title?: string;
-  value?: number;
-  description?: string;
-}
 const Page = async () => {
   const [
     DBBarChartData,

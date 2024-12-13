@@ -16,10 +16,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ColumnDef,
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
+  PaginationState,
   useReactTable,
 } from "@tanstack/react-table";
 import { FaArrowRight } from "react-icons/fa";
@@ -84,6 +92,10 @@ const UsersDashboard = ({
       },
     },
   ];
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
   const [isActive, setIsActive] = useState("week");
   const [leaderBoard, setLeaderBoard] =
     useState<LeaderboardData[]>(leaderBoardData);
@@ -123,7 +135,7 @@ const UsersDashboard = ({
       }
     };
     filterData();
-  }, [isActive]);
+  }, []);
 
   useEffect(() => {
     const rest = leaderBoard.slice(3);
@@ -136,6 +148,11 @@ const UsersDashboard = ({
     data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
+    state: {
+      pagination,
+    },
   });
 
   return (
@@ -288,6 +305,67 @@ const UsersDashboard = ({
               )}
             </TableBody>
           </Table>
+        </div>
+      </div>
+      <div className="flex items-center justify-end space-x-8 py-4">
+        <div className="flex items-center space-x-2">
+          <span className="whitespace-nowrap">Rows per page</span>
+          <Select
+            value={String(table.getState().pagination.pageSize)}
+            onValueChange={(value) => table.setPageSize(Number(value))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select page size" />
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <SelectItem key={pageSize} value={String(pageSize)}>
+                  <span className="pr-4">{pageSize}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-1">
+          <div>Page</div>
+          <span>
+            {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount().toLocaleString()}
+          </span>
+        </div>
+        <div className="flex items-center justify-end space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.firstPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<<"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {">"}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.lastPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {">>"}
+          </Button>
         </div>
       </div>
     </div>
