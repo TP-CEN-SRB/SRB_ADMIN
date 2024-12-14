@@ -4,11 +4,7 @@ import TimerRedirect from "@/components/TimerRedirect";
 import React, { useEffect } from "react";
 import useSound from "use-sound";
 
-const DisposalConfirmationPage = async ({
-  params,
-}: {
-  params: { id: string };
-}) => {
+const DisposalConfirmationPage = ({ params }: { params: { id: string } }) => {
   const [play, { sound, stop }] = useSound("/thankyou.mp3");
   useEffect(() => {
     play();
