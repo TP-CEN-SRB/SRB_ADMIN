@@ -1,10 +1,19 @@
+"use client";
 import Card from "@/components/Card/Card";
 import TimerRedirect from "@/components/TimerRedirect";
-import { getSessionUser } from "@/utils/getAuth";
-import React from "react";
+import React, { useEffect } from "react";
+import useSound from "use-sound";
 
-const DisposalConfirmationPage = async () => {
-  const user = await getSessionUser();
+const DisposalConfirmationPage = async ({
+  params,
+}: {
+  params: { id: string };
+}) => {
+  const [play, { sound, stop }] = useSound("/thankyou.mp3");
+  useEffect(() => {
+    play();
+    return () => stop();
+  }, [sound, play, stop]);
   return (
     <Card rounded>
       <div className="flex flex-col items-center justify-center p-4">
@@ -13,7 +22,7 @@ const DisposalConfirmationPage = async () => {
           Your disposal has been recorded
         </h2>
         <TimerRedirect
-          redirectTo={`/dispose-steps/${user?.id}`}
+          redirectTo={`/dispose-steps/${params.id}`}
           delayInMs={5000}
         />
       </div>

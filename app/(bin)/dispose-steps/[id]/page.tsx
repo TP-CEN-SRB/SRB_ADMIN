@@ -1,5 +1,4 @@
 "use client";
-import ButtonRedirect from "@/components/Button/ButtonRedirect";
 import Card from "@/components/Card/Card";
 import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
