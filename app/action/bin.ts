@@ -160,7 +160,6 @@ export const updateBin = async (
   id: string,
   values: z.infer<typeof UpdateBinSchema>
 ) => {
-  console.log("Updating bin with ID:", id);
   const validatedFields = UpdateBinSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };

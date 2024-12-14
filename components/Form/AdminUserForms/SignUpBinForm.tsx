@@ -40,7 +40,6 @@ const SignUpBinForm = () => {
     startTransition(async () => {
       setError(""); // clear error message
       setSuccess(""); // clear success message
-      console.log(values);
       const data = await signUpBin(values);
       if (data?.error) {
         setError(data?.error as string);
