@@ -10,21 +10,21 @@ import {
 import { Subscription } from "@/components/Table/Subscription/columns";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import ConfirmDeleteUserDialog from "../../Dialog/ConfirmDeleteUserDialog";
 import { MdDeleteForever } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import { FaEdit } from "react-icons/fa";
+import ConfirmDeleteSubscriptionDialog from "@/components/Dialog/ConfirmDeleteSubscriptionDialog";
 
 const Actions = ({ data }: { data: Subscription }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const router = useRouter();
   return (
     <div>
-      {/* <ConfirmDeleteUserDialog
+      <ConfirmDeleteSubscriptionDialog
         isOpen={isDialogOpen}
         handleDialogOpen={() => setDialogOpen(!isDialogOpen)}
-        userId={data.id}
-      /> */}
+        subscriptionId={data.id}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">

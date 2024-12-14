@@ -11,7 +11,7 @@ const EditSubscriptionPage = async ({ params }: { params: { id: string } }) => {
     notFound();
   }
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-md p-4">
+    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
       <EditSubscriptionForm id={subscription.id} email={subscription.email} />
     </div>
   );

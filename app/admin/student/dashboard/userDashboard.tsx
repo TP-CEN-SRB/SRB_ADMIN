@@ -75,7 +75,7 @@ const UsersDashboard = ({
         return (
           <button
             className="flex bg-blue-500 hover:bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
-            onClick={() => router.push(`/admin/user/${row.original.userId}`)}
+            onClick={() => router.push(`/admin/student/${row.original.userId}`)}
           >
             View Profile
             <FaArrowRight className="ml-2" />
@@ -227,7 +227,7 @@ const UsersDashboard = ({
               <button
                 className="flex justify-center items-center text-white font-bold py-2 rounded-lg w-full"
                 onClick={() => {
-                  router.push(`/admin/user/${item.userId}`);
+                  router.push(`/admin/student/${item.userId}`);
                 }}
               >
                 View Profile

@@ -61,12 +61,12 @@ export const collaspeItems = [
       {
         title: "Dashboard",
         icon: PiRankingBold,
-        url: "/admin/user/dashboard",
+        url: "/admin/student/dashboard",
       },
       {
         title: "View",
         icon: FaEye,
-        url: "/admin/user",
+        url: "/admin/student",
       },
     ],
   },

@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
 import { toast } from "@/hooks/use-toast";
-import { deleteUser } from "@/app/action/user";
+import { deleteStudent } from "@/app/action/user";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "../Form/CustomFormMessage";
 import { useRouter } from "next/navigation";
@@ -27,7 +27,7 @@ interface DialogProps {
   isOpen: boolean;
   handleDialogOpen: () => void;
 }
-const ConfirmDeleteUserDialog = ({
+const ConfirmDeleteStudentDialog = ({
   userId,
   isOpen,
   handleDialogOpen,
@@ -37,7 +37,7 @@ const ConfirmDeleteUserDialog = ({
   const router = useRouter();
   const handleConfirm = () => {
     startTransition(async () => {
-      const data = await deleteUser(userId);
+      const data = await deleteStudent(userId);
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
@@ -45,7 +45,7 @@ const ConfirmDeleteUserDialog = ({
           title: "Success!",
           description: data.success,
         });
-        router.push("/admin/user");
+        router.push("/admin/student");
       }
     });
   };
@@ -58,7 +58,7 @@ const ConfirmDeleteUserDialog = ({
         <DialogHeader>
           <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
           <DialogDescription className="text-slate-500 mt-4 text-md">
-            You are about to delete user {userId}
+            You are about to delete student {userId}
           </DialogDescription>
         </DialogHeader>
         {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
@@ -117,4 +117,4 @@ const ConfirmDeleteUserDialog = ({
   );
 };
 
-export default ConfirmDeleteUserDialog;
+export default ConfirmDeleteStudentDialog;

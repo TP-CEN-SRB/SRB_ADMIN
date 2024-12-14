@@ -53,9 +53,7 @@ const SignUpBinForm = () => {
   };
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>
-        <span className="text-3xl">Add a bin manager</span>
-      </FormHeader>
+      <FormHeader>Add a bin manager</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -128,7 +126,7 @@ const SignUpBinForm = () => {
                   />
                 </FormControl>
                 <FormDescription>
-                  We will never share your password
+                  This password will be used for login with the manager
                 </FormDescription>
                 <FormMessage />
               </FormItem>

@@ -56,7 +56,7 @@ const EditStudentForm = ({
       const data = await updateStudent(values, id);
       setError(data?.error as string);
       if (!data?.error && data?.success !== undefined) {
-        router.push("/admin/user");
+        router.push("/admin/student");
         toast({
           title: "Success!",
           description: `${data.success}`,

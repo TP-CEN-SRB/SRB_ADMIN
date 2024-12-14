@@ -9,7 +9,7 @@ import {
   SignUpBinSchema,
   UpdateAdminEmailSchema,
   UpdateStudentSchema,
-  UpdateBinFormSchema,
+  UpdateBinSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -97,14 +97,14 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     },
   });
   revalidatePath("/admin/bin/manager");
-  return { success: "Bin user successfully created!" };
+  return { success: "Bin user created successfully" };
 };
 
 const updateBinUser = async (
   id: string,
-  values: z.infer<typeof UpdateBinFormSchema>
+  values: z.infer<typeof UpdateBinSchema>
 ) => {
-  const validatedFields = UpdateBinFormSchema.safeParse(values);
+  const validatedFields = UpdateBinSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
@@ -113,9 +113,14 @@ const updateBinUser = async (
   const email = formData.email.toLowerCase().trim();
   const location = formData.location.trim();
   const faculty = formData.faculty;
+  const isExistingPassword = formData.isExistingPassword;
+  let password;
   const existingBinUser = await prisma.user.findUnique({
     where: { id },
   });
+  if (!isExistingPassword) {
+    password = await hash(formData.password, 10);
+  }
 
   if (existingBinUser) {
     const existingBinUser = await checkBinUserWithSimilarRecord(
@@ -130,7 +135,13 @@ const updateBinUser = async (
     }
     await prisma.user.update({
       where: { id },
-      data: { name, email, location, faculty },
+      data: {
+        name,
+        email,
+        location,
+        faculty,
+        ...(!isExistingPassword && { password: password }),
+      },
     });
     revalidatePath("/admin/bin/manager");
     return { success: "Bin Manager updated!" };
@@ -146,20 +157,13 @@ const checkBinUserWithSimilarRecord = async (
   update?: boolean,
   id?: string
 ) => {
-  if (update) {
-    const binUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ name }, { email }, { location }],
-      },
-    });
-  }
   const binUser = await prisma.user.findFirst({
     where: {
-      id: { not: id },
       OR: [{ name }, { email }, { location }],
+      ...(update && id && { id: { not: id } }),
     },
   });
-  return binUser ? true : false;
+  return binUser;
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
@@ -362,7 +366,7 @@ const updateAdmin = async (values: z.infer<typeof SignUpAdminSchema>) => {
     data: { name: capitalizeFirstLetter(name), faculty },
   });
   revalidatePath("/admin/profile");
-  return { success: "Profile updated successfully!" };
+  return { success: "Profile updated successfully" };
 };
 
 const updateAdminEmail = async (
@@ -560,21 +564,23 @@ const getAllStudentUsers = async (
   return { studentCount, students };
 };
 
-const deleteUser = async (userId: string) => {
+const deleteStudent = async (userId: string) => {
   const sessionUser = await getSessionUser();
   if (!sessionUser || sessionUser.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) {
+  const student = await prisma.user.findUnique({
+    where: { id: userId, role: "STUDENT" },
+  });
+  if (!student) {
     return { error: "User not found" };
   }
-  const deletedUser = await prisma.user.delete({ where: { id: userId } });
-  if (!deleteUser) {
+  const deletedStudent = await prisma.user.delete({ where: { id: userId } });
+  if (!deletedStudent) {
     return { error: "Failed to delete user" };
   }
-  revalidatePath("/admin/user");
-  return { success: `User ${deletedUser.id} successfully deleted` };
+  revalidatePath("/admin/student");
+  return { success: `Student ${deletedStudent.id} deleted successfully` };
 };
 
 const updateStudent = async (
@@ -605,8 +611,8 @@ const updateStudent = async (
       point: { update: { balance: points } },
     },
   });
-  revalidatePath("/admin/user");
-  return { success: `User ${updatedUser.id} successfully updated` };
+  revalidatePath("/admin/student");
+  return { success: `Student ${updatedUser.id} updated successfully ` };
 };
 
 const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
@@ -785,7 +791,7 @@ export {
   getAllBinUsers,
   deleteBinUser,
   getAllStudentUsers,
-  deleteUser,
+  deleteStudent,
   updateStudent,
   getTopTenUsers,
   listOfBinManagersUsed,

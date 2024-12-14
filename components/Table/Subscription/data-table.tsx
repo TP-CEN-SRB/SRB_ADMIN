@@ -20,7 +20,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { RiMailAddFill } from "react-icons/ri";
 import {
   Select,
@@ -29,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,12 +58,18 @@ export function DataTable<TData, TValue>({
       columnFilters,
     },
   });
+  const id = usePathname().split("/").slice(-1);
 
   return (
     <div className="px-4">
       <div className="flex flex-wrap justify-end items-center gap-3 py-3">
-        <Button className="bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 text-gray-50 flex items-center gap-x-1 text-sm">
-          <RiMailAddFill /> Add a subscription
+        <Button
+          asChild
+          className="bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 text-gray-50 flex items-center gap-x-1 text-sm"
+        >
+          <Link href={`/admin/bin/manager/subscription/create/${id}`}>
+            <RiMailAddFill /> Add a subscription
+          </Link>
         </Button>
         <Input
           placeholder="Filter emails..."

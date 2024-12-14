@@ -3,9 +3,9 @@
 import Card from "@/components/Card/Card";
 import React, { useTransition } from "react";
 import FormHeader from "../FormHeader";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { UpdateBinFormSchema } from "@/schemas/auth";
+import { UpdateBinSchema } from "@/schemas/auth";
 import { Faculty } from "@prisma/client";
 import {
   Form,
@@ -23,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface EditBinFormProps {
   id: string;
@@ -41,16 +42,17 @@ const EditBinForm = ({
 }: EditBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const form = useForm<z.infer<typeof UpdateBinFormSchema>>({
-    resolver: zodResolver(UpdateBinFormSchema),
+  const form = useForm<z.infer<typeof UpdateBinSchema>>({
+    resolver: zodResolver(UpdateBinSchema),
     defaultValues: {
       name,
       email,
       faculty,
       location,
+      isExistingPassword: true,
     },
   });
-  const onSubmit = (values: z.infer<typeof UpdateBinFormSchema>) => {
+  const onSubmit = (values: z.infer<typeof UpdateBinSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
@@ -78,6 +80,10 @@ const EditBinForm = ({
       }
     });
   };
+  const isExistingPassword = useWatch({
+    control: form.control,
+    name: "isExistingPassword",
+  });
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Update bin manager</FormHeader>
@@ -139,7 +145,38 @@ const EditBinForm = ({
               </FormItem>
             )}
           />
-
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending || isExistingPassword}
+                    placeholder="At least 8 characters"
+                    {...field}
+                    type="password"
+                  />
+                </FormControl>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={form.watch("isExistingPassword")}
+                    onCheckedChange={(value) =>
+                      form.setValue("isExistingPassword", value as boolean)
+                    }
+                    id="existingPassword"
+                  />
+                  <label htmlFor="existingPassword" className="text-sm">
+                    Use existing password
+                  </label>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="location"

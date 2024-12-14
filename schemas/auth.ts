@@ -64,10 +64,34 @@ const SignUpBinSchema = z.object({
     .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
     .min(2, "Location is too short"),
 });
+const BinPasswordSchema = z.discriminatedUnion("isExistingPassword", [
+  z.object({
+    isExistingPassword: z.literal(true),
+  }),
+  z.object({
+    isExistingPassword: z.literal(false),
+    password: z
+      .string()
+      .regex(/^\S*$/, "Password cannot contain spaces")
+      .min(8, "Password must be at least 8 characters"),
+  }),
+]);
 
-const AdminNumberSchema = z.object({
-  adminNumber: z.string().regex(/^\d{7}[A-Za-z]$/, "Invalid admin number"),
-});
+const UpdateBinSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(2, "Name is too short")
+      .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+    email: z.string().email("Please enter a valid email address").toLowerCase(),
+    faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
+    location: z
+      .string()
+      .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
+      .min(2, "Location is too short"),
+  })
+  .and(BinPasswordSchema);
 
 /**
  * Students
@@ -100,20 +124,6 @@ const UpdateStudentSchema = SignUpStudentSchema.omit({
     .gte(0, "Points cannot be negative"),
 });
 
-const UpdateBinFormSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, "Name is too short")
-    .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-  email: z.string().email("Please enter a valid email address").toLowerCase(),
-  faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
-  location: z
-    .string()
-    .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
-    .min(2, "Location is too short"),
-});
-
 export {
   LoginSchema,
   SignUpAdminSchema,
@@ -123,6 +133,5 @@ export {
   UpdateStudentSchema,
   ResetSchema,
   NewPasswordSchema,
-  AdminNumberSchema,
-  UpdateBinFormSchema,
+  UpdateBinSchema,
 };
