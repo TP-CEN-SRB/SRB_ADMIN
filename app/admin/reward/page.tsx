@@ -30,7 +30,7 @@ const RewardPage = async () => {
       {rewards.length ? (
         <>
           <h1 className="mt-3 text-slate-800">Recent Rewards</h1>
-          <div className="grid lg:grid-cols-3 md:grid-cols-3 grid-cols-2 mt-10 gap-5">
+          <div className="grid md:grid-cols-3 grid-cols-2 mt-10 gap-5">
             {rewards.map((reward, index) => (
               <RewardCard rounded key={index}>
                 <div className="relative aspect-[3/2]">

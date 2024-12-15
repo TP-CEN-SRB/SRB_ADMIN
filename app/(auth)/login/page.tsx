@@ -10,6 +10,7 @@ const LoginPage = () => {
       </div>
       <div className="relative md:flex-1 border-gray-200 border-l-2">
         <Image
+          priority
           className="object-cover"
           src="/recycling.png"
           alt="Recycling bins"

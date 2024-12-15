@@ -13,6 +13,7 @@ import { MoreHorizontal } from "lucide-react";
 import ConfirmDeleteStudentDialog from "../../Dialog/ConfirmDeleteStudentDialog";
 import { FaCopy } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
+import { IoReceipt } from "react-icons/io5";
 import { MdDeleteForever } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
@@ -52,6 +53,12 @@ const Actions = ({ data }: { data: Student }) => {
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <MdDeleteForever /> Delete student
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/student/transaction/${data.id}`)}
+          >
+            <IoReceipt /> View transactions
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

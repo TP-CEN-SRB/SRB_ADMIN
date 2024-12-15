@@ -85,6 +85,7 @@ export function MobileAppSidebar() {
         >
           <SheetHeader>
             <Image
+              priority
               src="/temasekPolyBanner.png"
               alt="Temasek Poly"
               width="200"

@@ -486,7 +486,7 @@ const getAllStudentUsers = async (
       .split(",")
       .every((f) => Object.values(Faculty).includes(f as Faculty));
 
-  // check if faculty condiiton is valid
+  // check if all conditions are met
   if (
     pageCondition ||
     sortItemCondition ||
@@ -554,7 +554,7 @@ const getAllStudentUsers = async (
         email: true,
         emailVerified: true,
         faculty: true,
-        point: { select: { balance: true } },
+        point: { select: { balance: true, updatedAt: true } },
         _count: { select: { disposals: true, redemptions: true } },
         createdAt: true,
         updatedAt: true,

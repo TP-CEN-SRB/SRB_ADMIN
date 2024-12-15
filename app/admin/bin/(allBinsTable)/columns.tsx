@@ -119,7 +119,20 @@ export const columns: ColumnDef<Bin>[] = [
     accessorKey: "currentCapacity",
     header: "Bin Capacity",
     cell: ({ row }) => {
-      return <div>{row.original.currentCapacity.toFixed(2)}%</div>;
+      const currentCapacity = row.original.currentCapacity;
+      return (
+        <div
+          className={`${
+            currentCapacity > 85
+              ? "text-red-500"
+              : currentCapacity > 60
+              ? "text-yellow-500"
+              : "text-green-500"
+          }`}
+        >
+          {currentCapacity}%
+        </div>
+      );
     },
   },
   {

@@ -21,15 +21,7 @@ import {
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
-import {
-  FaBell,
-  FaTrash,
-  FaUser,
-  FaChevronRight,
-  FaEye,
-  FaPlus,
-} from "react-icons/fa";
-import { IoSettings } from "react-icons/io5";
+import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
@@ -126,16 +118,6 @@ export const dropdownItems = [
     icon: FaUser,
     url: "/admin/profile",
   },
-  {
-    title: "Notifications",
-    icon: FaBell,
-    url: "/admin/notification",
-  },
-  {
-    title: "Settings",
-    icon: IoSettings,
-    url: "/admin/settings",
-  },
 ];
 
 export function AppSidebar({ email }: { email: string | null | undefined }) {
@@ -157,6 +139,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         <SidebarHeader>
           <SidebarMenu className="p-4">
             <Image
+              priority
               src="/temasekPolyBanner.png"
               alt="Temasek Poly"
               width="300"

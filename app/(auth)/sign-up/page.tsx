@@ -7,6 +7,7 @@ const SignUpPage = () => {
     <div className="flex w-full overflow-hidden min-h-screen">
       <div className="relative flex-1 border-gray-200 border-r-2">
         <Image
+          priority
           className="object-cover"
           src="/recycling.png"
           alt="Recycling bins"

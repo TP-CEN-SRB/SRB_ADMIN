@@ -18,6 +18,7 @@ export type Student = {
   name: string | null;
   point: {
     balance: number;
+    updatedAt: Date;
   } | null;
   _count: {
     disposals: number;
@@ -67,6 +68,15 @@ export const columns: ColumnDef<Student>[] = [
     header: "Redemptions",
     accessorKey: "_count.redemptions",
     cell: ({ row }) => row.original._count?.redemptions ?? 0,
+  },
+  {
+    accessorKey: "point.updatedAt",
+    header: "Last Active",
+    cell: ({ row }) => {
+      const date = row.original.point?.updatedAt.toLocaleDateString("en-SG");
+
+      return <div>{date}</div>;
+    },
   },
   {
     header: "Actions",

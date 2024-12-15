@@ -9,18 +9,19 @@ import { FaTableCells } from "react-icons/fa6";
 import { PiExportBold } from "react-icons/pi";
 import { IoIosDocument } from "react-icons/io";
 import { CSVLink } from "react-csv";
-import { Student } from "./columns";
+import { Transaction } from "./columns";
 import { useSearchParams } from "next/navigation";
-import { getAllStudentUsers } from "@/app/action/user";
+import { getTransactionByUserId } from "@/app/action/transaction";
 import { Loader2 } from "lucide-react";
 
 interface ExportCSVProps<TData> {
   data: TData[];
+  userId: string;
 }
 
-const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
+const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
   const searchParams = useSearchParams();
-  const [allData, setAllData] = useState<Student[]>([]);
+  const [allData, setAllData] = useState<Transaction[]>([]);
   const [isPending, startTransition] = useTransition();
   const [filterOpen, setFilterOpen] = useState(false);
   const [initiateDownload, setInitiateDownload] = useState(false);
@@ -28,20 +29,15 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
 
   const fetchAllData = () => {
     startTransition(async () => {
-      const query = searchParams.get("query");
-      const sortItem = searchParams.get("sortItem");
       const sortOrder = searchParams.get("sortOrder");
-      const emailType = searchParams.get("emailType");
-      const faculty = searchParams.get("faculty");
-      const { students } = await getAllStudentUsers(
+      const transactionType = searchParams.get("transactionType");
+      const { transactions } = await getTransactionByUserId(
+        userId,
         null,
-        query,
         (sortOrder as string) ?? undefined,
-        (sortItem as string) ?? undefined,
-        emailType,
-        faculty
+        transactionType
       );
-      setAllData(students as Student[]);
+      setAllData(transactions as Transaction[]);
       setInitiateDownload(true);
     });
   };
@@ -62,18 +58,13 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
           <IoIosDocument />
           <CSVLink
             className="cursor-default"
-            filename={`students_current_page_${new Date().getTime()}.csv`}
-            data={(data as Student[]).map((student) => ({
-              id: student.id,
-              name: student.name,
-              email: student.email,
-              faculty: student.faculty,
-              pointBalance: student.point?.balance ?? "N/A",
-              disposals: student._count?.disposals ?? 0,
-              redemptions: student._count.redemptions ?? 0,
-              createdAt: student.createdAt,
-              updatedAt: student.updatedAt,
-              pointsUpdatedAt: student.point?.updatedAt,
+            filename={`transactions_${userId}_current_page_${new Date().getTime()}.csv`}
+            data={(data as Transaction[]).map((transaction) => ({
+              id: transaction.id,
+              pointsChange: transaction.pointsChange,
+              description: transaction.description,
+              transactionType: transaction.transactionType,
+              createdAt: transaction.createdAt,
             }))}
           >
             Export this page
@@ -94,19 +85,14 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
       {initiateDownload && allData.length > 0 && (
         <CSVLink
           className="hidden"
-          data={allData.map((student) => ({
-            id: student.id,
-            name: student.name,
-            email: student.email,
-            faculty: student.faculty,
-            pointBalance: student.point?.balance ?? "N/A",
-            disposals: student._count?.disposals ?? 0,
-            redemptions: student._count.redemptions ?? 0,
-            createdAt: student.createdAt,
-            updatedAt: student.updatedAt,
-            pointsUpdatedAt: student.point?.updatedAt,
+          data={allData.map((transaction) => ({
+            id: transaction.id,
+            pointsChange: transaction.pointsChange,
+            description: transaction.description,
+            transactionType: transaction.transactionType,
+            createdAt: transaction.createdAt,
           }))}
-          filename={`students_dataset_${new Date().getTime()}.csv`}
+          filename={`transactions_${userId}_dataset_${new Date().getTime()}.csv`}
         >
           <span ref={csvLinkRef} />
         </CSVLink>

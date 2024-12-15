@@ -28,7 +28,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
           <FaTableCells />
           <CSVLink
             className="cursor-default"
-            filename="bins_dataset"
+            filename={`students_dataset_${new Date().getTime()}.csv`}
             data={(data as Bin[]).map((bin) => ({
               id: bin.id,
               location: bin.user.location,
