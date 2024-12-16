@@ -1,6 +1,7 @@
-import { BinMaterial, BinStatus, Faculty } from "@prisma/client";
+import { Faculty } from "@prisma/client";
 import * as z from "zod";
 
+// todo: uncomment the email validation after demonstration
 /**
  * All
  */
@@ -25,6 +26,7 @@ const SignUpAdminSchema = z.object({
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Confirm Password is required"),
 });
 
 const UpdateAdminEmailSchema = SignUpAdminSchema.pick({
@@ -113,10 +115,12 @@ const SignUpStudentSchema = z.object({
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Confirm Password is required"),
 });
 
 const UpdateStudentSchema = SignUpStudentSchema.omit({
   password: true,
+  confirmPassword: true,
 }).extend({
   points: z.coerce
     .number({ message: "Points must be a number" })

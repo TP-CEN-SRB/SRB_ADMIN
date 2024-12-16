@@ -42,6 +42,10 @@ const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const name = capitalizeFirstLetter(formData.name);
   const email = formData.email;
   const password = formData.password;
+  const confirmPassword = formData.confirmPassword;
+  if (password !== confirmPassword) {
+    return { error: "Passwords don't match!" };
+  }
   const faculty = formData.faculty;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
@@ -622,6 +626,7 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       user: {
         role: "STUDENT" as Role,
       },
+      isRedeemed: true,
       createdAt: {
         gte: dateFrom,
         lte: dateTo,

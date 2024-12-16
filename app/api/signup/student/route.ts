@@ -9,13 +9,21 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const { name, email, password, faculty } = await req.json();
+    const { name, email, password, confirmPassword, faculty } =
+      await req.json();
     const validatedFields = SignUpStudentSchema.safeParse({
       name,
       email,
       password,
+      confirmPassword,
       faculty: faculty as Faculty,
     });
+    if (password !== confirmPassword) {
+      return NextResponse.json(
+        { message: "Passwords do not match" },
+        { status: 400 }
+      );
+    }
     if (!validatedFields.success) {
       const errors = validatedFields.error.flatten();
       return NextResponse.json(

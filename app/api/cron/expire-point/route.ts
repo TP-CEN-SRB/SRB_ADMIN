@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-// cron job to check if points have expired
+
+/**
+ * Exipire user's points if they have been inactive (Points not updated for 3 months)
+ * Scheduled to run every day at 23:59 UTC
+ */
 export const PUT = async (req: NextRequest) => {
   try {
     const authorization = req.headers.get("x-api-key");
@@ -11,27 +15,35 @@ export const PUT = async (req: NextRequest) => {
       );
     }
     const points = await prisma.point.findMany();
-
     if (!points || points.length === 0) {
       return NextResponse.json({ message: "No points found" }, { status: 404 });
     }
-    for (const point of points) {
+
+    // only retrieve the points that needs to be expired
+    const filteredPoints = points.filter((point) => {
       const pointsExpiryDate = new Date(point.updatedAt);
       pointsExpiryDate.setMonth(pointsExpiryDate.getMonth() + 3);
-      const pointsToExpire = Math.ceil(point.balance * 0.2);
-      // check if point should expire
-      if (new Date() > pointsExpiryDate) {
-        const updatedPoint = await prisma.point.update({
+      return new Date() > pointsExpiryDate;
+    });
+    if (!filteredPoints.length) {
+      return NextResponse.json(
+        { message: "No points are expired" },
+        { status: 200 }
+      );
+    }
+    // use a db transactions to execute 1 database call
+    await prisma.$transaction(
+      filteredPoints.map((point) =>
+        prisma.point.update({
           where: { id: point.id },
           data: {
-            balance: { decrement: pointsToExpire },
+            balance: { decrement: Math.ceil(point.balance * 0.2) },
           },
-        });
-      }
-    }
-    // Return the point balance
+        })
+      )
+    );
     return NextResponse.json(
-      { message: "Cron Job performed successfully" },
+      { message: "Points expired successfully" },
       { status: 200 }
     );
   } catch (error) {
