@@ -40,83 +40,81 @@ export const PUT = async (
       location: string;
     }[] = [];
 
-    await prisma.$transaction(
-      async (transaction) => {
-        await Promise.all(
-          data.map(
-            async ({
-              material,
-              binCapacity,
-            }: {
-              material: string;
-              binCapacity: number;
-            }) => {
-              const binMaterial = await transaction.binMaterial.findUnique({
-                where: { name: material.toUpperCase() },
-              });
+    await prisma.$transaction(async (transaction) => {
+      await Promise.all(
+        data.map(
+          async ({
+            material,
+            binCapacity,
+          }: {
+            material: string;
+            binCapacity: number;
+          }) => {
+            const binMaterial = await transaction.binMaterial.findUnique({
+              where: { name: material.toUpperCase() },
+            });
 
-              if (!binMaterial) {
-                throw new Error(`Bin material: ${material} is not found!`);
-              }
+            if (!binMaterial) {
+              throw new Error(`Bin material: ${material} is not found!`);
+            }
 
-              const bin = await transaction.bin.findUnique({
-                where: {
-                  userId_binMaterialId_status: {
-                    userId: id,
-                    binMaterialId: binMaterial.id,
-                    status: "FUNCTIONAL",
-                  },
+            const bin = await transaction.bin.findUnique({
+              where: {
+                userId_binMaterialId_status: {
+                  userId: id,
+                  binMaterialId: binMaterial.id,
+                  status: "FUNCTIONAL",
                 },
-                include: { binMaterial: true, user: true },
+              },
+              include: { binMaterial: true, user: true },
+            });
+
+            if (!bin) {
+              throw new Error(
+                `No functional bin found for material: ${material}!`
+              );
+            }
+
+            // Update the bin's capacity
+            await transaction.bin.update({
+              where: { id: bin.id },
+              data: { currentCapacity: parseFloat(binCapacity.toFixed(2)) },
+            });
+
+            // Populate the email array if bin is almost full and warning email has not been sent
+            if (binCapacity > 85 && !bin.emailSent) {
+              const subscriptions = await transaction.subscription.findMany({
+                where: { userId: bin.userId },
               });
 
-              if (!bin) {
-                throw new Error(
-                  `No functional bin found for material: ${material}!`
-                );
-              }
-
-              // Update the bin's capacity
-              await transaction.bin.update({
-                where: { id: bin.id },
-                data: { currentCapacity: parseFloat(binCapacity.toFixed(2)) },
-              });
-
-              // Populate the email array if bin is almost full and warning email has not been sent
-              if (binCapacity > 85 && !bin.emailSent) {
-                const subscriptions = await transaction.subscription.findMany({
-                  where: { userId: bin.userId },
+              if (subscriptions.length > 0) {
+                emailsToSend.push({
+                  emails: subscriptions.map(
+                    (subscription) => subscription.email
+                  ),
+                  binCapacity,
+                  material: bin.binMaterial.name,
+                  location: bin.user.location as string,
                 });
 
-                if (subscriptions.length > 0) {
-                  emailsToSend.push({
-                    emails: subscriptions.map(
-                      (subscription) => subscription.email
-                    ),
-                    binCapacity,
-                    material: bin.binMaterial.name,
-                    location: bin.user.location as string,
-                  });
-
-                  await transaction.bin.update({
-                    where: { id: bin.id },
-                    data: { emailSent: true },
-                  });
-                }
-              }
-
-              // Clear the email flag if bin is cleared and warning email was sent previously
-              if (binCapacity < 85 && bin.emailSent) {
                 await transaction.bin.update({
                   where: { id: bin.id },
-                  data: { emailSent: false },
+                  data: { emailSent: true },
                 });
               }
             }
-          )
-        );
-      },
-    );
+
+            // Clear the email flag if bin is cleared and warning email was sent previously
+            if (binCapacity < 85 && bin.emailSent) {
+              await transaction.bin.update({
+                where: { id: bin.id },
+                data: { emailSent: false },
+              });
+            }
+          }
+        )
+      );
+    });
 
     // Send emails outside the transaction
     await Promise.all(

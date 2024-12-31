@@ -205,7 +205,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     <FaChevronRight className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="right" sideOffset={10}>
+                <DropdownMenuContent align="end" side="top" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {dropdownItems.map((item, index) => (
@@ -216,7 +216,6 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                       </DropdownMenuItem>
                     </Link>
                   ))}
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="flex items-center gap-x-2 cursor-pointer"
                     onClick={() => setSignOutDialogOpen(true)}
