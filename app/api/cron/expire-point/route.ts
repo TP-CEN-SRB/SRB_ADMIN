@@ -14,6 +14,7 @@ export const PUT = async (req: NextRequest) => {
         { status: 401 }
       );
     }
+    const today = new Date();
     const points = await prisma.point.findMany();
     if (!points || points.length === 0) {
       return NextResponse.json({ message: "No points found" }, { status: 404 });
@@ -23,7 +24,7 @@ export const PUT = async (req: NextRequest) => {
     const filteredPoints = points.filter((point) => {
       const pointsExpiryDate = new Date(point.updatedAt);
       pointsExpiryDate.setMonth(pointsExpiryDate.getMonth() + 3);
-      return new Date() > pointsExpiryDate;
+      return today > pointsExpiryDate;
     });
     if (!filteredPoints.length) {
       return NextResponse.json(
@@ -31,16 +32,39 @@ export const PUT = async (req: NextRequest) => {
         { status: 200 }
       );
     }
-    // use a db transactions to execute 1 database call
+    // use a db transaction to execute 1 database call
     await prisma.$transaction(
-      filteredPoints.map((point) =>
-        prisma.point.update({
-          where: { id: point.id },
-          data: {
-            balance: { decrement: Math.ceil(point.balance * 0.2) },
-          },
-        })
-      )
+      filteredPoints
+        .map((point) => [
+          prisma.point.update({
+            where: { id: point.id },
+            data: {
+              balance: { decrement: Math.ceil(point.balance * 0.2) },
+            },
+          }),
+          prisma.transaction.create({
+            data: {
+              pointsChange: -Math.ceil(point.balance * 0.2),
+              description: `Expired ${Math.ceil(
+                point.balance * 0.2
+              )} pts for being inactive from ${point.updatedAt.toLocaleString(
+                "default",
+                {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                }
+              )} to ${today.toLocaleString("default", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}`,
+              transactionType: "OTHERS",
+              userId: point.userId,
+            },
+          }),
+        ])
+        .flat()
     );
     return NextResponse.json(
       { message: "Points expired successfully" },
