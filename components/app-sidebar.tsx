@@ -198,7 +198,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <DropdownMenu modal={false}>
+              <DropdownMenu modal={true}>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
                     <CgProfile /> {email}
@@ -207,6 +207,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" side="right" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   {dropdownItems.map((item, index) => (
                     <DropdownMenuItem
                       key={index}
@@ -219,6 +220,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                       </Link>
                     </DropdownMenuItem>
                   ))}
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="flex items-center gap-x-2 cursor-pointer"
                     onClick={() => setSignOutDialogOpen(true)}
