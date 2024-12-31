@@ -215,6 +215,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                 <DropdownMenuContent
                   className="w-[--radix-popper-anchor-width]"
                   side="top"
+                  sideOffset={50}
                 >
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
