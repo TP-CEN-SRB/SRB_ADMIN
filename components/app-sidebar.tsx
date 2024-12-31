@@ -238,13 +238,6 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     <span>Log out</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="flex items-center gap-x-2 cursor-pointer"
-                    onClick={() => setSignOutDialogOpen(true)}
-                  >
-                    <PiSignOutBold />
-                    <span>Log out</span>
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </SidebarMenuItem>
