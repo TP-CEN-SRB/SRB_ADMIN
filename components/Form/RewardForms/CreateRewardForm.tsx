@@ -113,6 +113,11 @@ const CreateRewardForm = () => {
     setDialogOpen(false);
     setCroppedFile(null);
     setImagePreview(null);
+    const fileInput =
+      document.querySelector<HTMLInputElement>('input[type="file"]');
+    if (fileInput) {
+      fileInput.value = "";
+    }
     form.resetField("image");
   };
 

@@ -153,9 +153,6 @@ const CropRewardDialog = ({
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-2xl">Resize your image</DrawerTitle>
-          <DrawerDescription className="text-slate-500 text-md">
-            We will send you an email with instructions to reset your password
-          </DrawerDescription>
         </DrawerHeader>
         <div className="flex justify-center">
           <ImagePreview

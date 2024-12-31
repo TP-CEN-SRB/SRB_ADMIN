@@ -1,7 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
-import { pusherServer } from "@/lib/pusher";
 import prisma from "@/lib/db";
-export const POST = async (
+import { NextRequest, NextResponse } from "next/server";
+/**
+ *  Retrieves an array of bin materials that are functional
+ *  This API is required for the smart bin to check which bin capacities should be updated periodically
+ */
+export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
@@ -17,20 +20,17 @@ export const POST = async (
     const binManager = await prisma.user.findUnique({ where: { id: id } });
     if (!binManager) {
       return NextResponse.json(
-        { message: "Bin manager not found!" },
+        { message: "Bin manager is not found!" },
         { status: 404 }
       );
     }
-    const { material, weightInGrams, thrown } = await req.json();
-    await pusherServer.trigger(`detect-material-${id}`, "material-details", {
-      material,
-      weightInGrams,
-      thrown,
+    const bins = await prisma.bin.findMany({
+      where: { userId: binManager.id, status: "FUNCTIONAL" },
+      select: { binMaterial: { select: { name: true } } },
     });
-    return NextResponse.json(
-      { message: "Material details received" },
-      { status: 200 }
-    );
+    const binMaterials = bins.map((bin) => bin.binMaterial.name);
+
+    return NextResponse.json({ binMaterials }, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });

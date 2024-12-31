@@ -23,18 +23,19 @@ export const PUT = async (
         { status: 401 }
       );
     }
+    const id = params.id;
+    const binManager = await prisma.user.findUnique({ where: { id: id } });
+    if (!binManager) {
+      return NextResponse.json(
+        { message: "Bin manager not found!" },
+        { status: 404 }
+      );
+    }
     const { disposalId, userId } = await req.json();
     if (userId !== decodedToken.userId) {
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
-      );
-    }
-    const id = params.id;
-    if (!id) {
-      return NextResponse.json(
-        { message: "Missing ID parameter" },
-        { status: 400 }
       );
     }
     if (!disposalId || !userId) {
@@ -105,7 +106,7 @@ export const PUT = async (
         },
       });
     }
-    await pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
+    await pusherServer.trigger(`disposal-qr-${id}`, "disposal-update", {
       updated: true,
     });
     return NextResponse.json({ message: "Updated disposal" }, { status: 200 });

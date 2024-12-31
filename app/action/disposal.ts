@@ -1,15 +1,12 @@
 "use server";
 import prisma from "@/lib/db";
-import { sendBinWarningEmail } from "@/lib/mail";
 import { DisposalSchema } from "@/schemas";
 import { getSessionUser } from "@/utils/getAuth";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const createDisposal = async (
   values: z.infer<typeof DisposalSchema>,
-  userId: string,
-  binCapacity: number
+  userId: string
 ) => {
   // Check if user has permission
   const user = await getSessionUser();
@@ -32,7 +29,6 @@ const createDisposal = async (
       id: true,
       status: true,
       currentCapacity: true,
-      emailSent: true,
       user: { select: { location: true, faculty: true } },
       binMaterial: { select: { name: true } },
     },
@@ -51,39 +47,6 @@ const createDisposal = async (
       pointsAwarded: weightInGrams, // 1g = 1 point
     },
   });
-  if (disposal) {
-    await prisma.bin.update({
-      where: {
-        id: bin.id,
-      },
-      data: {
-        currentCapacity: parseFloat(binCapacity.toFixed(2)),
-      },
-    });
-    if (binCapacity > 85 && !bin.emailSent) {
-      const subscriptions = await prisma.subscription.findMany({
-        where: { userId: userId },
-      });
-      if (subscriptions.length > 0) {
-        await sendBinWarningEmail(
-          subscriptions.map((subscription) => subscription.email),
-          binCapacity,
-          bin.binMaterial.name,
-          bin.user.location
-        );
-        await prisma.bin.update({
-          where: { id: bin.id },
-          data: { emailSent: true },
-        });
-      }
-    } else if (binCapacity < 85 && bin.emailSent) {
-      await prisma.bin.update({
-        where: { id: bin.id },
-        data: { emailSent: false },
-      });
-    }
-  }
-  revalidatePath("/bin-capacity");
   return { id: disposal.id };
 };
 const getUnscannedDisposal = async (id: string) => {
