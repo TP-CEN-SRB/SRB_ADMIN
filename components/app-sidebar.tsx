@@ -142,7 +142,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         isOpen={isSignOutDialogOpen}
         handleDialogOpen={() => setSignOutDialogOpen(!isSignOutDialogOpen)}
       />
-      <Sidebar>
+      <Sidebar className="overflow-y-auto">
         <SidebarHeader>
           <SidebarMenu className="p-4">
             <Image
@@ -236,7 +236,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     onClick={() => setSignOutDialogOpen(true)}
                   >
                     <PiSignOutBold />
-                    Log out
+                    <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
