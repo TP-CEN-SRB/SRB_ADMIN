@@ -215,7 +215,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                 <DropdownMenuContent
                   className="w-[--radix-popper-anchor-width]"
                   side="top"
-                  sideOffset={50}
+                  sideOffset={10}
                 >
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -238,7 +238,6 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     <PiSignOutBold />
                     <span>Log out</span>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
                 </DropdownMenuContent>
               </DropdownMenu>
             </SidebarMenuItem>
