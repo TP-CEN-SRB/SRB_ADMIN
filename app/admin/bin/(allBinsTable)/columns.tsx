@@ -18,7 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { MdDeleteForever } from "react-icons/md";
 import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaTrashRestore } from "react-icons/fa";
 import { useState } from "react";
 import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog";
 
@@ -66,6 +66,12 @@ const BinActions = ({ bin }: { bin: Bin }) => {
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <MdDeleteForever />
             Delete bin
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/bin/disposal/${bin.id}`)}
+          >
+            <FaTrashRestore /> View disposals
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

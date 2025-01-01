@@ -1,11 +1,6 @@
 "use client";
 
-import { Column, ColumnDef } from "@tanstack/react-table";
-
-import { FaSort } from "react-icons/fa";
-import { FaLongArrowAltUp } from "react-icons/fa";
-
-import { Button } from "@/components/ui/button";
+import { ColumnDef } from "@tanstack/react-table";
 import { MdVerified } from "react-icons/md";
 import { MdGppBad } from "react-icons/md";
 import Actions from "./actions";

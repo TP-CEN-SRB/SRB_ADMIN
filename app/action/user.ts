@@ -473,14 +473,14 @@ const getAllStudentUsers = async (
   if (!sessionUser || sessionUser.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
-  const sortableEntities = ["disposal", "point", "redemption"];
+  const sortableItems = ["disposal", "point", "redemption"];
   const allowedEmailTypes = ["verified", "non-verified"];
   const pageCondition = page != null && page < 0;
   const sortOrderCondition =
     sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
   const sortItemCondition =
     sortItem !== undefined &&
-    !Object.values(sortableEntities).includes(sortItem);
+    !Object.values(sortableItems).includes(sortItem);
   const emailTypeCondition =
     emailType &&
     !emailType.split(",").every((type) => allowedEmailTypes.includes(type));
@@ -545,11 +545,11 @@ const getAllStudentUsers = async (
       take: page ? 10 : undefined,
       skip: page ? (page - 1) * 10 : 0,
       orderBy:
-        sortItem === sortableEntities[0]
+        sortItem === sortableItems[0]
           ? { disposals: { _count: sortOrder } }
-          : sortItem === sortableEntities[1]
+          : sortItem === sortableItems[1]
           ? { point: { balance: sortOrder } }
-          : sortItem === sortableEntities[2]
+          : sortItem === sortableItems[2]
           ? { redemptions: { _count: sortOrder } }
           : { createdAt: "desc" },
       select: {

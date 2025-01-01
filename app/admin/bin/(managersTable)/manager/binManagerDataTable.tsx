@@ -112,10 +112,9 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div>
+                  <div className={hasBins ? "cursor-not-allowed" : ""}>
                     <DropdownMenuItem
                       onClick={() => setDialogOpen(true)}
-                      className={hasBins ? "cursor-not-allowed opacity-50" : ""}
                       disabled={hasBins}
                     >
                       <MdDeleteForever />
@@ -161,13 +160,10 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div>
+                  <div className={!hasBins ? "cursor-not-allowed" : ""}>
                     <DropdownMenuItem
                       onClick={() =>
                         router.push(`/admin/bin/manager/${binManager.id}`)
-                      }
-                      className={
-                        !hasBins ? "cursor-not-allowed opacity-50" : ""
                       }
                       disabled={!hasBins}
                     >

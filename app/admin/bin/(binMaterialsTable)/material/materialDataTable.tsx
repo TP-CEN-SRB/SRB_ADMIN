@@ -96,10 +96,9 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
             </Link>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div>
+                <div className={hasBins ? "cursor-not-allowed" : ""}>
                   <DropdownMenuItem
                     onClick={() => setDialogOpen(true)}
-                    className={hasBins ? "cursor-not-allowed opacity-50" : ""}
                     disabled={hasBins}
                   >
                     <MdDeleteForever />
