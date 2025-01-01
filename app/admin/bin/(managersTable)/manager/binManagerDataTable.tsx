@@ -55,6 +55,7 @@ import {
 } from "@/components/ui/select";
 import React from "react";
 import ConfirmDeleteBinManagerDialog from "@/components/Dialog/ConfirmDeleteBinManagerDialog";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface BinManager {
   id: string;
@@ -108,59 +109,108 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
                 Create bin
               </DropdownMenuItem>
             </Link>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <DropdownMenuItem
-                    onClick={() => setDialogOpen(true)}
-                    className={hasBins ? "cursor-not-allowed opacity-50" : ""}
-                    disabled={hasBins}
-                  >
-                    <MdDeleteForever />
-                    Delete manager
-                  </DropdownMenuItem>
-                </div>
-              </TooltipTrigger>
-              {hasBins && (
-                <TooltipContent
-                  side="left"
-                  align="start"
-                  sideOffset={10}
-                  className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
-                >
-                  <div className="flex items-start space-x-2">
-                    <svg
-                      className="w-5 h-5 text-red-500"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <DropdownMenuItem
+                      onClick={() => setDialogOpen(true)}
+                      className={hasBins ? "cursor-not-allowed opacity-50" : ""}
+                      disabled={hasBins}
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M13 16h-1v-4h-1m1-4h.01M12 20c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"
-                      />
-                    </svg>
-                    <div>
-                      <p className="font-semibold text-gray-800">Warning</p>
-                      <p className="mt-1 text-sm">
-                        This manager has bins assigned. Deleting is not allowed.
-                      </p>
-                    </div>
+                      <MdDeleteForever />
+                      Delete manager
+                    </DropdownMenuItem>
                   </div>
-                </TooltipContent>
-              )}
-            </Tooltip>
+                </TooltipTrigger>
+                {hasBins && (
+                  <TooltipContent
+                    side="left"
+                    align="start"
+                    sideOffset={10}
+                    className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
+                  >
+                    <div className="flex items-start space-x-2">
+                      <svg
+                        className="w-5 h-5 text-red-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M12 20c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"
+                        />
+                      </svg>
+                      <div>
+                        <p className="font-semibold text-gray-800">Warning</p>
+                        <p className="mt-1 text-sm">
+                          This manager has bins assigned. Deleting is not
+                          allowed.
+                        </p>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
             <DropdownMenuSeparator />
-
-            <Link href={`/admin/bin/manager/${binManager.id}`} passHref>
-              <DropdownMenuItem>
-                <MdOutlineBarChart />
-                View bin capacity
-              </DropdownMenuItem>
-            </Link>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        router.push(`/admin/bin/manager/${binManager.id}`)
+                      }
+                      className={
+                        !hasBins ? "cursor-not-allowed opacity-50" : ""
+                      }
+                      disabled={!hasBins}
+                    >
+                      <MdOutlineBarChart />
+                      View bin capacity
+                    </DropdownMenuItem>
+                  </div>
+                </TooltipTrigger>
+                {!hasBins && (
+                  <TooltipContent
+                    side="left"
+                    align="start"
+                    sideOffset={10}
+                    className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
+                  >
+                    <div className="flex items-start space-x-2">
+                      <svg
+                        className="w-5 h-5 text-red-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 16h-1v-4h-1m1-4h.01M12 20c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"
+                        />
+                      </svg>
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          Unavailable
+                        </p>
+                        <p className="mt-1 text-sm">
+                          You need to create bins before viewing their capacity.
+                        </p>
+                      </div>
+                    </div>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
             <Link
               href={`/admin/bin/manager/subscription/${binManager.id}`}
               passHref

@@ -45,14 +45,13 @@ const RewardPage = async () => {
                   </div>
                 </div>
                 <div className="p-3 text-slate-700">
-                  <div className="flex items-center gap-2">
-                    {reward.isAvailable ? (
-                      <FaCircleDot className="text-green-500" />
-                    ) : (
-                      <FaCircleDot className="text-red-600" />
-                    )}
-                    <h2 className="md:text-xl text-lg">{reward.name}</h2>
-                  </div>
+                  {reward.isAvailable ? (
+                    <FaCircleDot className="text-green-500" />
+                  ) : (
+                    <FaCircleDot className="text-red-600" />
+                  )}
+                  <h2 className="md:text-xl text-lg">{reward.name}</h2>
+
                   <h2 className="md:text-lg text-base">
                     {reward.pointsRequired} pts
                   </h2>

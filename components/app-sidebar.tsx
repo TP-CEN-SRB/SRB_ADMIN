@@ -21,14 +21,7 @@ import {
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
-import {
-  FaTrash,
-  FaUser,
-  FaChevronRight,
-  FaEye,
-  FaPlus,
-  FaChevronUp,
-} from "react-icons/fa";
+import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
@@ -205,18 +198,14 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <DropdownMenu modal={true}>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton>
                     <CgProfile /> {email}
-                    <FaChevronUp className="ml-auto" />
+                    <FaChevronRight className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  className="w-[--radix-popper-anchor-width]"
-                  side="top"
-                  sideOffset={10}
-                >
+                <DropdownMenuContent side="right" align="start" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {dropdownItems.map((item, index) => (
