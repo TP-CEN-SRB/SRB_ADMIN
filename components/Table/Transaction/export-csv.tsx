@@ -54,32 +54,40 @@ const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
         <PiExportBold /> Export
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="end">
-        <DropdownMenuItem disabled={isPending}>
-          <IoIosDocument />
-          <CSVLink
-            className="cursor-default"
-            filename={`transactions_${userId}_current_page_${new Date().getTime()}.csv`}
-            data={(data as Transaction[]).map((transaction) => ({
-              id: transaction.id,
-              pointsChange: transaction.pointsChange,
-              description: transaction.description,
-              transactionType: transaction.transactionType,
-              createdAt: transaction.createdAt,
-            }))}
-          >
-            Export this page
-          </CSVLink>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={(e) => {
-            fetchAllData();
-          }}
-          disabled={isPending}
+        <div
+          className={isPending || data.length < 1 ? "cursor-not-allowed" : ""}
         >
-          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-          <FaTableCells />
-          Export this dataset
-        </DropdownMenuItem>
+          <DropdownMenuItem disabled={isPending || data.length < 1}>
+            <IoIosDocument />
+            <CSVLink
+              className="cursor-default"
+              filename={`transactions_${userId}_current_page_${new Date().getTime()}.csv`}
+              data={(data as Transaction[]).map((transaction) => ({
+                id: transaction.id,
+                pointsChange: transaction.pointsChange,
+                description: transaction.description,
+                transactionType: transaction.transactionType,
+                createdAt: transaction.createdAt,
+              }))}
+            >
+              Export this page
+            </CSVLink>
+          </DropdownMenuItem>
+        </div>
+        <div
+          className={isPending || data.length < 1 ? "cursor-not-allowed" : ""}
+        >
+          <DropdownMenuItem
+            onClick={(e) => {
+              fetchAllData();
+            }}
+            disabled={isPending || data.length < 1}
+          >
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+            <FaTableCells />
+            Export this dataset
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
 
       {initiateDownload && allData.length > 0 && (

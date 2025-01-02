@@ -153,7 +153,7 @@ export function DataTable<TData, TValue>({
           <div>Page</div>
           <span>
             {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount().toLocaleString()}
+            {Math.max(1, table.getPageCount())}
           </span>
         </div>
         <div className="flex items-center justify-end space-x-2">

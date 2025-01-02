@@ -2,6 +2,7 @@
 
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
@@ -20,7 +21,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
-import { FaEdit, FaPlus } from "react-icons/fa";
+import { FaEdit, FaPlus, FaPlusCircle } from "react-icons/fa";
 import {
   MdDeleteForever,
   MdMarkEmailRead,
@@ -56,6 +57,7 @@ import {
 import React from "react";
 import ConfirmDeleteBinManagerDialog from "@/components/Dialog/ConfirmDeleteBinManagerDialog";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
 
 interface BinManager {
   id: string;
@@ -233,6 +235,12 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
     {
       accessorKey: "faculty",
       header: "Faculty",
+      filterFn: (row, columnId, filterValue) => {
+        if (Array.isArray(filterValue)) {
+          return filterValue.includes(row.getValue(columnId));
+        }
+        return true;
+      },
     },
     {
       id: "actions",
@@ -255,8 +263,60 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
       pagination,
     },
   });
+
+  const [selectedFaculty, setSelectedFaculty] = useState<string[]>([]);
+  const [searchFilter, setSearchFilter] = useState(
+    (table.getColumn("name")?.getFilterValue() as string) ?? ""
+  );
+
+  const handleFacultyFilterChange = (checked: boolean, faculty: string) => {
+    const updateFaculties = checked
+      ? [...selectedFaculty, faculty]
+      : selectedFaculty.filter((item) => item !== faculty);
+    setSelectedFaculty(updateFaculties);
+    table
+      .getColumn("faculty")
+      ?.setFilterValue(updateFaculties.length ? updateFaculties : undefined);
+  };
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setSearchFilter(value); // Update the input state
+    table.getColumn("name")?.setFilterValue(value);
+  };
   return (
     <div className="px-4">
+      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
+        <div className="max-w-xs">
+          <Input
+            type="search"
+            placeholder="Filter name..."
+            value={searchFilter}
+            onChange={handleInputChange}
+          />
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 text-gray-50 flex items-center gap-x-2 text-sm">
+            <FaPlusCircle />
+            Filter
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" side="bottom" align="end">
+            <DropdownMenuLabel>Faculty</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {Object.values(Faculty).map((item, index) => (
+              <DropdownMenuCheckboxItem
+                key={index}
+                checked={selectedFaculty.includes(item)}
+                onCheckedChange={(checked) =>
+                  handleFacultyFilterChange(checked, item)
+                }
+                onSelect={(e) => e.preventDefault()}
+              >
+                {item}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -330,7 +390,7 @@ const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
           <div>Page</div>
           <span>
             {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount().toLocaleString()}
+            {Math.max(1, table.getPageCount())}
           </span>
         </div>
         <div className="flex items-center justify-end space-x-2">

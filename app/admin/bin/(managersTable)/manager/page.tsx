@@ -26,11 +26,7 @@ const binManagersArr = async () => {
 const AllBinManagersPage = async () => {
   const data = await getData();
   const allBinUsers = await binManagersArr();
-  return (
-    <div className="container mx-auto py-10">
-      <BinManagerDataTable data={data} allBinManagers={allBinUsers} />
-    </div>
-  );
+  return <BinManagerDataTable data={data} allBinManagers={allBinUsers} />;
 };
 
 export default AllBinManagersPage;

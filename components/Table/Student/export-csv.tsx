@@ -58,37 +58,45 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         <PiExportBold /> Export
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="end">
-        <DropdownMenuItem disabled={isPending}>
-          <IoIosDocument />
-          <CSVLink
-            className="cursor-default"
-            filename={`students_current_page_${new Date().getTime()}.csv`}
-            data={(data as Student[]).map((student) => ({
-              id: student.id,
-              name: student.name,
-              email: student.email,
-              faculty: student.faculty,
-              pointBalance: student.point?.balance ?? "N/A",
-              disposals: student._count?.disposals ?? 0,
-              redemptions: student._count.redemptions ?? 0,
-              createdAt: student.createdAt,
-              updatedAt: student.updatedAt,
-              pointsUpdatedAt: student.point?.updatedAt,
-            }))}
-          >
-            Export this page
-          </CSVLink>
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={(e) => {
-            fetchAllData();
-          }}
-          disabled={isPending}
+        <div
+          className={isPending || data.length < 1 ? "cursor-not-allowed" : ""}
         >
-          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-          <FaTableCells />
-          Export this dataset
-        </DropdownMenuItem>
+          <DropdownMenuItem disabled={isPending || data.length < 1}>
+            <IoIosDocument />
+            <CSVLink
+              className="cursor-default"
+              filename={`students_current_page_${new Date().getTime()}.csv`}
+              data={(data as Student[]).map((student) => ({
+                id: student.id,
+                name: student.name,
+                email: student.email,
+                faculty: student.faculty,
+                pointBalance: student.point?.balance ?? "N/A",
+                disposals: student._count?.disposals ?? 0,
+                redemptions: student._count.redemptions ?? 0,
+                createdAt: student.createdAt,
+                updatedAt: student.updatedAt,
+                pointsUpdatedAt: student.point?.updatedAt,
+              }))}
+            >
+              Export this page
+            </CSVLink>
+          </DropdownMenuItem>
+        </div>
+        <div
+          className={isPending || data.length < 1 ? "cursor-not-allowed" : ""}
+        >
+          <DropdownMenuItem
+            onClick={(e) => {
+              fetchAllData();
+            }}
+            disabled={isPending || data.length < 1}
+          >
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+            <FaTableCells />
+            Export this dataset
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
 
       {initiateDownload && allData.length > 0 && (
