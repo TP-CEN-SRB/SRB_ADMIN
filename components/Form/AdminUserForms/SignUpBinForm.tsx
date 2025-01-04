@@ -154,6 +154,25 @@ const SignUpBinForm = () => {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="mqttUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Mqtt URL
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="wss://broker.hivemq.com:8884/mqtt"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && (
             <CustomFormMessage type="Success">{success}</CustomFormMessage>

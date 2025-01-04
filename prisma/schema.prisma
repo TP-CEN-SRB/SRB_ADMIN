@@ -54,6 +54,7 @@ model User {
   transactions  Transaction[]
   point         Point?
   location      String?        @unique // Outside library
+  mqttUrl       String?        @unique // used by bin manager to publish mqtt payloads
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

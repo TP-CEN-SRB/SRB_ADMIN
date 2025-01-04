@@ -74,15 +74,17 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name).trim();
-  const email = formData.email.trim().toLowerCase();
+  const name = capitalizeFirstLetter(formData.name);
+  const email = formData.email;
   const password = formData.password.trim();
-  const location = capitalizeFirstLetter(formData.location).trim();
+  const location = capitalizeFirstLetter(formData.location);
   const faculty = formData.faculty;
+  const mqttUrl = formData.mqttUrl;
   const existingBinUser = await checkBinUserWithSimilarRecord(
     name,
     email,
-    location
+    location,
+    mqttUrl
   );
   if (existingBinUser) {
     return { error: "Duplicate found. Bin Manager already exists!" };
@@ -97,6 +99,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       faculty: faculty,
       role: Role.BIN,
       password: hashedPassword,
+      mqttUrl: mqttUrl,
       //to update faculty (cfm have merge conflict)
     },
   });
@@ -117,6 +120,7 @@ const updateBinUser = async (
   const email = formData.email.toLowerCase().trim();
   const location = formData.location.trim();
   const faculty = formData.faculty;
+  const mqttUrl = formData.mqttUrl;
   const isExistingPassword = formData.isExistingPassword;
   let password;
   const existingBinUser = await prisma.user.findUnique({
@@ -131,6 +135,7 @@ const updateBinUser = async (
       name,
       email,
       location,
+      mqttUrl,
       true,
       id
     );
@@ -144,6 +149,7 @@ const updateBinUser = async (
         email,
         location,
         faculty,
+        mqttUrl,
         ...(!isExistingPassword && { password: password }),
       },
     });
@@ -158,12 +164,13 @@ const checkBinUserWithSimilarRecord = async (
   name: string,
   email: string,
   location: string,
+  mqttUrl: string,
   update?: boolean,
   id?: string
 ) => {
   const binUser = await prisma.user.findFirst({
     where: {
-      OR: [{ name }, { email }, { location }],
+      OR: [{ name }, { email }, { location }, { mqttUrl }],
       ...(update && id && { id: { not: id } }),
     },
   });
@@ -346,6 +353,7 @@ const getLoggedInUserById = async (id: string) => {
 const updateAdmin = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.omit({
     password: true,
+    confirmPassword: true,
   }).safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid credentials!" };
@@ -479,8 +487,7 @@ const getAllStudentUsers = async (
   const sortOrderCondition =
     sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
   const sortItemCondition =
-    sortItem !== undefined &&
-    !Object.values(sortableItems).includes(sortItem);
+    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem);
   const emailTypeCondition =
     emailType &&
     !emailType.split(",").every((type) => allowedEmailTypes.includes(type));

@@ -11,14 +11,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
 import Link from "next/link";
-import { deleteBin } from "@/app/action/bin";
-import { toast } from "@/hooks/use-toast";
+import { BiSolidDoorOpen } from "react-icons/bi";
 import { useRouter } from "next/navigation";
 import { MdDeleteForever } from "react-icons/md";
 import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
-import { FaEdit, FaTrashRestore } from "react-icons/fa";
+import {
+  FaCaretSquareDown,
+  FaCaretSquareUp,
+  FaEdit,
+  FaLock,
+  FaLockOpen,
+  FaTrashRestore,
+} from "react-icons/fa";
+import { RiDoorFill } from "react-icons/ri";
 import { useState } from "react";
 import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog";
 
@@ -72,6 +79,32 @@ const BinActions = ({ bin }: { bin: Bin }) => {
             onClick={() => router.push(`/admin/bin/disposal/${bin.id}`)}
           >
             <FaTrashRestore /> View disposals
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Commands</DropdownMenuLabel>
+          <DropdownMenuItem>
+            <BiSolidDoorOpen className="-rotate-90" />
+            Open
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <RiDoorFill className="rotate-90" />
+            Close
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaLock />
+            Lock
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaLockOpen />
+            Unlock
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaCaretSquareUp />
+            Lift up
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <FaCaretSquareDown />
+            Lift down
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
