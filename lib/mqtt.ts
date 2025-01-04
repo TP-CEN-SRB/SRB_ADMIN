@@ -10,7 +10,6 @@ const connectMqtt = () => {
     keepalive: 30,
     connectTimeout: 10 * 1000, // 10 seconds
   });
-
   client.on("connect", () => console.log("Connected to broker"));
   client.on("error", (error) => {
     console.log("Error: ", error);
