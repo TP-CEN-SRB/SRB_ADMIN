@@ -198,25 +198,6 @@ const EditBinForm = ({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="mqttUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Mqtt URL
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="wss://broker.hivemq.com:8884/mqtt"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <Button
             disabled={isPending}
             className="w-full bg-emerald-600 hover:bg-emerald-700"

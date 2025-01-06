@@ -40,24 +40,23 @@ enum TransactionType {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  emailVerified DateTime?
-  password      String
-  name          String
-  faculty       Faculty
-  role          Role
-  disposals     Disposal[]
-  bins          Bin[]
-  redemptions   Redemption[]
-  subscriptions Subscription[]
-  transactions  Transaction[]
-  point         Point?
-  location      String?        @unique // Outside library
-  mqttUrl       String?        @unique // used by bin manager to publish mqtt payloads
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               String         @id @default(uuid())
+  email            String         @unique
+  emailVerified    DateTime?
+  password         String
+  name             String
+  faculty          Faculty
+  role             Role
+  disposals        Disposal[]
+  bins             Bin[]
+  redemptions      Redemption[]
+  subscriptions    Subscription[]
+  transactions     Transaction[]
+  point            Point?
+  location         String?        @unique // Outside library
+  commandUpdatedAt DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@map("users")
 }

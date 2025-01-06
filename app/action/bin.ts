@@ -497,6 +497,7 @@ export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
       createdAt: true,
       updatedAt: true,
       _count: { select: { disposals: true } },
+      userId: true,
       user: {
         select: {
           name: true,

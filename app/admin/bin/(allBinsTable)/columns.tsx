@@ -28,11 +28,18 @@ import {
 import { RiDoorFill } from "react-icons/ri";
 import { useState } from "react";
 import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog";
+import { publishMqtt } from "@/lib/mqtt";
+import { toast } from "@/hooks/use-toast";
+import {
+  ableToPublishMqttMessage,
+  updateCommandUpdatedAt,
+} from "@/utils/mqttPublisher";
 
 export type Bin = {
   id: string;
   currentCapacity: number;
   _count: { disposals: number };
+  userId: string;
   user: { name: string | null; location: string | null };
   status: BinStatus;
   binMaterial: { name: string };
@@ -47,6 +54,33 @@ const BinActions = ({ bin }: { bin: Bin }) => {
     timeZone: "Asia/Singapore",
     hour12: false, // 24-hour format, remove if 12-hour format is needed
   });
+  const publishMessage = async (command: string) => {
+    const ableToPublish = await ableToPublishMqttMessage(bin.userId);
+    if (!ableToPublish) {
+      toast({
+        title: "Error!",
+        description:
+          "Unable to send command at this time, please try again in a few seconds",
+      });
+      return;
+    }
+    const success = await publishMqtt(
+      `bin/${bin.binMaterial.name.toLowerCase()}/${bin.userId}`,
+      JSON.stringify({ command: command })
+    );
+    if (success) {
+      toast({
+        title: "Success!",
+        description: "Command sent successfully",
+      });
+      await updateCommandUpdatedAt(bin.userId);
+    } else {
+      toast({
+        title: "Error!",
+        description: "Failed to send command",
+      });
+    }
+  };
 
   return (
     <div>
@@ -82,27 +116,51 @@ const BinActions = ({ bin }: { bin: Bin }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Commands</DropdownMenuLabel>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("open");
+            }}
+          >
             <BiSolidDoorOpen className="-rotate-90" />
             Open
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("close");
+            }}
+          >
             <RiDoorFill className="rotate-90" />
             Close
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("lock");
+            }}
+          >
             <FaLock />
             Lock
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("unlock");
+            }}
+          >
             <FaLockOpen />
             Unlock
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("up");
+            }}
+          >
             <FaCaretSquareUp />
             Lift up
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("down");
+            }}
+          >
             <FaCaretSquareDown />
             Lift down
           </DropdownMenuItem>

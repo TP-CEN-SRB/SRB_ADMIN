@@ -65,7 +65,6 @@ const SignUpBinSchema = z.object({
     .string()
     .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
     .min(2, "Location is too short"),
-  mqttUrl: z.string().url("Please enter a valid URL"),
 });
 const BinPasswordSchema = z.discriminatedUnion("isExistingPassword", [
   z.object({
@@ -93,7 +92,6 @@ const UpdateBinSchema = z
       .string()
       .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas")
       .min(2, "Location is too short"),
-    mqttUrl: z.string().url("Please enter a valid URL"),
   })
   .and(BinPasswordSchema);
 

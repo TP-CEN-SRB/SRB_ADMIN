@@ -79,12 +79,10 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const password = formData.password.trim();
   const location = capitalizeFirstLetter(formData.location);
   const faculty = formData.faculty;
-  const mqttUrl = formData.mqttUrl;
   const existingBinUser = await checkBinUserWithSimilarRecord(
     name,
     email,
     location,
-    mqttUrl
   );
   if (existingBinUser) {
     return { error: "Duplicate found. Bin Manager already exists!" };
@@ -99,7 +97,6 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       faculty: faculty,
       role: Role.BIN,
       password: hashedPassword,
-      mqttUrl: mqttUrl,
       //to update faculty (cfm have merge conflict)
     },
   });
@@ -120,7 +117,6 @@ const updateBinUser = async (
   const email = formData.email.toLowerCase().trim();
   const location = formData.location.trim();
   const faculty = formData.faculty;
-  const mqttUrl = formData.mqttUrl;
   const isExistingPassword = formData.isExistingPassword;
   let password;
   const existingBinUser = await prisma.user.findUnique({
@@ -135,7 +131,6 @@ const updateBinUser = async (
       name,
       email,
       location,
-      mqttUrl,
       true,
       id
     );
@@ -149,7 +144,6 @@ const updateBinUser = async (
         email,
         location,
         faculty,
-        mqttUrl,
         ...(!isExistingPassword && { password: password }),
       },
     });
@@ -164,13 +158,12 @@ const checkBinUserWithSimilarRecord = async (
   name: string,
   email: string,
   location: string,
-  mqttUrl: string,
   update?: boolean,
   id?: string
 ) => {
   const binUser = await prisma.user.findFirst({
     where: {
-      OR: [{ name }, { email }, { location }, { mqttUrl }],
+      OR: [{ name }, { email }, { location }],
       ...(update && id && { id: { not: id } }),
     },
   });
