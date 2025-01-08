@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import SortByFilter from "./sortBy";
 import ExportCSV from "./export-csv";
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 // import SortByFilter from "./sortBy";
 // import ExportCSV from "./export-csv";
 
@@ -25,6 +26,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   count: number;
   binId: string;
+  material: string;
+  location: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -32,6 +35,8 @@ export function DataTable<TData, TValue>({
   count,
   columns,
   data,
+  material,
+  location,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -85,8 +90,12 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="px-4">
-      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
-        <div className="flex gap-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-slate-800 line-clamp-1 flex-1">
+          <span className="font-normal">Showing results for: </span>
+          {capitalizeFirstLetter(material.toLowerCase())} bin @ {location}
+        </h2>
+        <div className="flex flex-wrap items-center gap-3 py-3">
           <SortByFilter
             onResetSortBy={handleResetSortBy}
             onApplySortBy={handleApplySortBy}

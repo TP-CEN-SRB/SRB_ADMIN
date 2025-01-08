@@ -92,7 +92,7 @@ const getDisposalByBinId = async (
     return { disposalCount: 0, disposals: [] };
   }
 
-  const [disposalCount, disposals] = await Promise.all([
+  const [disposalCount, disposals, bin] = await Promise.all([
     prisma.disposal.count({ where: { binId: binId } }),
     prisma.disposal.findMany({
       where: { binId: binId },
@@ -115,8 +115,15 @@ const getDisposalByBinId = async (
         createdAt: true,
       },
     }),
+    prisma.bin.findUnique({
+      where: { id: binId },
+      select: {
+        binMaterial: { select: { name: true } },
+        user: { select: { location: true } },
+      },
+    }),
   ]);
-  return { disposalCount, disposals };
+  return { disposalCount, disposals, bin };
 };
 
 export { createDisposal, getUnscannedDisposal, getDisposalByBinId };

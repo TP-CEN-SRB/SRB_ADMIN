@@ -65,7 +65,7 @@ const BinActions = ({ bin }: { bin: Bin }) => {
       return;
     }
     const success = await publishMqtt(
-      `bin/${bin.binMaterial.name.toLowerCase()}/${bin.userId}`,
+      `srb/${bin.binMaterial.name.toLowerCase()}/${bin.userId}`,
       JSON.stringify({ command: command })
     );
     if (success) {

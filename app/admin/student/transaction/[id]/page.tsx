@@ -15,7 +15,7 @@ const ViewStudentTransactionPage = async ({
   const transactionType = searchParams.transactionType
     ? decodeURIComponent(searchParams.transactionType)
     : null;
-  const { transactionCount, transactions } = await getTransactionByUserId(
+  const { transactionCount, transactions, user } = await getTransactionByUserId(
     params.id,
     page,
     sortOrder,
@@ -25,6 +25,7 @@ const ViewStudentTransactionPage = async ({
   return (
     <div>
       <DataTable
+        name={user?.name as string}
         userId={params.id}
         columns={columns}
         data={transactions === undefined ? [] : transactions}

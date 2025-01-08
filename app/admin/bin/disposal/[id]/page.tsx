@@ -13,7 +13,7 @@ const ViewBinDisposalPage = async ({
   const page = Number(searchParams?.page) || 1;
   const sortOrder = searchParams.sortOrder;
   const sortItem = searchParams.sortItem;
-  const { disposalCount, disposals } = await getDisposalByBinId(
+  const { disposalCount, disposals, bin } = await getDisposalByBinId(
     params.id,
     page,
     sortOrder,
@@ -21,6 +21,8 @@ const ViewBinDisposalPage = async ({
   );
   return (
     <DataTable
+      material={bin?.binMaterial.name as string}
+      location={bin?.user.location as string}
       binId={params.id}
       columns={columns}
       data={disposals === undefined ? [] : disposals}

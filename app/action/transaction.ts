@@ -28,7 +28,7 @@ const getTransactionByUserId = async (
   if (pageCondition || sortOrderCondition || transactionTypeCondition) {
     return { transactionCount: 0, transactions: [] };
   }
-  const [transactionCount, transactions] = await Promise.all([
+  const [transactionCount, transactions, user] = await Promise.all([
     prisma.transaction.count({
       where: {
         transactionType: transactionType
@@ -49,14 +49,16 @@ const getTransactionByUserId = async (
       orderBy: { createdAt: sortOrder === "asc" ? "asc" : "desc" },
       select: {
         id: true,
+        user: { select: { name: true } },
         pointsChange: true,
         description: true,
         transactionType: true,
         createdAt: true,
       },
     }),
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
   ]);
-  return { transactionCount, transactions };
+  return { transactionCount, transactions, user };
 };
 
 export { getTransactionByUserId };

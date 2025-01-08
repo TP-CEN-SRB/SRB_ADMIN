@@ -24,6 +24,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   count: number;
   userId: string;
+  name: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -31,6 +32,7 @@ export function DataTable<TData, TValue>({
   count,
   columns,
   data,
+  name,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -99,8 +101,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="px-4">
-      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
-        <div className="flex gap-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-slate-800 line-clamp-1 flex-1">
+          <span className="font-normal">Showing results for:</span> {name}
+        </h2>
+        <div className="flex flex-wrap items-center gap-3 py-3">
           <SortByFilter
             onResetSortBy={handleResetSortBy}
             onApplySortBy={handleApplySortBy}

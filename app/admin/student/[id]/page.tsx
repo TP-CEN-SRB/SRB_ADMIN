@@ -1,5 +1,4 @@
 import Card from "@/components/Card/Card";
-import CardHeader from "@/components/Card/CardHeader";
 import UserProfileMore from "@/components/Dropdown/UserProfileMore";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import prisma from "@/lib/db";
