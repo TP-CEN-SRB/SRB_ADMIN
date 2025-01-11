@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
-import { LuCheckCircle } from "react-icons/lu";
 import { FaExclamationTriangle } from "react-icons/fa";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LucideCheckCircle } from "lucide-react";
 interface FormMessageProps {
   children: ReactNode;
   type: "Error" | "Success";
@@ -17,7 +17,7 @@ const CustomFormMessage = ({ children, type }: FormMessageProps) => {
     >
       <AlertTitle className="font-bold">
         <div className="flex items-center gap-x-2">
-          {type === "Error" ? <FaExclamationTriangle /> : <LuCheckCircle />}
+          {type === "Error" ? <FaExclamationTriangle /> : <LucideCheckCircle />}
           {type}
         </div>
       </AlertTitle>

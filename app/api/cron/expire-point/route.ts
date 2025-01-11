@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 /**
- * Exipire user's points if they have been inactive (Points not updated for 3 months)
+ * Expire user's points if they have been inactive (Points not updated for 3 months)
  * Scheduled to run every day at 23:59 UTC
  */
 export const PUT = async (req: NextRequest) => {

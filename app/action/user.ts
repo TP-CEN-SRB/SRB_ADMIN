@@ -79,10 +79,14 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const password = formData.password.trim();
   const location = capitalizeFirstLetter(formData.location);
   const faculty = formData.faculty;
+  const lat = formData.latitude;
+  const long = formData.longitude;
   const existingBinUser = await checkBinUserWithSimilarRecord(
     name,
     email,
     location,
+    lat,
+    long
   );
   if (existingBinUser) {
     return { error: "Duplicate found. Bin Manager already exists!" };
@@ -97,6 +101,8 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       faculty: faculty,
       role: Role.BIN,
       password: hashedPassword,
+      lat: lat,
+      long: long,
       //to update faculty (cfm have merge conflict)
     },
   });
@@ -117,6 +123,8 @@ const updateBinUser = async (
   const email = formData.email.toLowerCase().trim();
   const location = formData.location.trim();
   const faculty = formData.faculty;
+  const lat = formData.latitude;
+  const long = formData.longitude;
   const isExistingPassword = formData.isExistingPassword;
   let password;
   const existingBinUser = await prisma.user.findUnique({
@@ -131,6 +139,8 @@ const updateBinUser = async (
       name,
       email,
       location,
+      lat,
+      long,
       true,
       id
     );
@@ -144,6 +154,8 @@ const updateBinUser = async (
         email,
         location,
         faculty,
+        lat,
+        long,
         ...(!isExistingPassword && { password: password }),
       },
     });
@@ -158,12 +170,14 @@ const checkBinUserWithSimilarRecord = async (
   name: string,
   email: string,
   location: string,
+  lat: number,
+  long: number,
   update?: boolean,
   id?: string
 ) => {
   const binUser = await prisma.user.findFirst({
     where: {
-      OR: [{ name }, { email }, { location }],
+      OR: [{ name }, { email }, { location }, { AND: [{ lat }, { long }] }],
       ...(update && id && { id: { not: id } }),
     },
   });
@@ -438,6 +452,11 @@ const getAllBinUsers = async () => {
       name: true,
       email: true,
       faculty: true,
+      lat: true,
+      long: true,
+      _count: {
+        select: { bins: true },
+      },
     },
   });
   return result;

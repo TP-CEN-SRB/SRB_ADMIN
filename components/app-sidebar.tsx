@@ -23,6 +23,7 @@ import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
 import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
+import { FaMapMarkedAlt } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,6 +36,27 @@ import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
 
 export const collaspeItems = [
+  {
+    title: "Bin Managers",
+    icon: CgProfile,
+    child: [
+      {
+        title: "Map",
+        icon: FaMapMarkedAlt,
+        url: "/admin/bin/manager/map",
+      },
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/bin/manager",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/bin/manager/create",
+      },
+    ],
+  },
   {
     title: "Bins",
     icon: FaTrash,
@@ -91,22 +113,6 @@ export const collaspeItems = [
         title: "Create",
         icon: FaPlus,
         url: "/admin/bin/material/create",
-      },
-    ],
-  },
-  {
-    title: "Bin Managers",
-    icon: CgProfile,
-    child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/bin/manager",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/bin/manager/create",
       },
     ],
   },

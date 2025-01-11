@@ -31,6 +31,8 @@ interface EditBinFormProps {
   name: string;
   faculty: Faculty;
   location: string;
+  latitude: number;
+  longitude: number;
 }
 
 const EditBinForm = ({
@@ -39,6 +41,8 @@ const EditBinForm = ({
   email,
   faculty,
   location,
+  latitude,
+  longitude,
 }: EditBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -49,6 +53,8 @@ const EditBinForm = ({
       email,
       faculty,
       location,
+      latitude,
+      longitude,
       isExistingPassword: true,
     },
   });
@@ -190,6 +196,46 @@ const EditBinForm = ({
                   <Input
                     disabled={isPending}
                     placeholder="Block 1, Level 1 of Engine School"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="latitude"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Latitude
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Eg. 1.3456618"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="longitude"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Longitude
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Eg. 103.9327236"
                     {...field}
                     type="text"
                   />

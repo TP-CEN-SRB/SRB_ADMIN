@@ -34,11 +34,16 @@ const RewardPage = async () => {
             {rewards.map((reward, index) => (
               <RewardCard rounded key={index}>
                 <div className="relative aspect-[3/2]">
-                  <Image
+                  {/* <Image
                     src={reward.image}
                     alt={reward.name}
                     className="object-cover"
                     fill
+                  /> */}
+                  <img
+                    src={reward.image}
+                    alt={reward.name}
+                    className="object-cover w-full h-full"
                   />
                   <div className="absolute top-3 right-3">
                     <RewardMore id={reward.id} />

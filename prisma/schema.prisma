@@ -53,6 +53,8 @@ model User {
   subscriptions    Subscription[]
   transactions     Transaction[]
   point            Point?
+  lat              Decimal?       @db.Decimal(10, 7) // Latitude for bin manager
+  long             Decimal?       @db.Decimal(10, 7) // Longitude for bin manager
   location         String?        @unique // Outside library
   commandUpdatedAt DateTime?
   createdAt        DateTime       @default(now())
