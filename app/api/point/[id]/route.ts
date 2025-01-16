@@ -24,7 +24,7 @@ export const GET = async (
     const userId = params.id;
     if (decodedToken.userId !== userId) {
       return NextResponse.json(
-        { message: "Unauthorized access" },
+        { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
@@ -48,7 +48,7 @@ export const GET = async (
         point: point.balance,
         message: `${pointsToExpire} ${
           pointsToExpire > 1 ? "points" : "point"
-        } will be expiring on ${pointsExpiryDate.toLocaleDateString()}. Please keep your account active to prevent your points from expiring.`,
+        } will expire on ${pointsExpiryDate.toLocaleDateString()}. Please keep your account active to prevent your points from expiring.`,
       },
       { status: 200 }
     );
@@ -63,6 +63,8 @@ export const GET = async (
         { message: "Token is invalid!" },
         { status: 401 }
       );
+    } else if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },

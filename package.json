@@ -61,7 +61,6 @@
     "react-router-dom": "^6.27.0",
     "react-spinners": "^0.14.1",
     "recharts": "^2.13.1",
-    "resend": "^4.0.0",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "use-debounce": "^10.0.4",

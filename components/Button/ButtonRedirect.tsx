@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
-interface CardButtonProps {
+interface ButtonProps {
   href: string;
   children: React.ReactNode;
   color: "indigo" | "red" | "amber" | "emerald" | "slate";
@@ -16,7 +16,7 @@ const ButtonRedirect = ({
   color,
   rounded = false,
   variant = "default",
-}: CardButtonProps) => {
+}: ButtonProps) => {
   const colorVariants = {
     indigo: {
       default: "bg-indigo-500 hover:bg-indigo-600 text-gray-50",

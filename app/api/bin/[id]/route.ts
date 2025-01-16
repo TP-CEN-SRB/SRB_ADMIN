@@ -1,6 +1,6 @@
-import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import prisma from "@/lib/db";
 
 export const GET = async (
   req: NextRequest,
@@ -21,21 +21,42 @@ export const GET = async (
         { status: 401 }
       );
     }
-    const userId = params.id;
-    if (decodedToken.userId !== userId) {
+    const binManagerId = params.id;
+    if (decodedToken.userId !== binManagerId) {
       return NextResponse.json(
-        { message: "Unauthorized access" },
+        { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
-
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    const searchParams = req.nextUrl.searchParams;
+    const material = searchParams.get("material");
+    if (!material) {
+      return NextResponse.json(
+        { message: "Bin material is required!" },
+        { status: 400 }
+      );
     }
-    return NextResponse.json({ user }, { status: 200 });
+    const bin = await prisma.bin.findFirst({
+      where: {
+        binMaterial: {
+          name: material.toUpperCase(),
+        },
+        userId: binManagerId,
+      },
+      select: {
+        status: true,
+        currentCapacity: true,
+        binMaterial: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    if (!bin) {
+      return NextResponse.json({ message: "No bin found!" }, { status: 404 });
+    }
+    return NextResponse.json({ bin }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(
@@ -43,7 +64,10 @@ export const GET = async (
         { status: 401 }
       );
     } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json({ message: "Token is invalid!" });
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
     } else if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
