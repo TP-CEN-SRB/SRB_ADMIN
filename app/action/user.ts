@@ -608,15 +608,25 @@ const updateStudent = async (
 };
 
 const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
+  const curr = new Date();
+      const monday = curr.getDate() - ((curr.getDay() + 6) % 7);
+      
+      const startDate = new Date(curr.setDate(monday));
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(curr);
+      endDate.setDate(monday + 6); // Add 6 days to get to Sunday
+      endDate.setHours(23, 59, 59, 999);
+  // Get top users by points
   const data = await prisma.disposal.groupBy({
-    by: ["userId", "pointsAwarded"],
+    by: ["userId"],
     where: {
       user: {
         role: "STUDENT" as Role,
       },
       createdAt: {
-        gte: dateFrom,
-        lte: dateTo,
+        gte: dateFrom ?? startDate,
+        lte: dateTo ?? endDate,
       },
     },
     _sum: {
@@ -625,12 +635,16 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
     orderBy: {
       _sum: { pointsAwarded: "desc" },
     },
-    take: 50,
+    take: 10,
   });
 
   const userIds = data
     .map((user) => user.userId)
     .filter((id): id is string => id !== null);
+
+  if (userIds.length === 0) {
+    return [];
+  }
 
   const [userDisposals, userRedemptions, allTestData] = await Promise.all([
     prisma.disposal.groupBy({
@@ -652,11 +666,6 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       where: {
         userId: {
           in: userIds,
-        },
-      },
-      orderBy: {
-        _count: {
-          id: "desc",
         },
       },
     }),
@@ -692,7 +701,7 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
         _count: { id: 0 },
       };
 
-      const name = await prisma.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: { id: userId },
         select: {
           name: true,
@@ -701,7 +710,6 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       });
 
       const userTestData = allTestData.filter((t) => t.user?.id === userId);
-
       const materialCounts = userTestData.reduce((acc, item) => {
         const materialName = item.bin?.binMaterial?.name;
         if (materialName) {
@@ -710,27 +718,24 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
         return acc;
       }, {} as Record<string, number>);
 
-      const mostFrequentMaterial = Object.keys(materialCounts).reduce(
-        (maxMaterial, material) =>
-          materialCounts[material] > (materialCounts[maxMaterial] || 0)
-            ? material
-            : maxMaterial,
-        ""
-      );
+      const mostFrequentMaterial = Object.entries(materialCounts).reduce(
+        (max, [material, count]) => 
+          count > (max[1] || 0) ? [material, count] : max,
+        ['', 0]
+      )[0];
 
       return {
-        username: name?.name || undefined,
-        userId: userId,
+        username: user?.name,
+        userId,
         balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
-        disposalCount: disposal._count.id || 0,
-        redemptionCount:
-          userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
+        disposalCount: disposal._count.id,
+        redemptionCount: userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
         mostFrequentMaterial: mostFrequentMaterial || undefined,
       };
     })
   );
 
-  return orderedDisposals;
+  return orderedDisposals.sort((a, b) => b.balance - a.balance);
 };
 
 const listOfBinManagersUsed = async () => {

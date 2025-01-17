@@ -8,7 +8,6 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import React, { useMemo } from "react";
 import { Bar, BarChart, XAxis, Pie, PieChart, Label, Legend } from "recharts";
 
 interface monthlyChartData {
@@ -23,28 +22,27 @@ interface pieChartData {
 }
 
 interface ChartProps {
-  chartData?: monthlyChartData[];
+  barChartData?: monthlyChartData[];
   pieChartData?: pieChartData[];
+  pieChartSum: number;
   barChartConfig: ChartConfig;
   pieChartConfig: ChartConfig;
 }
 
-export default function Chart({
-  chartData,
+const Chart = ({
+  barChartData,
   pieChartData,
+  pieChartSum,
   barChartConfig,
   pieChartConfig,
-}: ChartProps) {
-  const { month, bin, ...materials } = chartData![0];
-  const totalBins = useMemo(() => {
-    return chartData?.reduce((acc, curr) => acc + curr.bin, 0);
-  }, [chartData]);
+}: ChartProps) => {
+  const { month, bin, ...materials } = barChartData![0];
   return (
     <>
       <div className="grid md:grid-cols-8 grid-cols-1 px-4 md:px-6 lg:px-8 py-4 gap-4 font-semibold">
         <div className="bg-white rounded-xl col-span-5">
           <ChartContainer config={barChartConfig} className="w-full h-[500px]">
-            <BarChart accessibilityLayer data={chartData}>
+            <BarChart accessibilityLayer data={barChartData}>
               <XAxis
                 dataKey="month"
                 tickLine={false}
@@ -100,7 +98,7 @@ export default function Chart({
                             y={viewBox.cy}
                             className="fill-foreground text-3xl font-bold"
                           >
-                            {totalBins!.toLocaleString()}
+                            {pieChartSum!.toLocaleString()}
                           </tspan>
                           <tspan
                             x={viewBox.cx}
@@ -131,3 +129,5 @@ export default function Chart({
     </>
   );
 }
+
+export default Chart;

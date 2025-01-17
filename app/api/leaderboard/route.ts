@@ -5,32 +5,38 @@ import { Role } from "@prisma/client";
 
 export const GET = async (req: NextRequest) => {
   try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
+    const token = req.headers.get("Authorization")?.split(" ")[1]
     if (!token) {
       return NextResponse.json(
         { message: "Missing authorization header!" },
         { status: 401 }
-      );
+      )
     }
-    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+
+    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!)
     if (typeof decodedToken === "string") {
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
-      );
+      )
     }
-    const date = new Date();
-    const firstDayofMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-    const lastDayofMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+    // Calculate monthly date range
+    const date = new Date()
+    const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+    const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    lastDayOfMonth.setHours(23, 59, 59, 999)
+
+    // Get top users by points
     const data = await prisma.disposal.groupBy({
-      by: ["userId", "pointsAwarded"],
+      by: ["userId"],
       where: {
         user: {
           role: "STUDENT" as Role,
         },
         createdAt: {
-          gte: firstDayofMonth,
-          lte: lastDayofMonth,
+          gte: firstDayOfMonth,
+          lte: lastDayOfMonth,
         },
       },
       _sum: {
@@ -40,79 +46,127 @@ export const GET = async (req: NextRequest) => {
         _sum: { pointsAwarded: "desc" },
       },
       take: 10,
-    });
+    })
+
     const userIds = data
       .map((user) => user.userId)
-      .filter((id): id is string => id !== null); // Extract the user IDs in order
+      .filter((id): id is string => id !== null)
 
-    const userDisposals = await prisma.disposal.groupBy({
-      by: ["userId"],
-      _count: {
-        id: true,
-      },
-      where: {
-        userId: {
-          in: userIds,
+    if (userIds.length === 0) {
+      return NextResponse.json({ orderedDisposals: [] }, { status: 200 })
+    }
+
+    const [userDisposals, userRedemptions, allTestData] = await Promise.all([
+      prisma.disposal.groupBy({
+        by: ["userId"],
+        _count: {
+          id: true,
         },
-      },
-    });
+        where: {
+          userId: {
+            in: userIds,
+          },
+        },
+      }),
+      prisma.redemption.groupBy({
+        by: ["userId"],
+        _count: {
+          id: true,
+        },
+        where: {
+          userId: {
+            in: userIds,
+          },
+        },
+      }),
+      prisma.disposal.findMany({
+        where: {
+          userId: {
+            in: userIds,
+          },
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+            },
+          },
+          bin: {
+            include: {
+              binMaterial: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ])
 
-    // const userRedemptions = await prisma.redemption.groupBy({
-    //   by: ["userId"],
-    //   _count: {
-    //     id: true,
-    //   },
-    //   where: {
-    //     userId: {
-    //       in: userIds,
-    //     },
-    //   },
-    // });
     const orderedDisposals = await Promise.all(
       userIds.map(async (userId) => {
-        const disposal = userDisposals.find((d) => d.userId === userId);
-        const name = await prisma.user.findUnique({
-          where: {
-            id: userId,
-          },
+        const disposal = userDisposals.find((d) => d.userId === userId) || {
+          _count: { id: 0 },
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
           select: {
             name: true,
             email: true,
           },
-        });
-        return {
-          userId: userId,
-          rank: userIds.indexOf(userId) + 1,
-          username: name?.name || null,
-          adminNo: name?.email.split("@")[0].toUpperCase() || null,
-          points:
-            data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0, // Include balance or 0 if no balance
-          disposalCount: disposal ? disposal._count.id : 0, // Include count or 0 if no disposals
-          // redemptionCount:
-          //   userRedemptions.find((r) => r.userId === userId)?._count.id || 0,
-        };
-      })
-    );
+        })
 
-    return NextResponse.json({ orderedDisposals }, { status: 200 });
+        const userTestData = allTestData.filter((t) => t.user?.id === userId)
+        const materialCounts = userTestData.reduce((acc, item) => {
+          const materialName = item.bin?.binMaterial?.name
+          if (materialName) {
+            acc[materialName] = (acc[materialName] || 0) + 1
+          }
+          return acc
+        }, {} as Record<string, number>)
+
+        const mostFrequentMaterial = Object.entries(materialCounts).reduce(
+          (max, [material, count]) => 
+            count > (max[1] || 0) ? [material, count] : max,
+          ['', 0]
+        )[0]
+
+        return {
+          username: user?.name,
+          userId,
+          balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
+          disposalCount: disposal._count.id,
+          redemptionCount: userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
+          mostFrequentMaterial: mostFrequentMaterial || undefined,
+        }
+      })
+    )
+
+    const sortedDisposals = orderedDisposals.sort((a, b) => b.balance - a.balance)
+
+    return NextResponse.json({ orderedDisposals: sortedDisposals }, { status: 200 })
+
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(
         { message: "Token has expired!" },
         { status: 401 }
-      );
+      )
     } else if (error instanceof jwt.JsonWebTokenError) {
       return NextResponse.json(
         { message: "Token is invalid!" },
         { status: 401 }
-      );
+      )
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
       { status: 500 }
-    );
+    )
   }
-};
+}
 
 // export const GET = async (req: NextRequest) => {
 //   try {

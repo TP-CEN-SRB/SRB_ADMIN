@@ -3,15 +3,11 @@
 import React, { useState } from "react";
 import {
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
 import {
-  Bar,
-  BarChart,
   XAxis,
   Line,
   LineChart,
@@ -50,13 +46,13 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="secondary"
-                className="ml-4 bg-white data-[active=true]:bg-muted"
+                className="ml-4 bg-white data-[active=true]:bg-muted focus-visible:ring-0 focus-visible:ring-offset-0"
               >
                 <span className="px-4 font-bold text-gray-600">Filters</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+              <DropdownMenuLabel>Materials</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {Object.keys(binTimeLineChartConfig).map((key) => {
                 const chart = key as keyof typeof binTimeLineChartConfig;
@@ -106,23 +102,6 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
                 />
               }
             />
-            {/* <Line
-              dataKey={totalDisposalsSelected ? "PLASTIC" : activeChart}
-              type="monotone"
-              stroke={`var(--color-${
-                totalDisposalsSelected ? "PLASTIC" : activeChart
-              })`}
-              strokeWidth={3}
-              dot={false}
-            />
-            <Line
-              dataKey={totalDisposalsSelected ? "METAL" : ""}
-              type="monotone"
-              stroke={`var(--color-${totalDisposalsSelected ? "METAL" : ""})`}
-              strokeWidth={3}
-              dot={false}
-              className={totalDisposalsSelected ? "" : "hidden"}
-            /> */}
 
             {Object.keys(binTimeLineChartConfig).map((key) => {
               const chart = key as keyof typeof binTimeLineChartConfig;

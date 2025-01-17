@@ -46,7 +46,7 @@ const BinMaterialCheckBox = ({
               );
             }}
           />
-          <label>{material.name}</label>
+          {checkUsedMaterials(material.id) ? <label className="line-through">{material.name}</label> : <label>{material.name}</label>}
         </div>
       ))}
     </div>

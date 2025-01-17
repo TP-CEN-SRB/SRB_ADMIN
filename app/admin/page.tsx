@@ -1,110 +1,83 @@
 import React from "react";
-import Chart from "@/app/admin/components/chart";
 import {
   getAllBins,
   getBinCountsByMaterial,
   getBinCountsByStatus,
   getBinDisposalsByTime,
-  getPieChartData,
+  getBarChartData,
   getDisposals,
 } from "../action/bin";
-import BinTimeChart from "./components/binTimeChart";
-import StatsGrid from "./components/statsGrid";
-import { ChartConfig } from "@/components/ui/chart";
+import BinDashboardUpdate from "./bin/(allBinsTable)/binDashboard-update";
 const Page = async () => {
+const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: String) => {
+  "use server";
   const [
-    DBBarChartData,
+    // DBBarChartData,
     DBPieChartData,
-    totalCount,
     totalFuncBins,
+    totalCount,
     totalDisposalCount,
     binDisposalsTimeLine,
     totalUMBins,
   ] = await Promise.all([
-    getPieChartData(),
-    getBinCountsByMaterial(),
-    getAllBins(),
-    getBinCountsByStatus(),
-    getDisposals(),
-    getBinDisposalsByTime(),
-    getBinCountsByStatus(undefined, undefined, true),
+    // getBarChartData(startDate, endDate,filter),
+    getBinCountsByMaterial(startDate, endDate),
+    getBinCountsByStatus(startDate, startDate, false),
+    (await getAllBins(startDate, endDate)).length,
+    getDisposals(startDate, endDate),
+    getBinDisposalsByTime(startDate, endDate),
+    getBinCountsByStatus(startDate, endDate, true),
   ]);
 
-  const binStatsData = [
+  return {
+    // DBBarChartData,
+    DBPieChartData,
     totalFuncBins,
+    totalCount,
     totalDisposalCount,
-    totalCount.length,
+    binDisposalsTimeLine,
     totalUMBins,
+  };
+}
+
+const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: String) => {
+  "use server";
+  const [
+    DBBarChartData,
+    DBPieChartData,
+    binDisposalsTimeLine,
+  ] = await Promise.all([
+    getBarChartData(startDate, endDate, filter),
+    getBinCountsByMaterial(startDate, endDate),
+    getBinDisposalsByTime(startDate, endDate),
+  ]);
+
+  return {
+    DBBarChartData,
+    DBPieChartData,
+    binDisposalsTimeLine,
+  };
+}
+
+const dashboardData = await fetchDashboardData();
+const chartsData = await fetchChartsData();
+
+  const binStatsData = [
+    dashboardData.totalFuncBins,
+    dashboardData.totalCount,
+    dashboardData.totalDisposalCount,
+    dashboardData.totalUMBins,
   ];
   type ChartDataItem = {
     month: string;
     bin: number;
     [key: string]: string | number; // This allows for any additional string properties
   };
-  const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
-  const barChartConfig = {
-    binTotal: {
-      label: "Total",
-      color: "#0066CC",
-    },
-    bin: {
-      label: "Bins",
-      color: "#0066CC",
-    },
-    binToolTipLabel: {
-      label: "Bins Deployed Per Month",
-    },
-    ...Object.entries(materials).reduce(
-      (acc, [material, _], index) => ({
-        ...acc,
-        [material]: {
-          label: material,
-          color: `hsl(${170 + index * 15}, 70%, 50%)`,
-        },
-      }),
-      {}
-    ),
-  };
-  const PieChartConfig = {
-    binCount: {
-      label: "Count",
-    },
-    ...Object.entries(DBPieChartData).reduce(
-      (acc, [material, _], index) => ({
-        ...acc,
-        [material]: {
-          label: material,
-          color: `hsl(${170 + index * 15}, 70%, 50%)`,
-        },
-      }),
-      {}
-    ),
-  } satisfies ChartConfig;
-
-  const binDisposalsTimeLineConfig = {
-    totalDisposals: {
-      label: "Total Disposals",
-      color: "#0066CC",
-    },
-    binToolTipLabel: {
-      label: "Disposals Hourly",
-      color: "#0066CC",
-    },
-    ...Object.entries(materials).reduce(
-      (acc, [material, _], index) => ({
-        ...acc,
-        [material]: {
-          label: material,
-          color: `hsl(${170 + index * 15}, 70%, 50%)`,
-        },
-      }),
-      {}
-    ),
-  } satisfies ChartConfig;
+  const { month, bin, ...materials }: ChartDataItem = chartsData.DBBarChartData[0];
 
   return (
     <div className="w-full">
-      <StatsGrid initialStatsData={binStatsData} />
+      {/* <StatsGrid initialStatsData={binStatsData} />
       <Chart
         chartData={DBBarChartData}
         pieChartData={DBPieChartData}
@@ -114,7 +87,19 @@ const Page = async () => {
       <BinTimeChart
         chartData={binDisposalsTimeLine}
         binTimeLineChartConfig={binDisposalsTimeLineConfig}
-      />
+      /> */}
+      {/* to be fixed - written on 30/12/2024 */}
+      {/* <BinDashboard
+        DBBarChartData={DBBarChartData}
+        DBPieChartData={DBPieChartData}
+        totalFuncBins={totalFuncBins}
+        totalCount={totalCount}
+        totalDisposalCount={totalDisposalCount}
+        binDisposalsTimeLine={binDisposalsTimeLine}
+        totalUMBins={totalUMBins}
+      /> */}
+      {/* <StatsGrid initialStatsData={binStatsData} fetchData={fetchDashboardData} /> */}
+      <BinDashboardUpdate DBBarChartData={chartsData.DBBarChartData} DBPieChartData={chartsData.DBPieChartData} DBLineChartData={dashboardData.binDisposalsTimeLine} initialStatsData={binStatsData} fetchData={fetchDashboardData} fetchChartsData={fetchChartsData}/>
     </div>
   );
 };

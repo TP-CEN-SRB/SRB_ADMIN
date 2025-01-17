@@ -1,10 +1,10 @@
 import React from "react";
-import UsersDashboard from "./userDashboard";
+import UsersLeaderboard from "./userLeaderboard";
 import { getTopTenUsers } from "@/app/action/user";
 
 const UsersDashboardPage = async () => {
   const leaderboardData = await getTopTenUsers();
-  return <UsersDashboard leaderBoardData={leaderboardData} />;
+  return <UsersLeaderboard leaderBoardData={leaderboardData} />;
 };
 
 export default UsersDashboardPage;
