@@ -9,8 +9,10 @@ const userData: Prisma.UserCreateInput[] = [
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
-    faculty: "BUSINESS",
+    faculty: "BUS",
     location: "Library",
+    lat: 1.3450567,
+    long: 103.9325828,
     bins: {
       createMany: {
         data: [
@@ -46,8 +48,10 @@ const userData: Prisma.UserCreateInput[] = [
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
-    faculty: "ENGINEERING",
-    location: "Blk 12 Level 5",
+    faculty: "ENG",
+    location: "Blk 11 Level 5",
+    lat: 1.3463256,
+    long: 103.9321536,
     bins: {
       createMany: {
         data: [
@@ -82,8 +86,10 @@ const userData: Prisma.UserCreateInput[] = [
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
-    faculty: "ENGINEERING",
-    location: "Front of engine block",
+    faculty: "ENG",
+    location: "Blk 20 Level 3",
+    lat: 1.3468865,
+    long: 103.9308492,
     bins: {
       createMany: {
         data: [
@@ -117,7 +123,7 @@ const userData: Prisma.UserCreateInput[] = [
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "ADMIN",
-    faculty: "ENGINEERING",
+    faculty: "ENG",
   },
 ];
 

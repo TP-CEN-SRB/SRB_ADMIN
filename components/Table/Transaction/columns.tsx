@@ -67,7 +67,7 @@ export const columns: ColumnDef<Transaction>[] = [
       return (
         <TooltipProvider>
           <Tooltip>
-            <TooltipTrigger className="line-clamp-1 whitespace-pre-line max-w-[200px]">
+            <TooltipTrigger className="line-clamp-1 whitespace-pre-line max-w-[200px] truncate">
               {description}
             </TooltipTrigger>
             <TooltipContent className="max-w-[200px] w-full overflow-x-auto">

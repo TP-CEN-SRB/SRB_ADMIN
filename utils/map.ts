@@ -10,7 +10,7 @@ const engineeringGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
     {
-      properties: { name: "Engineering" },
+      properties: { name: "ENG" },
       type: "Feature",
       geometry: {
         type: "Polygon",
@@ -47,7 +47,7 @@ const businessGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
     {
-      properties: { name: "Business" },
+      properties: { name: "BUS" },
       type: "Feature",
       geometry: {
         type: "Polygon",
@@ -72,4 +72,118 @@ const businessGeoJson: FeatureCollection = {
     },
   ],
 };
-export { engineeringGeoJson, businessGeoJson };
+const designGeoJson: FeatureCollection = {
+  type: "FeatureCollection",
+  features: [
+    {
+      properties: { name: "DES" },
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [103.9315751, 1.3456349],
+            [103.9309864, 1.3453711],
+            [103.9308479, 1.3457192],
+            [103.9315121, 1.3460062],
+            [103.9315647, 1.3458772],
+            [103.9314954, 1.3458491],
+            [103.9315751, 1.3456349],
+          ],
+        ],
+      },
+    },
+    {
+      type: "Feature",
+      properties: { name: "DES" },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [103.9320979, 1.3456319],
+            [103.9311299, 1.3452249],
+            [103.9313075, 1.3448028],
+            [103.9316394, 1.3449396],
+            [103.9316032, 1.3450168],
+            [103.932237, 1.3452916],
+            [103.9320979, 1.3456319],
+          ],
+        ],
+      },
+    },
+  ],
+};
+const scienceGeoJson: FeatureCollection = {
+  type: "FeatureCollection",
+  features: [
+    {
+      properties: { name: "ASC" },
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [103.9332456, 1.3454578],
+            [103.9336729, 1.3444476],
+            [103.9340408, 1.3446036],
+            [103.9338104, 1.345131],
+            [103.9339665, 1.3457401],
+            [103.9334128, 1.3458961],
+            [103.9332456, 1.3454578],
+          ],
+        ],
+      },
+    },
+  ],
+};
+const informationTechnologyGeoJson: FeatureCollection = {
+  type: "FeatureCollection",
+  features: [
+    {
+      properties: { name: "IIT" },
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [103.9339814, 1.3457253],
+            [103.9345413, 1.3455468],
+            [103.934347, 1.3447932],
+            [103.9341061, 1.3446819],
+            [103.9338626, 1.3452283],
+            [103.9339814, 1.3457253],
+          ],
+        ],
+      },
+    },
+  ],
+};
+const humanitiesGeoJson: FeatureCollection = {
+  type: "FeatureCollection",
+  features: [
+    {
+      properties: { name: "HSS" },
+      type: "Feature",
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [103.9346138, 1.3455493],
+            [103.9355956, 1.3452593],
+            [103.9354428, 1.3446482],
+            [103.9344351, 1.344946],
+            [103.9346138, 1.3455493],
+          ],
+        ],
+      },
+    },
+  ],
+};
+export {
+  engineeringGeoJson,
+  businessGeoJson,
+  designGeoJson,
+  scienceGeoJson,
+  informationTechnologyGeoJson,
+  humanitiesGeoJson,
+};

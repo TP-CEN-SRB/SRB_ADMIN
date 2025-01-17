@@ -1,5 +1,13 @@
 "use client";
-import { engineeringGeoJson, businessGeoJson, maxBound } from "@/utils/map";
+import {
+  engineeringGeoJson,
+  businessGeoJson,
+  maxBound,
+  designGeoJson,
+  scienceGeoJson,
+  informationTechnologyGeoJson,
+  humanitiesGeoJson,
+} from "@/utils/map";
 import { Faculty } from "@prisma/client";
 import Map, {
   AttributionControl,
@@ -89,6 +97,38 @@ export default function MapChart({ data }: MapChartProps) {
               symbolId="business-label"
               color="#FFFF00"
               data={businessGeoJson}
+            />
+            <MapLayer
+              sourceId="design-data"
+              fillId="design-fill"
+              lineId="design-outline"
+              symbolId="design-label"
+              color="#00FFFF"
+              data={designGeoJson}
+            />
+            <MapLayer
+              sourceId="science-data"
+              fillId="science-fill"
+              lineId="science-outline"
+              symbolId="science-label"
+              color="#88E788"
+              data={scienceGeoJson}
+            />
+            <MapLayer
+              sourceId="it-data"
+              fillId="it-fill"
+              lineId="it-outline"
+              symbolId="it-label"
+              color="#0000FF"
+              data={informationTechnologyGeoJson}
+            />
+            <MapLayer
+              sourceId="humanities-data"
+              fillId="humanities-fill"
+              lineId="humanities-outline"
+              symbolId="humanities-label"
+              color="#FFA500"
+              data={humanitiesGeoJson}
             />
           </>
         )}

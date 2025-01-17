@@ -30,18 +30,14 @@ export const GET = async (
     }
     const searchParams = req.nextUrl.searchParams;
     const material = searchParams.get("material");
-    if (!material) {
-      return NextResponse.json(
-        { message: "Bin material is required!" },
-        { status: 400 }
-      );
-    }
-    const bin = await prisma.bin.findFirst({
+    const bins = await prisma.bin.findMany({
       where: {
-        binMaterial: {
-          name: material.toUpperCase(),
-        },
         userId: binManagerId,
+        ...(material && {
+          binMaterial: {
+            name: material.toUpperCase(),
+          },
+        }),
       },
       select: {
         status: true,
@@ -53,10 +49,10 @@ export const GET = async (
         },
       },
     });
-    if (!bin) {
+    if (!bins) {
       return NextResponse.json({ message: "No bin found!" }, { status: 404 });
     }
-    return NextResponse.json({ bin }, { status: 200 });
+    return NextResponse.json({ bins }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(

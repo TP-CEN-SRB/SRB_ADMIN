@@ -18,10 +18,9 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@radix-ui/react-tooltip";
-import { toast } from "@/hooks/use-toast";
-import { deleteBinUser } from "@/app/action/user";
 import { useRouter } from "next/navigation";
-import { FaEdit, FaPlus, FaPlusCircle } from "react-icons/fa";
+import { FaClipboardList, FaEdit, FaPlus, FaPlusCircle } from "react-icons/fa";
+import { FaCheck } from "react-icons/fa6";
 import {
   MdDeleteForever,
   MdMarkEmailRead,
@@ -64,18 +63,16 @@ interface BinManager {
   name: string;
   email: string;
   faculty: Faculty;
+  _count: { bins: number };
 }
 
 interface BinManagerProps {
   data: BinManager[];
-  allBinManagers: BinManager[];
 }
 
-const BinManagerDataTable = ({ data, allBinManagers }: BinManagerProps) => {
+const BinManagerDataTable = ({ data }: BinManagerProps) => {
   const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
-    const [hasBins, setHasBins] = useState(
-      allBinManagers.some((binUser) => binUser.id == binManager.id)
-    );
+    const hasBins = binManager._count.bins > 0;
     const [isDialogOpen, setDialogOpen] = useState(false);
     const router = useRouter();
     const datetime = new Date().toLocaleString("en-SG", {

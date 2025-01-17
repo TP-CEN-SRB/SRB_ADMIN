@@ -1,69 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { sendBinWarningEmail } from "@/lib/mail";
-import jwt from "jsonwebtoken";
-
-export const GET = async (
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) => {
-  try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json(
-        { message: "Missing authorization header!" },
-        { status: 401 }
-      );
-    }
-    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    if (typeof decodedToken === "string") {
-      return NextResponse.json(
-        { message: "Unauthorized access!" },
-        { status: 401 }
-      );
-    }
-    const binManagerId = params.id;
-    if (decodedToken.userId !== binManagerId) {
-      return NextResponse.json(
-        { message: "Unauthorized access!" },
-        { status: 401 }
-      );
-    }
-    const bins = await prisma.bin.findMany({
-      where: {
-        userId: binManagerId,
-      },
-      select: {
-        status: true,
-        currentCapacity: true,
-        binMaterial: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-    return NextResponse.json({ bins }, { status: 200 });
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return NextResponse.json(
-        { message: "Token has expired!" },
-        { status: 401 }
-      );
-    } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json(
-        { message: "Token is invalid!" },
-        { status: 401 }
-      );
-    } else if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-    return NextResponse.json(
-      { message: "An unknown error occurred" },
-      { status: 500 }
-    );
-  }
-};
 
 export const PUT = async (
   req: NextRequest,

@@ -1,5 +1,6 @@
 import EditBinForm from "@/components/Form/AdminUserForms/EditBinForm";
 import prisma from "@/lib/db";
+import { Faculty } from "@prisma/client";
 import React from "react";
 
 const UpdateBinManagersPage = async ({
@@ -30,7 +31,7 @@ const UpdateBinManagersPage = async ({
         name={binUser.name ?? ""}
         email={binUser!.email}
         location={binUser.location ?? ""}
-        faculty={binUser!.faculty ?? "ENGINEERING"}
+        faculty={binUser!.faculty ?? Faculty.ENG}
         latitude={binUser.lat?.toNumber() ?? 0}
         longitude={binUser.long?.toNumber() ?? 0}
       />
