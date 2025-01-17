@@ -6,6 +6,7 @@ import { Bin, BinMaterial, BinStatus } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getWeeksInMonth, monthsString, daysString } from "@/utils/dateUtils";
 
 // export const getAllBins = async (startDate?: Date, endDate?: Date) => {
 //   if (startDate !== undefined && endDate !== undefined) {
@@ -253,32 +254,173 @@ const checkExistingBinRecord = async (
   return bin !== null;
 };
 
-//barchart data
-export const getPieChartData = async () => {
-  //create an array of months
-  const months = Array.from({ length: 12 }, (item, i) => {
-    return new Date(0, i).toLocaleString("en-US", { month: "long" });
+type MaterialCounts = {
+  [key: string]: number;
+};
+
+type MonthlyData = {
+  month: string;
+  bin: number;
+  [key: string]: number | string;
+};
+
+function getWeekDatesByIndex(weekIndex: number) {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+
+  const startDates = Array.from({ length: Math.ceil((lastDayOfMonth.getDate() + firstDayOfMonth.getDay()) / 7) }, (_, i) => {
+    const start = new Date(firstDayOfMonth);
+    start.setDate(1 + i * 7);
+    return start;
   });
-  //fetch all unique material names from the database
+
+  const weekRanges = startDates.map((startOfWeek) => {
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+    return {
+      start: startOfWeek,
+      end: endOfWeek > lastDayOfMonth ? lastDayOfMonth : endOfWeek,
+    };
+  });
+
+  if (weekIndex < 0 || weekIndex >= weekRanges.length) {
+    throw new Error("Invalid week index. Ensure it's within the range of weeks for the month.");
+  }
+
+  return weekRanges[weekIndex];
+}
+
+export const getBarChartData = async (dateFrom?: Date, dateTo?: Date, filter?: String): Promise<MonthlyData[]> => {
+  const months = monthsString;
+  const days = daysString;
+  // const month = Array.from({ length: getWeeksInMonth(dateFrom, dateTo) }, (_, i) => `Wk ${i + 1}`);
+  const weeks = getWeeksInMonth(dateFrom, dateTo);
+
+  // Fetch all unique material names from the database
   const materialNames = await prisma.binMaterial.findMany({
     select: {
       name: true,
     },
   });
-  //get data for each month
-  const yearlyData = await Promise.all(
-    months.map(async (month, index) => {
-      const startDate = new Date(2024, index, 1);
-      const endDate = new Date(2024, index + 1, 0); // Last day of the month
-      // fetch bins for the specific month
-      const monthlyBins = await prisma.bin.findMany({
-        where: {
-          createdAt: {
-            gte: startDate,
-            lte: endDate,
+  
+  const startOfPeriod = new Date(dateFrom || new Date());
+  const endOfPeriod = new Date(dateTo || new Date());
+
+  const barChartData = await Promise.all(
+    filter == "week" ?
+    days.map(async (day, dayIndex) => {
+      
+      startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
+      endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+
+      const weeklyBins = await prisma.bin.findMany({
+      where: {
+        createdAt: dateFrom || dateTo ? {
+          gte: startOfPeriod,
+          lte: endOfPeriod,
+        } : undefined,
+      },
+      select: {
+        createdAt: true,
+        binMaterial: {
+          select: {
+            name: true,
           },
         },
+      },
+      });
+
+      const filteredBins = weeklyBins.filter(bin =>
+      bin.createdAt.getDay()-1 == dayIndex
+      );
+
+      const materialCounts = materialNames.reduce((acc, material) => {
+        acc[material.name] = 0;
+        return acc;
+      }, {} as MaterialCounts);
+
+      filteredBins.forEach((bin) => {
+        const material = bin.binMaterial.name;
+        if (material in materialCounts) {
+          materialCounts[material]++;
+        }
+      });
+
+      return {
+        month: day,
+        bin: filteredBins.length,
+        ...materialCounts,
+      };
+  }) : filter == "month" ? weeks.map(async (week, weekIndex) => {
+        const {start, end} = getWeekDatesByIndex(weekIndex);
+
+        const weeklyBins = await prisma.bin.findMany({
+          where: {
+            createdAt: {
+              gte: start,
+              lte: end,
+            },
+          },
+          select: {
+            createdAt: true,
+            binMaterial: {
+              select: {
+          name: true,
+              },
+            },
+          },
+        });
+
+        const filteredBins = weeklyBins.filter(bin =>
+          bin.createdAt >= start && bin.createdAt <= end
+        );
+
+        const materialCounts = materialNames.reduce((acc, material) => {
+          acc[material.name] = 0;
+          return acc;
+        }, {} as MaterialCounts);
+
+        filteredBins.forEach((bin) => {
+          const material = bin.binMaterial.name;
+          if (material in materialCounts) {
+            materialCounts[material]++;
+          }
+        });
+
+        return {
+          month: week,
+          bin: filteredBins.length,
+          ...materialCounts,
+        };
+  }): months.map(async (month, monthIndex) => {
+      startOfPeriod.setMonth(monthIndex);
+      startOfPeriod.setDate(1);
+      startOfPeriod.setHours(0, 0, 0, 0);
+
+      endOfPeriod.setMonth(monthIndex + 1);
+      endOfPeriod.setDate(0);
+      endOfPeriod.setHours(23, 59, 59, 999);
+
+      const monthlyBins = await prisma.bin.findMany({
+        where: {
+          // createdAt: dateFrom || dateTo ? {
+          //   // gte: filter == "month" ? startOfPeriod : dateFrom,
+          //   // lte: filter == "month" ? endOfPeriod : dateTo,
+          //   gte: dateFrom,
+          //   lte: endOfPeriod,
+          // } : undefined,
+          createdAt: dateFrom || dateTo ? {
+            gte: dateFrom,
+            lte: endOfPeriod,
+          } : undefined,
+        },
         select: {
+          createdAt: true,
           binMaterial: {
             select: {
               name: true,
@@ -286,35 +428,34 @@ export const getPieChartData = async () => {
           },
         },
       });
-      const materialCounts = materialNames.reduce((acc, material) => {
-        acc[material.name] = 0; // Initialize each material's count to 0
-        return acc;
-      }, {} as Record<string, number>);
-      //acc is an object that stores the count of each material,
-      //reduce is used to iterate over the bins and increment the count of each material, updating the acc
-      const binsByMaterial = monthlyBins.reduce(
-        (acc, bin) => {
-          const material = bin.binMaterial.name; // Get the material name
-          if (acc[material] !== undefined) {
-            acc[material]++;
-          }
-          return acc;
-        },
-        { ...materialCounts }
+
+      const filteredBins = monthlyBins.filter(bin => 
+        bin.createdAt.getMonth() == monthIndex
       );
-      // Use the dynamic materialCounts as the initial value // Initialize counts for all materials { METAL: 0, PLASTIC: 0 }
-      // return monthly data including bin counts for each material
-      const returnObj = {
+
+      // Initialize counts for all materials
+      const materialCounts = materialNames.reduce((acc, material) => {
+        acc[material.name] = 0;
+        return acc;
+      }, {} as MaterialCounts);
+
+
+      // Count bins by material for this specific month
+      filteredBins.forEach((bin) => {
+        const material = bin.binMaterial.name;
+        if (material in materialCounts) {
+          materialCounts[material]++;
+        }
+      });
+      
+      return {
         month,
-        bin: monthlyBins.length,
-        ...binsByMaterial,
+        bin: filteredBins.length,
+        ...materialCounts,
       };
+  }));
 
-      return returnObj;
-    })
-  );
-
-  return yearlyData;
+  return barChartData;
 };
 
 interface BinCount {
@@ -323,37 +464,48 @@ interface BinCount {
   fill: string;
 }
 
-export const getBinCountsByMaterial = async (): Promise<BinCount[]> => {
-  // First, get all materials from the BinMaterial table
+export const getBinCountsByMaterial = async (
+  dateFrom?: Date,
+  dateTo?: Date
+): Promise<BinCount[]> => {
+  // Get counts directly using groupBy and count
+  const binCounts = await prisma.bin.groupBy({
+    by: ['binMaterialId'],
+    where: {
+      createdAt: {
+        gte: dateFrom || undefined,
+        lte: dateTo || undefined,
+      }
+    },
+    _count: {
+      _all: true
+    }
+  });
+
+  // Get all materials to ensure we include those with zero counts
   const allMaterials = await prisma.binMaterial.findMany({
     select: {
+      id: true,
       name: true,
     },
   });
 
-  // Then get the bin counts
-  const binsCountWithMaterial = await prisma.bin.findMany({
-    select: {
-      binMaterial: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
+  // Create a map of material counts
+  const countMap = new Map(
+    binCounts.map(count => [count.binMaterialId, count._count._all])
+  );
 
-  // Count the materials
-  const materialCounts = binsCountWithMaterial.reduce((acc, bin) => {
-    const materialName = bin.binMaterial.name;
-    acc[materialName] = (acc[materialName] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  // console.log(allMaterials.map((material, index) => ({
+  //   binType: material.name,
+  //   binCount: countMap.get(material.id) || 0,
+  //   fill: `hsl(${170 + index * 15}, 70%, 50%)`
+  // })));
 
-  // Map all materials, including those with zero counts
+  // Map the results, including zero counts for unused materials
   return allMaterials.map((material, index) => ({
     binType: material.name,
-    binCount: materialCounts[material.name] || 0,
-    fill: `hsl(${170 + index * 15}, 70%, 50%)`,
+    binCount: countMap.get(material.id) || 0,
+    fill: `hsl(${170 + index * 15}, 70%, 50%)`
   }));
 };
 
@@ -427,21 +579,21 @@ export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
   return disposals.length;
 };
 
-// Define the type for our result objects
 type DisposalsByHour = {
   hour: string;
-  [key: string]: string | number; // Index signature to allow dynamic material properties
+  [key: string]: string | number;
 };
 
-export const getBinDisposalsByTime = async (): Promise<DisposalsByHour[]> => {
-  // Get all bin materials from the database
+export const getBinDisposalsByTime = async (
+  dateFrom?: Date,
+  dateTo?: Date
+): Promise<DisposalsByHour[]> => {
   const binMaterials = await prisma.binMaterial.findMany({
     select: {
       name: true,
     },
   });
 
-  // Get all disposals with their bin material information
   const totalDisposals = await prisma.disposal.findMany({
     include: {
       bin: {
@@ -459,13 +611,11 @@ export const getBinDisposalsByTime = async (): Promise<DisposalsByHour[]> => {
     },
   });
 
-  // Generate array of hours from 06:00 to 23:00
   const hours = Array.from({ length: 18 }, (_, i) => {
     const hour = i + 6;
     return hour.toString().padStart(2, "0") + "00";
   });
 
-  // Initialize result array with hour objects
   const result: DisposalsByHour[] = hours.map((hour) => ({
     hour,
     ...Object.fromEntries(binMaterials.map((material) => [material.name, 0])),
@@ -473,7 +623,11 @@ export const getBinDisposalsByTime = async (): Promise<DisposalsByHour[]> => {
 
   // Count disposals for each hour and material
   totalDisposals.forEach((disposal) => {
-    const hour = disposal.createdAt.getHours();
+    // Convert UTC to UTC+8
+    const localTime = new Date(disposal.createdAt);
+    localTime.setHours(localTime.getUTCHours() + 8);
+    const capitaliseMaterial = (material: string) => (material.charAt(0).toUpperCase() + material.slice(1).toLowerCase());
+    const hour = localTime.getHours();
     if (hour >= 6 && hour <= 23) {
       const hourIndex = hour - 6;
       const materialName = disposal.bin.binMaterial.name;

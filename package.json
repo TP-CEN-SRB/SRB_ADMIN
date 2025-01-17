@@ -9,6 +9,7 @@
     "lint": "next lint",
     "prisma-seed": "tsx prisma/seed.ts",
     "user-seed": "tsx prisma/userSeed.ts",
+    "material-seed": "tsx prisma/materialSeed.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

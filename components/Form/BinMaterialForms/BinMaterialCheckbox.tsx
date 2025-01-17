@@ -46,9 +46,7 @@ const BinMaterialCheckBox = ({
               );
             }}
           />
-          <label className="peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            {material.name}
-          </label>
+          {checkUsedMaterials(material.id) ? <label className="line-through">{material.name}</label> : <label>{material.name}</label>}
         </div>
       ))}
     </div>

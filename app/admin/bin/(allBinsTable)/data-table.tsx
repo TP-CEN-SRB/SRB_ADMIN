@@ -23,9 +23,7 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -61,7 +59,7 @@ export function DataTable<TData, TValue>({
   data,
   materials,
 }: DataTableProps<TData, TValue>) {
-  const [pagination, setPagination] = React.useState<PaginationState>({
+  const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
@@ -79,9 +77,6 @@ export function DataTable<TData, TValue>({
       columnFilters,
     },
   });
-  const [showFunctional, setShowFunctional] = useState<Checked>(false);
-  const [showUnderMaintenance, setShowUnderMaintenance] =
-    useState<Checked>(false);
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
   );
