@@ -1,11 +1,17 @@
-import SignUpBinForm from "@/components/Form/AdminUserForms/SignUpBinForm";
+import { getAllBinUsers } from "@/app/action/user";
+import CreateBinManagerScreen from "@/components/Screen/CreateBinManagerScreen";
 import React from "react";
 
-const CreateBinManagerPage = () => {
+const CreateBinManagerPage = async () => {
+  const binManagers = await getAllBinUsers();
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <SignUpBinForm />
-    </div>
+    <CreateBinManagerScreen
+      data={binManagers.map((user) => ({
+        ...user,
+        lat: user.lat?.toNumber(),
+        long: user.long?.toNumber(),
+      }))}
+    />
   );
 };
 

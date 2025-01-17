@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useTransition } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -22,7 +22,10 @@ import Card from "@/components/Card/Card";
 import { signUpBin } from "@/app/action/user";
 import FacultyComboBox from "../AuthForms/FacultyCombobox";
 
-const SignUpBinForm = () => {
+interface FormProps {
+  latLng: { lat: number; lng: number };
+}
+const SignUpBinForm = ({ latLng }: FormProps) => {
   const form = useForm<z.infer<typeof SignUpBinSchema>>({
     resolver: zodResolver(SignUpBinSchema),
     defaultValues: {
@@ -30,8 +33,8 @@ const SignUpBinForm = () => {
       email: "",
       password: "",
       location: "",
-      latitude: undefined,
-      longitude: undefined,
+      latitude: latLng.lat,
+      longitude: latLng.lng,
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -55,6 +58,10 @@ const SignUpBinForm = () => {
       }
     });
   };
+  useEffect(() => {
+    form.setValue("latitude", latLng.lat);
+    form.setValue("longitude", latLng.lng);
+  }, [latLng, form]);
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Add a bin manager</FormHeader>
@@ -169,6 +176,7 @@ const SignUpBinForm = () => {
                 </FormLabel>
                 <FormControl>
                   <Input
+                    readOnly={true}
                     disabled={isPending}
                     placeholder="Eg. 1.3456618"
                     {...field}
@@ -189,6 +197,7 @@ const SignUpBinForm = () => {
                 </FormLabel>
                 <FormControl>
                   <Input
+                    readOnly={true}
                     disabled={isPending}
                     placeholder="Eg. 103.9327236"
                     {...field}
