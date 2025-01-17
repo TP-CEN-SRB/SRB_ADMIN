@@ -1,4 +1,3 @@
-import ButtonRedirect from "@/components/Button/ButtonRedirect";
 import CardBody from "@/components/Card/CardBody";
 import CardHeader from "@/components/Card/CardHeader";
 import QrCard from "@/components/Card/QrCard";
@@ -24,7 +23,10 @@ const QrCodePage = ({
           />
           <QrScanListener userId={params.id} />
         </CardBody>
-        <TimerRedirect redirectTo="/disposal-confirmation" delayInMs={30000} />
+        <TimerRedirect
+          redirectTo={`/disposal-confirmation/${params.id}`}
+          delayInMs={30000}
+        />
       </QrCard>
     </div>
   );

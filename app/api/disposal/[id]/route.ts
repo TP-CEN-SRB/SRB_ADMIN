@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { pusherServer } from "@/lib/pusher";
 import jwt from "jsonwebtoken";
+import { TransactionType } from "@prisma/client";
 
 export const PUT = async (
   req: NextRequest,
@@ -22,18 +23,19 @@ export const PUT = async (
         { status: 401 }
       );
     }
+    const id = params.id;
+    const binManager = await prisma.user.findUnique({ where: { id: id } });
+    if (!binManager) {
+      return NextResponse.json(
+        { message: "Bin manager not found!" },
+        { status: 404 }
+      );
+    }
     const { disposalId, userId } = await req.json();
     if (userId !== decodedToken.userId) {
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
-      );
-    }
-    const id = params.id;
-    if (!id) {
-      return NextResponse.json(
-        { message: "Missing ID parameter" },
-        { status: 400 }
       );
     }
     if (!disposalId || !userId) {
@@ -48,6 +50,16 @@ export const PUT = async (
     }
     const disposal = await prisma.disposal.findFirst({
       where: { id: disposalId, isRedeemed: false },
+      select: {
+        id: true,
+        pointsAwarded: true,
+        weightInGrams: true,
+        bin: {
+          include: {
+            binMaterial: true,
+          },
+        },
+      },
     });
     if (!disposal) {
       return NextResponse.json(
@@ -63,7 +75,7 @@ export const PUT = async (
     });
     if (!existingUser) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
+    } // use a transaction to ensure that the points are awarded to user and the QR cannot be scanned again
     const [updatedDisposal, userPoint] = await prisma.$transaction([
       prisma.disposal.update({
         where: { id: disposalId },
@@ -81,7 +93,20 @@ export const PUT = async (
         },
       }),
     ]);
-    await pusherServer.trigger(`disposal-qr-${params.id}`, "disposal-update", {
+    // create a transaction if user is rewarded with points
+    if (updatedDisposal) {
+      await prisma.transaction.create({
+        data: {
+          pointsChange: disposal.pointsAwarded,
+          description: `Awarded ${disposal.pointsAwarded} pts for recycling ${
+            disposal.weightInGrams
+          }g of ${disposal.bin.binMaterial.name.toLowerCase()}`,
+          transactionType: TransactionType.DISPOSAL,
+          userId: userId,
+        },
+      });
+    }
+    await pusherServer.trigger(`disposal-qr-${id}`, "disposal-update", {
       updated: true,
     });
     return NextResponse.json({ message: "Updated disposal" }, { status: 200 });

@@ -18,7 +18,9 @@ export default async function AdminLayout({
       <MobileAppSidebar />
       <SidebarProvider defaultOpen>
         <AppSidebar email={user?.email} />
-        <div className="w-full mx-auto bg-[#f0f1f4]">{children}</div>
+        <div className="w-full mx-auto bg-[#f0f1f4] overflow-x-auto">
+          {children}
+        </div>
       </SidebarProvider>
     </div>
   );

@@ -114,9 +114,9 @@ const warningEmailTemplate = (
 <body>
     <div class="container">
         <h1>Hello,</h1>
-        <p>Please be informed that the bin at <b>${location}</b> is currently <b>${binCapacity.toFixed(
+        <p>Please be informed that the <b>${material}</b> bin at <b>${location}</b> is currently <b>${binCapacity.toFixed(
     2
-  )}%</b> full for <b>${material}<b>.</p>
+  )}%</b> full.</p>
         <p>You may head to the specified location for the clearing of bins.</p>
         <div class="footer">
             <p>Thank you,<br>Temasek Polytechnic CEN</p>

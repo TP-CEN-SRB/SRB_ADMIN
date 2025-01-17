@@ -144,6 +144,7 @@ export const createBin = async (
         } catch (error) {
           return { error: "Failed to update user location" };
         }
+        revalidatePath("/admin/bin");
         return {
           success: `Bin created successfully, Location: ${formData.location}`,
         };
@@ -160,7 +161,6 @@ export const updateBin = async (
   id: string,
   values: z.infer<typeof UpdateBinSchema>
 ) => {
-  console.log("Updating bin with ID:", id);
   const validatedFields = UpdateBinSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
@@ -222,6 +222,7 @@ export const deleteBin = async (id: string) => {
         id,
       },
     });
+    revalidatePath("/admin/bin");
     return { success: `Bin with ID ${id} deleted successfully` };
   } else return { error: `Bin with ID ${id} does not exist` };
 };
@@ -650,6 +651,7 @@ export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
       createdAt: true,
       updatedAt: true,
       _count: { select: { disposals: true } },
+      userId: true,
       user: {
         select: {
           name: true,

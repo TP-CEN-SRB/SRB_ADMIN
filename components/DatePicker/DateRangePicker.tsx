@@ -30,8 +30,8 @@ interface DatePickerProps {
   disabled?: boolean;
 }
 export default function DateRangePicker({
-  startYear = getYear(new Date()) - 100,
-  endYear = getYear(new Date()) + 100,
+  startYear = getYear(new Date()),
+  endYear = getYear(new Date()) + 102,
   className,
   onDateChange,
   initialDate = undefined,
@@ -59,6 +59,8 @@ export default function DateRangePicker({
   const handleYearChange = (year: string) => {
     setCalendarYear(parseInt(year));
   };
+  const fromDate = new Date();
+  const toDate = new Date(endYear - 2, 11, 31);
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -128,6 +130,8 @@ export default function DateRangePicker({
             mode="range"
             defaultMonth={new Date()}
             selected={date}
+            fromDate={fromDate}
+            toDate={toDate}
             onSelect={handleDateChange}
             numberOfMonths={isDesktop ? 2 : 1}
             onMonthChange={(newMonth) => {

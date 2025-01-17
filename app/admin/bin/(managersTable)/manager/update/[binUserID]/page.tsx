@@ -16,19 +16,23 @@ const UpdateBinManagersPage = async ({
       email: true,
       location: true,
       faculty: true,
+      lat: true,
+      long: true,
     },
   });
   if (!binUser) {
     return <div>Bin Manager not found</div>;
   }
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs py-4">
+    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
       <EditBinForm
         id={params.binUserID}
         name={binUser.name ?? ""}
         email={binUser!.email}
         location={binUser.location ?? ""}
         faculty={binUser!.faculty ?? "ENGINEERING"}
+        latitude={binUser.lat?.toNumber() ?? 0}
+        longitude={binUser.long?.toNumber() ?? 0}
       />
     </div>
   );

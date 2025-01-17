@@ -96,10 +96,9 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
             </Link>
             <Tooltip>
               <TooltipTrigger asChild>
-                <div>
+                <div className={hasBins ? "cursor-not-allowed" : ""}>
                   <DropdownMenuItem
                     onClick={() => setDialogOpen(true)}
-                    className={hasBins ? "cursor-not-allowed opacity-50" : ""}
                     disabled={hasBins}
                   >
                     <MdDeleteForever />
@@ -109,8 +108,9 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
               </TooltipTrigger>
               {hasBins && (
                 <TooltipContent
-                  side="bottom"
-                  align="center"
+                  side="left"
+                  align="start"
+                  sideOffset={10}
                   className="bg-white border border-gray-300 text-gray-700 text-sm px-4 py-2 rounded-lg shadow-lg max-w-xs"
                 >
                   <div className="flex items-start space-x-2">
@@ -182,13 +182,15 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
   };
   return (
     <div className="px-4">
-      <div className="flex flex-row justify-end items-center py-4 w-full">
-        <Input
-          placeholder="Filter Material..."
-          value={filterValue}
-          onChange={handleInputChange}
-          className="max-w-xs"
-        />
+      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
+        <div className="max-w-xs">
+          <Input
+            placeholder="Filter Material..."
+            value={filterValue}
+            type="search"
+            onChange={handleInputChange}
+          />
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -263,7 +265,7 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
           <div>Page</div>
           <span>
             {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount().toLocaleString()}
+            {Math.max(1, table.getPageCount())}
           </span>
         </div>
         <div className="flex items-center justify-end space-x-2">

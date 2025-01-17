@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import prisma from "@/lib/db";
+import { TransactionType } from "@prisma/client";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -68,6 +69,14 @@ export const POST = async (req: NextRequest) => {
         { status: 500 }
       );
     }
+    await prisma.transaction.create({
+      data: {
+        pointsChange: -reward.pointsRequired,
+        description: `Redeemed ${reward.name} for ${reward.pointsRequired} pts`,
+        transactionType: TransactionType.REDEMPTION,
+        userId: decodedToken.userId,
+      },
+    });
     return NextResponse.json({ message: `Reward Redeemed!` }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

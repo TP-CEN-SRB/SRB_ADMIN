@@ -9,7 +9,7 @@ import {
   SignUpBinSchema,
   UpdateAdminEmailSchema,
   UpdateStudentSchema,
-  UpdateBinFormSchema,
+  UpdateBinSchema,
 } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { compare, hash } from "bcryptjs";
@@ -42,6 +42,10 @@ const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const name = capitalizeFirstLetter(formData.name);
   const email = formData.email;
   const password = formData.password;
+  const confirmPassword = formData.confirmPassword;
+  if (password !== confirmPassword) {
+    return { error: "Passwords don't match!" };
+  }
   const faculty = formData.faculty;
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
@@ -57,7 +61,6 @@ const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
       email: email,
       role: Role.ADMIN,
       password: hashedPassword,
-      subscription: { create: {} },
     },
   });
   const verificationToken = await generateVerificationToken(email);
@@ -71,15 +74,19 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
     return { error: "Invalid fields!" };
   }
   const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name).trim();
-  const email = formData.email.trim().toLowerCase();
+  const name = capitalizeFirstLetter(formData.name);
+  const email = formData.email;
   const password = formData.password.trim();
-  const location = capitalizeFirstLetter(formData.location).trim();
+  const location = capitalizeFirstLetter(formData.location);
   const faculty = formData.faculty;
+  const lat = formData.latitude;
+  const long = formData.longitude;
   const existingBinUser = await checkBinUserWithSimilarRecord(
     name,
     email,
-    location
+    location,
+    lat,
+    long
   );
   if (existingBinUser) {
     return { error: "Duplicate found. Bin Manager already exists!" };
@@ -94,17 +101,20 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       faculty: faculty,
       role: Role.BIN,
       password: hashedPassword,
+      lat: lat,
+      long: long,
       //to update faculty (cfm have merge conflict)
     },
   });
-  return { success: "Bin user successfully created!" };
+  revalidatePath("/admin/bin/manager");
+  return { success: "Bin user created successfully" };
 };
 
 const updateBinUser = async (
   id: string,
-  values: z.infer<typeof UpdateBinFormSchema>
+  values: z.infer<typeof UpdateBinSchema>
 ) => {
-  const validatedFields = UpdateBinFormSchema.safeParse(values);
+  const validatedFields = UpdateBinSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
@@ -113,15 +123,24 @@ const updateBinUser = async (
   const email = formData.email.toLowerCase().trim();
   const location = formData.location.trim();
   const faculty = formData.faculty;
+  const lat = formData.latitude;
+  const long = formData.longitude;
+  const isExistingPassword = formData.isExistingPassword;
+  let password;
   const existingBinUser = await prisma.user.findUnique({
     where: { id },
   });
+  if (!isExistingPassword) {
+    password = await hash(formData.password, 10);
+  }
 
   if (existingBinUser) {
     const existingBinUser = await checkBinUserWithSimilarRecord(
       name,
       email,
       location,
+      lat,
+      long,
       true,
       id
     );
@@ -130,8 +149,17 @@ const updateBinUser = async (
     }
     await prisma.user.update({
       where: { id },
-      data: { name, email, location, faculty },
+      data: {
+        name,
+        email,
+        location,
+        faculty,
+        lat,
+        long,
+        ...(!isExistingPassword && { password: password }),
+      },
     });
+    revalidatePath("/admin/bin/manager");
     return { success: "Bin Manager updated!" };
   } else {
     return { error: "Bin Manager does not exist!" };
@@ -142,23 +170,18 @@ const checkBinUserWithSimilarRecord = async (
   name: string,
   email: string,
   location: string,
+  lat: number,
+  long: number,
   update?: boolean,
   id?: string
 ) => {
-  if (update) {
-    const binUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ name }, { email }, { location }],
-      },
-    });
-  }
   const binUser = await prisma.user.findFirst({
     where: {
-      id: { not: id },
-      OR: [{ name }, { email }, { location }],
+      OR: [{ name }, { email }, { location }, { AND: [{ lat }, { long }] }],
+      ...(update && id && { id: { not: id } }),
     },
   });
-  return binUser ? true : false;
+  return binUser;
 };
 
 const login = async (values: z.infer<typeof LoginSchema>) => {
@@ -337,6 +360,7 @@ const getLoggedInUserById = async (id: string) => {
 const updateAdmin = async (values: z.infer<typeof SignUpAdminSchema>) => {
   const validatedFields = SignUpAdminSchema.omit({
     password: true,
+    confirmPassword: true,
   }).safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid credentials!" };
@@ -361,7 +385,7 @@ const updateAdmin = async (values: z.infer<typeof SignUpAdminSchema>) => {
     data: { name: capitalizeFirstLetter(name), faculty },
   });
   revalidatePath("/admin/profile");
-  return { success: "Profile updated successfully!" };
+  return { success: "Profile updated successfully" };
 };
 
 const updateAdminEmail = async (
@@ -428,6 +452,11 @@ const getAllBinUsers = async () => {
       name: true,
       email: true,
       faculty: true,
+      lat: true,
+      long: true,
+      _count: {
+        select: { bins: true },
+      },
     },
   });
   return result;
@@ -445,6 +474,7 @@ const deleteBinUser = async (id: string) => {
         id: id,
       },
     });
+    revalidatePath("/admin/bin/manager");
     return { success: `User with ID ${id} deleted successfully` };
   } else {
     return { error: `User with ID ${id} does not exist` };
@@ -463,14 +493,13 @@ const getAllStudentUsers = async (
   if (!sessionUser || sessionUser.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
-  const sortableEntities = ["disposal", "point", "redemption"];
+  const sortableItems = ["disposal", "point", "redemption"];
   const allowedEmailTypes = ["verified", "non-verified"];
   const pageCondition = page != null && page < 0;
   const sortOrderCondition =
     sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
   const sortItemCondition =
-    sortItem !== undefined &&
-    !Object.values(sortableEntities).includes(sortItem);
+    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem);
   const emailTypeCondition =
     emailType &&
     !emailType.split(",").every((type) => allowedEmailTypes.includes(type));
@@ -480,7 +509,7 @@ const getAllStudentUsers = async (
       .split(",")
       .every((f) => Object.values(Faculty).includes(f as Faculty));
 
-  // check if faculty condiiton is valid
+  // check if all conditions are met
   if (
     pageCondition ||
     sortItemCondition ||
@@ -535,11 +564,11 @@ const getAllStudentUsers = async (
       take: page ? 10 : undefined,
       skip: page ? (page - 1) * 10 : 0,
       orderBy:
-        sortItem === sortableEntities[0]
+        sortItem === sortableItems[0]
           ? { disposals: { _count: sortOrder } }
-          : sortItem === sortableEntities[1]
+          : sortItem === sortableItems[1]
           ? { point: { balance: sortOrder } }
-          : sortItem === sortableEntities[2]
+          : sortItem === sortableItems[2]
           ? { redemptions: { _count: sortOrder } }
           : { createdAt: "desc" },
       select: {
@@ -548,7 +577,7 @@ const getAllStudentUsers = async (
         email: true,
         emailVerified: true,
         faculty: true,
-        point: { select: { balance: true } },
+        point: { select: { balance: true, updatedAt: true } },
         _count: { select: { disposals: true, redemptions: true } },
         createdAt: true,
         updatedAt: true,
@@ -558,21 +587,23 @@ const getAllStudentUsers = async (
   return { studentCount, students };
 };
 
-const deleteUser = async (userId: string) => {
+const deleteStudent = async (userId: string) => {
   const sessionUser = await getSessionUser();
   if (!sessionUser || sessionUser.role !== "ADMIN") {
     return { error: "Unauthorized access!" };
   }
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) {
+  const student = await prisma.user.findUnique({
+    where: { id: userId, role: "STUDENT" },
+  });
+  if (!student) {
     return { error: "User not found" };
   }
-  const deletedUser = await prisma.user.delete({ where: { id: userId } });
-  if (!deleteUser) {
+  const deletedStudent = await prisma.user.delete({ where: { id: userId } });
+  if (!deletedStudent) {
     return { error: "Failed to delete user" };
   }
-  revalidatePath("/admin/user");
-  return { success: `User ${deletedUser.id} successfully deleted` };
+  revalidatePath("/admin/student");
+  return { success: `Student ${deletedStudent.id} deleted successfully` };
 };
 
 const updateStudent = async (
@@ -603,8 +634,8 @@ const updateStudent = async (
       point: { update: { balance: points } },
     },
   });
-  revalidatePath("/admin/user");
-  return { success: `User ${updatedUser.id} successfully updated` };
+  revalidatePath("/admin/student");
+  return { success: `Student ${updatedUser.id} updated successfully ` };
 };
 
 const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
@@ -624,6 +655,7 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       user: {
         role: "STUDENT" as Role,
       },
+      isRedeemed: true,
       createdAt: {
         gte: dateFrom ?? startDate,
         lte: dateTo ?? endDate,
@@ -780,7 +812,7 @@ export {
   getAllBinUsers,
   deleteBinUser,
   getAllStudentUsers,
-  deleteUser,
+  deleteStudent,
   updateStudent,
   getTopTenUsers,
   listOfBinManagersUsed,

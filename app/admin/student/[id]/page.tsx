@@ -1,5 +1,4 @@
 import Card from "@/components/Card/Card";
-import CardHeader from "@/components/Card/CardHeader";
 import UserProfileMore from "@/components/Dropdown/UserProfileMore";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import prisma from "@/lib/db";
@@ -34,12 +33,14 @@ const UserPage = async ({ params }: { params: { id: string } }) => {
         </div>
       </Card>
       <Card isAdmin>
-        <div className="flex justify-between items-center">
-          <CardHeader>Profile Information</CardHeader>
+        <div className="flex flex-wrap justify-between items-center">
+          <h1 className="text-2xl md:text-4xl text-left text-slate-800">
+            Profile Information
+          </h1>
           <UserProfileMore id={user.id} />
         </div>
         <div className="mt-5">
-          <div className="flex flex-wrap">
+          <div className="flex md:flex-row flex-col md:gap-0 gap-6">
             <div className="flex flex-col flex-1 flex-shrink flex-basis-[200px] gap-6">
               <div>
                 <p className="text-slate-600">Name</p>

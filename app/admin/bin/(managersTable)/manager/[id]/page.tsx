@@ -12,15 +12,7 @@ const BinCapacityPage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex flex-col justify-center items-center h-full">
       <h1 className="text-slate-800 mb-8">Bin Capacity</h1>
-      <div
-        className="grid place-items-center gap-4"
-        style={{
-          gridTemplateColumns: `repeat(${Math.min(
-            bins.length,
-            5
-          )}, minmax(150px, 1fr))`,
-        }}
-      >
+      <div className="grid place-items-center gap-4 md:grid-cols-5 sm:grid-cols-3 grid-cols-2">
         {bins.map((bin, index) => (
           <BinCapacityChart
             key={index}

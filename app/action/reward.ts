@@ -63,6 +63,7 @@ const createReward = async (formData: FormData) => {
       endDate: to ?? null,
     },
   });
+  revalidatePath("/admin/reward");
   return {
     success: "Reward created successfully!",
   };
@@ -125,7 +126,7 @@ const updateReward = async (id: string, formData: FormData) => {
     }
     const createRes = await utapi.uploadFiles(image as File);
     if (createRes.error) {
-      return { error: "Unable to upload image!" };  
+      return { error: "Unable to upload image!" };
     }
     const updatedReward = await prisma.reward.update({
       where: {
@@ -142,7 +143,7 @@ const updateReward = async (id: string, formData: FormData) => {
       },
     });
     revalidatePath("/admin/reward");
-    return { success: `Reward ${updatedReward.id} successfully updated` };
+    return { success: `Reward ${updatedReward.id} updated successfully` };
   }
   const updatedReward = await prisma.reward.update({
     where: {
@@ -158,7 +159,7 @@ const updateReward = async (id: string, formData: FormData) => {
     },
   });
   revalidatePath("/admin/reward");
-  return { success: `Reward ${updatedReward.id} successfully updated` };
+  return { success: `Reward ${updatedReward.id} updated successfully ` };
 };
 
 const deleteReward = async (id: string) => {
@@ -189,6 +190,6 @@ const deleteReward = async (id: string) => {
     return { error: "Failed to delete reward" };
   }
   revalidatePath("/admin/reward");
-  return { success: `Reward ${deletedReward.id} successfully deleted` };
+  return { success: `Reward ${deletedReward.id} deleted successfully` };
 };
 export { createReward, updateReward, deleteReward };

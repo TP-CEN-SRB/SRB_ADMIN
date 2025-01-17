@@ -131,14 +131,13 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="px-4">
-        <div className="flex justify-end items-center py-3 space-x-2">
-          <div className="relative max-w-sm">
+        <div className="flex flex-wrap justify-end items-center gap-3 py-3">
+          <div className="max-w-xs">
             <Input
               type="search"
-              placeholder="Filter Location..."
+              placeholder="Filter name..."
               value={locationFilterValue}
               onChange={handleInputChange}
-              className="pr-8"
             />
           </div>
           <DropdownMenu>
@@ -262,7 +261,7 @@ export function DataTable<TData, TValue>({
             <div>Page</div>
             <span>
               {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount().toLocaleString()}
+              {Math.max(1, table.getPageCount())}
             </span>
           </div>
           <div className="flex items-center justify-end space-x-2">

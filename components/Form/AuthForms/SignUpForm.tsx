@@ -33,6 +33,7 @@ const SignUpForm = () => {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -136,6 +137,26 @@ const SignUpForm = () => {
                 <FormDescription>
                   We will never share your password
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Confirm Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="At least 8 characters"
+                    {...field}
+                    type="password"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

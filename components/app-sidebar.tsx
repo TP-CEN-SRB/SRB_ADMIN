@@ -21,16 +21,9 @@ import {
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
-import {
-  FaBell,
-  FaTrash,
-  FaUser,
-  FaChevronRight,
-  FaEye,
-  FaPlus,
-} from "react-icons/fa";
-import { IoSettings } from "react-icons/io5";
+import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
+import { FaMapMarkedAlt } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
 import Image from "next/image";
 import Link from "next/link";
@@ -43,6 +36,27 @@ import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
 
 export const collaspeItems = [
+  {
+    title: "Bin Managers",
+    icon: CgProfile,
+    child: [
+      {
+        title: "Map",
+        icon: FaMapMarkedAlt,
+        url: "/admin/bin/manager/map",
+      },
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/bin/manager",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/bin/manager/create",
+      },
+    ],
+  },
   {
     title: "Bins",
     icon: FaTrash,
@@ -61,12 +75,12 @@ export const collaspeItems = [
       {
         title: "Dashboard",
         icon: PiRankingBold,
-        url: "/admin/user/dashboard",
+        url: "/admin/student/dashboard",
       },
       {
         title: "View",
         icon: FaEye,
-        url: "/admin/user",
+        url: "/admin/student",
       },
     ],
   },
@@ -102,22 +116,6 @@ export const collaspeItems = [
       },
     ],
   },
-  {
-    title: "Bin Managers",
-    icon: CgProfile,
-    child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/bin/manager",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/bin/manager/create",
-      },
-    ],
-  },
 ];
 
 export const dropdownItems = [
@@ -125,16 +123,6 @@ export const dropdownItems = [
     title: "Profile",
     icon: FaUser,
     url: "/admin/profile",
-  },
-  {
-    title: "Notifications",
-    icon: FaBell,
-    url: "/admin/notification",
-  },
-  {
-    title: "Settings",
-    icon: IoSettings,
-    url: "/admin/settings",
   },
 ];
 
@@ -153,10 +141,11 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         isOpen={isSignOutDialogOpen}
         handleDialogOpen={() => setSignOutDialogOpen(!isSignOutDialogOpen)}
       />
-      <Sidebar>
+      <Sidebar className="overflow-y-auto">
         <SidebarHeader>
           <SidebarMenu className="p-4">
             <Image
+              priority
               src="/temasekPolyBanner.png"
               alt="Temasek Poly"
               width="300"
@@ -222,24 +211,27 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     <FaChevronRight className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="right" sideOffset={10}>
+                <DropdownMenuContent side="right" align="start" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {dropdownItems.map((item, index) => (
-                    <Link key={index} href={item.url}>
-                      <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem
+                      key={index}
+                      asChild
+                      className="cursor-pointer"
+                    >
+                      <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                      </DropdownMenuItem>
-                    </Link>
+                      </Link>
+                    </DropdownMenuItem>
                   ))}
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     className="flex items-center gap-x-2 cursor-pointer"
                     onClick={() => setSignOutDialogOpen(true)}
                   >
                     <PiSignOutBold />
-                    Log out
+                    <span>Log out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

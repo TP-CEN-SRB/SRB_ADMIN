@@ -30,6 +30,8 @@ const SignUpBinForm = () => {
       email: "",
       password: "",
       location: "",
+      latitude: undefined,
+      longitude: undefined,
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -40,22 +42,22 @@ const SignUpBinForm = () => {
     startTransition(async () => {
       setError(""); // clear error message
       setSuccess(""); // clear success message
-      console.log(values);
       const data = await signUpBin(values);
       if (data?.error) {
         setError(data?.error as string);
       }
       if (data?.success) {
         setSuccess(data?.success as string);
-        form.reset();
+        form.reset({
+          latitude: 0,
+          longitude: 0,
+        });
       }
     });
   };
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>
-        <span className="text-3xl">Add a bin manager</span>
-      </FormHeader>
+      <FormHeader>Add a bin manager</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -128,7 +130,7 @@ const SignUpBinForm = () => {
                   />
                 </FormControl>
                 <FormDescription>
-                  We will never share your password
+                  This password will be used for login with the manager
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -153,6 +155,46 @@ const SignUpBinForm = () => {
                 <FormDescription>
                   This will be the location of the bin(s)
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="latitude"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Latitude
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Eg. 1.3456618"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="longitude"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Longitude
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Eg. 103.9327236"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

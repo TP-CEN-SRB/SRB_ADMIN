@@ -3,9 +3,9 @@
 import Card from "@/components/Card/Card";
 import React, { useTransition } from "react";
 import FormHeader from "../FormHeader";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { UpdateBinFormSchema } from "@/schemas/auth";
+import { UpdateBinSchema } from "@/schemas/auth";
 import { Faculty } from "@prisma/client";
 import {
   Form,
@@ -22,6 +22,8 @@ import { updateBinUser } from "@/app/action/user";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface EditBinFormProps {
   id: string;
@@ -29,6 +31,8 @@ interface EditBinFormProps {
   name: string;
   faculty: Faculty;
   location: string;
+  latitude: number;
+  longitude: number;
 }
 
 const EditBinForm = ({
@@ -37,19 +41,24 @@ const EditBinForm = ({
   email,
   faculty,
   location,
+  latitude,
+  longitude,
 }: EditBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const form = useForm<z.infer<typeof UpdateBinFormSchema>>({
-    resolver: zodResolver(UpdateBinFormSchema),
+  const form = useForm<z.infer<typeof UpdateBinSchema>>({
+    resolver: zodResolver(UpdateBinSchema),
     defaultValues: {
       name,
       email,
       faculty,
       location,
+      latitude,
+      longitude,
+      isExistingPassword: true,
     },
   });
-  const onSubmit = (values: z.infer<typeof UpdateBinFormSchema>) => {
+  const onSubmit = (values: z.infer<typeof UpdateBinSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
@@ -63,7 +72,7 @@ const EditBinForm = ({
             description: `Manager ${name} has been updated successfully`,
             variant: "default",
           });
-          router.replace("/admin/bin/manager");
+          router.push("/admin/bin/manager");
         }
         if (result?.error) {
           toast({
@@ -77,6 +86,10 @@ const EditBinForm = ({
       }
     });
   };
+  const isExistingPassword = useWatch({
+    control: form.control,
+    name: "isExistingPassword",
+  });
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Update bin manager</FormHeader>
@@ -138,7 +151,38 @@ const EditBinForm = ({
               </FormItem>
             )}
           />
-
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending || isExistingPassword}
+                    placeholder="At least 8 characters"
+                    {...field}
+                    type="password"
+                  />
+                </FormControl>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={form.watch("isExistingPassword")}
+                    onCheckedChange={(value) =>
+                      form.setValue("isExistingPassword", value as boolean)
+                    }
+                    id="existingPassword"
+                  />
+                  <label htmlFor="existingPassword" className="text-sm">
+                    Use existing password
+                  </label>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="location"
@@ -160,13 +204,53 @@ const EditBinForm = ({
               </FormItem>
             )}
           />
-
+          <FormField
+            control={form.control}
+            name="latitude"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Latitude
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Eg. 1.3456618"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="longitude"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Longitude
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="Eg. 103.9327236"
+                    {...field}
+                    type="text"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button
             disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
+            className="w-full bg-emerald-600 hover:bg-emerald-700"
             type="submit"
           >
-            Submit
+            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+            {isPending ? "Loading..." : "Submit"}
           </Button>
         </form>
       </Form>

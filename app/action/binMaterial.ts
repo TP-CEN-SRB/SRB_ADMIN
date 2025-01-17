@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { BinMaterialSchema } from "@/schemas";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const getBinMaterials = async () => {
@@ -39,6 +40,7 @@ export const createBinMaterial = async (
           name: formDateToUpperCase,
         },
       });
+      revalidatePath("/admin/bin/material");
       return { success: "Bin Material created successfully" };
     } catch (error) {
       return { error: "Failed to create Bin Material" };
@@ -75,6 +77,7 @@ export const updateBinMaterial = async (
             name: formDataToUpperCase,
           },
         });
+        revalidatePath("/admin/bin/material");
         return { success: "Bin Material updated successfully" };
       } catch (error) {
         return { error: "Failed to update Bin Material" };
@@ -99,6 +102,7 @@ export const deleteBinMaterial = async (id: string) => {
           id,
         },
       });
+      revalidatePath("/admin/bin/material");
       return { success: "Bin Material deleted successfully" };
     } catch (error) {
       return { error: "Failed to delete Bin Material" };

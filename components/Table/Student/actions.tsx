@@ -10,9 +10,10 @@ import {
 import { Student } from "@/components/Table/Student/columns";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import ConfirmDeleteUserDialog from "../../Dialog/ConfirmDeleteUserDialog";
+import ConfirmDeleteStudentDialog from "../../Dialog/ConfirmDeleteStudentDialog";
 import { FaCopy } from "react-icons/fa";
 import { FaEye } from "react-icons/fa";
+import { IoReceipt } from "react-icons/io5";
 import { MdDeleteForever } from "react-icons/md";
 import { useRouter } from "next/navigation";
 
@@ -21,7 +22,7 @@ const Actions = ({ data }: { data: Student }) => {
   const router = useRouter();
   return (
     <div>
-      <ConfirmDeleteUserDialog
+      <ConfirmDeleteStudentDialog
         isOpen={isDialogOpen}
         handleDialogOpen={() => setDialogOpen(!isDialogOpen)}
         userId={data.id}
@@ -45,13 +46,19 @@ const Actions = ({ data }: { data: Student }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => router.push(`/admin/user/${data.id}`)}
+            onClick={() => router.push(`/admin/student/${data.id}`)}
           >
             <FaEye />
-            View user profile
+            View student profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-            <MdDeleteForever /> Delete user
+            <MdDeleteForever /> Delete student
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/student/transaction/${data.id}`)}
+          >
+            <IoReceipt /> View transactions
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

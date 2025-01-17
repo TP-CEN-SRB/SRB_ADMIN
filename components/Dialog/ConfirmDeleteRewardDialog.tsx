@@ -20,7 +20,6 @@ import { toast } from "@/hooks/use-toast";
 
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "../Form/CustomFormMessage";
-import { useRouter } from "next/navigation";
 import { deleteReward } from "@/app/action/reward";
 import { useMediaQuery } from "react-responsive";
 interface DialogProps {

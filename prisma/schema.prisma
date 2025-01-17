@@ -33,24 +33,32 @@ enum Role {
   BIN
 }
 
-model User {
-  id            String        @id @default(uuid())
-  email         String        @unique
-  emailVerified DateTime?
-  password      String
-  name          String
-  faculty       Faculty
-  role          Role
-  disposals     Disposal[]
-  bins          Bin[]
-  redemptions   Redemption[]
-  subscription  Subscription?
-  transactions  Transaction[]
-  point         Point?
-  location      String?       @unique // Outside library
+enum TransactionType {
+  REDEMPTION
+  DISPOSAL
+  OTHERS
+}
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model User {
+  id               String         @id @default(uuid())
+  email            String         @unique
+  emailVerified    DateTime?
+  password         String
+  name             String
+  faculty          Faculty
+  role             Role
+  disposals        Disposal[]
+  bins             Bin[]
+  redemptions      Redemption[]
+  subscriptions    Subscription[]
+  transactions     Transaction[]
+  point            Point?
+  lat              Decimal?       @db.Decimal(10, 7) // Latitude for bin manager
+  long             Decimal?       @db.Decimal(10, 7) // Longitude for bin manager
+  location         String?        @unique // Outside library
+  commandUpdatedAt DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@map("users")
 }
@@ -110,17 +118,16 @@ model BinMaterial {
 }
 
 model Disposal {
-  id            String        @id @default(uuid())
+  id            String   @id @default(uuid())
   weightInGrams Int
   binId         String
-  bin           Bin           @relation(fields: [binId], references: [id], onDelete: Cascade)
-  isRedeemed    Boolean       @default(false)
+  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
+  isRedeemed    Boolean  @default(false)
   pointsAwarded Int
   userId        String?
-  user          User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions  Transaction[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("disposals")
 }
@@ -156,12 +163,11 @@ model Reward {
 }
 
 model Redemption {
-  id           String        @id @default(uuid())
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String
-  reward       Reward        @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  rewardId     String
-  transactions Transaction[]
+  id       String @id @default(uuid())
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  rewardId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -170,10 +176,10 @@ model Redemption {
 }
 
 model Subscription {
-  id           String  @id @default(uuid())
-  isSubscribed Boolean @default(true)
-  userId       String  @unique
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  email  String @unique
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,15 +188,12 @@ model Subscription {
 }
 
 model Transaction {
-  id           String     @id @default(uuid())
-  pointsChange Int
-  description  String
-  userId       String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  disposalId   String
-  disposal     Disposal   @relation(fields: [disposalId], references: [id], onDelete: Cascade)
-  redemptionId String
-  redemption   Redemption @relation(fields: [redemptionId], references: [id], onDelete: Cascade)
+  id              String          @id @default(uuid())
+  pointsChange    Int
+  description     String
+  transactionType TransactionType
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

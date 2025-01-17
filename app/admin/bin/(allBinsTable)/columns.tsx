@@ -11,21 +11,35 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { BinMaterial, BinStatus } from "@prisma/client";
+import { BinStatus } from "@prisma/client";
 import Link from "next/link";
-import { deleteBin } from "@/app/action/bin";
-import { toast } from "@/hooks/use-toast";
+import { BiSolidDoorOpen } from "react-icons/bi";
 import { useRouter } from "next/navigation";
 import { MdDeleteForever } from "react-icons/md";
 import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
-import { FaEdit } from "react-icons/fa";
+import {
+  FaCaretSquareDown,
+  FaCaretSquareUp,
+  FaEdit,
+  FaLock,
+  FaLockOpen,
+  FaTrashRestore,
+} from "react-icons/fa";
+import { RiDoorFill } from "react-icons/ri";
 import { useState } from "react";
 import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog";
+import { publishMqtt } from "@/lib/mqtt";
+import { toast } from "@/hooks/use-toast";
+import {
+  ableToPublishMqttMessage,
+  updateCommandUpdatedAt,
+} from "@/utils/mqttPublisher";
 
 export type Bin = {
   id: string;
   currentCapacity: number;
   _count: { disposals: number };
+  userId: string;
   user: { name: string | null; location: string | null };
   status: BinStatus;
   binMaterial: { name: string };
@@ -40,6 +54,33 @@ const BinActions = ({ bin }: { bin: Bin }) => {
     timeZone: "Asia/Singapore",
     hour12: false, // 24-hour format, remove if 12-hour format is needed
   });
+  const publishMessage = async (command: string) => {
+    const ableToPublish = await ableToPublishMqttMessage(bin.userId);
+    if (!ableToPublish) {
+      toast({
+        title: "Error!",
+        description:
+          "Unable to send command at this time, please try again in a few seconds",
+      });
+      return;
+    }
+    const success = await publishMqtt(
+      `srb/${bin.binMaterial.name.toLowerCase()}/${bin.userId}`,
+      JSON.stringify({ command: command })
+    );
+    if (success) {
+      toast({
+        title: "Success!",
+        description: "Command sent successfully",
+      });
+      await updateCommandUpdatedAt(bin.userId);
+    } else {
+      toast({
+        title: "Error!",
+        description: "Failed to send command",
+      });
+    }
+  };
 
   return (
     <div>
@@ -66,6 +107,62 @@ const BinActions = ({ bin }: { bin: Bin }) => {
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <MdDeleteForever />
             Delete bin
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => router.push(`/admin/bin/disposal/${bin.id}`)}
+          >
+            <FaTrashRestore /> View disposals
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Commands</DropdownMenuLabel>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("open");
+            }}
+          >
+            <BiSolidDoorOpen className="-rotate-90" />
+            Open
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("close");
+            }}
+          >
+            <RiDoorFill className="rotate-90" />
+            Close
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("lock");
+            }}
+          >
+            <FaLock />
+            Lock
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("unlock");
+            }}
+          >
+            <FaLockOpen />
+            Unlock
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("up");
+            }}
+          >
+            <FaCaretSquareUp />
+            Lift up
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={async () => {
+              await publishMessage("down");
+            }}
+          >
+            <FaCaretSquareDown />
+            Lift down
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -119,7 +216,20 @@ export const columns: ColumnDef<Bin>[] = [
     accessorKey: "currentCapacity",
     header: "Bin Capacity",
     cell: ({ row }) => {
-      return <div>{row.original.currentCapacity.toFixed(2)}%</div>;
+      const currentCapacity = row.original.currentCapacity;
+      return (
+        <div
+          className={`${
+            currentCapacity > 85
+              ? "text-red-500"
+              : currentCapacity > 60
+              ? "text-yellow-500"
+              : "text-green-500"
+          }`}
+        >
+          {currentCapacity}%
+        </div>
+      );
     },
   },
   {

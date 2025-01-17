@@ -1,15 +1,12 @@
 "use server";
 import prisma from "@/lib/db";
-import { sendBinWarningEmail } from "@/lib/mail";
 import { DisposalSchema } from "@/schemas";
 import { getSessionUser } from "@/utils/getAuth";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 const createDisposal = async (
   values: z.infer<typeof DisposalSchema>,
-  userId: string,
-  binCapacity: number
+  userId: string
 ) => {
   // Check if user has permission
   const user = await getSessionUser();
@@ -32,7 +29,6 @@ const createDisposal = async (
       id: true,
       status: true,
       currentCapacity: true,
-      emailSent: true,
       user: { select: { location: true, faculty: true } },
       binMaterial: { select: { name: true } },
     },
@@ -51,40 +47,6 @@ const createDisposal = async (
       pointsAwarded: weightInGrams, // 1g = 1 point
     },
   });
-  if (disposal) {
-    await prisma.bin.update({
-      where: {
-        id: bin.id,
-      },
-      data: {
-        currentCapacity: parseFloat(binCapacity.toFixed(2)),
-      },
-    });
-    if (binCapacity > 85 && !bin.emailSent) {
-      const subscriptions = await prisma.subscription.findMany({
-        where: { isSubscribed: true },
-        select: { user: { select: { email: true } } },
-      });
-      if (subscriptions.length > 0) {
-        await sendBinWarningEmail(
-          subscriptions.map((subscription) => subscription.user.email),
-          binCapacity,
-          bin.binMaterial.name,
-          bin.user.location
-        );
-        await prisma.bin.update({
-          where: { id: bin.id },
-          data: { emailSent: true },
-        });
-      }
-    } else if (binCapacity < 85 && bin.emailSent) {
-      await prisma.bin.update({
-        where: { id: bin.id },
-        data: { emailSent: false },
-      });
-    }
-  }
-  revalidatePath("/bin-capacity");
   return { id: disposal.id };
 };
 const getUnscannedDisposal = async (id: string) => {
@@ -110,4 +72,58 @@ const getUnscannedDisposal = async (id: string) => {
   return disposal;
 };
 
-export { createDisposal, getUnscannedDisposal };
+const getDisposalByBinId = async (
+  binId: string,
+  page: number | null,
+  sortOrder: string | undefined,
+  sortItem: string | undefined
+) => {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") {
+    return { error: "Permission denied!" };
+  }
+  const sortableItems = ["weight", "point", "createdAt"];
+  const pageCondition = page != null && page < 0;
+  const sortOrderCondition =
+    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
+  const sortItemCondition =
+    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem);
+  if (pageCondition || sortItemCondition || sortOrderCondition) {
+    return { disposalCount: 0, disposals: [] };
+  }
+
+  const [disposalCount, disposals, bin] = await Promise.all([
+    prisma.disposal.count({ where: { binId: binId } }),
+    prisma.disposal.findMany({
+      where: { binId: binId },
+      take: page ? 10 : undefined,
+      skip: page ? (page - 1) * 10 : 0,
+      orderBy:
+        sortItem === sortableItems[0]
+          ? { weightInGrams: sortOrder }
+          : sortItem === sortableItems[1]
+          ? { pointsAwarded: sortOrder }
+          : sortItem === sortableItems[2]
+          ? { createdAt: sortOrder }
+          : { createdAt: "desc" },
+      select: {
+        id: true,
+        weightInGrams: true,
+        isRedeemed: true,
+        pointsAwarded: true,
+        userId: true,
+        createdAt: true,
+      },
+    }),
+    prisma.bin.findUnique({
+      where: { id: binId },
+      select: {
+        binMaterial: { select: { name: true } },
+        user: { select: { location: true } },
+      },
+    }),
+  ]);
+  return { disposalCount, disposals, bin };
+};
+
+export { createDisposal, getUnscannedDisposal, getDisposalByBinId };

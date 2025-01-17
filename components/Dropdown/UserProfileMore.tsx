@@ -9,13 +9,13 @@ import {
 import { MdDeleteForever, MdMoreVert } from "react-icons/md";
 import Link from "next/link";
 import { FaEdit } from "react-icons/fa";
-import ConfirmDeleteUserDialog from "@/components/Dialog/ConfirmDeleteUserDialog";
+import ConfirmDeleteStudentDialog from "@/components/Dialog/ConfirmDeleteStudentDialog";
 
 const UserProfileMore = ({ id }: { id: string }) => {
   const [isDeleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
   return (
     <div>
-      <ConfirmDeleteUserDialog
+      <ConfirmDeleteStudentDialog
         isOpen={isDeleteUserDialogOpen}
         handleDialogOpen={() =>
           setDeleteUserDialogOpen(!isDeleteUserDialogOpen)
@@ -31,10 +31,10 @@ const UserProfileMore = ({ id }: { id: string }) => {
           side="bottom"
           align="end"
         >
-          <Link href={`/admin/user/edit/${id}`}>
+          <Link href={`/admin/student/edit/${id}`}>
             <DropdownMenuItem className="cursor-pointer">
               <FaEdit />
-              <span>Edit user</span>
+              <span>Edit student</span>
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem
@@ -42,7 +42,7 @@ const UserProfileMore = ({ id }: { id: string }) => {
             className="cursor-pointer"
           >
             <MdDeleteForever />
-            <span>Delete user</span>
+            <span>Delete student</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

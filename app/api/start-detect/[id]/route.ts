@@ -15,16 +15,10 @@ export const POST = async (
       );
     }
     const id = params.id;
-    if (!id) {
+    const binManager = await prisma.user.findUnique({ where: { id: id } });
+    if (!binManager) {
       return NextResponse.json(
-        { message: "Missing ID parameter" },
-        { status: 400 }
-      );
-    }
-    const binUser = await prisma.user.findUnique({ where: { id: id } });
-    if (!binUser) {
-      return NextResponse.json(
-        { message: "Bin user is not found!" },
+        { message: "Bin manager not found!" },
         { status: 404 }
       );
     }

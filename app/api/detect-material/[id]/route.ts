@@ -14,30 +14,19 @@ export const POST = async (
       );
     }
     const id = params.id;
-    if (!id) {
+    const binManager = await prisma.user.findUnique({ where: { id: id } });
+    if (!binManager) {
       return NextResponse.json(
-        { message: "Missing ID parameter" },
-        { status: 400 }
-      );
-    }
-    const binUser = await prisma.user.findUnique({ where: { id: id } });
-    if (!binUser) {
-      return NextResponse.json(
-        { message: "Bin user is not found!" },
+        { message: "Bin manager not found!" },
         { status: 404 }
       );
     }
-    const { material, weightInGrams, thrown, binCapacity } = await req.json();
-    await pusherServer.trigger(
-      `detect-material-${params.id}`,
-      "material-details",
-      {
-        material,
-        weightInGrams,
-        thrown,
-        binCapacity,
-      }
-    );
+    const { material, weightInGrams, thrown } = await req.json();
+    await pusherServer.trigger(`detect-material-${id}`, "material-details", {
+      material,
+      weightInGrams,
+      thrown,
+    });
     return NextResponse.json(
       { message: "Material details received" },
       { status: 200 }

@@ -24,26 +24,28 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         <PiExportBold /> Export
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="end">
-        <DropdownMenuItem>
-          <FaTableCells />
-          <CSVLink
-            className="cursor-default"
-            filename="bins_dataset"
-            data={(data as Bin[]).map((bin) => ({
-              id: bin.id,
-              location: bin.user.location,
-              status: bin.status,
-              material: bin.binMaterial.name,
-              name: bin.user.name,
-              capacity: bin.currentCapacity,
-              disposals: bin._count.disposals,
-              createdAt: bin.createdAt,
-              updatedAt: bin.updatedAt,
-            }))}
-          >
-            Export this dataset
-          </CSVLink>
-        </DropdownMenuItem>
+        <div className={data.length < 1 ? "cursor-not-allowed" : ""}>
+          <DropdownMenuItem disabled={data.length < 1}>
+            <FaTableCells />
+            <CSVLink
+              className="cursor-default"
+              filename={`students_dataset_${new Date().getTime()}.csv`}
+              data={(data as Bin[]).map((bin) => ({
+                id: bin.id,
+                location: bin.user.location,
+                status: bin.status,
+                material: bin.binMaterial.name,
+                name: bin.user.name,
+                capacity: bin.currentCapacity,
+                disposals: bin._count.disposals,
+                createdAt: bin.createdAt,
+                updatedAt: bin.updatedAt,
+              }))}
+            >
+              Export this dataset
+            </CSVLink>
+          </DropdownMenuItem>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -1,5 +1,4 @@
 "use client";
-
 import { SignUpAdminSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState, useTransition } from "react";
@@ -32,7 +31,9 @@ interface EditAdminFormProps {
 }
 const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
   const form = useForm<z.infer<typeof SignUpAdminSchema>>({
-    resolver: zodResolver(SignUpAdminSchema.omit({ password: true })),
+    resolver: zodResolver(
+      SignUpAdminSchema.omit({ password: true, confirmPassword: true })
+    ),
     defaultValues: {
       name,
       email,
@@ -44,7 +45,7 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
   const router = useRouter();
   const onSubmit = (values: z.infer<typeof SignUpAdminSchema>) => {
     startTransition(async () => {
-      setError(""); // clear error message
+      setError("Hello"); // clear error message
       const data = await updateAdmin(values);
       setError(data?.error as string);
       if (!data?.error && data?.success !== undefined) {
@@ -114,7 +115,6 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
               </FormItem>
             )}
           />
-
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           <Button
             disabled={isPending}
