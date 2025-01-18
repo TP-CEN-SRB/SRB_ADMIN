@@ -435,3 +435,4 @@ const binDashboardUpdate = ({
 };
 
 export default binDashboardUpdate;
+

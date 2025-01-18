@@ -7,7 +7,7 @@ import {
   getBarChartData,
   getDisposals,
 } from "../action/bin";
-import BinDashboardUpdate from "./bin/(allBinsTable)/binDashboard-update";
+import BinDashboard from "./bin/(allBinsTable)/binDashboard";
 const Page = async () => {
   const fetchDashboardData = async (
     startDate?: Date,
@@ -83,29 +83,7 @@ const Page = async () => {
 
   return (
     <div className="w-full">
-      {/* <StatsGrid initialStatsData={binStatsData} />
-      <Chart
-        chartData={DBBarChartData}
-        pieChartData={DBPieChartData}
-        barChartConfig={barChartConfig}
-        pieChartConfig={PieChartConfig}
-      />
-      <BinTimeChart
-        chartData={binDisposalsTimeLine}
-        binTimeLineChartConfig={binDisposalsTimeLineConfig}
-      /> */}
-      {/* to be fixed - written on 30/12/2024 */}
-      {/* <BinDashboard
-        DBBarChartData={DBBarChartData}
-        DBPieChartData={DBPieChartData}
-        totalFuncBins={totalFuncBins}
-        totalCount={totalCount}
-        totalDisposalCount={totalDisposalCount}
-        binDisposalsTimeLine={binDisposalsTimeLine}
-        totalUMBins={totalUMBins}
-      /> */}
-      {/* <StatsGrid initialStatsData={binStatsData} fetchData={fetchDashboardData} /> */}
-      <BinDashboardUpdate
+      <BinDashboard
         DBBarChartData={chartsData.DBBarChartData}
         DBPieChartData={chartsData.DBPieChartData}
         DBLineChartData={dashboardData.binDisposalsTimeLine}
