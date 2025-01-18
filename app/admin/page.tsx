@@ -9,58 +9,63 @@ import {
 } from "../action/bin";
 import BinDashboardUpdate from "./bin/(allBinsTable)/binDashboard-update";
 const Page = async () => {
-const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: String) => {
-  "use server";
-  const [
-    // DBBarChartData,
-    DBPieChartData,
-    totalFuncBins,
-    totalCount,
-    totalDisposalCount,
-    binDisposalsTimeLine,
-    totalUMBins,
-  ] = await Promise.all([
-    // getBarChartData(startDate, endDate,filter),
-    getBinCountsByMaterial(startDate, endDate),
-    getBinCountsByStatus(startDate, startDate, false),
-    (await getAllBins(startDate, endDate)).length,
-    getDisposals(startDate, endDate),
-    getBinDisposalsByTime(startDate, endDate),
-    getBinCountsByStatus(startDate, endDate, true),
-  ]);
+  const fetchDashboardData = async (
+    startDate?: Date,
+    endDate?: Date,
+    filter?: string
+  ) => {
+    "use server";
+    const [
+      // DBBarChartData,
+      DBPieChartData,
+      totalFuncBins,
+      totalCount,
+      totalDisposalCount,
+      binDisposalsTimeLine,
+      totalUMBins,
+    ] = await Promise.all([
+      // getBarChartData(startDate, endDate,filter),
+      getBinCountsByMaterial(startDate, endDate),
+      getBinCountsByStatus(startDate, startDate, false),
+      (await getAllBins(startDate, endDate)).length,
+      getDisposals(startDate, endDate),
+      getBinDisposalsByTime(startDate, endDate),
+      getBinCountsByStatus(startDate, endDate, true),
+    ]);
 
-  return {
-    // DBBarChartData,
-    DBPieChartData,
-    totalFuncBins,
-    totalCount,
-    totalDisposalCount,
-    binDisposalsTimeLine,
-    totalUMBins,
+    return {
+      // DBBarChartData,
+      DBPieChartData,
+      totalFuncBins,
+      totalCount,
+      totalDisposalCount,
+      binDisposalsTimeLine,
+      totalUMBins,
+    };
   };
-}
 
-const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: String) => {
-  "use server";
-  const [
-    DBBarChartData,
-    DBPieChartData,
-    binDisposalsTimeLine,
-  ] = await Promise.all([
-    getBarChartData(startDate, endDate, filter),
-    getBinCountsByMaterial(startDate, endDate),
-    getBinDisposalsByTime(startDate, endDate),
-  ]);
+  const fetchChartsData = async (
+    startDate?: Date,
+    endDate?: Date,
+    filter?: string
+  ) => {
+    "use server";
+    const [DBBarChartData, DBPieChartData, binDisposalsTimeLine] =
+      await Promise.all([
+        getBarChartData(startDate, endDate, filter),
+        getBinCountsByMaterial(startDate, endDate),
+        getBinDisposalsByTime(startDate, endDate),
+      ]);
 
-  return {
-    DBBarChartData,
-    DBPieChartData,
-    binDisposalsTimeLine,
+    return {
+      DBBarChartData,
+      DBPieChartData,
+      binDisposalsTimeLine,
+    };
   };
-}
 
-const dashboardData = await fetchDashboardData();
-const chartsData = await fetchChartsData();
+  const dashboardData = await fetchDashboardData();
+  const chartsData = await fetchChartsData();
 
   const binStatsData = [
     dashboardData.totalFuncBins,
@@ -73,7 +78,8 @@ const chartsData = await fetchChartsData();
     bin: number;
     [key: string]: string | number; // This allows for any additional string properties
   };
-  const { month, bin, ...materials }: ChartDataItem = chartsData.DBBarChartData[0];
+  const { month, bin, ...materials }: ChartDataItem =
+    chartsData.DBBarChartData[0];
 
   return (
     <div className="w-full">
@@ -99,7 +105,14 @@ const chartsData = await fetchChartsData();
         totalUMBins={totalUMBins}
       /> */}
       {/* <StatsGrid initialStatsData={binStatsData} fetchData={fetchDashboardData} /> */}
-      <BinDashboardUpdate DBBarChartData={chartsData.DBBarChartData} DBPieChartData={chartsData.DBPieChartData} DBLineChartData={dashboardData.binDisposalsTimeLine} initialStatsData={binStatsData} fetchData={fetchDashboardData} fetchChartsData={fetchChartsData}/>
+      <BinDashboardUpdate
+        DBBarChartData={chartsData.DBBarChartData}
+        DBPieChartData={chartsData.DBPieChartData}
+        DBLineChartData={dashboardData.binDisposalsTimeLine}
+        initialStatsData={binStatsData}
+        fetchData={fetchDashboardData}
+        fetchChartsData={fetchChartsData}
+      />
     </div>
   );
 };

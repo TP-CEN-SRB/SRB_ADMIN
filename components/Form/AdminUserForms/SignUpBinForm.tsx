@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,11 +20,13 @@ import CustomFormMessage from "@/components/Form/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { signUpBin } from "@/app/action/user";
 import FacultyComboBox from "../AuthForms/FacultyCombobox";
+import { FaMapMarker } from "react-icons/fa";
 
 interface FormProps {
   latLng: { lat: number; lng: number };
+  onMobileMapShown: () => void;
 }
-const SignUpBinForm = ({ latLng }: FormProps) => {
+const SignUpBinForm = ({ latLng, onMobileMapShown }: FormProps) => {
   const form = useForm<z.infer<typeof SignUpBinSchema>>({
     resolver: zodResolver(SignUpBinSchema),
     defaultValues: {
@@ -166,6 +167,14 @@ const SignUpBinForm = ({ latLng }: FormProps) => {
               </FormItem>
             )}
           />
+          <Button
+            type="button"
+            className="bg-emerald-600 hover:bg-emerald-700 text-gray-50 md:hidden"
+            onClick={() => onMobileMapShown()}
+          >
+            <FaMapMarker />
+            View Map
+          </Button>
           <FormField
             control={form.control}
             name="latitude"
