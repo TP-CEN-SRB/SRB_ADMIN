@@ -1,21 +1,35 @@
 "use client";
 
-import {
-  getAllBins,
-  getBinCountsByMaterial,
-  getBinCountsByStatus,
-  getBinDisposalsByTime,
-  getBarChartData,
-  getDisposals,
-} from "@/app/action/bin";
-import React, { useEffect, useReducer, useState } from "react";
-import { ChartConfig } from "@/components/ui/chart";
-import StatsGrid from "../../components/statsGrid";
-import Chart from "@/app/admin/components/chart";
-import BinTimeChart from "../../components/binTimeChart";
-import { BinStatus } from "@prisma/client";
+import { formatDateTime } from '@/utils/dateFilter';
+import React, { useCallback, useMemo, useState } from 'react'
+import { BsActivity } from 'react-icons/bs';
+import { RiDeleteBin6Line, RiRecycleFill } from 'react-icons/ri';
+import { TiWarningOutline } from 'react-icons/ti';
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { MdDateRange } from "react-icons/md";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ChartConfig } from '@/components/ui/chart';
+import Chart from '../../components/chart';
+import BinTimeChart from '../../components/binTimeChart';
+import { BarChartConfig, PieChartConfig } from './chartConfigs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import Loading from '@/app/(bin)/loading';
 
 interface BinDashboardProps {
   DBBarChartData: {
@@ -23,298 +37,340 @@ interface BinDashboardProps {
     bin: number;
   }[];
   DBPieChartData: { binType: string; binCount: number; fill?: string }[];
-  totalCount: number;
-  totalFuncBins: number;
-  totalDisposalCount: number;
-  binDisposalsTimeLine: {
-    hour: string;
-    [key: string]: string | number;
-  }[];
-  totalUMBins: number;
+  DBLineChartData: {hour: string;
+  [key: string]: string | number;}[];
+  initialStatsData: number[];
+  fetchData: (startDate: Date, endDate: Date) => Promise<{
+    DBPieChartData: {binType: string;
+  binCount: number;
+  fill: string;}[];
+    totalFuncBins: number;
+    totalCount: number;
+    totalDisposalCount: number;
+    binDisposalsTimeLine: {hour: string;
+  [key: string]: string | number;}[];
+    totalUMBins: number;
+  }>;
+  fetchChartsData: (startDate: Date, endDate: Date, filter?: string) => Promise<{
+    DBBarChartData: {
+        month: string;
+        bin: number;
+    }[];
+    DBPieChartData: {binType: string;
+      binCount: number;
+      fill: string;}[];
+    binDisposalsTimeLine: {hour: string;
+      [key: string]: string | number;}[];
+  }>;
 }
 
-interface DashboardState {
-  barChartData: BinDashboardProps["DBBarChartData"];
-  pieChartData: BinDashboardProps["DBPieChartData"];
-  totalCount: BinDashboardProps["totalCount"];
-  totalFuncBins: number;
-  totalDisposalCount: number;
-  binDisposalsTimeLine: BinDashboardProps["binDisposalsTimeLine"];
-  totalUMBins: number;
-  timeFilter: "week" | "month" | "year";
-}
+type FilterPeriod =  "all time" | "week" | "month" | "year" ;
 
-type DashboardAction =
-  | { type: "SET_TIME_FILTER"; payload: "week" | "month" | "year" }
-  | {
-      type: "UPDATE_DATA";
-      payload: {
-        barChartData: BinDashboardProps["DBBarChartData"];
-        pieChartData: BinDashboardProps["DBPieChartData"];
-        totalCount: BinDashboardProps["totalCount"];
-        totalFuncBins: number;
-        totalDisposalCount: number;
-        binDisposalsTimeLine: BinDashboardProps["binDisposalsTimeLine"];
-        totalUMBins: number;
+const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialStatsData, fetchData, fetchChartsData}: BinDashboardProps) => {
+    const [isActive, setIsActive] = useState<FilterPeriod>("all time");
+    const [isLoading, setIsLoading] = useState(false);
+    const [gridData, setGridData] = useState<number[]>(initialStatsData);
+    const [chartData, setChartData] = useState<[typeof DBBarChartData, typeof DBPieChartData]>([DBBarChartData, DBPieChartData]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const datetime = formatDateTime(new Date());
+
+        type ChartDataItem = {
+        month: string;
+        bin: number;
+        [key: string]: string | number; // This allows for any additional string properties
       };
+      const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
+      const barChartConfig = BarChartConfig({ materials }) as ChartConfig;
+      const pieChartConfig = PieChartConfig({ DBPieChartData }) as ChartConfig;
+      const binDisposalsTimeLineConfig = {
+        totalDisposals: {
+          label: "Total Disposals",
+          color: "#0066CC",
+        },
+        binToolTipLabel: {
+          label: "Disposals Hourly",
+          color: "#0066CC",
+        },
+        ...Object.entries(materials).reduce(
+          (acc, [material, _], index) => ({
+            ...acc,
+            [material]: {
+              label: material,
+              color: `hsl(${170 + index * 15}, 70%, 50%)`,
+            },
+          }),
+          {}
+        ),
+      } satisfies ChartConfig;
+
+    const getDateRange = (period: FilterPeriod) => {
+    const now = new Date();
+    
+    switch (period) {
+        case "week": {
+        const monday = now.getDate() - ((now.getDay() + 6) % 7);
+        
+        const startDate = new Date(now.setDate(monday));
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(now);
+        endDate.setDate(monday + 6); // Add 6 days to get to Sunday
+        endDate.setHours(23, 59, 59, 999);
+
+        return { startDate, endDate };
+        }
+        case "month": {
+        const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+
+        return { startDate, endDate };
+        }
+        case "year": {
+        const startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(now.getFullYear(), 11, 31);
+        endDate.setHours(23, 59, 59, 999);
+
+        return { startDate, endDate };
+        }
+        case "all time": {
+          return {startDate: undefined, endDate: undefined};
+        }
+    }
     };
 
-function dashboardReducer(
-  state: DashboardState,
-  action: DashboardAction
-): DashboardState {
-  switch (action.type) {
-    case "SET_TIME_FILTER":
-      return { ...state, timeFilter: action.payload };
-    case "UPDATE_DATA":
-      return {
-        ...state,
-        ...action.payload,
-        // Provide default values to ensure type safety
-        barChartData: action.payload.barChartData || state.barChartData,
-        pieChartData: action.payload.pieChartData || state.pieChartData,
-        totalDisposalCount:
-          action.payload.totalDisposalCount ?? state.totalDisposalCount,
-        totalFuncBins: action.payload.totalFuncBins ?? state.totalFuncBins,
-        totalCount: action.payload.totalCount ?? state.totalCount,
-        binDisposalsTimeLine:
-          action.payload.binDisposalsTimeLine ?? state.binDisposalsTimeLine,
-        totalUMBins: action.payload.totalUMBins ?? state.totalUMBins,
-      };
-    default:
-      return state;
-  }
-}
+    const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
+        setIsLoading(true);
+        try {
+            const {startDate, endDate} = getDateRange(period);
+            if (startDate && endDate) {
+                const {totalFuncBins, totalCount, totalDisposalCount, totalUMBins} = await fetchData(startDate, endDate);
+                const {DBBarChartData, DBPieChartData} = await fetchChartsData(startDate, endDate, period);
+                setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
+                setChartData([DBBarChartData, DBPieChartData]);
+            } else {
+              setGridData(initialStatsData);
+              setChartData([DBBarChartData, DBPieChartData]);
+            }
+        } catch (error){
+            console.log(error);
+        } finally {
+            setIsLoading(false);
+        }
+        },[getDateRange]);
 
-const BinDashboard = ({
-  DBBarChartData,
-  DBPieChartData,
-  totalFuncBins,
-  totalCount,
-  totalDisposalCount,
-  binDisposalsTimeLine,
-  totalUMBins,
-}: BinDashboardProps) => {
-  const [state, dispatch] = useReducer(dashboardReducer, {
-    barChartData: DBBarChartData,
-    pieChartData: DBPieChartData,
-    totalFuncBins,
-    totalCount,
-    totalDisposalCount,
-    binDisposalsTimeLine,
-    totalUMBins,
-    timeFilter: "week",
-  });
-  const [isActive, setIsActive] = useState("week");
-  const router = useRouter();
-  // useEffect(() => {
-  //   const filterData = async () => {
-  //     const date = new Date();
-
-  //     const { startDate, endDate } = (() => {
-  //     if (state.timeFilter == "week") {
-  //       const monday = new Date(date);
-  //       monday.setDate(date.getDate() - ((date.getDay() + 6) % 7)); // Get Monday
-  //       monday.setHours(0, 0, 0, 0); // Set time to start of the day
-
-  //       const sunday = new Date(monday);
-  //       sunday.setDate(monday.getDate() + 6); // Get Sunday
-  //       sunday.setHours(23, 59, 59, 999); // Set time to end of the day
-  //       setIsActive("week");
-  //       console.log(monday, sunday);
-  //       return { startDate: monday, endDate: sunday };
-  //     } 
-  //     else if (state.timeFilter == "month") {
-  //       const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
-  //       startDate.setHours(0, 0, 0, 0); // Start of the month
-
-  //       const endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  //       endDate.setHours(23, 59, 59, 999); // End of the month
-  //       setIsActive("month");
-  //       console.log(startDate, endDate);
-  //       return { startDate, endDate };
-  //     } 
-  //     else if (state.timeFilter == "year") {
-  //       const startDate = new Date(date.getFullYear(), 0, 1);
-  //       startDate.setHours(0, 0, 0, 0); // Start of the year
-
-  //       const endDate = new Date(date.getFullYear(), 11, 31);
-  //       endDate.setHours(23, 59, 59, 999); // End of the year
-  //       setIsActive("year");
-  //       console.log(startDate, endDate);
-  //       return { startDate, endDate };
-  //     }
-  //       router.refresh();
-  //       return { startDate: undefined, endDate: undefined };
-  //   })();
-
-  //     try {
-  //       const [
-  //         newBarChartData,
-  //         newBinCountsByMaterial,
-  //         newTotalFuncBins,
-  //         newAllBins,
-  //         newTotalDisposalCount,
-  //         newBinDisposalsByTime,
-  //         newTotalUMBins,
-  //       ] = await Promise.all([
-  //         getBarChartData(startDate, endDate),
-  //         getBinCountsByMaterial(startDate, endDate),
-  //         getBinCountsByStatus(startDate, endDate, false),
-  //         getAllBins(startDate, endDate),
-  //         getDisposals(startDate, endDate),
-  //         getBinDisposalsByTime(startDate, endDate),
-  //         getBinCountsByStatus(startDate, endDate, true),
-  //       ]);
-
-  //       // Update state with new filtered data
-  //       dispatch({
-  //         type: "UPDATE_DATA",
-  //         payload: {
-  //           barChartData: newBarChartData,
-  //           pieChartData: newBinCountsByMaterial,
-  //           totalFuncBins: newTotalFuncBins,
-  //           totalCount: newAllBins.length,
-  //           totalDisposalCount: newTotalDisposalCount,
-  //           binDisposalsTimeLine: newBinDisposalsByTime,
-  //           totalUMBins: newTotalUMBins,
-  //           // Add other updated data as needed
-  //         },
-  //       });
-  //     } catch (error) {
-  //       console.error("Failed to fetch filtered data:", error);
-  //     }
-  //   };
-
-  //   filterData();
-  // }, [state.timeFilter]);
-
-  const binStatsData = [
-    state.totalFuncBins,
-    state.totalCount,
-    state.totalDisposalCount,
-    state.totalUMBins,
-  ];
-  type ChartDataItem = {
-    month: string;
-    bin: number;
-    [key: string]: string | number; // This allows for any additional string properties
-  };
-  const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
-  const barChartConfig = {
-    binTotal: {
-      label: "Total",
-      color: "#0066CC",
-    },
-    bin: {
-      label: "Bins",
-      color: "#0066CC",
-    },
-    binToolTipLabel: {
-      label: "Bins Deployed Per Month",
-    },
-    ...Object.entries(materials).reduce(
-      (acc, [material, _], index) => ({
-        ...acc,
-        [material]: {
-          label: material,
-          color: `hsl(${170 + index * 15}, 70%, 50%)`,
+    const binDashBoardItems = useMemo(()=> [
+        {
+          color: "#34b7eb",
+          icon: <BsActivity className="text-xl sm:text-2xl text-[#34b7eb] mr-2" />,
+          title: "Bins Status",
+          value: gridData[0],
+          description: "Functional Bins",
         },
-      }),
-      {}
-    ),
-  };
-  const PieChartConfig = {
-    binCount: {
-      label: "Count",
-    },
-    ...Object.entries(DBPieChartData).reduce(
-      (acc, [material, _], index) => ({
-        ...acc,
-        [material]: {
-          label: material,
-          color: `hsl(${170 + index * 15}, 70%, 50%)`,
+        {
+          color: "#54666b",
+          icon: (
+            <RiDeleteBin6Line className="text-xl sm:text-2xl text-[#54666b] mr-2" />
+          ),
+          title: "Total Bins",
+          value: gridData[1],
+          description: "All locations",
         },
-      }),
-      {}
-    ),
-  } satisfies ChartConfig;
+        {
+          color: "#22e38f",
+          icon: (
+            <RiRecycleFill className="text-xl sm:text-2xl text-[#22e38f] mr-2" />
+          ),
+          title: "Total Items Collected",
+          value: gridData[2],
+          description: "Items",
+        },
+        {
+          color: "#f44336",
+          icon: (
+            <TiWarningOutline className="text-xl sm:text-2xl text-[#f44336] mr-2" />
+          ),
+          title: "Alerts",
+          value: gridData[3],
+          description: "Issues found",
+          button: "View",
+        },
+      ], [gridData]);
+    
+    const onDialogClick = () => {
+    setIsDialogOpen(true);
+    };
+    const totalBins = useMemo(() => {
+      return chartData[1]?.reduce((acc, curr) => acc + curr.binCount, 0);
+    }, [chartData[1]]);
 
-  const binDisposalsTimeLineConfig = {
-    totalDisposals: {
-      label: "Total Disposals",
-      color: "#0066CC",
-    },
-    binToolTipLabel: {
-      label: "Disposals Hourly",
-      color: "#0066CC",
-    },
-    ...Object.entries(materials).reduce(
-      (acc, [material, _], index) => ({
-        ...acc,
-        [material]: {
-          label: material,
-          color: `hsl(${170 + index * 15}, 70%, 50%)`,
-        },
-      }),
-      {}
-    ),
-  } satisfies ChartConfig;
   return (
-    <div className="w-full">
-      {/* <div className="flex flex-col w-full justify-center text-center items-center gap-4 py-4">
-        <div className="flex rounded-lg w-1/60 border-solid border-2 border-slate-400">
-          <Button
-            className={`rounded-r-none hover:bg-slate-300 ${
-              isActive === "week" ? "bg-gray-400" : ""
-            }`}
-            variant="secondary"
-            onClick={() =>
-              dispatch({ type: "SET_TIME_FILTER", payload: "week" })
-            }
-          >
-            Week
-          </Button>
-          <div className="w-[2px] bg-slate-300" />
-          <Button
-            variant="secondary"
-            className={`rounded-none hover:bg-slate-300 ${
-              isActive === "month" ? "bg-gray-400" : ""
-            }`}
-            onClick={() =>
-              dispatch({ type: "SET_TIME_FILTER", payload: "month" })
-            }
-          >
-            Month
-          </Button>
-          <div className="w-[2px] bg-slate-300" />
-          <Button
-            variant="secondary"
-            className={`rounded-l-none hover:bg-slate-300 ${
-              isActive === "year" ? "bg-gray-400" : ""
-            }`}
-            onClick={() =>
-              dispatch({ type: "SET_TIME_FILTER", payload: "year" })
-            }
-          >
-            Year
-          </Button>
+    <>
+    {isLoading && <Loading/> }
+      <div className="px-4 md:px-6 lg:px-8 mt-4">
+        <div className="flex flex-row md:items-center justify-between">
+          {/* Refresh Button and Last Updated Info */}
+          {/* <div className="flex flex-col gap-2 md:gap-4"> */}
+            <span className="text-gray-600 text-sm sm:text-base">
+              Last updated: {datetime}
+            </span>
+          {/* </div> */}
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="focus:ring-0 focus:ring-offset-0 focus-visible:ring-0"
+              >
+                <MdDateRange focusable="false" className="text-gray-600" />
+                <span className="text-md font-bold text-gray-600">Date Filters</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end">
+              {(['all time', 'week', 'month', 'year'] as FilterPeriod[]).map((period) => (
+                <DropdownMenuItem
+                  key={period}
+                  onClick={() => {
+                    handlePeriodChange(period);
+                    setIsActive(period);
+                  }}
+                  
+                >
+                  <span
+                    className={`${
+                      isActive === period ? 'font-bold text-gray-800 text-2xl' : ' font-bold text-gray-600'
+                    }`}
+                  >
+                    {period.charAt(0).toUpperCase() + period.slice(1)}
+                  </span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div> */}
-      {/* <StatsGrid initialStatsData={binStatsData}/> */}
-      {/* <StatsGrid initialStatsData={[totalFuncBins, totalCount, totalDisposalCount, totalUMBins]}/> */}
-      {/* <Chart
-        chartData={state.barChartData}
-        pieChartData={state.pieChartData}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+          {binDashBoardItems.map((data, index) => {
+            return (
+              <div
+                key={index}
+                className="relative bg-white p-4 flex flex-col gap-2 rounded-lg overflow-hidden"
+              >
+                <div
+                  className={`absolute inset-y-0 left-0 w-2.5 rounded-l-lg`}
+                  style={{ backgroundColor: data.color }}
+                ></div>
+
+                <div className="pl-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="" style={{ color: data.color }}>
+                        {data.icon}
+                      </span>
+                      {data.button ? (
+                        <span className="text-lg sm:text-xl font-bold text-[#f44336]">
+                          {data.title}
+                        </span>
+                      ) : (
+                        <span className="text-lg sm:text-xl font-bold">
+                          {data.title}
+                        </span>
+                      )}
+                    </div>
+                    {data.button && (
+                      <Dialog
+                        open={isDialogOpen}
+                        onOpenChange={setIsDialogOpen}
+                      >
+                        <DialogTrigger asChild>
+                          <Button variant="secondary" onClick={onDialogClick}>
+                            {data.button}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-screen-sm">
+                          <DialogHeader>
+                            <DialogTitle>Bins with issues</DialogTitle>
+                            <DialogDescription>
+                              Update the status of the bin. Click resolve if
+                              issue has been corrected.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="rounded-md border">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="text-center">
+                                    Location
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Type
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Status
+                                  </TableHead>
+                                  <TableHead className="text-center">
+                                    Action
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell className="text-center">
+                                    Block A
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    Recycling
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    Full
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    <Button
+                                      className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
+                                      variant="secondary"
+                                    >
+                                      Resolve
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </div>
+                          <DialogFooter></DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-3xl sm:text-4xl">
+                      {data.value}
+                    </span>
+                    <span className="font-light text-sm sm:text-base">
+                      {data.description}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <Chart
+        barChartData={chartData[0]}
+        pieChartData={chartData[1]}
+        pieChartSum={totalBins}
         barChartConfig={barChartConfig}
-        pieChartConfig={PieChartConfig}
+        pieChartConfig={pieChartConfig}
       />
       <BinTimeChart
-        chartData={state.binDisposalsTimeLine}
+        chartData={DBLineChartData}
         binTimeLineChartConfig={binDisposalsTimeLineConfig}
-      /> */}
-    </div>
-  );
-};
+      />
+    </>
+  )
+}
 
-//export default BinDashboard;
+export default BinDashboard;

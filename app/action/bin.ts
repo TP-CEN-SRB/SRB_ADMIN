@@ -6,7 +6,7 @@ import { Bin, BinMaterial, BinStatus } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getWeeksInMonth, monthsString, daysString } from "@/utils/dateUtils";
+import { getWeeksInMonth, months, days } from "@/utils/dateUtils";
 
 // export const getAllBins = async (startDate?: Date, endDate?: Date) => {
 //   if (startDate !== undefined && endDate !== undefined) {
@@ -295,9 +295,7 @@ function getWeekDatesByIndex(weekIndex: number) {
   return weekRanges[weekIndex];
 }
 
-export const getBarChartData = async (dateFrom?: Date, dateTo?: Date, filter?: String): Promise<MonthlyData[]> => {
-  const months = monthsString;
-  const days = daysString;
+export const getBarChartData = async (dateFrom?: Date, dateTo?: Date, filter?: string): Promise<MonthlyData[]> => {
   // const month = Array.from({ length: getWeeksInMonth(dateFrom, dateTo) }, (_, i) => `Wk ${i + 1}`);
   const weeks = getWeeksInMonth(dateFrom, dateTo);
 

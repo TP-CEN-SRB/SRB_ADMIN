@@ -7,9 +7,9 @@ import {
   getBarChartData,
   getDisposals,
 } from "../action/bin";
-import BinDashboardUpdate from "./bin/(allBinsTable)/binDashboard-update";
+import BinDashboard from "./bin/(allBinsTable)/binDashboard";
 const Page = async () => {
-const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: String) => {
+const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";
   const [
     // DBBarChartData,
@@ -40,7 +40,7 @@ const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: Stri
   };
 }
 
-const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: String) => {
+const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";
   const [
     DBBarChartData,
@@ -77,29 +77,7 @@ const chartsData = await fetchChartsData();
 
   return (
     <div className="w-full">
-      {/* <StatsGrid initialStatsData={binStatsData} />
-      <Chart
-        chartData={DBBarChartData}
-        pieChartData={DBPieChartData}
-        barChartConfig={barChartConfig}
-        pieChartConfig={PieChartConfig}
-      />
-      <BinTimeChart
-        chartData={binDisposalsTimeLine}
-        binTimeLineChartConfig={binDisposalsTimeLineConfig}
-      /> */}
-      {/* to be fixed - written on 30/12/2024 */}
-      {/* <BinDashboard
-        DBBarChartData={DBBarChartData}
-        DBPieChartData={DBPieChartData}
-        totalFuncBins={totalFuncBins}
-        totalCount={totalCount}
-        totalDisposalCount={totalDisposalCount}
-        binDisposalsTimeLine={binDisposalsTimeLine}
-        totalUMBins={totalUMBins}
-      /> */}
-      {/* <StatsGrid initialStatsData={binStatsData} fetchData={fetchDashboardData} /> */}
-      <BinDashboardUpdate DBBarChartData={chartsData.DBBarChartData} DBPieChartData={chartsData.DBPieChartData} DBLineChartData={dashboardData.binDisposalsTimeLine} initialStatsData={binStatsData} fetchData={fetchDashboardData} fetchChartsData={fetchChartsData}/>
+      <BinDashboard DBBarChartData={chartsData.DBBarChartData} DBPieChartData={chartsData.DBPieChartData} DBLineChartData={dashboardData.binDisposalsTimeLine} initialStatsData={binStatsData} fetchData={fetchDashboardData} fetchChartsData={fetchChartsData}/>
     </div>
   );
 };

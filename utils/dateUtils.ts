@@ -1,4 +1,4 @@
-export const monthsString = [
+export const months = [
   "January",
   "February",
   "March",
@@ -13,7 +13,7 @@ export const monthsString = [
   "December",
 ];
 
-export const daysString = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun" ];
+export const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun" ];
 
 export const getYears = (startYear: number, endYear: number) => {
   return Array.from(
