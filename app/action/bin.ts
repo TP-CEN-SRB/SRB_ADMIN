@@ -16,7 +16,7 @@ import { getWeeksInMonth, months, days } from "@/utils/dateUtils";
 //       where: {
 //         createdAt: {
 //           gte: startDate,
-//           lte: adjustedEndDate.toISOstring(),
+//           lte: adjustedEndDate.toISOString(),
 //         },
 //       },
 //     });
@@ -309,9 +309,6 @@ export const getBarChartData = async (
   dateTo?: Date,
   filter?: string
 ): Promise<MonthlyData[]> => {
-  const months = monthsString;
-  const days = daysString;
-export const getBarChartData = async (dateFrom?: Date, dateTo?: Date, filter?: string): Promise<MonthlyData[]> => {
   // const month = Array.from({ length: getWeeksInMonth(dateFrom, dateTo) }, (_, i) => `Wk ${i + 1}`);
   const weeks = getWeeksInMonth(dateFrom, dateTo);
 

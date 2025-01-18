@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getYears, monthsString } from "@/utils/dateUtils";
+import { getYears, months } from "@/utils/dateUtils";
 import { useMediaQuery } from "react-responsive";
 
 interface DatePickerProps {
@@ -53,7 +53,7 @@ export default function DateRangePicker({
     onDateChange(selectedDate);
   };
   const handleMonthChange = (month: string) => {
-    setCalendarMonth(monthsString.indexOf(month));
+    setCalendarMonth(months.indexOf(month));
   };
 
   const handleYearChange = (year: string) => {
@@ -94,13 +94,13 @@ export default function DateRangePicker({
           <div className="flex gap-x-4 items-center pl-4 pr-4 pt-4">
             <Select
               onValueChange={handleMonthChange}
-              value={monthsString[calendarMonth]}
+              value={months[calendarMonth]}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Month" />
               </SelectTrigger>
               <SelectContent>
-                {monthsString.map((month, index) => (
+                {months.map((month, index) => (
                   <SelectItem key={index} value={month}>
                     {month}
                   </SelectItem>

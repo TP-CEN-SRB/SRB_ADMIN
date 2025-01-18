@@ -27,7 +27,15 @@ export const GET = async (req: NextRequest) => {
         status: true,
         currentCapacity: true,
         binMaterial: { select: { name: true } },
-        user: { select: { location: true, id: true, faculty: true } },
+        user: {
+          select: {
+            location: true,
+            id: true,
+            faculty: true,
+            lat: true,
+            long: true,
+          },
+        },
       },
     });
 
@@ -44,11 +52,15 @@ export const GET = async (req: NextRequest) => {
       status: bin.status,
       location: bin.user.location,
       userId: bin.user.id,
+      lat: bin.user.lat?.toNumber(),
+      long: bin.user.long?.toNumber(),
     }));
     type GroupedBins = {
       [location: string]: {
         location: string;
-        faculty: Faculty | undefined;
+        faculty: Faculty;
+        lat: number | undefined;
+        long: number | undefined;
         bins: {
           binId: string;
           material: string;
@@ -61,13 +73,14 @@ export const GET = async (req: NextRequest) => {
     const groupedBins = transformedBins.reduce<GroupedBins>((acc, bin) => {
       // Ensure location exists and use "Unknown Location" if it's missing
       const locationKey = bin.location || "Unknown Location";
-      const faculty = bin.faculty || "Unknown Faculty";
 
       // Initialize the group if it doesn't exist
       if (!acc[locationKey]) {
         acc[locationKey] = {
           location: locationKey,
-          faculty: faculty,
+          faculty: bin.faculty,
+          lat: bin.lat,
+          long: bin.long,
           bins: [],
         };
       }
