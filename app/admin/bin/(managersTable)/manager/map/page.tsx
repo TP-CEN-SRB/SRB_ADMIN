@@ -1,7 +1,7 @@
 import { getAllBinUsers } from "@/app/action/user";
 import MapChart from "@/components/Map/BinMapChart";
 
-const MapLibreTest = async () => {
+const BinManagerMap = async () => {
   const binManagers = await getAllBinUsers();
   return (
     <MapChart
@@ -14,4 +14,4 @@ const MapLibreTest = async () => {
   );
 };
 
-export default MapLibreTest;
+export default BinManagerMap;

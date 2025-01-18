@@ -1,25 +1,3 @@
-// /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   images: {
-//     remotePatterns: [
-//       {
-//         protocol: "https",
-//         port: "",
-//         hostname: "utfs.io",
-//         pathname: "/**",
-//       },
-//       {
-//         protocol: "https",
-//         port: "",
-//         hostname: "bkrvneb21d.ufs.sh",
-//         pathname: "/**",
-//       },
-//     ],
-//   },
-// };
-
-// export default nextConfig;
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -29,6 +7,27 @@ const nextConfig = {
         hostname: "**",
       },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/api:path*",
+        header: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "https://yimenggg.github.io/recycle_tp_web/",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
+          },
+        ],
+      },
+    ];
   },
 };
 

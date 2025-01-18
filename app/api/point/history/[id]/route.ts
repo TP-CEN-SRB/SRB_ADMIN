@@ -70,6 +70,8 @@ export const GET = async (
         { message: "Token is invalid!" },
         { status: 401 }
       );
+    } else if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
     // Handle any other unknown errors

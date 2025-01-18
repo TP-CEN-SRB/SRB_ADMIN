@@ -1,8 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { pusherServer } from "@/lib/pusher";
 import jwt from "jsonwebtoken";
 import { TransactionType } from "@prisma/client";
+import { pusherServer } from "@/lib/pusher";
+
+// retrieve the disposal
+export const GET = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json(
+        { message: "Missing authorization header!" },
+        { status: 401 }
+      );
+    }
+    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+    if (typeof decodedToken === "string") {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
+    const disposalId = params.id;
+    const searchParams = req.nextUrl.searchParams;
+    const isRedeemed = searchParams.get("isRedeemed");
+    if (!isRedeemed) {
+      return NextResponse.json(
+        { message: "isRedeemed parameter is required!" },
+        { status: 400 }
+      );
+    }
+    const disposal = await prisma.disposal.findFirst({
+      where: {
+        id: disposalId,
+        isRedeemed: isRedeemed === "true",
+      },
+      include: {
+        bin: {
+          include: {
+            binMaterial: true,
+          },
+        },
+      },
+    });
+    return NextResponse.json({ disposal }, { status: 200 });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return NextResponse.json(
+        { message: "Token has expired!" },
+        { status: 401 }
+      );
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
+    } else if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+    return NextResponse.json(
+      { message: "An unknown error occurred" },
+      { status: 500 }
+    );
+  }
+};
 
 export const PUT = async (
   req: NextRequest,
@@ -23,29 +87,42 @@ export const PUT = async (
         { status: 401 }
       );
     }
-    const id = params.id;
-    const binManager = await prisma.user.findUnique({ where: { id: id } });
-    if (!binManager) {
+    const disposalId = params.id;
+    const { userId, disposalToken } = await req.json();
+    if (!userId || !disposalToken) {
       return NextResponse.json(
-        { message: "Bin manager not found!" },
-        { status: 404 }
+        {
+          message: `Missing fields: ${!userId ? "[userId]" : ""} ${
+            !disposalToken ? "[disposalToken]" : ""
+          }`,
+        },
+        { status: 400 }
       );
     }
-    const { disposalId, userId } = await req.json();
     if (userId !== decodedToken.userId) {
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
-    if (!disposalId || !userId) {
+    const decodedDisposaltoken = jwt.verify(
+      disposalToken,
+      process.env.NEXT_JWT_SECRET_KEY!
+    );
+    if (typeof decodedDisposaltoken === "string") {
       return NextResponse.json(
-        {
-          message: `Missing fields: ${!disposalId ? "[disposalId]" : ""} ${
-            !userId ? "[userId]" : ""
-          }`,
-        },
-        { status: 400 }
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
+    const binManagerId = decodedDisposaltoken.userId;
+    const binManager = await prisma.user.findUnique({
+      where: { id: binManagerId },
+    });
+    if (!binManager) {
+      return NextResponse.json(
+        { message: "Bin manager not found!" },
+        { status: 404 }
       );
     }
     const disposal = await prisma.disposal.findFirst({
@@ -106,9 +183,13 @@ export const PUT = async (
         },
       });
     }
-    await pusherServer.trigger(`disposal-qr-${id}`, "disposal-update", {
-      updated: true,
-    });
+    await pusherServer.trigger(
+      `disposal-qr-${binManagerId}`,
+      "disposal-update",
+      {
+        updated: true,
+      }
+    );
     return NextResponse.json({ message: "Updated disposal" }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
@@ -121,6 +202,8 @@ export const PUT = async (
         { message: "Token is invalid!" },
         { status: 401 }
       );
+    } else if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },

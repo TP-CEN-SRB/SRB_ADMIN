@@ -16,7 +16,6 @@ export default {
           const user = await prisma.user.findUnique({
             where: { email: email },
           });
-          // check if user already exists either using credentials or google
           if (!user || !user.password) {
             return null;
           }

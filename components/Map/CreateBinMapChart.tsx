@@ -1,28 +1,18 @@
 "use client";
-import {
-  engineeringGeoJson,
-  businessGeoJson,
-  maxBound,
-  designGeoJson,
-  scienceGeoJson,
-  informationTechnologyGeoJson,
-  humanitiesGeoJson,
-} from "@/utils/map";
+import { maxBound } from "@/utils/map";
 import { Faculty } from "@prisma/client";
 import Map, {
   AttributionControl,
   FullscreenControl,
+  LngLat,
   Marker,
+  MarkerDragEvent,
   NavigationControl,
   Popup,
   ScaleControl,
 } from "react-map-gl";
-import { useState } from "react";
-import { FaEdit, FaPlus } from "react-icons/fa";
-import Link from "next/link";
+import { useCallback, useState } from "react";
 import { IoLocationSharp } from "react-icons/io5";
-import { Checkbox } from "@/components/ui/checkbox";
-import MapLayer from "@/components/Map/MapLayer";
 
 interface MapChartProps {
   data: {
@@ -34,6 +24,8 @@ interface MapChartProps {
     lat: number | undefined;
     long: number | undefined;
   }[];
+  latLng: { lat: number; lng: number };
+  onLatLngChange: (latLng: { lat: number; lng: number }) => void;
 }
 type PopupInfo = {
   id: string;
@@ -43,21 +35,42 @@ type PopupInfo = {
   long: number;
   _count: { bins: number };
 };
-export default function MapChart({ data }: MapChartProps) {
+export default function CreateBinMapChart({
+  data,
+  onLatLngChange,
+  latLng,
+}: MapChartProps) {
   const { minLat, maxLat, minLong, maxLong } = maxBound;
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
-  const [showLayer, setShowLayer] = useState(true);
+  const [marker, setMarker] = useState(latLng);
+
+  const onMarkerDragStart = useCallback((event: MarkerDragEvent) => {
+    console.log(
+      "Starting coordinates: ",
+      event.lngLat.lat + " " + event.lngLat.lng
+    );
+  }, []);
+
+  const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
+    setMarker({
+      lng: event.lngLat.lng,
+      lat: event.lngLat.lat,
+    });
+    // round to 7 dp
+    onLatLngChange({
+      lat: parseFloat(event.lngLat.lat.toFixed(7)),
+      lng: parseFloat(event.lngLat.lng.toFixed(7)),
+    });
+  }, []);
+
+  const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
+    console.log(
+      "Ending coordinates: ",
+      event.lngLat.lat + " " + event.lngLat.lng
+    );
+  }, []);
   return (
     <div className="relative h-full w-full">
-      <div className="absolute z-10 top-4 left-4 bg-white p-2 rounded shadow-sm">
-        <label className="flex items-center gap-2">
-          <Checkbox
-            checked={showLayer}
-            onCheckedChange={() => setShowLayer(!showLayer)}
-          />
-          Show school buildings
-        </label>
-      </div>
       <Map
         attributionControl={false}
         maxBounds={[minLong, minLat, maxLong, maxLat]}
@@ -69,7 +82,7 @@ export default function MapChart({ data }: MapChartProps) {
         }}
         style={{
           width: "100%",
-          height: "100%",
+          maxHeight: "100%",
         }}
         mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
       >
@@ -80,58 +93,6 @@ export default function MapChart({ data }: MapChartProps) {
           position="bottom-right"
           customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20px;width:20px;"/>&nbsp;<a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp;&copy;&nbsp;contributors&nbsp;&#124;&nbsp;<a href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
         />
-        {showLayer && (
-          <>
-            <MapLayer
-              sourceId="engine-data"
-              fillId="engine-fill"
-              lineId="engine-outline"
-              symbolId="engine-label"
-              color="#A020F0"
-              data={engineeringGeoJson}
-            />
-            <MapLayer
-              sourceId="business-data"
-              fillId="business-fill"
-              lineId="business-outline"
-              symbolId="business-label"
-              color="#FFFF00"
-              data={businessGeoJson}
-            />
-            <MapLayer
-              sourceId="design-data"
-              fillId="design-fill"
-              lineId="design-outline"
-              symbolId="design-label"
-              color="#00FFFF"
-              data={designGeoJson}
-            />
-            <MapLayer
-              sourceId="science-data"
-              fillId="science-fill"
-              lineId="science-outline"
-              symbolId="science-label"
-              color="#88E788"
-              data={scienceGeoJson}
-            />
-            <MapLayer
-              sourceId="it-data"
-              fillId="it-fill"
-              lineId="it-outline"
-              symbolId="it-label"
-              color="#0000FF"
-              data={informationTechnologyGeoJson}
-            />
-            <MapLayer
-              sourceId="humanities-data"
-              fillId="humanities-fill"
-              lineId="humanities-outline"
-              symbolId="humanities-label"
-              color="#FFA500"
-              data={humanitiesGeoJson}
-            />
-          </>
-        )}
         {data.map((binManager) => (
           <Marker
             onClick={(e) => {
@@ -158,6 +119,22 @@ export default function MapChart({ data }: MapChartProps) {
             />
           </Marker>
         ))}
+        <Marker
+          longitude={marker.lng}
+          latitude={marker.lat}
+          anchor="bottom"
+          draggable
+          onDragStart={onMarkerDragStart}
+          onDrag={onMarkerDrag}
+          onDragEnd={onMarkerDragEnd}
+        >
+          <IoLocationSharp
+            stroke="black"
+            strokeWidth={20}
+            className="text-green-500"
+            size={40}
+          />
+        </Marker>
         {popupInfo && (
           <Popup
             focusAfterOpen={false}
@@ -186,20 +163,6 @@ export default function MapChart({ data }: MapChartProps) {
               <div>
                 <span className="font-bold">No. of bins: </span>
                 {popupInfo._count.bins}
-              </div>
-              <div className="flex items-center gap-1 flex-wrap mt-1">
-                <Link
-                  href={`/admin/bin/manager/update/${popupInfo.id}`}
-                  className="flex gap-1 items-center text-blue-600 hover:underline text-sm"
-                >
-                  <FaEdit /> Edit
-                </Link>
-                <Link
-                  href={`/admin/bin/create/${popupInfo.id}`}
-                  className="flex gap-1 items-center text-green-600 hover:underline text-sm"
-                >
-                  <FaPlus /> Add bin
-                </Link>
               </div>
             </div>
           </Popup>

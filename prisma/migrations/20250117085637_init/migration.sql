@@ -1,11 +1,14 @@
 -- CreateEnum
-CREATE TYPE "Faculty" AS ENUM ('ENGINEERING', 'BUSINESS', 'SCIENCE', 'IT', 'DESIGN');
+CREATE TYPE "Faculty" AS ENUM ('ENG', 'BUS', 'ASC', 'IIT', 'HSS', 'DES');
 
 -- CreateEnum
 CREATE TYPE "BinStatus" AS ENUM ('FUNCTIONAL', 'UNDER_MAINTENANCE');
 
 -- CreateEnum
 CREATE TYPE "Role" AS ENUM ('STUDENT', 'ADMIN', 'BIN');
+
+-- CreateEnum
+CREATE TYPE "TransactionType" AS ENUM ('REDEMPTION', 'DISPOSAL', 'OTHERS');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -16,7 +19,10 @@ CREATE TABLE "users" (
     "name" TEXT NOT NULL,
     "faculty" "Faculty" NOT NULL,
     "role" "Role" NOT NULL,
+    "lat" DECIMAL(10,7),
+    "long" DECIMAL(10,7),
     "location" TEXT,
+    "commandUpdatedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -125,12 +131,25 @@ CREATE TABLE "redemptions" (
 -- CreateTable
 CREATE TABLE "subscriptions" (
     "id" TEXT NOT NULL,
-    "isSubscribed" BOOLEAN NOT NULL DEFAULT true,
+    "email" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "transactions" (
+    "id" TEXT NOT NULL,
+    "pointsChange" INTEGER NOT NULL,
+    "description" TEXT NOT NULL,
+    "transactionType" "TransactionType" NOT NULL,
+    "userId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -164,7 +183,7 @@ CREATE UNIQUE INDEX "points_userId_key" ON "points"("userId");
 CREATE UNIQUE INDEX "rewards_name_key" ON "rewards"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "subscriptions_userId_key" ON "subscriptions"("userId");
+CREATE UNIQUE INDEX "subscriptions_email_key" ON "subscriptions"("email");
 
 -- AddForeignKey
 ALTER TABLE "bins" ADD CONSTRAINT "bins_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -189,3 +208,6 @@ ALTER TABLE "redemptions" ADD CONSTRAINT "redemptions_rewardId_fkey" FOREIGN KEY
 
 -- AddForeignKey
 ALTER TABLE "subscriptions" ADD CONSTRAINT "subscriptions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

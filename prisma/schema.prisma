@@ -15,11 +15,12 @@ datasource db {
 }
 
 enum Faculty {
-  ENGINEERING
-  BUSINESS
-  SCIENCE
-  IT
-  DESIGN
+  ENG
+  BUS
+  ASC
+  IIT
+  HSS
+  DES
 }
 
 enum BinStatus {

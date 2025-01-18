@@ -771,31 +771,23 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
 };
 
 const listOfBinManagersUsed = async () => {
-  const binsArr = await prisma.bin.groupBy({
-    by: ["userId"],
-  });
-  const binManagersArr = await prisma.user.groupBy({
-    by: ["id", "name", "email", "faculty"],
-    where: {
-      role: "BIN",
+  const binManagers = await prisma.user.findMany({
+    where: { role: "BIN" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      faculty: true,
+      _count: { select: { bins: true } },
     },
   });
-  const binManagersMappedArr = await Promise.all(
-    binsArr.map(async (bin) => {
-      const binManager = binManagersArr.find(
-        (manager) => manager.id === bin.userId
-      );
-      if (binManager) {
-        return {
-          id: binManager.id,
-          name: binManager.name,
-          email: binManager.email,
-          faculty: binManager.faculty,
-        };
-      }
-    })
-  );
-  return binManagersMappedArr;
+  return binManagers.map((binUser) => ({
+    id: binUser?.id as string,
+    name: binUser?.name as string,
+    email: binUser?.email as string,
+    faculty: binUser?.faculty as Faculty,
+    _count: { bins: binUser._count.bins as number },
+  }));
 };
 
 export {
