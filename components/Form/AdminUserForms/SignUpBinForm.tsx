@@ -24,9 +24,14 @@ import { FaMapMarker } from "react-icons/fa";
 
 interface FormProps {
   latLng: { lat: number; lng: number };
+  initialLatLng: { lat: number; lng: number };
   onMobileMapShown: () => void;
 }
-const SignUpBinForm = ({ latLng, onMobileMapShown }: FormProps) => {
+const SignUpBinForm = ({
+  latLng,
+  initialLatLng,
+  onMobileMapShown,
+}: FormProps) => {
   const form = useForm<z.infer<typeof SignUpBinSchema>>({
     resolver: zodResolver(SignUpBinSchema),
     defaultValues: {
@@ -34,8 +39,8 @@ const SignUpBinForm = ({ latLng, onMobileMapShown }: FormProps) => {
       email: "",
       password: "",
       location: "",
-      latitude: latLng.lat,
-      longitude: latLng.lng,
+      latitude: initialLatLng.lat,
+      longitude: initialLatLng.lng,
     },
   });
   const [isPending, startTransition] = useTransition();
@@ -53,8 +58,8 @@ const SignUpBinForm = ({ latLng, onMobileMapShown }: FormProps) => {
       if (data?.success) {
         setSuccess(data?.success as string);
         form.reset({
-          latitude: 0,
-          longitude: 0,
+          latitude: initialLatLng.lat,
+          longitude: initialLatLng.lng,
         });
       }
     });

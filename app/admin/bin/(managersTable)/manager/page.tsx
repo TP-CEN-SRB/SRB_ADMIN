@@ -4,9 +4,7 @@ import BinManagerDataTable from "./binManagerDataTable";
 
 const AllBinManagersPage = async () => {
   const binManagers = await listOfBinManagersUsed();
-  return (
-    <BinManagerDataTable data={binManagers} />
-  );
+  return <BinManagerDataTable data={binManagers} />;
 };
 
 export default AllBinManagersPage;

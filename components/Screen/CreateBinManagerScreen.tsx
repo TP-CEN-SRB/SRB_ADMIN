@@ -40,6 +40,7 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
     <div className="flex w-full h-full md:max-h-screen md:overflow-hidden">
       <div className="overflow-y-auto flex-1">
         <SignUpBinForm
+          initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
           onMobileMapShown={() => setShowMobileMap(!showMobileMap)}
           latLng={latLng}
         />
