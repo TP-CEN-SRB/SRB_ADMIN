@@ -56,7 +56,7 @@ export const PUT = async (
               });
 
               if (!binMaterial) {
-                throw new Error(`Bin material: ${material} is not found!`);
+                return;
               }
 
               const bin = await transaction.bin.findUnique({
@@ -71,9 +71,7 @@ export const PUT = async (
               });
 
               if (!bin) {
-                throw new Error(
-                  `No functional bin found for material: ${material}!`
-                );
+                return;
               }
 
               // Update the bin's capacity
