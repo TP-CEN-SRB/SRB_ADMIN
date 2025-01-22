@@ -217,7 +217,7 @@ const UsersLeaderboard = ({
             key={item.userId}
             user={item}
             rank={index}
-            onViewProfile={() => router.push(`/admin/user/${item.userId}`)}
+            onViewProfile={() => router.push(`/admin/student/${item.userId}`)}
           />
         ))}
       </div>
