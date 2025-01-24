@@ -11,7 +11,6 @@ import {
   XAxis,
   Line,
   LineChart,
-  ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 
 interface BinDisposalsByTime {
   hour: string;
@@ -39,10 +40,13 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
     useState<keyof typeof binTimeLineChartConfig>("totalDisposals");
   const [totalDisposalsSelected, setTotalDisposalsSelected] = useState(true);
   return (
-    <div className="w-full px-4 md:px-6 lg:px-8 ">
+    <div className="w-full px-4 md:px-6 lg:px-8 pb-4">
       <div className="bg-white rounded-xl">
-        <div className="flex justify-end">
-          <DropdownMenu>
+        <div className="flex justify-between py-4 px-4 items-center">
+          <h2 className="text-lg font-bold text-start">
+            Disposals Hourly By Material
+          </h2>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="secondary"
@@ -54,29 +58,37 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
             <DropdownMenuContent className="w-56" align="end">
               <DropdownMenuLabel>Materials</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {Object.keys(binTimeLineChartConfig).map((key) => {
+              {Object.keys(binTimeLineChartConfig).map((key, index) => {
                 const chart = key as keyof typeof binTimeLineChartConfig;
                 return (
-                  binTimeLineChartConfig[chart].label !==
-                    "Disposals Hourly" && (
+                  binTimeLineChartConfig[chart].label !== "Disposals Hourly" && (
                     <DropdownMenuCheckboxItem
-                      key={chart}
+                      key={index}
                       checked={activeChart === chart}
                       onClick={() => {
                         if (chart === "totalDisposals") {
                           setTotalDisposalsSelected(true);
-                        } else setTotalDisposalsSelected(false);
+                        } else {
+                          setTotalDisposalsSelected(false);
+                        }
                         setActiveChart(chart);
                       }}
+                      className={`font-bold text-gray-600 ${
+                        activeChart === chart ? "text-2xl text-gray-800" : "text-gray-600"
+                      }`}
                     >
-                      {binTimeLineChartConfig[chart].label}
+                      {capitalizeFirstLetter(
+                        binTimeLineChartConfig[chart].label as string
+                      )}
                     </DropdownMenuCheckboxItem>
                   )
                 );
               })}
+
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+        
         <ChartContainer
           config={binTimeLineChartConfig}
           className="h-[500px] w-full"

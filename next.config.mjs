@@ -12,7 +12,7 @@ const nextConfig = {
     return [
       {
         source: "/api:path*",
-        header: [
+        headers: [
           {
             key: "Access-Control-Allow-Origin",
             value: "https://yimenggg.github.io/recycle_tp_web/",

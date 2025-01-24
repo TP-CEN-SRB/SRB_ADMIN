@@ -6,7 +6,7 @@ import Secondicon from "../../../../public/second_icon.png";
 import Thirdicon from "../../../../public/third_icon.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { getTopTenUsers } from "@/app/action/user";
+import { getTopHundredUsers } from "@/app/action/user";
 import {
   Table,
   TableBody,
@@ -109,7 +109,7 @@ const UsersLeaderboard = ({
     setIsLoading(true);
     try {
       const { startDate, endDate } = getDateRange(period);
-      const filteredData = await getTopTenUsers(startDate, endDate);
+      const filteredData = await getTopHundredUsers(startDate, endDate);
       setLeaderBoard(filteredData);
       setActivePeriod(period);
       // reset pagination when filter changes
@@ -145,7 +145,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
       cell: ({ row }) => (
         <button
           className="flex bg-blue-500 hover:bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
-          onClick={() => router.push(`/admin/user/${row.original.userId}`)}
+          onClick={() => router.push(`/admin/student/${row.original.userId}`)}
         >
           View Profile
           <FaArrowRight className="ml-2" />
@@ -216,7 +216,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id} className="text-center whitespace-nowrap px-2 py-3 text-sm md:text-base">
+                      <TableHead key={header.id} className="text-center whitespace-nowrap px-2 py-3 text-sm md:text-base font-bold">
                         {header.isPlaceholder
                           ? null
                           : flexRender(

@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/db";
 import { BinMaterialSchema, BinSchema, UpdateBinSchema } from "@/schemas";
-import { Bin, BinMaterial, BinStatus } from "@prisma/client";
+import { Bin, BinMaterial, BinStatus, Role } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -183,7 +183,7 @@ export const updateBin = async (
     };
   } else {
     try {
-      const [updateBin, updateLocation] = await Promise.all([
+      await Promise.all([
         prisma.bin.update({
           where: { id },
           data: {
@@ -462,6 +462,7 @@ interface BinCount {
   fill: string;
 }
 
+
 export const getBinCountsByMaterial = async (
   dateFrom?: Date,
   dateTo?: Date
@@ -506,6 +507,88 @@ export const getBinCountsByMaterial = async (
     fill: `hsl(${170 + index * 15}, 70%, 50%)`
   }));
 };
+
+export const getPieChartData = async (dateFrom?: Date, dateTo?: Date, filter?:string) => {
+  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+
+  switch (filter) {
+    case 'week':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
+        endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+      }
+      break;
+    }
+    case 'month':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setDate(1);
+        startOfPeriod.setHours(0, 0, 0, 0);
+
+        endOfPeriod.setMonth(startOfPeriod.getMonth() + 1);
+        endOfPeriod.setDate(1);
+        endOfPeriod.setHours(0, 0, 0, 0);
+        endOfPeriod.setMilliseconds(-1);
+      }
+      break;
+    }
+    case 'year':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setMonth(0);
+        startOfPeriod.setDate(1);
+        startOfPeriod.setHours(0, 0, 0, 0);
+        endOfPeriod.setMonth(11);
+        endOfPeriod.setDate(31);
+        endOfPeriod.setHours(23, 59, 59, 999);
+      }
+      break;
+    }
+    default: {
+      // Handle default case if needed
+    }
+  }
+  const binsWithFaculty = await prisma.bin.findMany({
+    include: {
+      user: {
+        select: {
+          faculty: true,
+        },
+      },
+    },
+    where: {
+      user: {
+        role: "BIN" as Role,
+      },
+      createdAt: {
+        gte: startOfPeriod,
+        lte: endOfPeriod,
+      },
+    },
+  });
+
+const faculties = await prisma.user.groupBy({
+  by: ["faculty"],
+});
+
+const binsByFaculty = faculties.reduce((acc: Record<string, number>, faculty) => {
+  acc[faculty.faculty] = 0;
+  return acc;
+}, {});
+
+binsWithFaculty.forEach(bin => {
+  if (bin.user.faculty) {
+    binsByFaculty[bin.user.faculty]++;
+  }
+});
+
+// console.log(binsByFaculty);
+
+return Object.keys(binsByFaculty).map((faculty, index) => ({
+  fac: faculty,
+  count: binsByFaculty[faculty],
+  fill: `hsl(${170 + index * 15}, 70%, 50%)`,
+}));
+}
 
 export const getBinCountsByStatus = async (
   dateFrom?: Date,
@@ -584,8 +667,48 @@ type DisposalsByHour = {
 
 export const getBinDisposalsByTime = async (
   dateFrom?: Date,
-  dateTo?: Date
+  dateTo?: Date,
+  filter?:string
 ): Promise<DisposalsByHour[]> => {
+  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+
+  switch (filter) {
+    case 'week':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
+        endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+      }
+      break;
+    }
+    case 'month':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setDate(1);
+        startOfPeriod.setHours(0, 0, 0, 0);
+
+        endOfPeriod.setMonth(startOfPeriod.getMonth() + 1);
+        endOfPeriod.setDate(1);
+        endOfPeriod.setHours(0, 0, 0, 0);
+        endOfPeriod.setMilliseconds(-1);
+      }
+      break;
+    }
+    case 'year':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setMonth(0);
+        startOfPeriod.setDate(1);
+        startOfPeriod.setHours(0, 0, 0, 0);
+        endOfPeriod.setMonth(11);
+        endOfPeriod.setDate(31);
+        endOfPeriod.setHours(23, 59, 59, 999);
+      }
+      break;
+    }
+    default: {
+      // Handle default case if needed
+    }
+  }
+  
   const binMaterials = await prisma.binMaterial.findMany({
     select: {
       name: true,
@@ -603,6 +726,12 @@ export const getBinDisposalsByTime = async (
           },
         },
       },
+    },
+    where:{
+      createdAt: {
+        gte: startOfPeriod,
+        lte: endOfPeriod,
+      }
     },
     orderBy: {
       createdAt: "asc",
@@ -635,7 +764,6 @@ export const getBinDisposalsByTime = async (
       }
     }
   });
-
   return result;
 };
 
@@ -699,3 +827,53 @@ export const listOfBinMaterialInUse = async () => {
   );
   return binMaterialsMappedArr;
 };
+
+export const getFaultyBins = async (dateFrom?: Date, dateTo?: Date, filter?: string) => {
+  const faultyBins = await prisma.bin.findMany({
+    select: {
+      id: true,
+      user: {
+        select: {
+          location: true,
+          lat: true,
+          long: true,
+        },
+      },
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
+    },
+    where: {
+      createdAt: {
+        gte: dateFrom,
+        lte: dateTo,
+      },
+      status: BinStatus.UNDER_MAINTENANCE,
+    },
+  });
+
+  return faultyBins.map(bin => ({
+    ...bin,
+    user: {
+      ...bin.user,
+      lat: bin.user.lat ? bin.user.lat.toString() : null,
+      long: bin.user.long ? bin.user.long.toString() : null,
+    },
+  }));
+};
+
+export const updateBinStatus = async (id: string, status: BinStatus) => {
+  try {
+    await prisma.bin.update({
+      where: { id },
+      data: { status },
+    });
+    return {
+      success: `Bin status updated successfully, Bin ID: ${id}`,
+    }
+  } catch (error) {
+    return { error: "Unexpected error occurred, Failed to update bin" };
+  }
+}

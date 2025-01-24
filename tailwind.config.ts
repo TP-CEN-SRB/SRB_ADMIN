@@ -82,9 +82,15 @@ const config: Config = {
             opacity: "0",
           },
         },
+        "sway": {
+          "0%, 100%": { transform: "rotate(0deg)" }, // Start and end at neutral
+          "25%": { transform: "rotate(-15deg)" }, // Tilt left
+          "75%": { transform: "rotate(15deg)" }, // Tilt right
+        },
       },
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        "sway": "sway 1s ease-in-out infinite",
       },
     },
   },
