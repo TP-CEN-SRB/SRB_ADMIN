@@ -4,7 +4,6 @@ import { Faculty } from "@prisma/client";
 import Map, {
   AttributionControl,
   FullscreenControl,
-  LngLat,
   Marker,
   MarkerDragEvent,
   NavigationControl,
@@ -25,6 +24,7 @@ interface MapChartProps {
     long: number | undefined;
   }[];
   latLng: { lat: number; lng: number };
+  initialLatLng: { lat: number; lng: number };
   onLatLngChange: (latLng: { lat: number; lng: number }) => void;
 }
 type PopupInfo = {
@@ -35,22 +35,18 @@ type PopupInfo = {
   long: number;
   _count: { bins: number };
 };
-export default function CreateBinMapChart({
+export default function BinMapChartWithMarker({
   data,
   onLatLngChange,
+  initialLatLng,
   latLng,
 }: MapChartProps) {
   const { minLat, maxLat, minLong, maxLong } = maxBound;
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
-  const [marker, setMarker] = useState(latLng);
   const [showMarkerPopUp, setShowMarkerPopUp] = useState(true);
 
   const onMarkerDrag = useCallback(
     (event: MarkerDragEvent) => {
-      setMarker({
-        lng: event.lngLat.lng,
-        lat: event.lngLat.lat,
-      });
       // round to 7 dp
       onLatLngChange({
         lat: parseFloat(event.lngLat.lat.toFixed(7)),
@@ -66,8 +62,8 @@ export default function CreateBinMapChart({
         maxBounds={[minLong, minLat, maxLong, maxLat]}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
         initialViewState={{
-          longitude: 103.9327236,
-          latitude: 1.3456618,
+          longitude: initialLatLng.lng,
+          latitude: initialLatLng.lat,
           zoom: 17,
         }}
         style={{
@@ -110,8 +106,8 @@ export default function CreateBinMapChart({
           </Marker>
         ))}
         <Marker
-          longitude={marker.lng}
-          latitude={marker.lat}
+          longitude={latLng.lng}
+          latitude={latLng.lat}
           anchor="bottom"
           draggable
           onDrag={onMarkerDrag}

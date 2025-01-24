@@ -1,7 +1,7 @@
 "use client";
 
 import Card from "@/components/Card/Card";
-import React, { useTransition } from "react";
+import React, { useEffect, useTransition } from "react";
 import FormHeader from "../FormHeader";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FaMapMarker } from "react-icons/fa";
 
 interface EditBinFormProps {
   id: string;
@@ -31,8 +32,9 @@ interface EditBinFormProps {
   name: string;
   faculty: Faculty;
   location: string;
-  latitude: number;
-  longitude: number;
+  latLng: { lat: number; lng: number };
+  initialLatLng: { lat: number; lng: number };
+  onMobileMapShown: () => void;
 }
 
 const EditBinForm = ({
@@ -41,8 +43,9 @@ const EditBinForm = ({
   email,
   faculty,
   location,
-  latitude,
-  longitude,
+  latLng,
+  initialLatLng,
+  onMobileMapShown,
 }: EditBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -53,11 +56,15 @@ const EditBinForm = ({
       email,
       faculty,
       location,
-      latitude,
-      longitude,
+      latitude: initialLatLng.lat,
+      longitude: initialLatLng.lng,
       isExistingPassword: true,
     },
   });
+  useEffect(() => {
+    form.setValue("latitude", latLng.lat);
+    form.setValue("longitude", latLng.lng);
+  }, [latLng, form]);
   const onSubmit = (values: z.infer<typeof UpdateBinSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
@@ -204,6 +211,14 @@ const EditBinForm = ({
               </FormItem>
             )}
           />
+          <Button
+            type="button"
+            className="bg-emerald-600 hover:bg-emerald-700 text-gray-50 md:hidden"
+            onClick={() => onMobileMapShown()}
+          >
+            <FaMapMarker />
+            View Map
+          </Button>
           <FormField
             control={form.control}
             name="latitude"

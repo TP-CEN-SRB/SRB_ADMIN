@@ -41,12 +41,11 @@ const ResetSchema = z.object({
   email: z.string().email("Please enter a valid email address").toLowerCase(),
 });
 
-const NewPasswordSchema = SignUpAdminSchema.pick({ password: true });
+const NewAdminPasswordSchema = SignUpAdminSchema.pick({ password: true });
 
 /**
  * Bins
  */
-const LatLongRegex = /^-?\d{1,3}(\.\d{1,7})?$|^-?\d{1,7}(\.\d{1,3})?$/;
 const SignUpBinSchema = z.object({
   name: z
     .string()
@@ -170,6 +169,10 @@ const UpdateStudentSchema = SignUpStudentSchema.omit({
     .max(2147483647, "Maximum value is 2147483647")
     .gte(0, "Points cannot be negative"),
 });
+const NewStudentPasswordSchema = SignUpStudentSchema.pick({
+  password: true,
+  confirmPassword: true,
+});
 
 export {
   LoginSchema,
@@ -179,6 +182,7 @@ export {
   SignUpStudentSchema,
   UpdateStudentSchema,
   ResetSchema,
-  NewPasswordSchema,
+  NewAdminPasswordSchema,
   UpdateBinSchema,
+  NewStudentPasswordSchema,
 };

@@ -3,7 +3,7 @@ import React, { useTransition, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { NewPasswordSchema } from "@/schemas/auth";
+import { NewAdminPasswordSchema } from "@/schemas/auth";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import {
@@ -26,8 +26,8 @@ interface NewPasswordFormProps {
 }
 
 const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
-  const form = useForm<z.infer<typeof NewPasswordSchema>>({
-    resolver: zodResolver(NewPasswordSchema),
+  const form = useForm<z.infer<typeof NewAdminPasswordSchema>>({
+    resolver: zodResolver(NewAdminPasswordSchema),
     defaultValues: {
       password: "",
     },
@@ -35,7 +35,7 @@ const NewPasswordForm = ({ token }: NewPasswordFormProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
+  const onSubmit = (values: z.infer<typeof NewAdminPasswordSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await newPassword(values, token);

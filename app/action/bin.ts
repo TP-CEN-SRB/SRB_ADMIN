@@ -84,28 +84,6 @@ export const getBinsByUserId = async (id: string) => {
   });
 };
 
-export const getBinByUserIdAndMaterial = async (
-  id: string,
-  material: string
-) => {
-  const bin = await prisma.bin.findFirst({
-    where: {
-      binMaterial: {
-        name: material.toUpperCase(),
-      },
-      userId: id,
-    },
-    include: {
-      binMaterial: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  });
-  return bin;
-};
-
 export const createBin = async (
   values: z.infer<typeof BinSchema>,
   binUserId: string
@@ -487,7 +465,6 @@ interface BinCount {
   fill: string;
 }
 
-
 export const getBinCountsByMaterial = async (
   dateFrom?: Date,
   dateTo?: Date
@@ -533,19 +510,27 @@ export const getBinCountsByMaterial = async (
   }));
 };
 
-export const getPieChartData = async (dateFrom?: Date, dateTo?: Date, filter?:string) => {
+export const getPieChartData = async (
+  dateFrom?: Date,
+  dateTo?: Date,
+  filter?: string
+) => {
   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
   switch (filter) {
-    case 'week':{
+    case "week": {
       if (startOfPeriod && endOfPeriod) {
-        startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
-        endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+        startOfPeriod.setDate(
+          startOfPeriod.getDate() - ((startOfPeriod.getDay() + 6) % 7) + 1
+        );
+        endOfPeriod.setDate(
+          endOfPeriod.getDate() + ((7 - endOfPeriod.getDay()) % 7)
+        );
       }
       break;
     }
-    case 'month':{
+    case "month": {
       if (startOfPeriod && endOfPeriod) {
         startOfPeriod.setDate(1);
         startOfPeriod.setHours(0, 0, 0, 0);
@@ -557,7 +542,7 @@ export const getPieChartData = async (dateFrom?: Date, dateTo?: Date, filter?:st
       }
       break;
     }
-    case 'year':{
+    case "year": {
       if (startOfPeriod && endOfPeriod) {
         startOfPeriod.setMonth(0);
         startOfPeriod.setDate(1);
@@ -591,29 +576,32 @@ export const getPieChartData = async (dateFrom?: Date, dateTo?: Date, filter?:st
     },
   });
 
-const faculties = await prisma.user.groupBy({
-  by: ["faculty"],
-});
+  const faculties = await prisma.user.groupBy({
+    by: ["faculty"],
+  });
 
-const binsByFaculty = faculties.reduce((acc: Record<string, number>, faculty) => {
-  acc[faculty.faculty] = 0;
-  return acc;
-}, {});
+  const binsByFaculty = faculties.reduce(
+    (acc: Record<string, number>, faculty) => {
+      acc[faculty.faculty] = 0;
+      return acc;
+    },
+    {}
+  );
 
-binsWithFaculty.forEach(bin => {
-  if (bin.user.faculty) {
-    binsByFaculty[bin.user.faculty]++;
-  }
-});
+  binsWithFaculty.forEach((bin) => {
+    if (bin.user.faculty) {
+      binsByFaculty[bin.user.faculty]++;
+    }
+  });
 
-// console.log(binsByFaculty);
+  // console.log(binsByFaculty);
 
-return Object.keys(binsByFaculty).map((faculty, index) => ({
-  fac: faculty,
-  count: binsByFaculty[faculty],
-  fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-}));
-}
+  return Object.keys(binsByFaculty).map((faculty, index) => ({
+    fac: faculty,
+    count: binsByFaculty[faculty],
+    fill: `hsl(${170 + index * 15}, 70%, 50%)`,
+  }));
+};
 
 export const getBinCountsByStatus = async (
   dateFrom?: Date,
@@ -693,20 +681,24 @@ type DisposalsByHour = {
 export const getBinDisposalsByTime = async (
   dateFrom?: Date,
   dateTo?: Date,
-  filter?:string
+  filter?: string
 ): Promise<DisposalsByHour[]> => {
   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
   switch (filter) {
-    case 'week':{
+    case "week": {
       if (startOfPeriod && endOfPeriod) {
-        startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
-        endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+        startOfPeriod.setDate(
+          startOfPeriod.getDate() - ((startOfPeriod.getDay() + 6) % 7) + 1
+        );
+        endOfPeriod.setDate(
+          endOfPeriod.getDate() + ((7 - endOfPeriod.getDay()) % 7)
+        );
       }
       break;
     }
-    case 'month':{
+    case "month": {
       if (startOfPeriod && endOfPeriod) {
         startOfPeriod.setDate(1);
         startOfPeriod.setHours(0, 0, 0, 0);
@@ -718,7 +710,7 @@ export const getBinDisposalsByTime = async (
       }
       break;
     }
-    case 'year':{
+    case "year": {
       if (startOfPeriod && endOfPeriod) {
         startOfPeriod.setMonth(0);
         startOfPeriod.setDate(1);
@@ -733,7 +725,7 @@ export const getBinDisposalsByTime = async (
       // Handle default case if needed
     }
   }
-  
+
   const binMaterials = await prisma.binMaterial.findMany({
     select: {
       name: true,
@@ -752,11 +744,11 @@ export const getBinDisposalsByTime = async (
         },
       },
     },
-    where:{
+    where: {
       createdAt: {
         gte: startOfPeriod,
         lte: endOfPeriod,
-      }
+      },
     },
     orderBy: {
       createdAt: "asc",
@@ -854,7 +846,11 @@ export const listOfBinMaterialInUse = async () => {
   return binMaterialsMappedArr;
 };
 
-export const getFaultyBins = async (dateFrom?: Date, dateTo?: Date, filter?: string) => {
+export const getFaultyBins = async (
+  dateFrom?: Date,
+  dateTo?: Date,
+  filter?: string
+) => {
   const faultyBins = await prisma.bin.findMany({
     select: {
       id: true,
@@ -880,7 +876,7 @@ export const getFaultyBins = async (dateFrom?: Date, dateTo?: Date, filter?: str
     },
   });
 
-  return faultyBins.map(bin => ({
+  return faultyBins.map((bin) => ({
     ...bin,
     user: {
       ...bin.user,
@@ -898,8 +894,8 @@ export const updateBinStatus = async (id: string, status: BinStatus) => {
     });
     return {
       success: `Bin status updated successfully, Bin ID: ${id}`,
-    }
+    };
   } catch (error) {
     return { error: "Unexpected error occurred, Failed to update bin" };
   }
-}
+};

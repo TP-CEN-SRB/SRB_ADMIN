@@ -1,11 +1,20 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import SignUpBinForm from "../Form/AdminUserForms/SignUpBinForm";
 import BinMapChartWithMarker from "../Map/BinMapChartWithMarker";
 import { Faculty } from "@prisma/client";
 import { Button } from "../ui/button";
 import { IoMdClose } from "react-icons/io";
+import EditBinForm from "../Form/AdminUserForms/EditBinForm";
 interface ScreenProps {
+  binManager: {
+    id: string;
+    email: string;
+    name: string;
+    faculty: Faculty;
+    lat: number | undefined;
+    long: number | undefined;
+    location: string | null;
+  };
   data: {
     id: string;
     name: string;
@@ -17,7 +26,7 @@ interface ScreenProps {
   }[];
 }
 
-const CreateBinManagerScreen = ({ data }: ScreenProps) => {
+const UpdateBinManagerScreen = ({ binManager, data }: ScreenProps) => {
   const [isDesktop, setIsDesktop] = useState(false);
   const [showMobileMap, setShowMobileMap] = useState(false);
   useEffect(() => {
@@ -29,8 +38,8 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
   const [latLng, setLatLng] = useState<{ lat: number; lng: number }>({
-    lat: 1.3456618,
-    lng: 103.9327236,
+    lat: binManager.lat as number,
+    lng: binManager.long as number,
   });
   const handleLatLngChange = (latLng: { lat: number; lng: number }) => {
     setLatLng(latLng);
@@ -38,9 +47,13 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
   return (
     <div className="flex w-full h-full md:max-h-screen md:overflow-hidden">
       <div className="overflow-y-auto flex-1">
-        <SignUpBinForm
-          onLatLngChange={handleLatLngChange}
-          initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
+        <EditBinForm
+          id={binManager.id}
+          email={binManager.email}
+          name={binManager.name}
+          faculty={binManager.faculty}
+          location={binManager.location as string}
+          initialLatLng={latLng}
           onMobileMapShown={() => setShowMobileMap(!showMobileMap)}
           latLng={latLng}
         />
@@ -48,7 +61,7 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
       {isDesktop && (
         <div className="flex-1">
           <BinMapChartWithMarker
-            initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
+            initialLatLng={latLng}
             latLng={latLng}
             onLatLngChange={handleLatLngChange}
             data={data}
@@ -75,4 +88,4 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
   );
 };
 
-export default CreateBinManagerScreen;
+export default UpdateBinManagerScreen;

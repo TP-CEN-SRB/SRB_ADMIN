@@ -26,11 +26,13 @@ interface FormProps {
   latLng: { lat: number; lng: number };
   initialLatLng: { lat: number; lng: number };
   onMobileMapShown: () => void;
+  onLatLngChange: (latLng: { lat: number; lng: number }) => void;
 }
 const SignUpBinForm = ({
   latLng,
   initialLatLng,
   onMobileMapShown,
+  onLatLngChange,
 }: FormProps) => {
   const form = useForm<z.infer<typeof SignUpBinSchema>>({
     resolver: zodResolver(SignUpBinSchema),
@@ -60,6 +62,10 @@ const SignUpBinForm = ({
         form.reset({
           latitude: initialLatLng.lat,
           longitude: initialLatLng.lng,
+        });
+        onLatLngChange({
+          lat: initialLatLng.lat,
+          lng: initialLatLng.lng,
         });
       }
     });

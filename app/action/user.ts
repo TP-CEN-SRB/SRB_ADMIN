@@ -5,7 +5,7 @@ import {
   LoginSchema,
   SignUpAdminSchema,
   ResetSchema,
-  NewPasswordSchema,
+  NewAdminPasswordSchema,
   SignUpBinSchema,
   UpdateAdminEmailSchema,
   UpdateStudentSchema,
@@ -308,11 +308,11 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
 };
 
 const newPassword = async (
-  values: z.infer<typeof NewPasswordSchema>,
+  values: z.infer<typeof NewAdminPasswordSchema>,
   token: string
 ) => {
   if (!token) return { error: "Something went wrong!" };
-  const validatedFields = NewPasswordSchema.safeParse(values);
+  const validatedFields = NewAdminPasswordSchema.safeParse(values);
   if (!validatedFields.success) {
     return { error: "Invalid credentials!" };
   }
