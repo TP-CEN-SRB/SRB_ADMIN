@@ -6,7 +6,7 @@ import Secondicon from "../../../../public/second_icon.png";
 import Thirdicon from "../../../../public/third_icon.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { getTopTenUsers } from "@/app/action/user";
+import { getTopHundredUsers } from "@/app/action/user";
 import {
   Table,
   TableBody,
@@ -116,7 +116,7 @@ const UsersDashboard = ({
   //     })();
 
   //     try {
-  //       const filteredData = await getTopTenUsers(startDate, endDate);
+  //       const filteredData = await getTopHundredUsers(startDate, endDate);
   //       setLeaderBoard(filteredData);
   //     } catch (error) {
   //       console.error("Failed to fetch leaderboard data:", error);

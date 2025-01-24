@@ -9,6 +9,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, Pie, PieChart, Label, Legend } from "recharts";
+import BinsDeployedFaculty from "./binsDeployedFaculty";
 
 interface monthlyChartData {
   month: string;
@@ -16,116 +17,92 @@ interface monthlyChartData {
   [material: string]: number | string;
 }
 
-interface pieChartData {
-  binType?: string;
-  binCount?: number;
-}
-
 interface ChartProps {
   barChartData?: monthlyChartData[];
-  pieChartData?: pieChartData[];
-  pieChartSum: number;
+  pieChartData: { fac: string; count: number; fill: string; }[];
   barChartConfig: ChartConfig;
-  pieChartConfig: ChartConfig;
 }
 
 const Chart = ({
   barChartData,
   pieChartData,
-  pieChartSum,
   barChartConfig,
-  pieChartConfig,
 }: ChartProps) => {
   const { month, bin, ...materials } = barChartData![0];
   return (
     <>
-      <div className="grid md:grid-cols-8 grid-cols-1 px-4 md:px-6 lg:px-8 py-4 gap-4 font-semibold">
-        <div className="bg-white rounded-xl col-span-5">
-          <ChartContainer config={barChartConfig} className="w-full h-[500px]">
-            <BarChart accessibilityLayer data={barChartData}>
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-                tickFormatter={(value) => value.slice(0, 3)}
+      <div className="w-full py-4 px-4 md:px-6 lg:px-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Bar Chart Container */}
+        <div className="lg:col-span-8 bg-white rounded-xl p-4 min-h-[400px] w-full">
+          <h2 className="text-lg font-bold mb-4">Bins Deployed By Date Filter</h2>
+          <div className="w-full h-[400px] lg:h-[500px] min-h-[300px]">
+            <ChartContainer 
+        config={barChartConfig} 
+        className="w-full h-full"
+      >
+        <BarChart 
+          accessibilityLayer 
+          data={barChartData} 
+          className="font-bold"
+          margin={{ 
+            top: 20, 
+            right: 20, 
+            left: 20, 
+          }}
+        >
+          <XAxis
+            dataKey="month"
+            tickLine={false}
+            tickMargin={10}
+            axisLine={false}
+            tickFormatter={(value) => value.slice(0, 3)}
+          />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                labelClassName="font-bold text-sm"
+                labelKey="binToolTipLabel"
+                indicator="line"
+                className="text-xs"
               />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    labelClassName="font-bold text-sm"
-                    labelKey="binToolTipLabel"
-                    indicator="line"
-                    className="text-xs"
-                  />
-                }
+            }
+          />
+          <ChartLegend 
+            content={
+              <ChartLegendContent 
+                className="flex flex-wrap justify-center items-center w-full gap-1 font-bold -translate-y-2 [&>*]:basis-1/4 [&>*]:justify-center" 
               />
-              <ChartLegend content={<ChartLegendContent />} />
-              {/* Dynamically create Bars for each material */}
-              {Object.keys(materials).map((material) => (
-                <Bar
-                  key={material}
-                  stackId="a"
-                  dataKey={material}
-                  fill={`var(--color-${material})`}
-                />
-              ))}
-            </BarChart>
-          </ChartContainer>
+            } 
+            verticalAlign="bottom"
+            height={50}
+          />
+          {Object.keys(materials).map((material) => (
+            <Bar
+              key={material}
+              stackId="a"
+              dataKey={material}
+              fill={`var(--color-${material})`}
+            />
+          ))}
+        </BarChart>
+      </ChartContainer>
+          </div>
         </div>
-        <div className="bg-white rounded-xl col-span-3 flex justify-center">
-          <ChartContainer config={pieChartConfig} className="w-full">
-            <PieChart accessibilityLayer data={pieChartData}>
-              <Pie
-                data={pieChartData}
-                dataKey="binCount"
-                nameKey="binType"
-                stroke="0"
-                innerRadius={100}
-              >
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          <tspan
-                            x={viewBox.cx}
-                            y={viewBox.cy}
-                            className="fill-foreground text-3xl font-bold"
-                          >
-                            {pieChartSum!.toLocaleString()}
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 24}
-                            className="fill-muted-foreground"
-                          >
-                            Bins Deployed
-                          </tspan>
-                        </text>
-                      );
-                    }
-                  }}
-                />
-              </Pie>
-              <Legend
-                formatter={(value, entry) => (
-                  <span style={{ color: "black" }}>{value}</span> // Change 'red' to any color you want
-                )}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
-            </PieChart>
-          </ChartContainer>
+
+        {/* Pie Chart Container */}
+        <div className="lg:col-span-4 bg-white rounded-xl p-4 flex flex-col">
+          <h2 className="text-lg font-bold mb-4 text-center">
+            Bins Deployed Across All Faculties
+          </h2>
+          <div className="flex-1 flex flex-col justify-between min-h-[400px]">
+            <div className="flex-1">
+              <BinsDeployedFaculty data={pieChartData} />
+            </div>
+          </div>
         </div>
       </div>
+    </div>
     </>
   );
 }

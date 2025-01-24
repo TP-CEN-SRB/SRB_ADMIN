@@ -1,8 +1,10 @@
-import { deleteBin } from "@/app/action/bin";
-import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
-import { useMediaQuery } from "react-responsive";
+import { updateBinStatus } from '@/app/action/bin';
+import { toast } from '@/hooks/use-toast';
+import { formatDateTime } from '@/utils/dateFilter';
+import { BinStatus } from '@prisma/client';
+import { useRouter } from 'next/navigation';
+import React, { useState, useTransition } from 'react'
+import { useMediaQuery } from 'react-responsive';
 import {
   Dialog,
   DialogContent,
@@ -19,37 +21,34 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import CustomFormMessage from "../Form/CustomFormMessage";
-import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
-import { formatDateTime } from "@/utils/dateFilter";
+import CustomFormMessage from '../Form/CustomFormMessage';
+import { Button } from '../ui/button';
+import { Loader2 } from 'lucide-react';
 
-interface ConfirmDeleteBinDialogProps {
+interface ConfirmResolveBinIssueDialog {
   binId: string;
   isOpen: boolean;
   handleDialogOpen: () => void;
+  isResolved: boolean;
+  handleResolved: () => void;
 }
 
-const ConfirmDeleteBinDialog = ({
-  binId,
-  isOpen,
-  handleDialogOpen,
-}: ConfirmDeleteBinDialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const datetime = formatDateTime(new Date());
-  const handleDelete = () => {
+const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolved, handleResolved}: ConfirmResolveBinIssueDialog) => {
+    const [isPending, startTransition] = useTransition();
+    const [error, setError] = useState("");
+    const datetime = formatDateTime(new Date());
+    const handleUpdateBinStatus = () => {
     startTransition(async () => {
-      const data = await deleteBin(binId);
+      const data = await updateBinStatus(binId, BinStatus.FUNCTIONAL);
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
+        handleResolved();
         toast({
-          title: "Bin deleted successfully",
+          title: "Bin status updated successfully",
           description: (
             <div>
-              Bin deleted at {datetime}
+              Bin status updated at {datetime}
               <br />
               <br />
               <strong>Bin ID: </strong> {binId}
@@ -58,7 +57,6 @@ const ConfirmDeleteBinDialog = ({
           duration: 2000,
           variant: "default",
         });
-        router.push("/admin/bin");
       }
     });
   };
@@ -71,7 +69,7 @@ const ConfirmDeleteBinDialog = ({
         <DialogHeader>
           <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
           <DialogDescription className="text-slate-500 mt-4 text-md">
-            You are about to delete bin {binId}
+            Update bin {binId} status to Functional?
           </DialogDescription>
         </DialogHeader>
         {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
@@ -80,15 +78,15 @@ const ConfirmDeleteBinDialog = ({
             disabled={isPending}
             onClick={handleDialogOpen}
             type="button"
-            className="border border-red-500 bg-gray-50 text-red-500 hover:bg-gray-200"
+            className="border border-green-500 bg-gray-50 text-green-500 hover:bg-gray-200"
           >
             Cancel
           </Button>
           <Button
             disabled={isPending}
-            onClick={handleDelete}
+            onClick={handleUpdateBinStatus}
             type="button"
-            className="bg-red-500 hover:bg-red-600 text-gray-50"
+            className="bg-green-400 hover:bg-green-500 text-gray-50"
           >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Confirm"}
@@ -96,20 +94,19 @@ const ConfirmDeleteBinDialog = ({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  ) : (
-    <Drawer open={isOpen} onOpenChange={handleDialogOpen}>
+  ) : (<Drawer open={isOpen} onOpenChange={handleDialogOpen}>
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-2xl">Are you sure?</DrawerTitle>
           <DrawerDescription className="text-slate-500 text-md">
-            You are about to delete bin {binId}
+            Update bin {binId} status to Functional?
           </DrawerDescription>
         </DrawerHeader>
         {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
         <DrawerFooter>
           <Button
             disabled={isPending}
-            onClick={handleDelete}
+            onClick={handleUpdateBinStatus}
             type="button"
             className="bg-red-500 hover:bg-red-600 text-gray-50"
           >
@@ -126,8 +123,7 @@ const ConfirmDeleteBinDialog = ({
           </Button>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
-  );
-};
+    </Drawer>)
+}
 
-export default ConfirmDeleteBinDialog;
+export default ConfirmResolveBinIssueDialog

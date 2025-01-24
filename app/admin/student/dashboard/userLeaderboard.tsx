@@ -6,7 +6,7 @@ import Secondicon from "../../../../public/second_icon.png";
 import Thirdicon from "../../../../public/third_icon.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { getTopTenUsers } from "@/app/action/user";
+import { getTopHundredUsers } from "@/app/action/user";
 import {
   Table,
   TableBody,
@@ -106,60 +106,54 @@ const UsersLeaderboard = ({
     }
   };
 
-  const handlePeriodChange = useCallback(
-    async (period: FilterPeriod) => {
-      setIsLoading(true);
-      try {
-        const { startDate, endDate } = getDateRange(period);
-        const filteredData = await getTopTenUsers(startDate, endDate);
-        setLeaderBoard(filteredData);
-        setActivePeriod(period);
-        // reset pagination when filter changes
-        setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-      } catch (error) {
-        console.error("Failed to fetch leaderboard data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [getDateRange]
-  );
+  const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
+    setIsLoading(true);
+    try {
+      const { startDate, endDate } = getDateRange(period);
+      const filteredData = await getTopHundredUsers(startDate, endDate);
+      setLeaderBoard(filteredData);
+      setActivePeriod(period);
+      // reset pagination when filter changes
+      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+    } catch (error) {
+      console.error("Failed to fetch leaderboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getDateRange]);
 
-  const columns: ColumnDef<User>[] = useMemo(
-    () => [
-      { id: "username", header: "Username", accessorKey: "username" },
-      { id: "balance", header: "Points", accessorKey: "balance" },
-      {
-        id: "disposalCount",
-        header: "Disposal Count",
-        accessorKey: "disposalCount",
-      },
-      {
-        id: "redemptionCount",
-        header: "Redemption Count",
-        accessorKey: "redemptionCount",
-      },
-      {
-        id: "mostFrequentMaterial",
-        header: "Most thrown Material",
-        accessorKey: "mostFrequentMaterial",
-      },
-      {
-        id: "actions",
-        header: "View",
-        cell: ({ row }) => (
-          <button
-            className="flex bg-blue-500 hover:bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
-            onClick={() => router.push(`/admin/student/${row.original.userId}`)}
-          >
-            View Profile
-            <FaArrowRight className="ml-2" />
-          </button>
-        ),
-      },
-    ],
-    [router]
-  );
+const columns: ColumnDef<User>[] = useMemo(() => [
+    { id: "username", header: "Username", accessorKey: "username" },
+    { id: "balance", header: "Points", accessorKey: "balance" },
+    {
+      id: "disposalCount",
+      header: "Disposal Count",
+      accessorKey: "disposalCount",
+    },
+    {
+      id: "redemptionCount",
+      header: "Redemption Count",
+      accessorKey: "redemptionCount",
+    },
+    {
+      id: "mostFrequentMaterial",
+      header: "Most thrown Material",
+      accessorKey: "mostFrequentMaterial",
+    },
+    {
+      id: "actions",
+      header: "View",
+      cell: ({ row }) => (
+        <button
+          className="flex bg-blue-500 hover:bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
+          onClick={() => router.push(`/admin/student/${row.original.userId}`)}
+        >
+          View Profile
+          <FaArrowRight className="ml-2" />
+        </button>
+      ),
+    },
+  ], [router]);
 
   const topThree = useMemo(() => leaderBoard.slice(0, 3), [leaderBoard]);
   const tableData = useMemo(() => leaderBoard.slice(3), [leaderBoard]);
@@ -231,10 +225,7 @@ const UsersLeaderboard = ({
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
-                      <TableHead
-                        key={header.id}
-                        className="text-center whitespace-nowrap px-2 py-3 text-sm md:text-base"
-                      >
+                      <TableHead key={header.id} className="text-center whitespace-nowrap px-2 py-3 text-sm md:text-base font-bold">
                         {header.isPlaceholder
                           ? null
                           : flexRender(

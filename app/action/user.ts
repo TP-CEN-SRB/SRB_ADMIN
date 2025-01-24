@@ -636,7 +636,7 @@ const updateStudent = async (
   return { success: `Student ${updatedUser.id} updated successfully ` };
 };
 
-const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
+const getTopHundredUsers = async (dateFrom?: Date, dateTo?: Date) => {
   const curr = new Date();
   const monday = curr.getDate() - ((curr.getDay() + 6) % 7);
 
@@ -665,7 +665,7 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
     orderBy: {
       _sum: { pointsAwarded: "desc" },
     },
-    take: 10,
+    take: 100,
   });
 
   const userIds = data
@@ -805,6 +805,6 @@ export {
   getAllStudentUsers,
   deleteStudent,
   updateStudent,
-  getTopTenUsers,
+  getTopHundredUsers,
   listOfBinManagersUsed,
 };
