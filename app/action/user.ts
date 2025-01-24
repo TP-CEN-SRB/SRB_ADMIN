@@ -195,9 +195,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   const existingUser = await prisma.user.findFirst({
     where: {
       email: email,
-      role: {
-        in: [Role.ADMIN, Role.BIN],
-      },
+      role: Role.ADMIN,
     },
   });
   if (!existingUser) {
@@ -640,14 +638,14 @@ const updateStudent = async (
 
 const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   const curr = new Date();
-      const monday = curr.getDate() - ((curr.getDay() + 6) % 7);
-      
-      const startDate = new Date(curr.setDate(monday));
-      startDate.setHours(0, 0, 0, 0);
-      
-      const endDate = new Date(curr);
-      endDate.setDate(monday + 6); // Add 6 days to get to Sunday
-      endDate.setHours(23, 59, 59, 999);
+  const monday = curr.getDate() - ((curr.getDay() + 6) % 7);
+
+  const startDate = new Date(curr.setDate(monday));
+  startDate.setHours(0, 0, 0, 0);
+
+  const endDate = new Date(curr);
+  endDate.setDate(monday + 6); // Add 6 days to get to Sunday
+  endDate.setHours(23, 59, 59, 999);
   // Get top users by points
   const data = await prisma.disposal.groupBy({
     by: ["userId"],
@@ -751,9 +749,9 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       }, {} as Record<string, number>);
 
       const mostFrequentMaterial = Object.entries(materialCounts).reduce(
-        (max, [material, count]) => 
+        (max, [material, count]) =>
           count > (max[1] || 0) ? [material, count] : max,
-        ['', 0]
+        ["", 0]
       )[0];
 
       return {
@@ -761,7 +759,8 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
         userId,
         balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
         disposalCount: disposal._count.id,
-        redemptionCount: userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
+        redemptionCount:
+          userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
         mostFrequentMaterial: mostFrequentMaterial || undefined,
       };
     })

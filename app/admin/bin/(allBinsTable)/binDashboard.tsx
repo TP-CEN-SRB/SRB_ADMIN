@@ -34,7 +34,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Loading from "@/app/(bin)/loading";
+import Loading from "@/app/admin/loading";
 
 interface BinDashboardProps {
   DBBarChartData: {

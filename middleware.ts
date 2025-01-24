@@ -12,15 +12,6 @@ const adminRoutes = ["/admin"];
 /**
  * Routes that are only available to users with BIN role
  */
-const binRoutes = [
-  "/dispose-steps",
-  "/disposal-confirmation",
-  "/disposal-qr",
-  "/detect-material",
-  "/my-points",
-  "/bin-capacity",
-  "/bin-settings",
-];
 const apiAuthRoutes = "/api/auth";
 
 export default auth(async (req) => {
@@ -33,20 +24,16 @@ export default auth(async (req) => {
     secureCookie: process.env.NODE_ENV === "production", // disable during development
   });
   const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
-  const isBinRoute = binRoutes.some((route) => path.startsWith(route));
   if (isApiAuthRoute) {
     return Response.redirect(new URL("/not-found", req.nextUrl));
   }
   if (!isLoggedIn && !token) {
     // Redirect non-logged-in users to the login page for protected routes
-    if (isAdminRoute || isBinRoute) {
+    if (isAdminRoute) {
       return Response.redirect(new URL("/login", req.nextUrl));
     }
   } else {
     if (isAdminRoute && token?.role !== Role.ADMIN) {
-      return Response.redirect(new URL("/not-found", req.nextUrl));
-    }
-    if (isBinRoute && token?.role !== Role.BIN) {
       return Response.redirect(new URL("/not-found", req.nextUrl));
     }
     if (path.includes("/login") || path.includes("/sign-up")) {
