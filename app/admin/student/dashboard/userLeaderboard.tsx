@@ -62,48 +62,49 @@ const UsersLeaderboard = ({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [activePeriod, setActivePeriod] = useState<FilterPeriod>("week");
-  const [leaderBoard, setLeaderBoard] = useState<LeaderboardData[]>(leaderBoardData);
+  const [leaderBoard, setLeaderBoard] =
+    useState<LeaderboardData[]>(leaderBoardData);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
   const getDateRange = (period: FilterPeriod) => {
-  const now = new Date();
-  
-  switch (period) {
-    case "week": {
-      const monday = now.getDate() - ((now.getDay() + 6) % 7);
-      
-      const startDate = new Date(now.setDate(monday));
-      startDate.setHours(0, 0, 0, 0);
-      
-      const endDate = new Date(now);
-      endDate.setDate(monday + 6); // Add 6 days to get to Sunday
-      endDate.setHours(23, 59, 59, 999);
-      
-      return { startDate, endDate };
+    const now = new Date();
+
+    switch (period) {
+      case "week": {
+        const monday = now.getDate() - ((now.getDay() + 6) % 7);
+
+        const startDate = new Date(now.setDate(monday));
+        startDate.setHours(0, 0, 0, 0);
+
+        const endDate = new Date(now);
+        endDate.setDate(monday + 6); // Add 6 days to get to Sunday
+        endDate.setHours(23, 59, 59, 999);
+
+        return { startDate, endDate };
+      }
+      case "month": {
+        const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        startDate.setHours(0, 0, 0, 0);
+
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+
+        return { startDate, endDate };
+      }
+      case "year": {
+        const startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+
+        const endDate = new Date(now.getFullYear(), 11, 31);
+        endDate.setHours(23, 59, 59, 999);
+
+        return { startDate, endDate };
+      }
     }
-    case "month": {
-      const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      startDate.setHours(0, 0, 0, 0);
-      
-      const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      endDate.setHours(23, 59, 59, 999);
-      
-      return { startDate, endDate };
-    }
-    case "year": {
-      const startDate = new Date(now.getFullYear(), 0, 1);
-      startDate.setHours(0, 0, 0, 0);
-      
-      const endDate = new Date(now.getFullYear(), 11, 31);
-      endDate.setHours(23, 59, 59, 999);
-      
-      return { startDate, endDate };
-    }
-  }
-};
+  };
 
   const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
     setIsLoading(true);
@@ -172,37 +173,45 @@ const columns: ColumnDef<User>[] = useMemo(() => [
       <div className="flex flex-col w-full justify-center text-center items-center gap-4 py-4">
         <h1 className="text-2xl md:text-4xl font-bold">Leaderboard</h1>
         <div className="flex rounded-lg border-solid border-2 border-slate-400 w-full max-w-sm">
-          {(['week', 'month', 'year'] as FilterPeriod[]).map((period, index) => (
-            <React.Fragment key={period}>
-              {index > 0 && <div className="w-[2px] bg-slate-300" />}
-              <Button 
-                className={`
+          {(["week", "month", "year"] as FilterPeriod[]).map(
+            (period, index) => (
+              <React.Fragment key={period}>
+                {index > 0 && <div className="w-[2px] bg-slate-300" />}
+                <Button
+                  className={`
                   flex-1
                   text-sm md:text-base
-                  ${index === 0 ? 'rounded-r-none' : index === 2 ? 'rounded-l-none' : 'rounded-none'}
+                  ${
+                    index === 0
+                      ? "rounded-r-none"
+                      : index === 2
+                      ? "rounded-l-none"
+                      : "rounded-none"
+                  }
                   hover:bg-slate-300
-                  ${activePeriod === period ? 'bg-gray-400' : ''}
-                  ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                  ${activePeriod === period ? "bg-gray-400" : ""}
+                  ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
                 `}
-                variant="secondary"
-                onClick={() => handlePeriodChange(period)}
-                disabled={isLoading}
-              >
-                {period.charAt(0).toUpperCase() + period.slice(1)}
-              </Button>
-            </React.Fragment>
-          ))}
+                  variant="secondary"
+                  onClick={() => handlePeriodChange(period)}
+                  disabled={isLoading}
+                >
+                  {period.charAt(0).toUpperCase() + period.slice(1)}
+                </Button>
+              </React.Fragment>
+            )
+          )}
         </div>
       </div>
 
       {/* Top Three Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {topThree.map((item, index) => (
-          <TopUserCard 
-            key={item.userId} 
-            user={item} 
-            rank={index} 
-            onViewProfile={() => router.push(`/admin/user/${item.userId}`)}
+          <TopUserCard
+            key={item.userId}
+            user={item}
+            rank={index}
+            onViewProfile={() => router.push(`/admin/student/${item.userId}`)}
           />
         ))}
       </div>
@@ -254,7 +263,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
                       colSpan={columns.length}
                       className="h-24 text-center text-sm md:text-base"
                     >
-                      {isLoading ? 'Loading...' : 'No results.'}
+                      {isLoading ? "Loading..." : "No results."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -338,22 +347,24 @@ const columns: ColumnDef<User>[] = useMemo(() => [
   );
 };
 
-const TopUserCard = ({ user, rank, onViewProfile }: {
+const TopUserCard = ({
+  user,
+  rank,
+  onViewProfile,
+}: {
   user: LeaderboardData;
   rank: number;
   onViewProfile: () => void;
 }) => {
   const icons = [Firsticon, Secondicon, Thirdicon];
-  const gradients = [
-    "to-yellow-200",
-    "to-slate-400",
-    "to-yellow-700"
-  ];
+  const gradients = ["to-yellow-200", "to-slate-400", "to-yellow-700"];
   // const capitaliseMaterial = (material: string | undefined) => material ? (material.charAt(0).toUpperCase() + material.slice(1).toLowerCase()) : undefined;
 
   return (
     <div className="bg-white rounded-lg shadow-md flex flex-col relative w-full">
-      <div className={`flex justify-end w-full h-32 md:h-40 bg-gradient-to-tr from-white ${gradients[rank]} px-4 rounded-t-lg`}>
+      <div
+        className={`flex justify-end w-full h-32 md:h-40 bg-gradient-to-tr from-white ${gradients[rank]} px-4 rounded-t-lg`}
+      >
         <Image
           src={icons[rank]}
           alt={`Icon ${rank + 1}`}
@@ -368,7 +379,9 @@ const TopUserCard = ({ user, rank, onViewProfile }: {
         </div>
       </div>
       <div className="ml-4 md:ml-8 mt-2 mb-4 h-16 md:h-20 flex justify-start items-end">
-        <span className="text-xl md:text-3xl font-bold truncate">{user.username}</span>
+        <span className="text-xl md:text-3xl font-bold truncate">
+          {user.username}
+        </span>
       </div>
       <div className="grid grid-cols-2 md:px-8 px-4 pb-6 gap-4">
         <StatItem label="Disposals" value={user.disposalCount} />
@@ -376,7 +389,7 @@ const TopUserCard = ({ user, rank, onViewProfile }: {
         <StatItem label="Redemptions" value={user.redemptionCount.toString()} />
         <StatItem label="Material" value={user.mostFrequentMaterial || "N/A"} />
       </div>
-      <Button 
+      <Button
         className="mx-4 mb-4 bg-blue-500 hover:bg-blue-300 text-white text-sm md:text-base"
         onClick={onViewProfile}
       >
@@ -387,7 +400,13 @@ const TopUserCard = ({ user, rank, onViewProfile }: {
   );
 };
 
-const StatItem = ({ label, value }: { label: string; value: string | number }) => (
+const StatItem = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) => (
   <div className="flex flex-col">
     <span className="text-xl md:text-2xl font-bold">{value}</span>
     <span className="text-xs md:text-sm">{label}</span>

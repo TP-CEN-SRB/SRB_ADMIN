@@ -14,11 +14,7 @@ const getData = async () => {
 const AllBinMaterialsPage = async () => {
   const data = await getData();
   const binMaterialInUse = await listOfBinMaterialInUse();
-  return (
-    <div className="container mx-auto">
-      <MaterialDataTable data={data} allBinMaterials={binMaterialInUse} />
-    </div>
-  );
+  return <MaterialDataTable data={data} allBinMaterials={binMaterialInUse} />;
 };
 
 export default AllBinMaterialsPage;

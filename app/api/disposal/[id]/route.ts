@@ -155,7 +155,7 @@ export const PUT = async (
     } // use a transaction to ensure that the points are awarded to user and the QR cannot be scanned again
     const [updatedDisposal, userPoint] = await prisma.$transaction([
       prisma.disposal.update({
-        where: { id: disposalId },
+        where: { id: disposalId, isRedeemed: false },
         data: {
           userId: userId,
           isRedeemed: true,

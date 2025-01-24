@@ -50,12 +50,28 @@ export const POST = async (req: NextRequest) => {
         binMaterial: { select: { name: true } },
       },
     });
-    if (!bin) return { error: "No bin found" };
+    if (!bin)
+      return NextResponse.json(
+        {
+          message: "No bin found!",
+        },
+        { status: 400 }
+      );
     if (bin.status === "UNDER_MAINTENANCE") {
-      return { error: "Bin is currently under maintenance" };
+      return NextResponse.json(
+        {
+          message: "Bin is current under maintenance!",
+        },
+        { status: 400 }
+      );
     }
     if (bin.currentCapacity === 100) {
-      return { error: "Bin is already full!" };
+      return NextResponse.json(
+        {
+          message: "Bin is already full!",
+        },
+        { status: 400 }
+      );
     }
     const disposal = await prisma.disposal.create({
       data: {

@@ -50,12 +50,12 @@ const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: string
     getBinDisposalsByTime(startDate, endDate, filter),
   ]);
 
-  return {
-    DBBarChartData,
-    DBPieChartData,
-    binDisposalsTimeLine,
+    return {
+      DBBarChartData,
+      DBPieChartData,
+      binDisposalsTimeLine,
+    };
   };
-}
 
 const fetchUMBinsData = async (startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";

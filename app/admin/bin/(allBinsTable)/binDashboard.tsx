@@ -60,14 +60,17 @@ interface BinDashboardProps {
     totalFuncBins: number;
     totalCount: number;
     totalDisposalCount: number;
-    binDisposalsTimeLine: {hour: string;
-  [key: string]: string | number;}[];
+    binDisposalsTimeLine: { hour: string; [key: string]: string | number }[];
     totalUMBins: number;
   }>;
-  fetchChartsData: (startDate: Date, endDate: Date, filter?: string) => Promise<{
+  fetchChartsData: (
+    startDate: Date,
+    endDate: Date,
+    filter?: string
+  ) => Promise<{
     DBBarChartData: {
-        month: string;
-        bin: number;
+      month: string;
+      bin: number;
     }[];
     DBPieChartData: { fac: string; count: number; fill: string; }[];
     binDisposalsTimeLine: {hour: string;
@@ -250,28 +253,33 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                 className="focus:ring-0 focus:ring-offset-0 focus-visible:ring-0"
               >
                 <MdDateRange focusable="false" className="text-gray-600" />
-                <span className="text-md font-bold text-gray-600">Date Filters</span>
+                <span className="text-md font-bold text-gray-600">
+                  Date Filters
+                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
-              {(['all time', 'week', 'month', 'year'] as FilterPeriod[]).map((period) => (
-                <DropdownMenuItem
-                  key={period}
-                  onClick={() => {
-                    handlePeriodChange(period);
-                    setIsActive(period);
-                  }}
-                  
-                >
-                  <span
-                    className={`${
-                      isActive === period ? 'font-bold text-gray-800 text-2xl' : ' font-bold text-gray-600'
-                    }`}
+              {(["all time", "week", "month", "year"] as FilterPeriod[]).map(
+                (period) => (
+                  <DropdownMenuItem
+                    key={period}
+                    onClick={() => {
+                      handlePeriodChange(period);
+                      setIsActive(period);
+                    }}
                   >
-                    {period.charAt(0).toUpperCase() + period.slice(1)}
-                  </span>
-                </DropdownMenuItem>
-              ))}
+                    <span
+                      className={`${
+                        isActive === period
+                          ? "font-bold text-gray-800 text-2xl"
+                          : " font-bold text-gray-600"
+                      }`}
+                    >
+                      {period.charAt(0).toUpperCase() + period.slice(1)}
+                    </span>
+                  </DropdownMenuItem>
+                )
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -413,7 +421,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       />
     </>}
     </>
-  )
-}
+  );
+};
 
 export default BinDashboard;

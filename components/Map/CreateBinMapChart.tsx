@@ -43,32 +43,22 @@ export default function CreateBinMapChart({
   const { minLat, maxLat, minLong, maxLong } = maxBound;
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
   const [marker, setMarker] = useState(latLng);
+  const [showMarkerPopUp, setShowMarkerPopUp] = useState(true);
 
-  const onMarkerDragStart = useCallback((event: MarkerDragEvent) => {
-    console.log(
-      "Starting coordinates: ",
-      event.lngLat.lat + " " + event.lngLat.lng
-    );
-  }, []);
-
-  const onMarkerDrag = useCallback((event: MarkerDragEvent) => {
-    setMarker({
-      lng: event.lngLat.lng,
-      lat: event.lngLat.lat,
-    });
-    // round to 7 dp
-    onLatLngChange({
-      lat: parseFloat(event.lngLat.lat.toFixed(7)),
-      lng: parseFloat(event.lngLat.lng.toFixed(7)),
-    });
-  }, []);
-
-  const onMarkerDragEnd = useCallback((event: MarkerDragEvent) => {
-    console.log(
-      "Ending coordinates: ",
-      event.lngLat.lat + " " + event.lngLat.lng
-    );
-  }, []);
+  const onMarkerDrag = useCallback(
+    (event: MarkerDragEvent) => {
+      setMarker({
+        lng: event.lngLat.lng,
+        lat: event.lngLat.lat,
+      });
+      // round to 7 dp
+      onLatLngChange({
+        lat: parseFloat(event.lngLat.lat.toFixed(7)),
+        lng: parseFloat(event.lngLat.lng.toFixed(7)),
+      });
+    },
+    [onLatLngChange]
+  );
   return (
     <div className="relative h-full w-full">
       <Map
@@ -124,9 +114,11 @@ export default function CreateBinMapChart({
           latitude={marker.lat}
           anchor="bottom"
           draggable
-          onDragStart={onMarkerDragStart}
           onDrag={onMarkerDrag}
-          onDragEnd={onMarkerDragEnd}
+          onClick={(e) => {
+            e.originalEvent.stopPropagation();
+            setShowMarkerPopUp(true);
+          }}
         >
           <IoLocationSharp
             stroke="black"
@@ -163,6 +155,26 @@ export default function CreateBinMapChart({
               <div>
                 <span className="font-bold">No. of bins: </span>
                 {popupInfo._count.bins}
+              </div>
+            </div>
+          </Popup>
+        )}
+        {showMarkerPopUp && (
+          <Popup
+            focusAfterOpen={false}
+            anchor="top-left"
+            longitude={latLng.lng}
+            latitude={latLng.lat}
+            onClose={() => setShowMarkerPopUp(false)}
+          >
+            <div className="flex flex-col">
+              <div>
+                <span className="font-bold">Latitude: </span>
+                {latLng.lat}&deg;
+              </div>
+              <div>
+                <span className="font-bold">Longitude: </span>
+                {latLng.lng}&deg;
               </div>
             </div>
           </Popup>

@@ -44,7 +44,7 @@ const userData: Prisma.UserCreateInput[] = [
   {
     id: "eabc24b6-ca1c-4c94-86e1-2ebbc4944a78",
     name: "testBin",
-    email: "dawdawd@tp.bin.sg",
+    email: "testbin2@tp.bin.sg",
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
@@ -82,7 +82,7 @@ const userData: Prisma.UserCreateInput[] = [
   {
     id: "eppp24b6-ca1c-4c94-86e1-2ebbc4952a78",
     name: "testBin",
-    email: "dwadawda@tp.bin.sg",
+    email: "testbin3@tp.bin.sg",
     emailVerified: new Date(),
     password: "$2a$10$BHXfEfhhlGstuGsCpg5iB.5mv7Z1WQSimraKQAWqIOxT3Grw2itVm", // 12345678
     role: "BIN",
