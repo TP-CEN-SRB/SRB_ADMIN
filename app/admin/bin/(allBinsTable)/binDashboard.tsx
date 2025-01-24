@@ -33,7 +33,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Loading from "@/app/(bin)/loading";
+import Loading from "@/app/admin/loading";
 import { DateRange } from "@/utils/dateUtils";
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { truncateText } from "@/utils/truncateString";
