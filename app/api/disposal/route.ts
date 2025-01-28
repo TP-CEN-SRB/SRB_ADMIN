@@ -35,28 +35,39 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
-    const bin = await prisma.bin.findFirst({
-      where: {
-        binMaterial: {
-          name: material.toUpperCase(),
+    const [bin, binMaterial] = await Promise.all([
+      prisma.bin.findFirst({
+        where: {
+          binMaterial: {
+            name: material.toUpperCase(),
+          },
+          userId,
         },
-        userId,
-      },
-      select: {
-        id: true,
-        status: true,
-        currentCapacity: true,
-        user: { select: { location: true, faculty: true } },
-        binMaterial: { select: { name: true } },
-      },
-    });
+        select: {
+          id: true,
+          status: true,
+          currentCapacity: true,
+          user: { select: { location: true, faculty: true } },
+          binMaterial: { select: { name: true } },
+        },
+      }),
+      prisma.binMaterial.findUnique({
+        where: { name: material.toUpperCase() },
+      }),
+    ]);
     if (!bin)
       return NextResponse.json(
         {
           message: "No bin found!",
         },
-        { status: 400 }
+        { status: 404 }
       );
+    if (!binMaterial) {
+      return NextResponse.json(
+        { message: "No bin material found!" },
+        { status: 404 }
+      );
+    }
     if (bin.status === "UNDER_MAINTENANCE") {
       return NextResponse.json(
         {
@@ -77,12 +88,13 @@ export const POST = async (req: NextRequest) => {
       data: {
         weightInGrams: weightInGrams,
         binId: bin.id,
-        pointsAwarded: weightInGrams, // 1g = 1 point
+        pointsAwarded: Math.floor(weightInGrams * binMaterial.multiplier), // rounds down the points awarded - weight*multiplier
       },
     });
     return NextResponse.json(
       {
         id: disposal.id,
+        point: disposal.pointsAwarded,
       },
       { status: 200 }
     );

@@ -792,6 +792,7 @@ export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
       id: true,
       status: true,
       currentCapacity: true,
+      clearCount: true,
       createdAt: true,
       updatedAt: true,
       _count: { select: { disposals: true } },

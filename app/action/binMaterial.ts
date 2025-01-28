@@ -27,17 +27,17 @@ export const createBinMaterial = async (
     return { error: "Invalid fields" };
   }
   const formData = validatedFields.data;
-  const formDateToUpperCase = formData.name.toUpperCase();
   const checkExistingBinMaterial = await prisma.binMaterial.findUnique({
     where: {
-      name: formDateToUpperCase,
+      name: formData.name.toUpperCase(),
     },
   });
   if (!checkExistingBinMaterial) {
     try {
       await prisma.binMaterial.create({
         data: {
-          name: formDateToUpperCase,
+          name: formData.name.toUpperCase(),
+          multiplier: formData.multiplier,
         },
       });
       revalidatePath("/admin/bin/material");
@@ -57,7 +57,6 @@ export const updateBinMaterial = async (
     return { error: "Invalid fields" };
   }
   const formData = validatedFields.data;
-  const formDataToUpperCase = formData.name.toUpperCase();
   const checkExistingBinMaterial = await prisma.binMaterial.findUnique({
     where: {
       id,
@@ -65,7 +64,8 @@ export const updateBinMaterial = async (
   });
   if (checkExistingBinMaterial) {
     const checkMaterialWithSimilarRecord = await checkExistingMaterialRecord(
-      formDataToUpperCase
+      id,
+      formData.name.toUpperCase()
     );
     if (!checkMaterialWithSimilarRecord) {
       try {
@@ -74,7 +74,8 @@ export const updateBinMaterial = async (
             id,
           },
           data: {
-            name: formDataToUpperCase,
+            name: formData.name.toUpperCase(),
+            multiplier: formData.multiplier,
           },
         });
         revalidatePath("/admin/bin/material");
@@ -110,9 +111,10 @@ export const deleteBinMaterial = async (id: string) => {
   } else return { error: "Bin Material does not exist" };
 };
 
-const checkExistingMaterialRecord = async (name: string) => {
-  const binMaterial = await prisma.binMaterial.findUnique({
+const checkExistingMaterialRecord = async (id: string, name: string) => {
+  const binMaterial = await prisma.binMaterial.findFirst({
     where: {
+      id: { not: id },
       name,
     },
   });

@@ -9,6 +9,7 @@ import { z } from "zod";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -21,13 +22,14 @@ import { useToast } from "@/hooks/use-toast";
 import Card from "@/components/Card/Card";
 import FormHeader from "../FormHeader";
 import { updateBinMaterial } from "@/app/action/binMaterial";
+import { BinMaterial } from "@prisma/client";
 
 interface UpdateBinFormProps {
   id: string;
-  initialData?: string;
+  binMaterial: BinMaterial;
 }
 
-const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
+const UpdateBinMaterialForm = ({ id, binMaterial }: UpdateBinFormProps) => {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   const router = useRouter(); // Initialize useRouter
@@ -35,7 +37,8 @@ const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
   const form = useForm<z.infer<typeof BinMaterialSchema>>({
     resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
-      name: initialData,
+      name: binMaterial.name,
+      multiplier: binMaterial.multiplier,
     },
   });
 
@@ -94,6 +97,29 @@ const UpdateBinMaterialForm = ({ id, initialData }: UpdateBinFormProps) => {
                     type="text"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="multiplier"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Multiplier
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="1.0"
+                    {...field}
+                    type="number"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Sets the points earned per gram of material recycled
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

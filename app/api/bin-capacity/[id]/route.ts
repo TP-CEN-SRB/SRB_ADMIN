@@ -107,7 +107,7 @@ export const PUT = async (
               if (binCapacity < 85 && bin.emailSent) {
                 await transaction.bin.update({
                   where: { id: bin.id },
-                  data: { emailSent: false },
+                  data: { emailSent: false, clearCount: { increment: 1 } },
                 });
               }
             }

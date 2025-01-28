@@ -1,6 +1,7 @@
 import { getAllBinUsers } from "@/app/action/user";
 import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen";
 import prisma from "@/lib/db";
+import { notFound } from "next/navigation";
 import React from "react";
 
 const UpdateBinManagersPage = async ({
@@ -26,7 +27,7 @@ const UpdateBinManagersPage = async ({
     getAllBinUsers(),
   ]);
   if (!binUser) {
-    return <div>Bin Manager not found</div>;
+    notFound();
   }
   const filteredBinManagers = binManagers.filter(
     (manager) => manager.id !== binUser.id

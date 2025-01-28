@@ -74,7 +74,7 @@ const RewardSchema = z
     pointsRequired: z.coerce
       .number({ message: "Points must be a number" })
       .int("Points must be an integer")
-      .gte(1, "Points cannot be negative"),
+      .gte(1, "Points cannot be less than 1"),
     description: z
       .string({ message: "Description is required" })
       .min(2, "Description is too short"),
@@ -88,6 +88,10 @@ const BinMaterialSchema = z.object({
     .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
+  multiplier: z.coerce
+    .number()
+    .gte(0, "Multiplier cannot be negative")
+    .multipleOf(0.1, "Multipler can only be set to 1 d.p."),
 });
 
 const SubscriptionSchema = z.object({
