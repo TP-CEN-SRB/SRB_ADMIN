@@ -35,7 +35,7 @@ export const GET = async (
         },
       },
     });
-    if (!bins) {
+    if (bins.length === 0) {
       return NextResponse.json({ message: "No bin found!" }, { status: 404 });
     }
     return NextResponse.json(
