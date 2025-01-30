@@ -74,7 +74,8 @@ const RewardSchema = z
     pointsRequired: z.coerce
       .number({ message: "Points must be a number" })
       .int("Points must be an integer")
-      .gte(1, "Points cannot be less than 1"),
+      .gte(1, "Points cannot be less than 1")
+      .max(2147483647, "Maximum value is 2147483647"),
     description: z
       .string({ message: "Description is required" })
       .min(2, "Description is too short"),
@@ -91,6 +92,10 @@ const BinMaterialSchema = z.object({
   multiplier: z.coerce
     .number()
     .gte(0, "Multiplier cannot be negative")
+    .lte(
+      1.7976931348623157e308,
+      "Multiplier exceeds the maximum limit for a float"
+    )
     .multipleOf(0.1, "Multipler can only be set to 1 d.p."),
 });
 
