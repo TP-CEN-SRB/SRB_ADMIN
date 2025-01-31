@@ -442,7 +442,6 @@ export const getBarChartData = async (
           };
         })
   );
-
   return barChartData;
 };
 
@@ -814,6 +813,7 @@ export const getBinDisposalsByTime = async (
       }
     }
   });
+  console.log(result);
   return result;
 };
 

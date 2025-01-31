@@ -153,10 +153,9 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
               setUMBinsTable(UMBinsData);
             }
         } catch (error){
-            console.log(error);
             toast({
               title: "Error!",
-              description: "Failed to fetch data",
+              description: "Failed to fetch data, Handle Period Change",
               duration: 2000,
               variant: "destructive",
             })
@@ -171,7 +170,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         if (isResolved){
         setIsFetching(true);
         try {
-        console.log("useEffect", isResolved);
         const { startDate, endDate } = getDateRange(isActive);
          if (isResolved) {
             const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
@@ -180,13 +178,13 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
          setIsResolved(false);
          }
         } catch (error) {
-          console.log("Error updating bin status", error);
-          toast({
-            title: "Error!",
-            description: "Failed to update bin status",
-            duration: 2000,
-            variant: "destructive",
-          });
+          console.error(error);
+          // toast({
+          //   title: "Error!",
+          //   description: "Failed to update bin status",
+          //   duration: 2000,
+          //   variant: "destructive",
+          // });
         } finally {
         setIsFetching(false);
         }
