@@ -149,6 +149,10 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
       header: "Material",
     },
     {
+      accessorKey: "multiplier",
+      header: "Multiplier",
+    },
+    {
       accessorKey: "actions",
       header: "Actions",
       cell: ({ row }) => <BinMaterialActions binMaterial={row.original} />,

@@ -1,6 +1,7 @@
-import EditBinForm from "@/components/Form/AdminUserForms/EditBinForm";
+import { getAllBinUsers } from "@/app/action/user";
+import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen";
 import prisma from "@/lib/db";
-import { Faculty } from "@prisma/client";
+import { notFound } from "next/navigation";
 import React from "react";
 
 const UpdateBinManagersPage = async ({
@@ -8,34 +9,42 @@ const UpdateBinManagersPage = async ({
 }: {
   params: { binUserID: string };
 }) => {
-  const binUser = await prisma.user.findUnique({
-    where: {
-      id: params.binUserID,
-    },
-    select: {
-      name: true,
-      email: true,
-      location: true,
-      faculty: true,
-      lat: true,
-      long: true,
-    },
-  });
+  const [binUser, binManagers] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        id: params.binUserID,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        location: true,
+        faculty: true,
+        lat: true,
+        long: true,
+      },
+    }),
+    getAllBinUsers(),
+  ]);
   if (!binUser) {
-    return <div>Bin Manager not found</div>;
+    notFound();
   }
+  const filteredBinManagers = binManagers.filter(
+    (manager) => manager.id !== binUser.id
+  );
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <EditBinForm
-        id={params.binUserID}
-        name={binUser.name ?? ""}
-        email={binUser!.email}
-        location={binUser.location ?? ""}
-        faculty={binUser!.faculty ?? Faculty.ENG}
-        latitude={binUser.lat?.toNumber() ?? 0}
-        longitude={binUser.long?.toNumber() ?? 0}
-      />
-    </div>
+    <UpdateBinManagerScreen
+      binManager={{
+        ...binUser,
+        lat: binUser.lat?.toNumber(),
+        long: binUser.long?.toNumber(),
+      }}
+      data={filteredBinManagers.map((user) => ({
+        ...user,
+        lat: user.lat?.toNumber(),
+        long: user.long?.toNumber(),
+      }))}
+    />
   );
 };
 

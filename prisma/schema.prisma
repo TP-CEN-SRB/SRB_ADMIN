@@ -98,6 +98,7 @@ model Bin {
   userId          String
   user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
   emailSent       Boolean     @default(false) // ensure warning email only sends once when threshold is met
+  clearCount      Int         @default(0)
   binMaterialId   String
   binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
   disposals       Disposal[]
@@ -110,8 +111,9 @@ model Bin {
 }
 
 model BinMaterial {
-  id   String @id @default(uuid())
-  name String @unique
+  id         String @id @default(uuid())
+  name       String @unique
+  multiplier Float  @default(1)
 
   bins Bin[]
 

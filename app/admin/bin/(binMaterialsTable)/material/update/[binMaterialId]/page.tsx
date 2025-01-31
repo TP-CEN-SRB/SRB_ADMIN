@@ -1,5 +1,6 @@
 import { getBinMaterialById } from "@/app/action/binMaterial";
 import UpdateBinMaterialForm from "@/components/Form/BinForms/UpdateBinMaterialForm";
+import { notFound } from "next/navigation";
 import React from "react";
 
 const UpdateBinMaterialPage = async ({
@@ -8,12 +9,15 @@ const UpdateBinMaterialPage = async ({
   params: { binMaterialId: string };
 }) => {
   const binMaterial = await getBinMaterialById(params.binMaterialId);
+  if (!binMaterial) {
+    notFound();
+  }
   return (
     <>
       <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
         <UpdateBinMaterialForm
           id={params.binMaterialId}
-          initialData={binMaterial?.name}
+          binMaterial={binMaterial}
         />
       </div>
     </>

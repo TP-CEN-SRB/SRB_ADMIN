@@ -34,6 +34,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
                 id: bin.id,
                 location: bin.user.location,
                 status: bin.status,
+                clearCount: bin.clearCount,
                 material: bin.binMaterial.name,
                 name: bin.user.name,
                 capacity: bin.currentCapacity,

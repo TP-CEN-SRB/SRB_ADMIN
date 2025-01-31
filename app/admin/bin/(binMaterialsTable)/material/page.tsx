@@ -8,6 +8,7 @@ const getData = async () => {
   return allBinMaterials.map((binMat) => ({
     id: binMat.id as string,
     name: binMat.name as string,
+    multiplier: binMat.multiplier as number,
   }));
 };
 

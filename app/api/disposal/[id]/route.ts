@@ -25,18 +25,9 @@ export const GET = async (
       );
     }
     const disposalId = params.id;
-    const searchParams = req.nextUrl.searchParams;
-    const isRedeemed = searchParams.get("isRedeemed");
-    if (!isRedeemed) {
-      return NextResponse.json(
-        { message: "isRedeemed parameter is required!" },
-        { status: 400 }
-      );
-    }
-    const disposal = await prisma.disposal.findFirst({
+    const disposal = await prisma.disposal.findUnique({
       where: {
         id: disposalId,
-        isRedeemed: isRedeemed === "true",
       },
       include: {
         bin: {

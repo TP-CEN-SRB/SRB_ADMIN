@@ -6,6 +6,7 @@ import FormHeader from "../FormHeader";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,6 +32,7 @@ const CreateBinMaterialForm = () => {
     resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
       name: "",
+      multiplier: undefined,
     },
   });
 
@@ -53,6 +55,7 @@ const CreateBinMaterialForm = () => {
         // });
         form.reset({
           name: "",
+          multiplier: 0,
         });
         //redirect("/admin/bin");
       } else if (result?.error) {
@@ -85,6 +88,29 @@ const CreateBinMaterialForm = () => {
                     type="text"
                   />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="multiplier"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">
+                  Multiplier
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    disabled={isPending}
+                    placeholder="1.0"
+                    {...field}
+                    type="number"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Sets the points earned per gram of material recycled
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

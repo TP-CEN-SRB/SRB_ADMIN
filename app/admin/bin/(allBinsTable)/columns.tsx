@@ -40,6 +40,7 @@ export type Bin = {
   currentCapacity: number;
   _count: { disposals: number };
   userId: string;
+  clearCount: number;
   user: { name: string | null; location: string | null };
   status: BinStatus;
   binMaterial: { name: string };

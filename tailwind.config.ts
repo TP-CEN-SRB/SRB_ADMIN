@@ -13,9 +13,6 @@ const config: Config = {
       screens: {
         xs: "480px",
       },
-      backgroundImage: {
-        hero: "url('/hero.png')",
-      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

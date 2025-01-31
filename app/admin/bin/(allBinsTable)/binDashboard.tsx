@@ -1,10 +1,10 @@
 "use client";
 
-import { formatDateTime } from '@/utils/dateFilter';
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { BsActivity } from 'react-icons/bs';
-import { RiDeleteBin6Line, RiRecycleFill } from 'react-icons/ri';
-import { TiWarningOutline } from 'react-icons/ti';
+import { formatDateTime } from "@/utils/dateFilter";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { BsActivity } from "react-icons/bs";
+import { RiDeleteBin6Line, RiRecycleFill } from "react-icons/ri";
+import { TiWarningOutline } from "react-icons/ti";
 import { Button } from "@/components/ui/button";
 import { MdDateRange } from "react-icons/md";
 import {
@@ -46,9 +46,8 @@ interface BinDashboardProps {
     month: string;
     bin: number;
   }[];
-  DBPieChartData: { fac: string; count: number; fill: string; }[];
-  DBLineChartData: {hour: string;
-  [key: string]: string | number;}[];
+  DBPieChartData: { fac: string; count: number; fill: string }[];
+  DBLineChartData: { hour: string; [key: string]: string | number }[];
   initialStatsData: number[];
   UMBinsData: {
     id: string;
@@ -58,7 +57,7 @@ interface BinDashboardProps {
         location: string | null;
     };
     binMaterial: {
-        name: string;
+      name: string;
     };
   }[]
 
@@ -91,7 +90,7 @@ fetchAll: (startDate?: Date, endDate?: Date, filter?: string) => Promise<{
   }[]
 }>
 }
-type FilterPeriod =  "all time" | "week" | "month" | "year" ;
+type FilterPeriod = "all time" | "week" | "month" | "year";
 type ChartDataItem = {
   month: string;
   bin: number;
@@ -134,7 +133,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       ),
     } satisfies ChartConfig;
 
-    const getDateRange = (period: FilterPeriod) => DateRange(period);
+  const getDateRange = (period: FilterPeriod) => DateRange(period);
 
     const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
         setIsFetching(true);
@@ -181,13 +180,13 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
          setIsResolved(false);
          }
         } catch (error) {
-        console.log("Error updating bin status", error);
-        toast({
-          title: "Error!",
-          description: "Failed to update bin status",
-          duration: 2000,
-          variant: "destructive",
-        });
+          console.log("Error updating bin status", error);
+          toast({
+            title: "Error!",
+            description: "Failed to update bin status",
+            duration: 2000,
+            variant: "destructive",
+          });
         } finally {
         setIsFetching(false);
         }
