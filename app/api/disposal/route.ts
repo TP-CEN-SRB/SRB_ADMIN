@@ -13,7 +13,6 @@ export const POST = async (req: NextRequest) => {
         { status: 401 }
       );
     }
-
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decodedToken === "string") {
       return NextResponse.json(
