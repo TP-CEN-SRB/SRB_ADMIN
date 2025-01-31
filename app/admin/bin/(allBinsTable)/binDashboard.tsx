@@ -28,7 +28,7 @@ import Chart from '../../components/chart';
 import BinTimeChart from '../../components/binTimeChart';
 import { BarChartConfig } from './chartConfigs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import Loading from '@/app/(bin)/loading';
+import Loading from '@/app/admin/loading';
 import { DateRange } from '@/utils/dateUtils';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { truncateText } from '@/utils/truncateString';
@@ -36,6 +36,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import ConfirmResolveBinIssueDialog from '@/components/Dialog/ConfirmResolveBinIssueDialog';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MoreHorizontal } from 'lucide-react';
+import { IoLocation } from "react-icons/io5";
+import { MdOutlineDownloadDone } from "react-icons/md";
 
 interface BinDashboardProps {
   DBBarChartData: {
@@ -49,25 +53,23 @@ interface BinDashboardProps {
   UMBinsData: {
     id: string;
     user: {
+        lat: string | null;
+        long: string | null;
         location: string | null;
     };
     binMaterial: {
         name: string;
     };
   }[]
-  fetchData: (startDate: Date, endDate: Date) => Promise<{
-    DBPieChartData: { fac: string; count: number; fill: string; }[];
+
+fetchAll: (startDate?: Date, endDate?: Date, filter?: string) => Promise<{
+  dashboardData: {
     totalFuncBins: number;
     totalCount: number;
     totalDisposalCount: number;
-    binDisposalsTimeLine: { hour: string; [key: string]: string | number }[];
     totalUMBins: number;
-  }>;
-  fetchChartsData: (
-    startDate: Date,
-    endDate: Date,
-    filter?: string
-  ) => Promise<{
+  }
+  chartsData: {
     DBBarChartData: {
       month: string;
       bin: number;
@@ -75,17 +77,19 @@ interface BinDashboardProps {
     DBPieChartData: { fac: string; count: number; fill: string; }[];
     binDisposalsTimeLine: {hour: string;
       [key: string]: string | number;}[];
-  }>;
-  fetchUMBinsData: (startDate?: Date, endDate?: Date, filter?: string) => Promise<{
+  }
+  UMBinsData: {
     id: string;
-    user: {
-        location: string | null;
-    };
-    binMaterial: {
-        name: string;
-    };
-}[]>
-
+  user: {
+      lat: string | null;
+      long: string | null;
+      location: string | null;
+  };
+  binMaterial: {
+      name: string;
+  };
+  }[]
+}>
 }
 type FilterPeriod =  "all time" | "week" | "month" | "year" ;
 type ChartDataItem = {
@@ -94,9 +98,9 @@ type ChartDataItem = {
   [key: string]: string | number; // This allows for any additional string properties
 };
 
-const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialStatsData, UMBinsData, fetchData, fetchChartsData, fetchUMBinsData}: BinDashboardProps) => {
+const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialStatsData, UMBinsData, fetchAll}: BinDashboardProps) => {
     const [isActive, setIsActive] = useState<FilterPeriod>("all time");
-    const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
     const [gridData, setGridData] = useState<number[]>(initialStatsData);
     const [chartData, setChartData] = useState<[typeof DBBarChartData, typeof DBPieChartData]>([DBBarChartData, DBPieChartData]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -105,11 +109,10 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     const [isResolved, setIsResolved] = useState(false);
     const [UMBinsTable, setUMBinsTable] = useState(UMBinsData);
     const [lineChart, setLineChart] = useState(DBLineChartData);
-
-    const datetime = formatDateTime(new Date());
+    const [datetime, setDateTime] = useState(formatDateTime(new Date()));
+    
     const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
     const barChartConfig = BarChartConfig({ materials }) as ChartConfig;
-    // const pieChartConfig = PieChartConfig({ DBPieChartData }) as ChartConfig;
     const binDisposalsTimeLineConfig = {
       totalDisposals: {
         label: "Total",
@@ -134,19 +137,21 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     const getDateRange = (period: FilterPeriod) => DateRange(period);
 
     const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
-        setIsLoading(true);
+        setIsFetching(true);
         try {
             const {startDate, endDate} = getDateRange(period);
             if (startDate && endDate) {
-                const {totalFuncBins, totalCount, totalDisposalCount, totalUMBins} = await fetchData(startDate, endDate);
-                const {DBBarChartData, DBPieChartData, binDisposalsTimeLine} = await fetchChartsData(startDate, endDate, period);
+                const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
+                = await fetchAll(startDate, endDate, period);
                 setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
                 setChartData([DBBarChartData, DBPieChartData]);
                 setLineChart(binDisposalsTimeLine);
+                setUMBinsTable(UMBinsUpdate);
             } else {
               setGridData(initialStatsData);
               setChartData([DBBarChartData, DBPieChartData]);
               setLineChart(DBLineChartData);
+              setUMBinsTable(UMBinsData);
             }
         } catch (error){
             console.log(error);
@@ -157,20 +162,24 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
               variant: "destructive",
             })
         } finally {
-            setIsLoading(false);
+            setIsFetching(false);
         }
         },[getDateRange]);
 
 
     useEffect(() => {
       const updateUMBinsTable = async () => {
-      if (isResolved) {
-        setIsLoading(true);
+        if (isResolved){
+        setIsFetching(true);
         try {
-        const UMBinsUpdate = await fetchUMBinsData();
-
-        setUMBinsTable(UMBinsUpdate);
-        setIsResolved(false); // Reset the resolved state after fetching data
+        console.log("useEffect", isResolved);
+        const { startDate, endDate } = getDateRange(isActive);
+         if (isResolved) {
+            const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
+            setUMBinsTable(UMBinsUpdate);
+            setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
+         setIsResolved(false);
+         }
         } catch (error) {
         console.log("Error updating bin status", error);
         toast({
@@ -180,19 +189,18 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
           variant: "destructive",
         });
         } finally {
-        setIsLoading(false);
+        setIsFetching(false);
         }
       }
       };
       updateUMBinsTable();
-    }, [isResolved, fetchUMBinsData]);
+    }, [isResolved]);
 
     const binDashBoardItems = useMemo(()=> [
         {
           color: "#34b7eb",
           icon: <BsActivity className="text-xl sm:text-2xl text-[#34b7eb] mr-2" />,
           title: "Bins Status",
-          value: gridData[0],
           description: "Functional Bins",
         },
         {
@@ -201,7 +209,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
             <RiDeleteBin6Line className="text-xl sm:text-2xl text-[#54666b] mr-2" />
           ),
           title: "Total Bins",
-          value: gridData[1],
           description: "All locations",
           map: "/admin/bin/manager/map",
         },
@@ -211,7 +218,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
             <RiRecycleFill className="text-xl sm:text-2xl text-[#22e38f] mr-2" />
           ),
           title: "Total Items Collected",
-          value: gridData[2],
           description: "Items",
         },
         {
@@ -220,21 +226,34 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
             <TiWarningOutline className="text-xl sm:text-2xl text-[#f44336] mr-2" />
           ),
           title: "Alerts",
-          value: gridData[3],
           description: "Issues found",
           button: "View",
         },
-      ], [gridData]);
+      ], []);
     
     const router = useRouter();
-    // const intervalId = setInterval(() => {
-    //   router.push("/admin") // Refreshes the current page
-    //   console.log("Page Refreshed", new Date());
-    // }, 3600000); // Refresh every 5 seconds
+    const {data, isLoading, refetch} = useQuery({
+      queryKey: ['bins', {type: UMBinsData}],
+      queryFn: async () => {
+        console.log(isActive);
+        const { startDate, endDate } = getDateRange(isActive);
+        const data = await fetchAll(startDate, endDate, isActive);
+        setGridData([data.dashboardData.totalFuncBins, data.dashboardData.totalCount, data.dashboardData.totalDisposalCount, data.dashboardData.totalUMBins]);
+        setChartData([data.chartsData.DBBarChartData, data.chartsData.DBPieChartData]);
+        setLineChart(data.chartsData.binDisposalsTimeLine);
+        setUMBinsTable(data.UMBinsData);
+        setDateTime(formatDateTime(new Date()));
+        console.log("useQuery", data);
+        return data
+      },
+      refetchOnMount: false,
+      refetchInterval: 36000,
+      refetchOnWindowFocus: false,
+    })
 
   return (
     <>
-    {isLoading ? <Loading/> : <>
+    {isFetching ? <Loading/> : <>
     <ConfirmResolveBinIssueDialog 
       binId={binId} 
       isOpen={isDeleteDialogOpen} 
@@ -285,7 +304,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
-          {binDashBoardItems.map((data, index) => {
+          {binDashBoardItems.map((items, index) => {
             return (
               <div
                 key={index}
@@ -293,26 +312,26 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
               >
                 <div
                   className={`absolute inset-y-0 left-0 w-2.5 rounded-l-lg`}
-                  style={{ backgroundColor: data.color }}
+                  style={{ backgroundColor: items.color }}
                 ></div>
 
                 <div className="pl-4">
                   <div className="flex items-center justify-between">
                     <div className="flex gap-2">
-                      <span style={{ color: data.color }}>
-                        {data.icon}
+                      <span style={{ color: items.color }}>
+                        {items.icon}
                       </span>
-                      {data.button ? (
+                      {items.button ? (
                         <span className="text-lg sm:text-xl font-bold text-[#f44336]">
-                          {data.title}
+                          {items.title}
                         </span>
                       ) : (
                         <span className="text-lg sm:text-xl font-bold">
-                          {data.title}
+                          {items.title}
                         </span>
                       )}
                     </div>
-                    {data.button && (
+                    {items.button && (
                       <Dialog
                         open={isDialogOpen}
                         onOpenChange={setIsDialogOpen}
@@ -331,7 +350,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                           <div className="rounded-md border w-full">
                             <div className="max-h-[400px] overflow-y-auto">
                               <Table className="w-full">
-                                <TableHeader>
+                                <TableHeader className='bg-gray-200 hover:bg-gray-300'>
                                   <TableRow>
                                     <TableHead className="text-center font-bold text-md text-gray-800">
                                       Location
@@ -345,7 +364,8 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                  {UMBinsTable.map((bin, index) => (
+                                  
+                                  {UMBinsTable?.map((bin, index) => (
                                     <TableRow key={index}>
                                       <TableCell className="text-center">
                                         <Tooltip>
@@ -374,13 +394,32 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                         : bin.binMaterial.name}
                                         </TableCell>
                                       <TableCell className="text-center">
-                                        <Button
-                                          className="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600"
-                                          variant="secondary"
-                                          onClick={() => (setIsDeleteDialogOpen(!isDeleteDialogOpen), setBinId(bin.id))}
-                                        >
-                                          Resolved
-                                        </Button>
+                                        <DropdownMenu modal={false}>
+                                          <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
+                                              <span className="sr-only">Open menu</span>
+                                              <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent align="end">
+                                          <DropdownMenuItem className="flex items-center font-bold text-sm text-gray-600" 
+                                          onClick={() => (setIsDeleteDialogOpen(!isDeleteDialogOpen), setBinId(bin.id))}>
+                                            <MdOutlineDownloadDone />
+                                            <span className="hover:cursor-pointer">
+                                              Resolved
+                                            </span>
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem className="flex items-center font-bold text-sm text-gray-600">
+                                            <IoLocation />
+                                            <span
+                                              className="hover:cursor-pointer font-bold"
+                                              onClick={() => (router.push(`/admin/bin/manager/map?lat=${bin.user.lat}&long=${bin.user.long}`))}
+                                            >
+                                              View Bin Location
+                                            </span>
+                                          </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
                                       </TableCell>
                                     </TableRow>
                                   ))}
@@ -394,14 +433,14 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                   </div>
                   <div className="flex flex-col">
                     <span className="font-bold text-3xl sm:text-4xl">
-                      {data.map ? (
-                            <span className="hover:cursor-pointer" onClick={() => router.push(`${data.map}`)}>{data.value}</span>
+                      {items.map ? (
+                            <span className="hover:cursor-pointer" onClick={() => router.push(`${items.map}`)}>{gridData[index]}</span>
                           ) : (
-                            data.value
+                            gridData[index]
                           )}
                     </span>
                     <span className="font-light text-sm sm:text-base">
-                      {data.description}
+                      {items.description}
                     </span>
                   </div>
                 </div>

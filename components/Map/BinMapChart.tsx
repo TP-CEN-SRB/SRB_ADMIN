@@ -23,6 +23,7 @@ import Link from "next/link";
 import { IoLocationSharp } from "react-icons/io5";
 import { Checkbox } from "@/components/ui/checkbox";
 import MapLayer from "@/components/Map/MapLayer";
+import { useSearchParams } from "next/navigation";
 
 interface MapChartProps {
   data: {
@@ -47,6 +48,9 @@ export default function MapChart({ data }: MapChartProps) {
   const { minLat, maxLat, minLong, maxLong } = maxBound;
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
   const [showLayer, setShowLayer] = useState(true);
+  const searchParams = useSearchParams()
+  const Binlat = searchParams.get('lat')
+  const Binlong = searchParams.get('long')
   return (
     <div className="relative h-full w-full">
       <div className="absolute z-10 top-4 left-4 bg-white p-2 rounded shadow-sm">
@@ -132,32 +136,53 @@ export default function MapChart({ data }: MapChartProps) {
             />
           </>
         )}
-        {data.map((binManager) => (
+        {data.map((binManager) => {
+          const binLat = parseFloat(searchParams.get('lat') || '');
+          const binLong = parseFloat(searchParams.get('long') || '');
+          return (
+            binManager.lat === binLat && binManager.long === binLong ? (
+              null
+            ): (<Marker
+                onClick={(e) => {
+                  e.originalEvent.stopPropagation();
+                  setPopupInfo({
+                    id: binManager.id,
+                    name: binManager.name,
+                    faculty: binManager.faculty,
+                    lat: binManager.lat as number,
+                    long: binManager.long as number,
+                    _count: binManager._count,
+                  });
+                }}
+                key={binManager.id}
+                latitude={binManager.lat as number}
+                longitude={binManager.long as number}
+                anchor="bottom"
+              >
+                <IoLocationSharp
+                  stroke="black"
+                  strokeWidth={20}
+                  className="text-red-500"
+                  size={40}
+                />
+              </Marker>)
+          );
+        })}
+        {searchParams && (
           <Marker
-            onClick={(e) => {
-              e.originalEvent.stopPropagation();
-              setPopupInfo({
-                id: binManager.id,
-                name: binManager.name,
-                faculty: binManager.faculty,
-                lat: binManager.lat as number,
-                long: binManager.long as number,
-                _count: binManager._count,
-              });
-            }}
-            key={binManager.id}
-            latitude={binManager.lat as number}
-            longitude={binManager.long as number}
+            latitude={Binlat ? parseFloat(Binlat) : 0}
+            longitude={Binlong ? parseFloat(Binlong) : 0}
             anchor="bottom"
           >
             <IoLocationSharp
               stroke="black"
               strokeWidth={20}
-              className="text-red-500"
+              className="text-purple-500 stroke-black stroke-[20] animate-bounce"
               size={40}
+              style={{ background: 'transparent' }}
             />
           </Marker>
-        ))}
+        )}
         {popupInfo && (
           <Popup
             focusAfterOpen={false}

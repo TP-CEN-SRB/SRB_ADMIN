@@ -13,27 +13,21 @@ const Page = async () => {
 const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";
   const [
-    DBPieChartData,
     totalFuncBins,
     totalCount,
     totalDisposalCount,
-    binDisposalsTimeLine,
     totalUMBins,
   ] = await Promise.all([
-    getPieChartData(startDate, endDate, filter),
-    getBinCountsByStatus(startDate, startDate, false),
+    getBinCountsByStatus(startDate, startDate, false, filter),
     (await getAllBins(startDate, endDate)).length,
     getDisposals(startDate, endDate),
-    getBinDisposalsByTime(startDate, endDate, filter),
-    getBinCountsByStatus(startDate, endDate, true),
+    getBinCountsByStatus(startDate, endDate, true, filter),
   ]);
 
   return {
-    DBPieChartData,
     totalFuncBins,
     totalCount,
     totalDisposalCount,
-    binDisposalsTimeLine,
     totalUMBins,
   };
 }
@@ -65,6 +59,16 @@ const fetchUMBinsData = async (startDate?: Date, endDate?: Date, filter?: string
 
 const [dashboardData,chartsData,UMBinsData] = await Promise.all([fetchDashboardData(), fetchChartsData(), fetchUMBinsData()]);
 
+const fetchAll = async (startDate?: Date, endDate?: Date, filter?: string) => {
+  "use server";
+  const [dashboardData, chartsData, UMBinsData] = await Promise.all([
+    fetchDashboardData(startDate, endDate, filter),
+    fetchChartsData(startDate, endDate, filter),
+    fetchUMBinsData(startDate, endDate, filter),
+  ]);
+  return { dashboardData, chartsData, UMBinsData };
+}
+
 const binStatsData = [
   dashboardData.totalFuncBins,
   dashboardData.totalCount,
@@ -83,12 +87,10 @@ const { month, bin, ...materials }: ChartDataItem = chartsData.DBBarChartData[0]
       <BinDashboard 
         DBBarChartData={chartsData.DBBarChartData} 
         DBPieChartData={chartsData.DBPieChartData} 
-        DBLineChartData={dashboardData.binDisposalsTimeLine} 
+        DBLineChartData={chartsData.binDisposalsTimeLine} 
         initialStatsData={binStatsData} 
         UMBinsData={UMBinsData}
-        fetchData={fetchDashboardData} 
-        fetchChartsData={fetchChartsData}
-        fetchUMBinsData={fetchUMBinsData}/>
+        fetchAll={fetchAll}/>
     </div>
     
   );

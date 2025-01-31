@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/drawer";
 import CustomFormMessage from '../Form/CustomFormMessage';
 import { Button } from '../ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Router } from 'lucide-react';
 
 interface ConfirmResolveBinIssueDialog {
   binId: string;
@@ -40,6 +40,7 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
     const handleUpdateBinStatus = () => {
     startTransition(async () => {
       const data = await updateBinStatus(binId, BinStatus.FUNCTIONAL);
+      console.log("dialog await");
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
@@ -108,7 +109,7 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
             disabled={isPending}
             onClick={handleUpdateBinStatus}
             type="button"
-            className="bg-red-500 hover:bg-red-600 text-gray-50"
+            className="bg-green-500 hover:bg-green-600 text-gray-50"
           >
             {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
             {isPending ? "Loading..." : "Confirm"}
@@ -117,7 +118,7 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
             disabled={isPending}
             onClick={handleDialogOpen}
             type="button"
-            className="border border-red-500 bg-gray-50 text-red-500 hover:bg-gray-200"
+            className="border border-green-400 bg-gray-50 text-green-500 hover:bg-gray-200"
           >
             Cancel
           </Button>
