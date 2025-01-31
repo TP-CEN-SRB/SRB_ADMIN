@@ -84,10 +84,18 @@ const config: Config = {
           "25%": { transform: "rotate(-15deg)" }, // Tilt left
           "75%": { transform: "rotate(15deg)" }, // Tilt right
         },
+        bounce: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
       },
       animation: {
         "caret-blink": "caret-blink 1.25s ease-out infinite",
         "sway": "sway 1s ease-in-out infinite",
+        "bounce": "bounce 1.5s infinite ease-in-out"
+      },
+      boxShadow: {
+        marker: '0 5px 5px rgba(0, 0, 0, 0.3)',
       },
     },
   },

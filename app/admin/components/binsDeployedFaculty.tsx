@@ -20,58 +20,8 @@ const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
   // console.log(chartConfig);
   return (
     <>
-      {/* <ChartContainer
-          config={chartConfig}
-          className="w-full h-full"
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={data}
-              dataKey="count"
-              nameKey="fac"
-              stroke="0"
-              innerRadius={50}
-              strokeWidth={5}
-              cy="45%"
-            >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
-                        >
-                          {totalBins.toLocaleString()}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Bins Deployed Across TP
-                        </tspan>
-                      </text>
-                    )
-                  }
-                }}
-              />
-            </Pie>
-          </PieChart>
-        </ChartContainer> */}
-        <ChartContainer config={chartConfig} className="w-full h-full">
-  <PieChart>
+    <ChartContainer config={chartConfig} className="w-full h-full">
+    <PieChart>
     <Pie
       data={data}
       dataKey="count"

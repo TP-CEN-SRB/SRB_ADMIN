@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import "react-image-crop/dist/ReactCrop.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import ReactQueryProvider from "./providers/reactqueryprovider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,8 +33,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <ReactQueryProvider>
         <main>{children}</main>
         <Toaster />
+        </ReactQueryProvider>
       </body>
     </html>
   );
