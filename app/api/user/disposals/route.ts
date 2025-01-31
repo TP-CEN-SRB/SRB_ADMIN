@@ -23,9 +23,8 @@ export const GET = async (req: NextRequest) => {
 
     const userId = decodedToken.userId;
     const date = new Date();
-    const last = new Date(date.setHours(23, 59, 59, 999));
-    const first = new Date(date.setDate(date.getDate() - 30));
-    first.setHours(0, 0, 0, 0);
+    const last = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+    const first = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 30, 0, 0, 0, 0);
     const usersPast30DaysDisposals = await prisma.disposal.findMany({
       where: {
         userId,
