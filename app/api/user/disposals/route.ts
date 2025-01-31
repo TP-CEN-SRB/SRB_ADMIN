@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import prisma from "@/lib/db";
-import { Role } from "@prisma/client";
 
 export const GET = async (req: NextRequest) => {
   try {
