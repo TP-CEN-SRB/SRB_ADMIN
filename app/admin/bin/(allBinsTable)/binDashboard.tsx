@@ -139,7 +139,8 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         setIsFetching(true);
         try {
             const {startDate, endDate} = getDateRange(period);
-            if (startDate && endDate) {
+            console.log(startDate, endDate);
+            if ((startDate && endDate) !== null) {
                 const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
                 = await fetchAll(startDate, endDate, period);
                 setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
@@ -153,6 +154,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
               setUMBinsTable(UMBinsData);
             }
         } catch (error){
+          console.log(error);
             toast({
               title: "Error!",
               description: "Failed to fetch data, Handle Period Change",
@@ -171,21 +173,19 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         setIsFetching(true);
         try {
         const { startDate, endDate } = getDateRange(isActive);
-         if (isResolved) {
             const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
             setUMBinsTable(UMBinsUpdate);
             setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
-         setIsResolved(false);
-         }
+         
         } catch (error) {
-          console.error(error);
-          // toast({
-          //   title: "Error!",
-          //   description: "Failed to update bin status",
-          //   duration: 2000,
-          //   variant: "destructive",
-          // });
+          toast({
+            title: "Error!",
+            description: "Failed to update bin status",
+            duration: 2000,
+            variant: "destructive",
+          });
         } finally {
+          setIsResolved(false);
         setIsFetching(false);
         }
       }
@@ -232,7 +232,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     const {data, isLoading, refetch} = useQuery({
       queryKey: ['bins', {type: UMBinsData}],
       queryFn: async () => {
-        console.log(isActive);
+        try{
         const { startDate, endDate } = getDateRange(isActive);
         const data = await fetchAll(startDate, endDate, isActive);
         setGridData([data.dashboardData.totalFuncBins, data.dashboardData.totalCount, data.dashboardData.totalDisposalCount, data.dashboardData.totalUMBins]);
@@ -240,8 +240,16 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         setLineChart(data.chartsData.binDisposalsTimeLine);
         setUMBinsTable(data.UMBinsData);
         setDateTime(formatDateTime(new Date()));
-        console.log("useQuery", data);
-        return data
+        return data;
+        }
+        catch (error){
+          toast({
+            title: "Error!",
+            description: "Failed to fetch data",
+            duration: 2000,
+            variant: "destructive",
+          })
+        }
       },
       refetchOnMount: false,
       refetchInterval: 36000,
@@ -259,7 +267,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       handleResolved={() => setIsResolved(!isResolved)}/>
       <div className="px-4 md:px-6 lg:px-8 mt-4">
         <div className="flex flex-row md:items-center justify-between">
-            <span className="text-gray-600 text-sm sm:text-base">
+            <span className="text-gray-600 text-sm sm:text-base" suppressHydrationWarning={true}>
               Last updated: {datetime}
             </span>
           <DropdownMenu modal={false}>

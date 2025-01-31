@@ -36,13 +36,14 @@ interface ConfirmResolveBinIssueDialog {
 const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolved, handleResolved}: ConfirmResolveBinIssueDialog) => {
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const datetime = formatDateTime(new Date());
     const handleUpdateBinStatus = () => {
     startTransition(async () => {
       const data = await updateBinStatus(binId, BinStatus.FUNCTIONAL);
-      console.log("dialog await");
       setError(data?.error as string);
-      if (!data.error && data.success !== undefined) {
+      setSuccess(data?.success as string);
+      if (!error && success !== undefined) {
         handleDialogOpen();
         handleResolved();
         toast({
@@ -57,6 +58,21 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
           ),
           duration: 2000,
           variant: "default",
+        });
+      }
+      else{
+        toast({
+          title: "Bin status update failed",
+          description: (
+            <div>
+              Bin status updated at {datetime}
+              <br />
+              <br />
+              <strong>Bin ID: </strong> {binId}
+            </div>
+          ),
+          duration: 2000,
+          variant: "destructive",
         });
       }
     });
