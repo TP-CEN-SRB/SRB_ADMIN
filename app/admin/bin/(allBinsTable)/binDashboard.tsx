@@ -254,6 +254,10 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       refetchOnMount: false,
       refetchInterval: 36000,
       refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        console.log(failureCount, error);
+        return false;
+      }
     })
 
   return (

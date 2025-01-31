@@ -511,27 +511,36 @@ export const getBarChartData = async (
     if (filter == "month") {
       const weeks = getWeeksInMonth(startDate, endDate);
       return await Promise.all(
-        weeks.map(async (week, weekIndex) => {
-          const { start, end } = getWeekDatesByIndex(weekIndex);
+      weeks.map(async (week, weekIndex) => {
+        try {
+        const { start, end } = getWeekDatesByIndex(weekIndex);
 
-          const filteredBins = allBins.filter(
-            (bin) => bin.createdAt >= start && bin.createdAt <= end
-          );
+        const filteredBins = allBins.filter(
+          (bin) => bin.createdAt >= start && bin.createdAt <= end
+        );
 
-          const materialCounts = { ...baseMaterialCounts };
-          filteredBins.forEach((bin) => {
-            const material = bin.binMaterial.name;
-            if (material in materialCounts) {
-              materialCounts[material]++;
-            }
-          });
+        const materialCounts = { ...baseMaterialCounts };
+        filteredBins.forEach((bin) => {
+          const material = bin.binMaterial.name;
+          if (material in materialCounts) {
+          materialCounts[material]++;
+          }
+        });
 
-          return {
-            month: week,
-            bin: filteredBins.length,
-            ...materialCounts,
-          };
-        })
+        return {
+          month: week,
+          bin: filteredBins.length,
+          ...materialCounts,
+        };
+        } catch (error) {
+        console.error(`Error processing week ${weekIndex}:`, error);
+        return {
+          month: week,
+          bin: 0,
+          ...baseMaterialCounts,
+        };
+        }
+      })
       );
     }
 
