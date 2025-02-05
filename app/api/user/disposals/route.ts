@@ -22,8 +22,24 @@ export const GET = async (req: NextRequest) => {
 
     const userId = decodedToken.userId;
     const date = new Date();
-    const last = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
-    const first = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 30, 0, 0, 0, 0);
+    const last = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      23,
+      59,
+      59,
+      999
+    );
+    const first = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate() - 30,
+      0,
+      0,
+      0,
+      0
+    );
     const usersPast30DaysDisposals = await prisma.disposal.findMany({
       where: {
         userId,
@@ -37,9 +53,9 @@ export const GET = async (req: NextRequest) => {
       },
     });
     const days = [];
-    for (let i = 30; i > 0; i--) {
+    for (let i = 30; i >= 0; i--) {
       const day = new Date(last);
-      day.setDate(date.getDate() - i); // Subtract i days from today
+      day.setDate(last.getDate() - i); // Subtract i days from today
       days.push(day);
     }
     const disposalsDaily: number[] = [];
