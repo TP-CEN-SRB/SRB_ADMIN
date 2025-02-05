@@ -6,7 +6,7 @@ import { Bin, BinMaterial, BinStatus, Role } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getWeeksInMonth, months, days } from "@/utils/dateUtils";
+import { getWeeksInMonth, months, days, normalizeDate } from "@/utils/dateUtils";
 
 export const getAllBins = async (dateFrom?: Date, dateTo?: Date) => {
   if (dateFrom !== undefined && dateTo !== undefined) {
@@ -545,38 +545,62 @@ export const getBarChartData = async (
     // }
 
   else if (filter === "month") {
-  const weekRanges = getWeeksInMonth(startDate, endDate);
-  
-  return await Promise.all(
-    weekRanges.map(async ({ week, start, end }) => {
-      try {
-        const filteredBins = allBins.filter(
-          (bin) => bin.createdAt >= start && bin.createdAt <= end
-        );
+  try {
+    const weekRanges = getWeeksInMonth(
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined
+    );
+    
+    const results = await Promise.all(
+      weekRanges.map(async ({ week, start, end }) => {
+        try {
+          const filteredBins = allBins.filter((bin) => {
+            const binDate = normalizeDate(new Date(bin.createdAt));
+            return binDate >= start && binDate <= end;
+          });
 
-        const materialCounts = { ...baseMaterialCounts };
-        filteredBins.forEach((bin) => {
-          const material = bin.binMaterial.name;
-          if (material in materialCounts) {
-            materialCounts[material]++;
-          }
-        });
+          const materialCounts = { ...baseMaterialCounts };
+          filteredBins.forEach((bin) => {
+            const material = bin.binMaterial.name;
+            if (material in materialCounts) {
+              materialCounts[material]++;
+            }
+          });
 
-        return {
-          month: week,
-          bin: filteredBins.length,
-          ...materialCounts,
-        };
-      } catch (error) {
-        console.error(`Error processing ${week}:`, error);
-        return {
-          month: week,
-          bin: 0,
-          ...baseMaterialCounts,
-        };
-      }
-    })
-  );
+          return {
+            month: week,
+            bin: filteredBins.length,
+            ...materialCounts,
+          } as MonthlyData;
+        } catch (error) {
+          console.error(`Error processing ${week}:`, error);
+          return {
+            month: week,
+            bin: 0,
+            ...baseMaterialCounts,
+          } as MonthlyData;
+        }
+      })
+    );
+
+    if (!results || results.length === 0) {
+      console.warn('No results generated, using fallback');
+      return [{
+        month: 'Wk1',
+        bin: 0,
+        ...baseMaterialCounts,
+      }] as MonthlyData[];
+    }
+
+    return results;
+  } catch (error) {
+    console.error('Error in month filter processing:', error);
+    return [{
+      month: 'Wk1',
+      bin: 0,
+      ...baseMaterialCounts,
+    }] as MonthlyData[];
+  }
 }
 
     else if (filter == "year") {

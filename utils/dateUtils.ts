@@ -37,37 +37,70 @@ export const getYears = (startYear: number, endYear: number) => {
 //     return weeks;
 // };
 
+type MonthlyData = {
+  [key: string]: string | number;
+  month: string;
+  bin: number;
+};
+
+// Helper function to ensure consistent timezone handling
+export const normalizeDate = (date: Date): Date => {
+  const normalized = new Date(date);
+  // Adjust to Singapore timezone (GMT+8)
+  normalized.setHours(normalized.getHours() + 8);
+  return normalized;
+};
+
 const getWeekDatesByIndex = (date: Date, weekIndex: number) => {
   const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  firstDayOfMonth.setHours(0, 0, 0, 0);
+  
   const start = new Date(firstDayOfMonth);
   start.setDate(firstDayOfMonth.getDate() + (weekIndex * 7));
+  start.setHours(0, 0, 0, 0);
   
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
+  end.setHours(23, 59, 59, 999);
   
-  // Ensure end date doesn't exceed the month
   const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  lastDayOfMonth.setHours(23, 59, 59, 999);
+  
   if (end > lastDayOfMonth) {
-    end.setDate(lastDayOfMonth.getDate());
+    end.setTime(lastDayOfMonth.getTime());
   }
   
-  return { start, end };
+  return { 
+    start: normalizeDate(start), 
+    end: normalizeDate(end) 
+  };
 };
 
-export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date) => {
-  const weeks: { week: string; start: Date; end: Date }[] = [];
-  const firstDayOfMonth = dateFrom ? new Date(dateFrom) : new Date();
+export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date): Array<{ week: string; start: Date; end: Date }> => {
+  const firstDayOfMonth = dateFrom ? normalizeDate(new Date(dateFrom)) : normalizeDate(new Date());
+  firstDayOfMonth.setHours(0, 0, 0, 0);
+  
   const lastDayOfMonth = dateTo 
-    ? new Date(dateTo) 
-    : new Date(firstDayOfMonth.getFullYear(), firstDayOfMonth.getMonth() + 1, 0);
+    ? normalizeDate(new Date(dateTo))
+    : normalizeDate(new Date(firstDayOfMonth.getFullYear(), firstDayOfMonth.getMonth() + 1, 0));
+  lastDayOfMonth.setHours(23, 59, 59, 999);
 
+  if (firstDayOfMonth > lastDayOfMonth) {
+    console.warn('Invalid date range:', { firstDayOfMonth, lastDayOfMonth });
+    return [{
+      week: 'Wk1',
+      start: firstDayOfMonth,
+      end: firstDayOfMonth
+    }];
+  }
+
+  const weeks: Array<{ week: string; start: Date; end: Date }> = [];
   let currentDate = new Date(firstDayOfMonth);
   let weekIndex = 0;
 
   while (currentDate <= lastDayOfMonth) {
     const { start, end } = getWeekDatesByIndex(firstDayOfMonth, weekIndex);
     
-    // Only add the week if it contains days within our target range
     if (start <= lastDayOfMonth && end >= firstDayOfMonth) {
       weeks.push({
         week: `Wk${weekIndex + 1}`,
@@ -78,6 +111,15 @@ export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date) => {
     
     weekIndex++;
     currentDate.setDate(currentDate.getDate() + 7);
+  }
+
+  if (weeks.length === 0) {
+    console.warn('No weeks generated, using fallback');
+    weeks.push({
+      week: 'Wk1',
+      start: firstDayOfMonth,
+      end: lastDayOfMonth
+    });
   }
 
   return weeks;
