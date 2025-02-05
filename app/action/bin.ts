@@ -783,8 +783,6 @@ export const getPieChartData = async (
     }
   });
 
-  // console.log(binsByFaculty);
-
   return Object.keys(binsByFaculty).map((faculty, index) => ({
     fac: faculty,
     count: binsByFaculty[faculty],
