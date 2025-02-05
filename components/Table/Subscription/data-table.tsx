@@ -71,14 +71,16 @@ export function DataTable<TData, TValue>({
             <RiMailAddFill /> Add a subscription
           </Link>
         </Button>
-        <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
-          }
-          className="max-w-xs"
-        />
+        <div className="max-w-xs">
+          <Input
+            type="search"
+            placeholder="Filter emails..."
+            value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("email")?.setFilterValue(event.target.value)
+            }
+          />
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
