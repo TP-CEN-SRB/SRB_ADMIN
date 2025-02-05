@@ -140,6 +140,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         try {
             const {startDate, endDate} = getDateRange(period);
             console.log(startDate, endDate);
+            console.log(isActive);
             if ((startDate && endDate) !== null) {
                 const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
                 = await fetchAll(startDate, endDate, period);
@@ -168,15 +169,14 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
 
 
     useEffect(() => {
-      const updateUMBinsTable = async () => {
+      const updateUMBinsTable = async (period: FilterPeriod) => {
         if (isResolved){
         setIsFetching(true);
         try {
-        const { startDate, endDate } = getDateRange(isActive);
+        const { startDate, endDate } = getDateRange(period);
             const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
             setUMBinsTable(UMBinsUpdate);
             setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
-         
         } catch (error) {
           toast({
             title: "Error!",
@@ -190,8 +190,8 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         }
       }
       };
-      updateUMBinsTable();
-    }, [isResolved]);
+      updateUMBinsTable(isActive);
+    }, [isResolved, isActive]);
 
     const binDashBoardItems = useMemo(()=> [
         {
@@ -254,10 +254,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       refetchOnMount: false,
       refetchInterval: 36000,
       refetchOnWindowFocus: false,
-      retry: (failureCount, error) => {
-        console.log(failureCount, error);
-        return false;
-      }
+      retry: false,
     })
 
   return (

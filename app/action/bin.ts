@@ -508,7 +508,7 @@ export const getBarChartData = async (
       );
     }
 
-    if (filter == "month") {
+    else if (filter == "month") {
       const weeks = getWeeksInMonth(startDate, endDate);
       return await Promise.all(
       weeks.map(async (week, weekIndex) => {
@@ -544,7 +544,7 @@ export const getBarChartData = async (
       );
     }
 
-    if (filter == "year") {
+    else if (filter == "year") {
       return await Promise.all(
       months.map(async (month, monthIndex) => {
         const filteredBins = allBins.filter(
@@ -567,26 +567,16 @@ export const getBarChartData = async (
       })
     );
     }
-    
-      const startOfPeriod = new Date(dateFrom || new Date());
-      const endOfPeriod = new Date(dateTo || new Date());
-    // Default yearly view
-    return await Promise.all(
+    else{
+      return await Promise.all(
       months.map(async (month, monthIndex) => {
-        startOfPeriod.setMonth(monthIndex);
-          startOfPeriod.setDate(1);
-          startOfPeriod.setHours(0, 0, 0, 0);
-
-          endOfPeriod.setMonth(monthIndex + 1);
-          endOfPeriod.setDate(0);
-          endOfPeriod.setHours(23, 59, 59, 999);
         const monthlyBins = await prisma.bin.findMany({
             where: {
               createdAt:
                 dateFrom || dateTo
                   ? {
-                      gte: startOfPeriod,
-                      lte: endOfPeriod,
+                      gte: dateFrom,
+                      lte: dateTo,
                     }
                   : undefined,
             },
@@ -625,6 +615,8 @@ export const getBarChartData = async (
           };
         })
     );
+    }
+    
   } catch (error) {
     console.error("Error in getBarChartData:", error);
     throw error;
