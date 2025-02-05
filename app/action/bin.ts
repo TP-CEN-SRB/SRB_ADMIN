@@ -808,6 +808,94 @@ export const getPieChartData = async (
   }));
 };
 
+// export const getBinCountsByStatus = async (
+//   dateFrom?: Date,
+//   dateTo?: Date,
+//   notFunctional?: boolean,
+//   filter?: string
+// ) => {
+//   let bins: Bin[] = [];
+//   if (dateFrom !== undefined && dateTo !== undefined) {
+//     const adjustedEndDate = new Date(dateTo);
+//     adjustedEndDate.setHours(23, 59, 59, 999);
+
+//   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+//   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+
+//   switch (filter) {
+//     case 'week':{
+//       if (startOfPeriod && endOfPeriod) {
+//         startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
+//         endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+//       }
+//       break;
+//     }
+//     case 'month':{
+//       if (startOfPeriod && endOfPeriod) {
+//         startOfPeriod.setDate(1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
+//         startOfPeriod.setMinutes(0);
+
+//         endOfPeriod.setFullYear(startOfPeriod.getFullYear());
+//         endOfPeriod.setMonth(startOfPeriod.getMonth());
+//         endOfPeriod.setDate(new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0).getDate());
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//       }
+//       break;
+//     }
+//     case 'year':{
+//       if (startOfPeriod && endOfPeriod) {
+//         startOfPeriod.setMonth(0);
+//         startOfPeriod.setDate(1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
+//         endOfPeriod.setMonth(11);
+//         endOfPeriod.setDate(31);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//       }
+//       break;
+//     }
+//   }
+
+//     if (notFunctional) {
+//       bins = await prisma.bin.findMany({
+//         where: {
+//           createdAt: {
+//             gte: startOfPeriod,
+//             lte: endOfPeriod,
+//           },
+//           status: BinStatus.UNDER_MAINTENANCE,
+//         },
+//       });
+//     } else {
+//       bins = await prisma.bin.findMany({
+//         where: {
+//           createdAt: {
+//             gte: startOfPeriod,
+//             lte: endOfPeriod,
+//           },
+//           status: BinStatus.FUNCTIONAL,
+//         },
+//       });
+//     }
+// } 
+// else {
+//     if (notFunctional) {
+//       bins = await prisma.bin.findMany({
+//         where: {
+//           status: BinStatus.UNDER_MAINTENANCE,
+//         },
+//       });
+//     } else {
+//       bins = await prisma.bin.findMany({
+//         where: {
+//           status: BinStatus.FUNCTIONAL,
+//         },
+//       });
+//     }
+// }
+//   return bins.length;
+// };
+
 export const getBinCountsByStatus = async (
   dateFrom?: Date,
   dateTo?: Date,
@@ -815,84 +903,69 @@ export const getBinCountsByStatus = async (
   filter?: string
 ) => {
   let bins: Bin[] = [];
-  if (dateFrom !== undefined && dateTo !== undefined) {
-    const adjustedEndDate = new Date(dateTo);
-    adjustedEndDate.setHours(23, 59, 59, 999);
 
-  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+  // Clone dates to avoid mutating original inputs
+  let startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+  let endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
-  switch (filter) {
-    case 'week':{
-      if (startOfPeriod && endOfPeriod) {
-        startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
-        endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+  // Adjust dates based on filter
+  if (startOfPeriod && endOfPeriod) {
+    switch (filter) {
+      case 'week': {
+        // Set to start of week (Monday) and end of week (Sunday)
+        const startDay = startOfPeriod.getDay(); // 0 (Sun) - 6 (Sat)
+        startOfPeriod.setDate(startOfPeriod.getDate() - (startDay === 0 ? 6 : startDay - 1));
+        startOfPeriod.setHours(0, 0, 0, 0);
+
+        const endDay = endOfPeriod.getDay();
+        endOfPeriod.setDate(endOfPeriod.getDate() + (endDay === 0 ? 0 : 7 - endDay));
+        endOfPeriod.setHours(23, 59, 59, 999);
+        break;
       }
-      break;
-    }
-    case 'month':{
-      if (startOfPeriod && endOfPeriod) {
+      case 'month': {
+        // Set to first day of month and last day of month
         startOfPeriod.setDate(1);
         startOfPeriod.setHours(0, 0, 0, 0);
-        startOfPeriod.setMinutes(0);
-
-        endOfPeriod.setFullYear(startOfPeriod.getFullYear());
-        endOfPeriod.setMonth(startOfPeriod.getMonth());
-        endOfPeriod.setDate(new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0).getDate());
+        
+        const lastDay = new Date(
+          startOfPeriod.getFullYear(),
+          startOfPeriod.getMonth() + 1,
+          0
+        ).getDate();
+        endOfPeriod.setDate(lastDay);
         endOfPeriod.setHours(23, 59, 59, 999);
+        break;
       }
-      break;
-    }
-    case 'year':{
-      if (startOfPeriod && endOfPeriod) {
-        startOfPeriod.setMonth(0);
-        startOfPeriod.setDate(1);
+      case 'year': {
+        // Set to first day of year and last day of year
+        startOfPeriod.setMonth(0, 1);
         startOfPeriod.setHours(0, 0, 0, 0);
-        endOfPeriod.setMonth(11);
-        endOfPeriod.setDate(31);
+        
+        endOfPeriod.setMonth(11, 31);
         endOfPeriod.setHours(23, 59, 59, 999);
+        break;
       }
-      break;
     }
   }
 
-    if (notFunctional) {
-      bins = await prisma.bin.findMany({
-        where: {
-          createdAt: {
-            gte: startOfPeriod,
-            lte: endOfPeriod,
-          },
-          status: BinStatus.UNDER_MAINTENANCE,
-        },
-      });
-    } else {
-      bins = await prisma.bin.findMany({
-        where: {
-          createdAt: {
-            gte: startOfPeriod,
-            lte: endOfPeriod,
-          },
-          status: BinStatus.FUNCTIONAL,
-        },
-      });
-    }
-} 
-else {
-    if (notFunctional) {
-      bins = await prisma.bin.findMany({
-        where: {
-          status: BinStatus.UNDER_MAINTENANCE,
-        },
-      });
-    } else {
-      bins = await prisma.bin.findMany({
-        where: {
-          status: BinStatus.FUNCTIONAL,
-        },
-      });
-    }
-}
+  // Build Prisma query
+  const whereClause: any = {};
+
+  if (startOfPeriod && endOfPeriod) {
+    whereClause.createdAt = {
+      gte: startOfPeriod,
+      lte: endOfPeriod,
+    };
+  }
+
+  whereClause.status = notFunctional 
+    ? BinStatus.UNDER_MAINTENANCE 
+    : BinStatus.FUNCTIONAL;
+
+  bins = await prisma.bin.findMany({
+    where: whereClause,
+  });
+
   return bins.length;
 };
 

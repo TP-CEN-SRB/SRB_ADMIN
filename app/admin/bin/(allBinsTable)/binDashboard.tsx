@@ -98,7 +98,7 @@ type ChartDataItem = {
 };
 
 const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialStatsData, UMBinsData, fetchAll}: BinDashboardProps) => {
-    const [isActive, setIsActive] = useState<FilterPeriod>();
+    const [isActive, setIsActive] = useState<FilterPeriod>("all time");
     const [isFetching, setIsFetching] = useState(false);
     const [gridData, setGridData] = useState<number[]>(initialStatsData);
     const [chartData, setChartData] = useState<[typeof DBBarChartData, typeof DBPieChartData]>([DBBarChartData, DBPieChartData]);
@@ -171,7 +171,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         if (isResolved){
         setIsFetching(true);
         try {
-        const { startDate, endDate } = getDateRange(isActive || "all time");
+        const { startDate, endDate } = getDateRange(isActive);
             const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
             setUMBinsTable(UMBinsUpdate);
             setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
@@ -231,7 +231,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       queryKey: ['bins', {type: UMBinsData}],
       queryFn: async () => {
         try{
-        const { startDate, endDate } = getDateRange(isActive || "all time");
+        const { startDate, endDate } = getDateRange(isActive);
         const data = await fetchAll(startDate, endDate, isActive);
         setGridData([data.dashboardData.totalFuncBins, data.dashboardData.totalCount, data.dashboardData.totalDisposalCount, data.dashboardData.totalUMBins]);
         setChartData([data.chartsData.DBBarChartData, data.chartsData.DBPieChartData]);
@@ -289,7 +289,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                     onClick={() => {
                       handlePeriodChange(period);
                       setIsActive(period);
-                      console.log(period);
                     }}
                   >
                     <span
