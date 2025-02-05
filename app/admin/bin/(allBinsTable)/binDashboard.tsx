@@ -134,6 +134,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     } satisfies ChartConfig;
 
   const getDateRange = (period: FilterPeriod) => DateRange(period);
+  const {startDate, endDate} = getDateRange(isActive);
 
     const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
         setIsFetching(true);
@@ -141,19 +142,19 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
             const {startDate, endDate} = getDateRange(period);
             console.log(startDate, endDate);
             console.log(isActive);
-            if ((startDate && endDate) !== undefined) {
+            // if ((startDate && endDate) !== undefined) {
                 const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
                 = await fetchAll(startDate, endDate, period);
                 setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
                 setChartData([DBBarChartData, DBPieChartData]);
                 setLineChart(binDisposalsTimeLine);
                 setUMBinsTable(UMBinsUpdate);
-            } else {
-              setGridData(initialStatsData);
-              setChartData([DBBarChartData, DBPieChartData]);
-              setLineChart(DBLineChartData);
-              setUMBinsTable(UMBinsData);
-            }
+            // } else {
+            //   setGridData(initialStatsData);
+            //   setChartData([DBBarChartData, DBPieChartData]);
+            //   setLineChart(DBLineChartData);
+            //   setUMBinsTable(UMBinsData);
+            // }
         } catch (error){
           console.log(error);
             toast({
@@ -165,7 +166,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         } finally {
             setIsFetching(false);
         }
-        },[getDateRange]);
+        },[getDateRange, isActive]);
 
 
     useEffect(() => {
@@ -191,7 +192,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       }
       };
       updateUMBinsTable(isActive);
-    }, [isResolved, isActive]);
+    }, [isResolved, ]);
 
     const binDashBoardItems = useMemo(()=> [
         {
