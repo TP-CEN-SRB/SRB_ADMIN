@@ -61,6 +61,7 @@ CREATE TABLE "bins" (
     "currentCapacity" DOUBLE PRECISION NOT NULL DEFAULT 0,
     "userId" TEXT NOT NULL,
     "emailSent" BOOLEAN NOT NULL DEFAULT false,
+    "clearCount" INTEGER NOT NULL DEFAULT 0,
     "binMaterialId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -72,6 +73,7 @@ CREATE TABLE "bins" (
 CREATE TABLE "bin_materials" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "multiplier" DOUBLE PRECISION NOT NULL DEFAULT 1,
 
     CONSTRAINT "bin_materials_pkey" PRIMARY KEY ("id")
 );

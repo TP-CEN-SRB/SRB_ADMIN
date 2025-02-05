@@ -16,7 +16,7 @@ const nextConfig = {
           { key: "Access-Control-Allow-Credentials", value: "true" },
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://yimenggg.github.io",
+            value: "https://tp-cen-srb.github.io/RecycleTP/",
           },
           {
             key: "Access-Control-Allow-Methods",
