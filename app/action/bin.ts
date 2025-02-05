@@ -276,197 +276,6 @@ function getWeekDatesByIndex(weekIndex: number) {
 }
 
 
-export const getBarChartData = async (
-  dateFrom?: Date,
-  dateTo?: Date,
-  filter?: string
-): Promise<MonthlyData[]> => {
-  try {
-    const materialNames = await prisma.binMaterial.findMany({
-      select: { name: true },
-    });
-
-    const baseMaterialCounts = materialNames.reduce((acc, material) => {
-      acc[material.name] = 0;
-      return acc;
-    }, {} as MaterialCounts);
-
-    const startDate = dateFrom ? new Date(dateFrom) : undefined;
-    const endDate = dateTo ? new Date(dateTo) : undefined;
-
-    const allBins = await prisma.bin.findMany({
-      where: {
-        createdAt: {
-          gte: startDate,
-          lte: endDate,
-        },
-      },
-      select: {
-        createdAt: true,
-        binMaterial: {
-          select: {
-            name: true,
-          },
-        },
-      },
-    });
-
-    if (filter == "week") {
-      return await Promise.all(
-        days.map(async (day, dayIndex) => {
-          const filteredBins = allBins.filter(
-            (bin) => bin.createdAt.getDay() === (dayIndex + 1) % 7
-          );
-
-          const materialCounts = { ...baseMaterialCounts };
-          filteredBins.forEach((bin) => {
-            const material = bin.binMaterial.name;
-            if (material in materialCounts) {
-              materialCounts[material]++;
-            }
-          });
-
-          return {
-            month: day,
-            bin: filteredBins.length,
-            ...materialCounts,
-          };
-        })
-      );
-    } else if (filter == "month") {
-      try {
-        const weekRanges = getWeeksInMonth(
-          startDate ? new Date(startDate) : undefined,
-          endDate ? new Date(endDate) : undefined
-        );
-
-        const results = await Promise.all(
-          weekRanges.map(async ({ week, start, end }) => {
-            try {
-              const filteredBins = allBins.filter((bin) => {
-                const binDate = normalizeDate(new Date(bin.createdAt));
-                return binDate >= start && binDate <= end;
-              });
-
-              const materialCounts = { ...baseMaterialCounts };
-              filteredBins.forEach((bin) => {
-                const material = bin.binMaterial.name;
-                if (material in materialCounts) {
-                  materialCounts[material]++;
-                }
-              });
-
-              return {
-                month: week,
-                bin: filteredBins.length,
-                ...materialCounts,
-              } as MonthlyData;
-            } catch (error) {
-              console.error(`Error processing ${week}:`, error);
-              return {
-                month: week,
-                bin: 0,
-                ...baseMaterialCounts,
-              } as MonthlyData;
-            }
-          })
-        );
-
-        if (!results || results.length === 0) {
-          console.warn('No results generated, using fallback');
-          return [{
-            month: 'Wk1',
-            bin: 0,
-            ...baseMaterialCounts,
-          }] as MonthlyData[];
-        }
-
-        return results;
-      } catch (error) {
-        console.error('Error in month filter processing:', error);
-        return [{
-          month: 'Wk1',
-          bin: 0,
-          ...baseMaterialCounts,
-        }] as MonthlyData[];
-      }
-    } else if (filter == "year") {
-      return await Promise.all(
-        months.map(async (month, monthIndex) => {
-          const filteredBins = allBins.filter(
-            (bin) => bin.createdAt.getMonth() === monthIndex
-          );
-
-          const materialCounts = { ...baseMaterialCounts };
-          filteredBins.forEach((bin) => {
-            const material = bin.binMaterial.name;
-            if (material in materialCounts) {
-              materialCounts[material]++;
-            }
-          });
-
-          return {
-            month,
-            bin: filteredBins.length,
-            ...materialCounts,
-          };
-        })
-      );
-    } else {
-      return await Promise.all(
-        months.map(async (month, monthIndex) => {
-          const monthlyBins = await prisma.bin.findMany({
-            where: {
-              createdAt:
-                dateFrom || dateTo
-                  ? {
-                      gte: dateFrom,
-                      lte: dateTo,
-                    }
-                  : undefined,
-            },
-            select: {
-              createdAt: true,
-              binMaterial: {
-                select: {
-                  name: true,
-                },
-              },
-            },
-          });
-
-          const filteredBins = monthlyBins.filter(
-            (bin) => bin.createdAt.getMonth() == monthIndex
-          );
-
-          // Initialize counts for all materials
-          const materialCounts = materialNames.reduce((acc, material) => {
-            acc[material.name] = 0;
-            return acc;
-          }, {} as MaterialCounts);
-
-          // Count bins by material for this specific month
-          filteredBins.forEach((bin) => {
-            const material = bin.binMaterial.name;
-            if (material in materialCounts) {
-              materialCounts[material]++;
-            }
-          });
-
-          return {
-            month,
-            bin: filteredBins.length,
-            ...materialCounts,
-          };
-        })
-      );
-    }
-  } catch (error) {
-    console.error("Error in getBarChartData:", error);
-    throw error;
-  }
-};
-
 // export const getBarChartData = async (
 //   dateFrom?: Date,
 //   dateTo?: Date,
@@ -482,8 +291,8 @@ export const getBarChartData = async (
 //       return acc;
 //     }, {} as MaterialCounts);
 
-//     const startDate = dateFrom ? new Date(dateFrom) : new Date();
-//     const endDate = dateTo ? new Date(dateTo) : new Date();
+//     const startDate = dateFrom ? new Date(dateFrom) : undefined;
+//     const endDate = dateTo ? new Date(dateTo) : undefined;
 
 //     const allBins = await prisma.bin.findMany({
 //       where: {
@@ -524,22 +333,69 @@ export const getBarChartData = async (
 //           };
 //         })
 //       );
-//     }
+//     } else if (filter == "month") {
+//       try {
+//         const weekRanges = getWeeksInMonth(
+//           startDate ? new Date(startDate) : undefined,
+//           endDate ? new Date(endDate) : undefined
+//         );
 
-//   else if (filter == "month") {
-//   try {
-//     const weekRanges = getWeeksInMonth(
-//       startDate ? new Date(startDate) : undefined,
-//       endDate ? new Date(endDate) : undefined
-//     );
-    
-//     const results = await Promise.all(
-//       weekRanges.map(async ({ week, start, end }) => {
-//         try {
-//           const filteredBins = allBins.filter((bin) => {
-//             const binDate = normalizeDate(new Date(bin.createdAt));
-//             return binDate >= start && binDate <= end;
-//           });
+//         const results = await Promise.all(
+//           weekRanges.map(async ({ week, start, end }) => {
+//             try {
+//               const filteredBins = allBins.filter((bin) => {
+//                 const binDate = normalizeDate(new Date(bin.createdAt));
+//                 return binDate >= start && binDate <= end;
+//               });
+
+//               const materialCounts = { ...baseMaterialCounts };
+//               filteredBins.forEach((bin) => {
+//                 const material = bin.binMaterial.name;
+//                 if (material in materialCounts) {
+//                   materialCounts[material]++;
+//                 }
+//               });
+
+//               return {
+//                 month: week,
+//                 bin: filteredBins.length,
+//                 ...materialCounts,
+//               } as MonthlyData;
+//             } catch (error) {
+//               console.error(`Error processing ${week}:`, error);
+//               return {
+//                 month: week,
+//                 bin: 0,
+//                 ...baseMaterialCounts,
+//               } as MonthlyData;
+//             }
+//           })
+//         );
+
+//         if (!results || results.length === 0) {
+//           console.warn('No results generated, using fallback');
+//           return [{
+//             month: 'Wk1',
+//             bin: 0,
+//             ...baseMaterialCounts,
+//           }] as MonthlyData[];
+//         }
+
+//         return results;
+//       } catch (error) {
+//         console.error('Error in month filter processing:', error);
+//         return [{
+//           month: 'Wk1',
+//           bin: 0,
+//           ...baseMaterialCounts,
+//         }] as MonthlyData[];
+//       }
+//     } else if (filter == "year") {
+//       return await Promise.all(
+//         months.map(async (month, monthIndex) => {
+//           const filteredBins = allBins.filter(
+//             (bin) => bin.createdAt.getMonth() === monthIndex
+//           );
 
 //           const materialCounts = { ...baseMaterialCounts };
 //           filteredBins.forEach((bin) => {
@@ -550,68 +406,16 @@ export const getBarChartData = async (
 //           });
 
 //           return {
-//             month: week,
+//             month,
 //             bin: filteredBins.length,
 //             ...materialCounts,
-//           } as MonthlyData;
-//         } catch (error) {
-//           console.error(`Error processing ${week}:`, error);
-//           return {
-//             month: week,
-//             bin: 0,
-//             ...baseMaterialCounts,
-//           } as MonthlyData;
-//         }
-//       })
-//     );
-
-//     if (!results || results.length === 0) {
-//       console.warn('No results generated, using fallback');
-//       return [{
-//         month: 'Wk1',
-//         bin: 0,
-//         ...baseMaterialCounts,
-//       }] as MonthlyData[];
-//     }
-
-//     return results;
-//   } catch (error) {
-//     console.error('Error in month filter processing:', error);
-//     return [{
-//       month: 'Wk1',
-//       bin: 0,
-//       ...baseMaterialCounts,
-//     }] as MonthlyData[];
-//   }
-// }
-
-//     else if (filter == "year") {
+//           };
+//         })
+//       );
+//     } else {
 //       return await Promise.all(
-//       months.map(async (month, monthIndex) => {
-//         const filteredBins = allBins.filter(
-//           (bin) => bin.createdAt.getMonth() === monthIndex
-//         );
-
-//         const materialCounts = { ...baseMaterialCounts };
-//         filteredBins.forEach((bin) => {
-//           const material = bin.binMaterial.name;
-//           if (material in materialCounts) {
-//             materialCounts[material]++;
-//           }
-//         });
-
-//         return {
-//           month,
-//           bin: filteredBins.length,
-//           ...materialCounts,
-//         };
-//       })
-//     );
-//     }
-//     else{
-//       return await Promise.all(
-//       months.map(async (month, monthIndex) => {
-//         const monthlyBins = await prisma.bin.findMany({
+//         months.map(async (month, monthIndex) => {
+//           const monthlyBins = await prisma.bin.findMany({
 //             where: {
 //               createdAt:
 //                 dateFrom || dateTo
@@ -655,14 +459,210 @@ export const getBarChartData = async (
 //             ...materialCounts,
 //           };
 //         })
-//     );
+//       );
 //     }
-    
 //   } catch (error) {
 //     console.error("Error in getBarChartData:", error);
 //     throw error;
 //   }
 // };
+
+export const getBarChartData = async (
+  dateFrom?: Date,
+  dateTo?: Date,
+  filter?: string
+): Promise<MonthlyData[]> => {
+  try {
+    const materialNames = await prisma.binMaterial.findMany({
+      select: { name: true },
+    });
+
+    const baseMaterialCounts = materialNames.reduce((acc, material) => {
+      acc[material.name] = 0;
+      return acc;
+    }, {} as MaterialCounts);
+
+    const startDate = dateFrom ? new Date(dateFrom) : new Date();
+    const endDate = dateTo ? new Date(dateTo) : new Date();
+
+    const allBins = await prisma.bin.findMany({
+      where: {
+        createdAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      select: {
+        createdAt: true,
+        binMaterial: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (filter == "week") {
+      return await Promise.all(
+        days.map(async (day, dayIndex) => {
+          const filteredBins = allBins.filter(
+            (bin) => bin.createdAt.getDay() === (dayIndex + 1) % 7
+          );
+
+          const materialCounts = { ...baseMaterialCounts };
+          filteredBins.forEach((bin) => {
+            const material = bin.binMaterial.name;
+            if (material in materialCounts) {
+              materialCounts[material]++;
+            }
+          });
+
+          return {
+            month: day,
+            bin: filteredBins.length,
+            ...materialCounts,
+          };
+        })
+      );
+    }
+
+  else if (filter == "month") {
+  try {
+    const weekRanges = getWeeksInMonth(
+      startDate ? new Date(startDate) : undefined,
+      endDate ? new Date(endDate) : undefined
+    );
+    
+    const results = await Promise.all(
+      weekRanges.map(async ({ week, start, end }) => {
+        try {
+          const filteredBins = allBins.filter((bin) => {
+            const binDate = normalizeDate(new Date(bin.createdAt));
+            return binDate >= start && binDate <= end;
+          });
+
+          const materialCounts = { ...baseMaterialCounts };
+          filteredBins.forEach((bin) => {
+            const material = bin.binMaterial.name;
+            if (material in materialCounts) {
+              materialCounts[material]++;
+            }
+          });
+
+          return {
+            month: week,
+            bin: filteredBins.length,
+            ...materialCounts,
+          } as MonthlyData;
+        } catch (error) {
+          console.error(`Error processing ${week}:`, error);
+          return {
+            month: week,
+            bin: 0,
+            ...baseMaterialCounts,
+          } as MonthlyData;
+        }
+      })
+    );
+
+    if (!results || results.length === 0) {
+      console.warn('No results generated, using fallback');
+      return [{
+        month: 'Wk1',
+        bin: 0,
+        ...baseMaterialCounts,
+      }] as MonthlyData[];
+    }
+
+    return results;
+  } catch (error) {
+    console.error('Error in month filter processing:', error);
+    return [{
+      month: 'Wk1',
+      bin: 0,
+      ...baseMaterialCounts,
+    }] as MonthlyData[];
+  }
+}
+
+    else if (filter == "year") {
+      return await Promise.all(
+      months.map(async (month, monthIndex) => {
+        const filteredBins = allBins.filter(
+          (bin) => bin.createdAt.getMonth() === monthIndex
+        );
+
+        const materialCounts = { ...baseMaterialCounts };
+        filteredBins.forEach((bin) => {
+          const material = bin.binMaterial.name;
+          if (material in materialCounts) {
+            materialCounts[material]++;
+          }
+        });
+
+        return {
+          month,
+          bin: filteredBins.length,
+          ...materialCounts,
+        };
+      })
+    );
+    }
+    else{
+      return await Promise.all(
+      months.map(async (month, monthIndex) => {
+        const monthlyBins = await prisma.bin.findMany({
+            where: {
+              createdAt:
+                dateFrom || dateTo
+                  ? {
+                      gte: dateFrom,
+                      lte: dateTo,
+                    }
+                  : undefined,
+            },
+            select: {
+              createdAt: true,
+              binMaterial: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          });
+
+          const filteredBins = monthlyBins.filter(
+            (bin) => bin.createdAt.getMonth() == monthIndex
+          );
+
+          // Initialize counts for all materials
+          const materialCounts = materialNames.reduce((acc, material) => {
+            acc[material.name] = 0;
+            return acc;
+          }, {} as MaterialCounts);
+
+          // Count bins by material for this specific month
+          filteredBins.forEach((bin) => {
+            const material = bin.binMaterial.name;
+            if (material in materialCounts) {
+              materialCounts[material]++;
+            }
+          });
+
+          return {
+            month,
+            bin: filteredBins.length,
+            ...materialCounts,
+          };
+        })
+    );
+    }
+    
+  } catch (error) {
+    console.error("Error in getBarChartData:", error);
+    throw error;
+  }
+};
 
 
 interface BinCount {
