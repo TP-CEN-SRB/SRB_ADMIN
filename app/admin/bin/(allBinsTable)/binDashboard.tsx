@@ -165,7 +165,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         } finally {
             setIsFetching(false);
         }
-        },[isActive]);
+        },[getDateRange]);
 
 
     useEffect(() => {
