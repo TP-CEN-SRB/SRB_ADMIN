@@ -166,3 +166,32 @@ export const DateRange = (period: FilterPeriod) => {
         }
     }
 };
+
+export function getDateRangeType(startDate?: Date, endDate?:Date) {
+  // Return undefined if either date is missing
+  if (!startDate || !endDate) return undefined;
+
+  // Parse dates (handle both ISO strings and Date objects)
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Validate dates
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return undefined;
+
+  // Check for exact week difference (7 days)
+  const weekLater = new Date(start);
+  weekLater.setDate(start.getDate() + 7);
+  if (weekLater.getTime() === end.getTime()) return 'week';
+
+  // Check for exact month difference (same day next month)
+  const nextMonth = new Date(start);
+  nextMonth.setMonth(start.getMonth() + 1);
+  if (nextMonth.getTime() === end.getTime()) return 'month';
+
+  // Check for exact year difference (same day next year)
+  const nextYear = new Date(start);
+  nextYear.setFullYear(start.getFullYear() + 1);
+  if (nextYear.getTime() === end.getTime()) return 'year';
+
+  return undefined;
+}

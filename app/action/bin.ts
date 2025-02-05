@@ -6,7 +6,7 @@ import { Bin, BinMaterial, BinStatus, Role } from "@prisma/client";
 import { compare } from "bcryptjs";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { getWeeksInMonth, months, days, normalizeDate } from "@/utils/dateUtils";
+import { getWeeksInMonth, months, days, normalizeDate, getDateRangeType } from "@/utils/dateUtils";
 
 export const getAllBins = async (dateFrom?: Date, dateTo?: Date) => {
   if (dateFrom !== undefined && dateTo !== undefined) {
@@ -281,58 +281,44 @@ function getWeekDatesByIndex(weekIndex: number) {
 //   dateTo?: Date,
 //   filter?: string
 // ): Promise<MonthlyData[]> => {
-//   // const month = Array.from({ length: getWeeksInMonth(dateFrom, dateTo) }, (_, i) => `Wk ${i + 1}`);
-//   const weeks = getWeeksInMonth(dateFrom, dateTo);
+//   try {
+//     const materialNames = await prisma.binMaterial.findMany({
+//       select: { name: true },
+//     });
 
-//   // Fetch all unique material names from the database
-//   const materialNames = await prisma.binMaterial.findMany({
-//     select: {
-//       name: true,
-//     },
-//   });
+//     const baseMaterialCounts = materialNames.reduce((acc, material) => {
+//       acc[material.name] = 0;
+//       return acc;
+//     }, {} as MaterialCounts);
 
-//   const startOfPeriod = new Date(dateFrom || new Date());
-//   const endOfPeriod = new Date(dateTo || new Date());
+//     const startDate = dateFrom ? new Date(dateFrom) : undefined;
+//     const endDate = dateTo ? new Date(dateTo) : undefined;
 
-//   const barChartData = await Promise.all(
-//     filter == "week"
-//       ? days.map(async (day, dayIndex) => {
-//           startOfPeriod.setDate(
-//             startOfPeriod.getDate() - ((startOfPeriod.getDay() + 6) % 7) + 1
-//           );
-//           endOfPeriod.setDate(
-//             endOfPeriod.getDate() + ((7 - endOfPeriod.getDay()) % 7)
-//           );
+//     const allBins = await prisma.bin.findMany({
+//       where: {
+//         createdAt: {
+//           gte: startDate,
+//           lte: endDate,
+//         },
+//       },
+//       select: {
+//         createdAt: true,
+//         binMaterial: {
+//           select: {
+//             name: true,
+//           },
+//         },
+//       },
+//     });
 
-//           const weeklyBins = await prisma.bin.findMany({
-//             where: {
-//               createdAt:
-//                 dateFrom || dateTo
-//                   ? {
-//                       gte: startOfPeriod,
-//                       lte: endOfPeriod,
-//                     }
-//                   : undefined,
-//             },
-//             select: {
-//               createdAt: true,
-//               binMaterial: {
-//                 select: {
-//                   name: true,
-//                 },
-//               },
-//             },
-//           });
-
-//           const filteredBins = weeklyBins.filter(
-//             (bin) => bin.createdAt.getDay() - 1 == dayIndex
+//     if (filter == "week") {
+//       return await Promise.all(
+//         days.map(async (day, dayIndex) => {
+//           const filteredBins = allBins.filter(
+//             (bin) => bin.createdAt.getDay() === (dayIndex + 1) % 7
 //           );
 
-//           const materialCounts = materialNames.reduce((acc, material) => {
-//             acc[material.name] = 0;
-//             return acc;
-//           }, {} as MaterialCounts);
-
+//           const materialCounts = { ...baseMaterialCounts };
 //           filteredBins.forEach((bin) => {
 //             const material = bin.binMaterial.name;
 //             if (material in materialCounts) {
@@ -346,65 +332,96 @@ function getWeekDatesByIndex(weekIndex: number) {
 //             ...materialCounts,
 //           };
 //         })
-//       : filter == "month"
-//       ? weeks.map(async (week, weekIndex) => {
-//           const { start, end } = getWeekDatesByIndex(weekIndex);
+//       );
+//     } else if (filter == "month") {
+//       try {
+//         const weekRanges = getWeeksInMonth(
+//           startDate ? new Date(startDate) : undefined,
+//           endDate ? new Date(endDate) : undefined
+//         );
 
-//           const weeklyBins = await prisma.bin.findMany({
-//             where: {
-//               createdAt: {
-//                 gte: start,
-//                 lte: end,
-//               },
-//             },
-//             select: {
-//               createdAt: true,
-//               binMaterial: {
-//                 select: {
-//                   name: true,
-//                 },
-//               },
-//             },
-//           });
+//         const results = await Promise.all(
+//           weekRanges.map(async ({ week, start, end }) => {
+//             try {
+//               const filteredBins = allBins.filter((bin) => {
+//                 const binDate = normalizeDate(new Date(bin.createdAt));
+//                 return binDate >= start && binDate <= end;
+//               });
 
-//           const filteredBins = weeklyBins.filter(
-//             (bin) => bin.createdAt >= start && bin.createdAt <= end
+//               const materialCounts = { ...baseMaterialCounts };
+//               filteredBins.forEach((bin) => {
+//                 const material = bin.binMaterial.name;
+//                 if (material in materialCounts) {
+//                   materialCounts[material]++;
+//                 }
+//               });
+
+//               return {
+//                 month: week,
+//                 bin: filteredBins.length,
+//                 ...materialCounts,
+//               } as MonthlyData;
+//             } catch (error) {
+//               console.error(`Error processing ${week}:`, error);
+//               return {
+//                 month: week,
+//                 bin: 0,
+//                 ...baseMaterialCounts,
+//               } as MonthlyData;
+//             }
+//           })
+//         );
+
+//         if (!results || results.length === 0) {
+//           console.warn('No results generated, using fallback');
+//           return [{
+//             month: 'Wk1',
+//             bin: 0,
+//             ...baseMaterialCounts,
+//           }] as MonthlyData[];
+//         }
+
+//         return results;
+//       } catch (error) {
+//         console.error('Error in month filter processing:', error);
+//         return [{
+//           month: 'Wk1',
+//           bin: 0,
+//           ...baseMaterialCounts,
+//         }] as MonthlyData[];
+//       }
+//     } else if (filter == "year") {
+//       return await Promise.all(
+//         months.map(async (month, monthIndex) => {
+//           const filteredBins = allBins.filter(
+//             (bin) => bin.createdAt.getMonth() === monthIndex
 //           );
 
-//           const materialCounts = materialNames.reduce((acc, material) => {
-//             acc[material.name] = 0;
-//             return acc;
-//           }, {} as MaterialCounts);
-
+//           const materialCounts = { ...baseMaterialCounts };
 //           filteredBins.forEach((bin) => {
 //             const material = bin.binMaterial.name;
 //             if (material in materialCounts) {
 //               materialCounts[material]++;
 //             }
 //           });
-//           console.log({month: week, bin: filteredBins.length, ...materialCounts});
+
 //           return {
-//             month: week,
+//             month,
 //             bin: filteredBins.length,
 //             ...materialCounts,
 //           };
 //         })
-//       : months.map(async (month, monthIndex) => {
-//           startOfPeriod.setMonth(monthIndex);
-//           startOfPeriod.setDate(1);
-//           startOfPeriod.setHours(0, 0, 0, 0);
-
-//           endOfPeriod.setMonth(monthIndex + 1);
-//           endOfPeriod.setDate(0);
-//           endOfPeriod.setHours(23, 59, 59, 999);
-
+//       );
+//     } else {
+//       return await Promise.all(
+//         months.map(async (month, monthIndex) => {
 //           const monthlyBins = await prisma.bin.findMany({
 //             where: {
 //               createdAt:
 //                 dateFrom || dateTo
 //                   ? {
-//                       gte: startOfPeriod,
-//                       lte: endOfPeriod,
+//                       gte: dateFrom,
+//                       lte: dateTo,
 //                     }
 //                   : undefined,
 //             },
@@ -442,8 +459,12 @@ function getWeekDatesByIndex(weekIndex: number) {
 //             ...materialCounts,
 //           };
 //         })
-//   );
-//   return barChartData;
+//       );
+//     }
+//   } catch (error) {
+//     console.error("Error in getBarChartData:", error);
+//     throw error;
+//   }
 // };
 
 export const getBarChartData = async (
@@ -452,12 +473,10 @@ export const getBarChartData = async (
   filter?: string
 ): Promise<MonthlyData[]> => {
   try {
-    // Get material names once, outside the loops
     const materialNames = await prisma.binMaterial.findMany({
       select: { name: true },
     });
 
-    // Create base material counts object once
     const baseMaterialCounts = materialNames.reduce((acc, material) => {
       acc[material.name] = 0;
       return acc;
@@ -466,7 +485,6 @@ export const getBarChartData = async (
     const startDate = dateFrom ? new Date(dateFrom) : new Date();
     const endDate = dateTo ? new Date(dateTo) : new Date();
 
-    // Get all bins for the period at once to reduce database calls
     const allBins = await prisma.bin.findMany({
       where: {
         createdAt: {
@@ -783,8 +801,6 @@ export const getPieChartData = async (
     }
   });
 
-  // console.log(binsByFaculty);
-
   return Object.keys(binsByFaculty).map((faculty, index) => ({
     fac: faculty,
     count: binsByFaculty[faculty],
@@ -792,143 +808,93 @@ export const getPieChartData = async (
   }));
 };
 
-// export const getBinCountsByStatus = async (
-//   dateFrom?: Date,
-//   dateTo?: Date,
-//   notFunctional?: boolean,
-//   filter?: string
-// ) => {
-//   let bins: Bin[] = [];
-//   if (dateFrom !== undefined && dateTo !== undefined) {
-//     const adjustedEndDate = new Date(dateTo);
-//     adjustedEndDate.setHours(23, 59, 59, 999);
-
-//   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-//   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
-
-//   switch (filter) {
-//     case 'week':{
-//       if (startOfPeriod && endOfPeriod) {
-//         startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
-//         endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
-//       }
-//       break;
-//     }
-//     case 'month':{
-//       if (startOfPeriod && endOfPeriod) {
-//         startOfPeriod.setDate(1);
-//         startOfPeriod.setHours(0, 0, 0, 0);
-//         startOfPeriod.setMinutes(0);
-
-//         endOfPeriod.setFullYear(startOfPeriod.getFullYear());
-//         endOfPeriod.setMonth(startOfPeriod.getMonth());
-//         endOfPeriod.setDate(new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0).getDate());
-//         endOfPeriod.setHours(23, 59, 59, 999);
-//       }
-//       break;
-//     }
-//     case 'year':{
-//       if (startOfPeriod && endOfPeriod) {
-//         startOfPeriod.setMonth(0);
-//         startOfPeriod.setDate(1);
-//         startOfPeriod.setHours(0, 0, 0, 0);
-//         endOfPeriod.setMonth(11);
-//         endOfPeriod.setDate(31);
-//         endOfPeriod.setHours(23, 59, 59, 999);
-//       }
-//       break;
-//     }
-//   }
-
-//     if (notFunctional) {
-//       bins = await prisma.bin.findMany({
-//         where: {
-//           createdAt: {
-//             gte: startOfPeriod,
-//             lte: endOfPeriod,
-//           },
-//           status: BinStatus.UNDER_MAINTENANCE,
-//         },
-//       });
-//     } else {
-//       bins = await prisma.bin.findMany({
-//         where: {
-//           createdAt: {
-//             gte: startOfPeriod,
-//             lte: endOfPeriod,
-//           },
-//           status: BinStatus.FUNCTIONAL,
-//         },
-//       });
-//     }
-// } 
-// else {
-//     if (notFunctional) {
-//       bins = await prisma.bin.findMany({
-//         where: {
-//           status: BinStatus.UNDER_MAINTENANCE,
-//         },
-//       });
-//     } else {
-//       bins = await prisma.bin.findMany({
-//         where: {
-//           status: BinStatus.FUNCTIONAL,
-//         },
-//       });
-//     }
-// }
-//   return bins.length;
-// };
-
 export const getBinCountsByStatus = async (
   dateFrom?: Date,
   dateTo?: Date,
   notFunctional?: boolean,
   filter?: string
 ) => {
+  let bins: Bin[] = [];
+  if (dateFrom !== undefined && dateTo !== undefined) {
+    const adjustedEndDate = new Date(dateTo);
+    adjustedEndDate.setHours(23, 59, 59, 999);
+
   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
-  if (startOfPeriod && endOfPeriod) {
-    switch (filter) {
-      case 'week':
-        startOfPeriod.setDate(startOfPeriod.getDate() - ((startOfPeriod.getDay() + 6) % 7) + 1);
-        endOfPeriod.setDate(endOfPeriod.getDate() + ((7 - endOfPeriod.getDay()) % 7));
-        break;
-      case 'month':
+  switch (filter) {
+    case 'week':{
+      if (startOfPeriod && endOfPeriod) {
+        startOfPeriod.setDate(startOfPeriod.getDate() - (startOfPeriod.getDay() + 6) % 7 + 1);
+        endOfPeriod.setDate(endOfPeriod.getDate() + (7 - endOfPeriod.getDay()) % 7);
+      }
+      break;
+    }
+    case 'month':{
+      if (startOfPeriod && endOfPeriod) {
         startOfPeriod.setDate(1);
         startOfPeriod.setHours(0, 0, 0, 0);
+        startOfPeriod.setMinutes(0);
+
         endOfPeriod.setFullYear(startOfPeriod.getFullYear());
         endOfPeriod.setMonth(startOfPeriod.getMonth());
         endOfPeriod.setDate(new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0).getDate());
         endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      case 'year':
+      }
+      break;
+    }
+    case 'year':{
+      if (startOfPeriod && endOfPeriod) {
         startOfPeriod.setMonth(0);
         startOfPeriod.setDate(1);
         startOfPeriod.setHours(0, 0, 0, 0);
         endOfPeriod.setMonth(11);
         endOfPeriod.setDate(31);
         endOfPeriod.setHours(23, 59, 59, 999);
-        break;
+      }
+      break;
     }
   }
 
-  const status = notFunctional ? BinStatus.UNDER_MAINTENANCE : BinStatus.FUNCTIONAL;
-
-  const bins = await prisma.bin.findMany({
-    where: {
-      createdAt: startOfPeriod && endOfPeriod ? {
-        gte: startOfPeriod,
-        lte: endOfPeriod,
-      } : undefined,
-      status,
-    },
-  });
-
+    if (notFunctional) {
+      bins = await prisma.bin.findMany({
+        where: {
+          createdAt: {
+            gte: startOfPeriod,
+            lte: endOfPeriod,
+          },
+          status: BinStatus.UNDER_MAINTENANCE,
+        },
+      });
+    } else {
+      bins = await prisma.bin.findMany({
+        where: {
+          createdAt: {
+            gte: startOfPeriod,
+            lte: endOfPeriod,
+          },
+          status: BinStatus.FUNCTIONAL,
+        },
+      });
+    }
+} 
+else {
+    if (notFunctional) {
+      bins = await prisma.bin.findMany({
+        where: {
+          status: BinStatus.UNDER_MAINTENANCE,
+        },
+      });
+    } else {
+      bins = await prisma.bin.findMany({
+        where: {
+          status: BinStatus.FUNCTIONAL,
+        },
+      });
+    }
+}
   return bins.length;
 };
-
 
 export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
   if (dateFrom !== undefined && dateTo !== undefined) {
