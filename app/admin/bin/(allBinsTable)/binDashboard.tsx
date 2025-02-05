@@ -141,7 +141,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
             const {startDate, endDate} = getDateRange(period);
             console.log(startDate, endDate);
             console.log(isActive);
-            if ((startDate && endDate) !== null) {
+            if ((startDate && endDate) !== undefined) {
                 const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
                 = await fetchAll(startDate, endDate, period);
                 setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
@@ -165,7 +165,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         } finally {
             setIsFetching(false);
         }
-        },[getDateRange]);
+        },[isActive]);
 
 
     useEffect(() => {
@@ -174,7 +174,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         setIsFetching(true);
         try {
         const { startDate, endDate } = getDateRange(period);
-            const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
+            const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, period);
             setUMBinsTable(UMBinsUpdate);
             setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
         } catch (error) {
