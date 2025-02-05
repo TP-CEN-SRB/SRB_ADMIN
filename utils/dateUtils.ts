@@ -22,19 +22,65 @@ export const getYears = (startYear: number, endYear: number) => {
   );
 };
 
+// export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date) => {
+//     const weeks = [];
+//     const firstDayOfMonth = dateFrom ? new Date(dateFrom.getFullYear(), dateFrom.getMonth(), 1) : new Date();
+//     const lastDayOfMonth = dateTo ? new Date(dateTo.getFullYear(), dateTo.getMonth() + 1, 0) : new Date();
+//     let currentWeek = [];
+//     for (let day = firstDayOfMonth; day <= lastDayOfMonth; day.setDate(day.getDate() + 1)) {
+//       currentWeek.push(new Date(day));
+//       if (day.getDay() === 0 || day.getDate() === lastDayOfMonth.getDate()) {
+//         weeks.push(`Wk${weeks.length + 1}`);
+//         currentWeek = [];
+//       }
+//     }
+//     return weeks;
+// };
+
+const getWeekDatesByIndex = (date: Date, weekIndex: number) => {
+  const firstDayOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+  const start = new Date(firstDayOfMonth);
+  start.setDate(firstDayOfMonth.getDate() + (weekIndex * 7));
+  
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  
+  // Ensure end date doesn't exceed the month
+  const lastDayOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  if (end > lastDayOfMonth) {
+    end.setDate(lastDayOfMonth.getDate());
+  }
+  
+  return { start, end };
+};
+
 export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date) => {
-    const weeks = [];
-    const firstDayOfMonth = dateFrom ? new Date(dateFrom.getFullYear(), dateFrom.getMonth(), 1) : new Date();
-    const lastDayOfMonth = dateTo ? new Date(dateTo.getFullYear(), dateTo.getMonth() + 1, 0) : new Date();
-    let currentWeek = [];
-    for (let day = firstDayOfMonth; day <= lastDayOfMonth; day.setDate(day.getDate() + 1)) {
-      currentWeek.push(new Date(day));
-      if (day.getDay() === 0 || day.getDate() === lastDayOfMonth.getDate()) {
-        weeks.push(`Wk${weeks.length + 1}`);
-        currentWeek = [];
-      }
+  const weeks: { week: string; start: Date; end: Date }[] = [];
+  const firstDayOfMonth = dateFrom ? new Date(dateFrom) : new Date();
+  const lastDayOfMonth = dateTo 
+    ? new Date(dateTo) 
+    : new Date(firstDayOfMonth.getFullYear(), firstDayOfMonth.getMonth() + 1, 0);
+
+  let currentDate = new Date(firstDayOfMonth);
+  let weekIndex = 0;
+
+  while (currentDate <= lastDayOfMonth) {
+    const { start, end } = getWeekDatesByIndex(firstDayOfMonth, weekIndex);
+    
+    // Only add the week if it contains days within our target range
+    if (start <= lastDayOfMonth && end >= firstDayOfMonth) {
+      weeks.push({
+        week: `Wk${weekIndex + 1}`,
+        start,
+        end
+      });
     }
-    return weeks;
+    
+    weekIndex++;
+    currentDate.setDate(currentDate.getDate() + 7);
+  }
+
+  return weeks;
 };
 
 type FilterPeriod = "week" | "month" | "year" | "all time";

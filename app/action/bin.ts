@@ -508,13 +508,48 @@ export const getBarChartData = async (
       );
     }
 
-    else if (filter == "month") {
-      const weeks = getWeeksInMonth(startDate, endDate);
-      return await Promise.all(
-      weeks.map(async (week, weekIndex) => {
-        try {
-        const { start, end } = getWeekDatesByIndex(weekIndex);
+    // else if (filter == "month") {
+    //   const weeks = getWeeksInMonth(startDate, endDate);
+    //   return await Promise.all(
+    //   weeks.map(async (week, weekIndex) => {
+    //     try {
+    //     const { start, end } = getWeekDatesByIndex(weekIndex);
 
+    //     const filteredBins = allBins.filter(
+    //       (bin) => bin.createdAt >= start && bin.createdAt <= end
+    //     );
+
+    //     const materialCounts = { ...baseMaterialCounts };
+    //     filteredBins.forEach((bin) => {
+    //       const material = bin.binMaterial.name;
+    //       if (material in materialCounts) {
+    //       materialCounts[material]++;
+    //       }
+    //     });
+
+    //     return {
+    //       month: week,
+    //       bin: filteredBins.length,
+    //       ...materialCounts,
+    //     };
+    //     } catch (error) {
+    //     console.error(`Error processing week ${weekIndex}:`, error);
+    //     return {
+    //       month: week,
+    //       bin: 0,
+    //       ...baseMaterialCounts,
+    //     };
+    //     }
+    //   })
+    //   );
+    // }
+
+  else if (filter === "month") {
+  const weekRanges = getWeeksInMonth(startDate, endDate);
+  
+  return await Promise.all(
+    weekRanges.map(async ({ week, start, end }) => {
+      try {
         const filteredBins = allBins.filter(
           (bin) => bin.createdAt >= start && bin.createdAt <= end
         );
@@ -523,7 +558,7 @@ export const getBarChartData = async (
         filteredBins.forEach((bin) => {
           const material = bin.binMaterial.name;
           if (material in materialCounts) {
-          materialCounts[material]++;
+            materialCounts[material]++;
           }
         });
 
@@ -532,17 +567,17 @@ export const getBarChartData = async (
           bin: filteredBins.length,
           ...materialCounts,
         };
-        } catch (error) {
-        console.error(`Error processing week ${weekIndex}:`, error);
+      } catch (error) {
+        console.error(`Error processing ${week}:`, error);
         return {
           month: week,
           bin: 0,
           ...baseMaterialCounts,
         };
-        }
-      })
-      );
-    }
+      }
+    })
+  );
+}
 
     else if (filter == "year") {
       return await Promise.all(
