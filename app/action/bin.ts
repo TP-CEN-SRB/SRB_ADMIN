@@ -452,12 +452,10 @@ export const getBarChartData = async (
   filter?: string
 ): Promise<MonthlyData[]> => {
   try {
-    // Get material names once, outside the loops
     const materialNames = await prisma.binMaterial.findMany({
       select: { name: true },
     });
 
-    // Create base material counts object once
     const baseMaterialCounts = materialNames.reduce((acc, material) => {
       acc[material.name] = 0;
       return acc;
@@ -466,7 +464,6 @@ export const getBarChartData = async (
     const startDate = dateFrom ? new Date(dateFrom) : new Date();
     const endDate = dateTo ? new Date(dateTo) : new Date();
 
-    // Get all bins for the period at once to reduce database calls
     const allBins = await prisma.bin.findMany({
       where: {
         createdAt: {
