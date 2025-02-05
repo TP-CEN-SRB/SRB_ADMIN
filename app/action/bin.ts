@@ -897,9 +897,10 @@ else {
 };
 
 export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
-  if (dateFrom !== undefined && dateTo !== undefined) {
-    const adjustedEndDate = new Date(dateTo);
-    adjustedEndDate.setHours(23, 59, 59, 999);
+    const adjustedEndDate = dateTo ? new Date(dateTo) : undefined;
+    if (adjustedEndDate) {
+      adjustedEndDate.setHours(23, 59, 59, 999);
+    }
     const disposals = await prisma.disposal.findMany({
       where: {
         createdAt: {
@@ -912,10 +913,6 @@ export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
       },
     });
     return disposals.length;
-  }
-  const disposals = await prisma.disposal.findMany();
-  // console.log(disposals.length);
-  return disposals.length;
 };
 
 type DisposalsByHour = {

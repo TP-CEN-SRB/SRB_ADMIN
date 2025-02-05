@@ -98,7 +98,7 @@ type ChartDataItem = {
 };
 
 const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialStatsData, UMBinsData, fetchAll}: BinDashboardProps) => {
-    const [isActive, setIsActive] = useState<FilterPeriod>("all time");
+    const [isActive, setIsActive] = useState<FilterPeriod>();
     const [isFetching, setIsFetching] = useState(false);
     const [gridData, setGridData] = useState<number[]>(initialStatsData);
     const [chartData, setChartData] = useState<[typeof DBBarChartData, typeof DBPieChartData]>([DBBarChartData, DBPieChartData]);
@@ -134,27 +134,24 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     } satisfies ChartConfig;
 
   const getDateRange = (period: FilterPeriod) => DateRange(period);
-  const {startDate, endDate} = getDateRange(isActive);
 
     const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
         setIsFetching(true);
         try {
             const {startDate, endDate} = getDateRange(period);
-            console.log(startDate, endDate);
-            console.log(isActive);
-            // if ((startDate && endDate) !== undefined) {
+            if ((startDate && endDate) !== undefined) {
                 const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
                 = await fetchAll(startDate, endDate, period);
                 setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
                 setChartData([DBBarChartData, DBPieChartData]);
                 setLineChart(binDisposalsTimeLine);
                 setUMBinsTable(UMBinsUpdate);
-            // } else {
-            //   setGridData(initialStatsData);
-            //   setChartData([DBBarChartData, DBPieChartData]);
-            //   setLineChart(DBLineChartData);
-            //   setUMBinsTable(UMBinsData);
-            // }
+            } else {
+              setGridData(initialStatsData);
+              setChartData([DBBarChartData, DBPieChartData]);
+              setLineChart(DBLineChartData);
+              setUMBinsTable(UMBinsData);
+            }
         } catch (error){
           console.log(error);
             toast({
@@ -166,16 +163,16 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         } finally {
             setIsFetching(false);
         }
-        },[getDateRange, isActive]);
+        },[getDateRange]);
 
 
     useEffect(() => {
-      const updateUMBinsTable = async (period: FilterPeriod) => {
+      const updateUMBinsTable = async () => {
         if (isResolved){
         setIsFetching(true);
         try {
-        const { startDate, endDate } = getDateRange(period);
-            const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, period);
+        const { startDate, endDate } = getDateRange(isActive || "all time");
+            const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
             setUMBinsTable(UMBinsUpdate);
             setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
         } catch (error) {
@@ -191,8 +188,8 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         }
       }
       };
-      updateUMBinsTable(isActive);
-    }, [isResolved, ]);
+      updateUMBinsTable();
+    }, [isResolved]);
 
     const binDashBoardItems = useMemo(()=> [
         {
@@ -234,7 +231,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
       queryKey: ['bins', {type: UMBinsData}],
       queryFn: async () => {
         try{
-        const { startDate, endDate } = getDateRange(isActive);
+        const { startDate, endDate } = getDateRange(isActive || "all time");
         const data = await fetchAll(startDate, endDate, isActive);
         setGridData([data.dashboardData.totalFuncBins, data.dashboardData.totalCount, data.dashboardData.totalDisposalCount, data.dashboardData.totalUMBins]);
         setChartData([data.chartsData.DBBarChartData, data.chartsData.DBPieChartData]);
@@ -292,6 +289,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                     onClick={() => {
                       handlePeriodChange(period);
                       setIsActive(period);
+                      console.log(period);
                     }}
                   >
                     <span
