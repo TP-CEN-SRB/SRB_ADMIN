@@ -154,12 +154,6 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     console.log(error);
     return;
   }
-  // await resend.emails.send({
-  //   from: "onboarding@resend.dev",
-  //   to: email,
-  //   subject: "[Confirmation] Account creation",
-  //   html: `<p>Click <a href=${confirmLink}>here</a> to confirm email</p>`,
-  // });
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
@@ -183,7 +177,8 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Reset password",
-      html: emailTemplate(resetLink, "RESET"),
+      // html: emailTemplate(resetLink, "RESET"),
+      html: `<p>Click on the <a href="${resetLink}">link</a> to reset your password</p>`,
     });
   } catch (error) {
     console.log(error);
