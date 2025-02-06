@@ -721,49 +721,49 @@ export const getPieChartData = async (
   dateTo?: Date,
   filter?: string
 ) => {
-  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+  // const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+  // const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
-  switch (filter) {
-    case "week": {
-      //week filter is working
-      if (startOfPeriod && endOfPeriod) {
-        startOfPeriod.setDate(
-          startOfPeriod.getDate() - ((startOfPeriod.getDay() + 6) % 7) + 1
-        );
-        endOfPeriod.setDate(
-          endOfPeriod.getDate() + ((7 - endOfPeriod.getDay()) % 7)
-        );
-      }
-      break;
-    }
-    case "month": {
-      if (startOfPeriod && endOfPeriod) {
-          startOfPeriod.setDate(1);
-          startOfPeriod.setHours(0, 0, 0, 0);
-          startOfPeriod.setMinutes(0);
+  // switch (filter) {
+  //   case "week": {
+  //     //week filter is working
+  //     if (startOfPeriod && endOfPeriod) {
+  //       startOfPeriod.setDate(
+  //         startOfPeriod.getDate() - ((startOfPeriod.getDay() + 6) % 7) + 1
+  //       );
+  //       endOfPeriod.setDate(
+  //         endOfPeriod.getDate() + ((7 - endOfPeriod.getDay()) % 7)
+  //       );
+  //     }
+  //     break;
+  //   }
+  //   case "month": {
+  //     if (startOfPeriod && endOfPeriod) {
+  //         startOfPeriod.setDate(1);
+  //         startOfPeriod.setHours(0, 0, 0, 0);
+  //         startOfPeriod.setMinutes(0);
 
-          endOfPeriod.setMonth(startOfPeriod.getMonth() + 1);
-          endOfPeriod.setDate(0);
-          endOfPeriod.setHours(23, 59, 59, 999);
-      }
-      break;
-    }
-    case "year": {
-      if (startOfPeriod && endOfPeriod) {
-        startOfPeriod.setMonth(0);
-        startOfPeriod.setDate(1);
-        startOfPeriod.setHours(0, 0, 0, 0);
-        endOfPeriod.setMonth(11);
-        endOfPeriod.setDate(31);
-        endOfPeriod.setHours(23, 59, 59, 999);
-      }
-      break;
-    }
-    default: {
-      // Handle default case if needed
-    }
-  }
+  //         endOfPeriod.setMonth(startOfPeriod.getMonth() + 1);
+  //         endOfPeriod.setDate(0);
+  //         endOfPeriod.setHours(23, 59, 59, 999);
+  //     }
+  //     break;
+  //   }
+  //   case "year": {
+  //     if (startOfPeriod && endOfPeriod) {
+  //       startOfPeriod.setMonth(0);
+  //       startOfPeriod.setDate(1);
+  //       startOfPeriod.setHours(0, 0, 0, 0);
+  //       endOfPeriod.setMonth(11);
+  //       endOfPeriod.setDate(31);
+  //       endOfPeriod.setHours(23, 59, 59, 999);
+  //     }
+  //     break;
+  //   }
+  //   default: {
+  //     // Handle default case if needed
+  //   }
+  // }
   const binsWithFaculty = await prisma.bin.findMany({
     include: {
       user: {
@@ -777,8 +777,8 @@ export const getPieChartData = async (
         role: "BIN" as Role,
       },
       createdAt: {
-        gte: startOfPeriod,
-        lte: endOfPeriod,
+        gte: dateFrom,
+        lte: dateTo,
       },
     },
   });
