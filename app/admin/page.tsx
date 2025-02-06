@@ -1,12 +1,13 @@
 import React from "react";
 import {
   getAllBins,
-  getBinCountsByStatus,
+  getBinFunctionalBinsCount,
   getBinDisposalsByTime,
   getBarChartData,
   getDisposals,
   getFaultyBins,
   getPieChartData,
+  getUMBinsCount,
 } from "../action/bin";
 import BinDashboard from "./bin/(allBinsTable)/binDashboard";
 const Page = async () => {
@@ -18,10 +19,10 @@ const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: stri
     totalDisposalCount,
     totalUMBins,
   ] = await Promise.all([
-    getBinCountsByStatus(startDate, startDate, false, filter),
+    getBinFunctionalBinsCount(startDate, startDate,filter),
     (await getAllBins(startDate, endDate)).length,
     getDisposals(startDate, endDate),
-    getBinCountsByStatus(startDate, endDate, true, filter),
+    getUMBinsCount(startDate, endDate,filter),
   ]);
 
   return {
