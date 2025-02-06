@@ -58,7 +58,7 @@ export const POST = async (req: NextRequest) => {
         );
         return NextResponse.json(
           { message: "Confirmation email sent!" },
-          { status: 200 }
+          { status: 403 }
         );
       }
       const ableToResendEmail = await ableToGenerateNewVerificationToken(
