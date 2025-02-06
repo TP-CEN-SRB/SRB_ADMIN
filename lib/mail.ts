@@ -128,7 +128,6 @@ const warningEmailTemplate = (
 };
 export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
-
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -148,7 +147,8 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       from: `Temasek Polytechnic CEN<${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Account verification",
-      html: emailTemplate(confirmLink, "VERIFY"),
+      // html: emailTemplate(confirmLink, "VERIFY"),
+      text: `Click on the link to verify your email: ${confirmLink}`,
     });
   } catch (error) {
     console.log(error);
