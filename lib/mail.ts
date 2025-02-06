@@ -148,7 +148,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       to: email,
       subject: "[Smart Bin System] Account verification",
       // html: emailTemplate(confirmLink, "VERIFY"),
-      html: `<p>Click on the <a href="${confirmLink}">link</a> to verify your email</p>`,
+      text: "Go to this url to verify your email: " + confirmLink,
     });
   } catch (error) {
     console.log(error);
@@ -178,7 +178,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       to: email,
       subject: "[Smart Bin System] Reset password",
       // html: emailTemplate(resetLink, "RESET"),
-      html: `<p>Click on the <a href="${resetLink}">link</a> to reset your password</p>`,
+      text: "Go to this url to reset your password: " + resetLink,
     });
   } catch (error) {
     console.log(error);
