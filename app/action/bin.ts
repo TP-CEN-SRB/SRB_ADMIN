@@ -969,6 +969,19 @@ export const getPieChartData = async (
 //   return bins.length;
 // };
 
+const normalizeToUTC = (date: Date): Date => {
+  // Create a new date object in UTC
+  return new Date(Date.UTC(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds(),
+    date.getMilliseconds()
+  ));
+};
+
 export const getBinFunctionalBinsCount = async (
   dateFrom?: Date,
   dateTo?: Date,
@@ -976,42 +989,45 @@ export const getBinFunctionalBinsCount = async (
 ): Promise<number> => {
   let bins: Bin[] = [];
 
-  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+  // Convert input dates to UTC
+  const startOfPeriod = dateFrom ? normalizeToUTC(new Date(dateFrom)) : undefined;
+  const endOfPeriod = dateTo ? normalizeToUTC(new Date(dateTo)) : undefined;
 
   if (startOfPeriod && endOfPeriod) {
     switch (filter) {
       case 'week': {
-        const startDay = startOfPeriod.getDay();
+        // Get UTC day (0-6, starting from Sunday)
+        const startDay = startOfPeriod.getUTCDay();
         const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
-        startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
-        startOfPeriod.setHours(0, 0, 0, 0);
+        startOfPeriod.setUTCDate(startOfPeriod.getUTCDate() - daysToSubtract);
+        startOfPeriod.setUTCHours(0, 0, 0, 0);
 
-        const endDay = endOfPeriod.getDay();
+        const endDay = endOfPeriod.getUTCDay();
         const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
-        endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
-        endOfPeriod.setHours(23, 59, 59, 999);
+        endOfPeriod.setUTCDate(endOfPeriod.getUTCDate() + daysToAdd);
+        endOfPeriod.setUTCHours(23, 59, 59, 999);
         break;
       }
       case 'month': {
-        startOfPeriod.setDate(1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+        startOfPeriod.setUTCDate(1);
+        startOfPeriod.setUTCHours(0, 0, 0, 0);
         
-        const lastDay = new Date(
-          startOfPeriod.getFullYear(),
-          startOfPeriod.getMonth() + 1,
+        const lastDay = new Date(Date.UTC(
+          startOfPeriod.getUTCFullYear(),
+          startOfPeriod.getUTCMonth() + 1,
           0
-        ).getDate();
-        endOfPeriod.setDate(lastDay);
-        endOfPeriod.setHours(23, 59, 59, 999);
+        )).getUTCDate();
+        
+        endOfPeriod.setUTCDate(lastDay);
+        endOfPeriod.setUTCHours(23, 59, 59, 999);
         break;
       }
       case 'year': {
-        startOfPeriod.setMonth(0, 1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+        startOfPeriod.setUTCMonth(0, 1);
+        startOfPeriod.setUTCHours(0, 0, 0, 0);
         
-        endOfPeriod.setMonth(11, 31);
-        endOfPeriod.setHours(23, 59, 59, 999);
+        endOfPeriod.setUTCMonth(11, 31);
+        endOfPeriod.setUTCHours(23, 59, 59, 999);
         break;
       }
     }
@@ -1028,12 +1044,79 @@ export const getBinFunctionalBinsCount = async (
     };
   }
 
-  bins = await prisma.bin.findMany({
+  // Use count instead of findMany for better performance
+  const count = await prisma.bin.count({
     where: whereClause,
   });
 
-  return bins.length;
+  return count;
 };
+
+// export const getBinFunctionalBinsCount = async (
+//   dateFrom?: Date,
+//   dateTo?: Date,
+//   filter?: string
+// ): Promise<number> => {
+//   let bins: Bin[] = [];
+
+//   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+//   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+
+//   if (startOfPeriod && endOfPeriod) {
+//     switch (filter) {
+//       case 'week': {
+//         const startDay = startOfPeriod.getDay();
+//         const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+//         startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
+//         startOfPeriod.setHours(0, 0, 0, 0);
+
+//         const endDay = endOfPeriod.getDay();
+//         const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
+//         endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'month': {
+//         startOfPeriod.setDate(1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
+        
+//         const lastDay = new Date(
+//           startOfPeriod.getFullYear(),
+//           startOfPeriod.getMonth() + 1,
+//           0
+//         ).getDate();
+//         endOfPeriod.setDate(lastDay);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'year': {
+//         startOfPeriod.setMonth(0, 1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
+        
+//         endOfPeriod.setMonth(11, 31);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//     }
+//   }
+
+//   const whereClause: Prisma.BinWhereInput = {
+//     status: BinStatus.FUNCTIONAL
+//   };
+
+//   if (startOfPeriod && endOfPeriod) {
+//     whereClause.createdAt = {
+//       gte: startOfPeriod,
+//       lte: endOfPeriod,
+//     };
+//   }
+
+//   bins = await prisma.bin.findMany({
+//     where: whereClause,
+//   });
+
+//   return bins.length;
+// };
 
 export const getUMBinsCount = async (
   dateFrom?: Date,
@@ -1101,69 +1184,69 @@ export const getUMBinsCount = async (
   return bins.length;
 };
 
-export const getBinsCountByStatus = async (dateFrom?: Date,
-  dateTo?: Date,
-  filter?: string) => {
-  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+// export const getBinsCountByStatus = async (dateFrom?: Date,
+//   dateTo?: Date,
+//   filter?: string) => {
+//   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+//   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
-  if (startOfPeriod && endOfPeriod) {
-    switch (filter) {
-      case 'week': {
-        const startDay = startOfPeriod.getDay();
-        const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
-        startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//   if (startOfPeriod && endOfPeriod) {
+//     switch (filter) {
+//       case 'week': {
+//         const startDay = startOfPeriod.getDay();
+//         const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+//         startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
+//         startOfPeriod.setHours(0, 0, 0, 0);
 
-        const endDay = endOfPeriod.getDay();
-        const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
-        endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'month': {
-        startOfPeriod.setDate(1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//         const endDay = endOfPeriod.getDay();
+//         const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
+//         endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'month': {
+//         startOfPeriod.setDate(1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
         
-        const lastDay = new Date(
-          startOfPeriod.getFullYear(),
-          startOfPeriod.getMonth() + 1,
-          0
-        ).getDate();
-        endOfPeriod.setDate(lastDay);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'year': {
-        startOfPeriod.setMonth(0, 1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//         const lastDay = new Date(
+//           startOfPeriod.getFullYear(),
+//           startOfPeriod.getMonth() + 1,
+//           0
+//         ).getDate();
+//         endOfPeriod.setDate(lastDay);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'year': {
+//         startOfPeriod.setMonth(0, 1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
         
-        endOfPeriod.setMonth(11, 31);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-    }
-  }
-  const functionalBins = await prisma.bin.findMany({
-    where: {
-      createdAt: {
-        gte: startOfPeriod,
-        lte: endOfPeriod,
-      },
-      status: BinStatus.FUNCTIONAL,
-    },
-  });
-  const underMaintenanceBins = await prisma.bin.findMany({
-    where: {
-      createdAt: {
-        gte: startOfPeriod,
-        lte: endOfPeriod,
-      },
-      status: BinStatus.UNDER_MAINTENANCE,
-    },
-  });
-  return { functionalBinsCount: functionalBins.length, underMaintenanceBinsCount: underMaintenanceBins.length };
-}
+//         endOfPeriod.setMonth(11, 31);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//     }
+//   }
+//   const functionalBins = await prisma.bin.findMany({
+//     where: {
+//       createdAt: {
+//         gte: startOfPeriod,
+//         lte: endOfPeriod,
+//       },
+//       status: BinStatus.FUNCTIONAL,
+//     },
+//   });
+//   const underMaintenanceBins = await prisma.bin.findMany({
+//     where: {
+//       createdAt: {
+//         gte: startOfPeriod,
+//         lte: endOfPeriod,
+//       },
+//       status: BinStatus.UNDER_MAINTENANCE,
+//     },
+//   });
+//   return { functionalBinsCount: functionalBins.length, underMaintenanceBinsCount: underMaintenanceBins.length };
+// }
 
 export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
     const adjustedEndDate = dateTo ? new Date(dateTo) : undefined;
