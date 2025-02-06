@@ -8,6 +8,7 @@ import {
   getFaultyBins,
   getPieChartData,
   getUMBinsCount,
+  getBinsCountByStatus,
 } from "../action/bin";
 import BinDashboard from "./bin/(allBinsTable)/binDashboard";
 const Page = async () => {
@@ -19,10 +20,11 @@ const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: stri
     totalDisposalCount,
     totalUMBins,
   ] = await Promise.all([
-    getBinFunctionalBinsCount(startDate, startDate,filter),
+    (await getBinsCountByStatus(startDate, startDate,filter)).functionalBinsCount,
     (await getAllBins(startDate, endDate)).length,
     getDisposals(startDate, endDate),
-    getUMBinsCount(startDate, endDate,filter),
+    (await getBinsCountByStatus(startDate, startDate,filter)).underMaintenanceBinsCount
+    // getBinsCountByStatus(startDate, endDate,filter),
   ]);
 
   return {

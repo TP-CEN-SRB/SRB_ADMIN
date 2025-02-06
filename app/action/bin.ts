@@ -1101,6 +1101,70 @@ export const getUMBinsCount = async (
   return bins.length;
 };
 
+export const getBinsCountByStatus = async (dateFrom?: Date,
+  dateTo?: Date,
+  filter?: string) => {
+  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+
+  if (startOfPeriod && endOfPeriod) {
+    switch (filter) {
+      case 'week': {
+        const startDay = startOfPeriod.getDay();
+        const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+        startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
+        startOfPeriod.setHours(0, 0, 0, 0);
+
+        const endDay = endOfPeriod.getDay();
+        const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
+        endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
+        endOfPeriod.setHours(23, 59, 59, 999);
+        break;
+      }
+      case 'month': {
+        startOfPeriod.setDate(1);
+        startOfPeriod.setHours(0, 0, 0, 0);
+        
+        const lastDay = new Date(
+          startOfPeriod.getFullYear(),
+          startOfPeriod.getMonth() + 1,
+          0
+        ).getDate();
+        endOfPeriod.setDate(lastDay);
+        endOfPeriod.setHours(23, 59, 59, 999);
+        break;
+      }
+      case 'year': {
+        startOfPeriod.setMonth(0, 1);
+        startOfPeriod.setHours(0, 0, 0, 0);
+        
+        endOfPeriod.setMonth(11, 31);
+        endOfPeriod.setHours(23, 59, 59, 999);
+        break;
+      }
+    }
+  }
+  const functionalBins = await prisma.bin.findMany({
+    where: {
+      createdAt: {
+        gte: startOfPeriod,
+        lte: endOfPeriod,
+      },
+      status: BinStatus.FUNCTIONAL,
+    },
+  });
+  const underMaintenanceBins = await prisma.bin.findMany({
+    where: {
+      createdAt: {
+        gte: startOfPeriod,
+        lte: endOfPeriod,
+      },
+      status: BinStatus.UNDER_MAINTENANCE,
+    },
+  });
+  return { functionalBinsCount: functionalBins.length, underMaintenanceBinsCount: underMaintenanceBins.length };
+}
+
 export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
     const adjustedEndDate = dateTo ? new Date(dateTo) : undefined;
     if (adjustedEndDate) {
