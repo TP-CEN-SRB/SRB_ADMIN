@@ -986,8 +986,7 @@ export const getBinFunctionalBinsCount = async (
   dateFrom?: Date,
   dateTo?: Date,
   filter?: string
-): Promise<number> => {
-  let bins: Bin[] = [];
+) => {
 
   // Convert input dates to UTC
   const startOfPeriod = dateFrom ? normalizeToUTC(new Date(dateFrom)) : undefined;
