@@ -153,7 +153,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
               setUMBinsTable(UMBinsData);
             }
         } catch (error){
-          console.log(error);
             toast({
               title: "Error!",
               description: "Failed to fetch data, Handle Period Change",
