@@ -1,13 +1,13 @@
 import React from "react";
 import {
   getAllBins,
-  getBinFunctionalBinsCount,
+  // getBinFunctionalBinsCount,
   getBinDisposalsByTime,
   getBarChartData,
   getDisposals,
   getFaultyBins,
   getPieChartData,
-  getUMBinsCount,
+  // getUMBinsCount,
   getBinCountsByStatus,
 } from "../action/bin";
 import BinDashboard from "./bin/(allBinsTable)/binDashboard";

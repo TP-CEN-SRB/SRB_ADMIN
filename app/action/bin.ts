@@ -969,137 +969,137 @@ export const getBinCountsByStatus = async (
   return bins.length;
 };
 
-export const getBinFunctionalBinsCount = async (
-  dateFrom?: Date,
-  dateTo?: Date,
-  filter?: string
-): Promise<number> => {
-  let bins: Bin[] = [];
+// export const getBinFunctionalBinsCount = async (
+//   dateFrom?: Date,
+//   dateTo?: Date,
+//   filter?: string
+// ): Promise<number> => {
+//   let bins: Bin[] = [];
 
-  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+//   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+//   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
-  if (startOfPeriod && endOfPeriod) {
-    switch (filter) {
-      case 'week': {
-        const startDay = startOfPeriod.getDay();
-        const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
-        startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//   if (startOfPeriod && endOfPeriod) {
+//     switch (filter) {
+//       case 'week': {
+//         const startDay = startOfPeriod.getDay();
+//         const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+//         startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
+//         startOfPeriod.setHours(0, 0, 0, 0);
 
-        const endDay = endOfPeriod.getDay();
-        const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
-        endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'month': {
-        startOfPeriod.setDate(1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//         const endDay = endOfPeriod.getDay();
+//         const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
+//         endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'month': {
+//         startOfPeriod.setDate(1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
         
-        const lastDay = new Date(
-          startOfPeriod.getFullYear(),
-          startOfPeriod.getMonth() + 1,
-          0
-        ).getDate();
-        endOfPeriod.setDate(lastDay);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'year': {
-        startOfPeriod.setMonth(0, 1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//         const lastDay = new Date(
+//           startOfPeriod.getFullYear(),
+//           startOfPeriod.getMonth() + 1,
+//           0
+//         ).getDate();
+//         endOfPeriod.setDate(lastDay);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'year': {
+//         startOfPeriod.setMonth(0, 1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
         
-        endOfPeriod.setMonth(11, 31);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-    }
-  }
+//         endOfPeriod.setMonth(11, 31);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//     }
+//   }
 
-  const whereClause: Prisma.BinWhereInput = {
-    status: BinStatus.FUNCTIONAL
-  };
+//   const whereClause: Prisma.BinWhereInput = {
+//     status: BinStatus.FUNCTIONAL
+//   };
 
-  if (startOfPeriod && endOfPeriod) {
-    whereClause.createdAt = {
-      gte: startOfPeriod,
-      lte: endOfPeriod,
-    };
-  }
+//   if (startOfPeriod && endOfPeriod) {
+//     whereClause.createdAt = {
+//       gte: startOfPeriod,
+//       lte: endOfPeriod,
+//     };
+//   }
 
-  bins = await prisma.bin.findMany({
-    where: whereClause,
-  });
+//   bins = await prisma.bin.findMany({
+//     where: whereClause,
+//   });
 
-  return bins.length;
-};
+//   return bins.length;
+// };
 
-export const getUMBinsCount = async (
-  dateFrom?: Date,
-  dateTo?: Date,
-  filter?: string
-): Promise<number> => {
-  let bins: Bin[] = [];
+// export const getUMBinsCount = async (
+//   dateFrom?: Date,
+//   dateTo?: Date,
+//   filter?: string
+// ): Promise<number> => {
+//   let bins: Bin[] = [];
 
-  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+//   const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+//   const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
-  if (startOfPeriod && endOfPeriod) {
-    switch (filter) {
-      case 'week': {
-        const startDay = startOfPeriod.getDay();
-        const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
-        startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//   if (startOfPeriod && endOfPeriod) {
+//     switch (filter) {
+//       case 'week': {
+//         const startDay = startOfPeriod.getDay();
+//         const daysToSubtract = startDay === 0 ? 6 : startDay - 1;
+//         startOfPeriod.setDate(startOfPeriod.getDate() - daysToSubtract);
+//         startOfPeriod.setHours(0, 0, 0, 0);
 
-        const endDay = endOfPeriod.getDay();
-        const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
-        endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'month': {
-        startOfPeriod.setDate(1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//         const endDay = endOfPeriod.getDay();
+//         const daysToAdd = endDay === 0 ? 0 : 7 - endDay;
+//         endOfPeriod.setDate(endOfPeriod.getDate() + daysToAdd);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'month': {
+//         startOfPeriod.setDate(1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
         
-        const lastDay = new Date(
-          startOfPeriod.getFullYear(),
-          startOfPeriod.getMonth() + 1,
-          0
-        ).getDate();
-        endOfPeriod.setDate(lastDay);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-      case 'year': {
-        startOfPeriod.setMonth(0, 1);
-        startOfPeriod.setHours(0, 0, 0, 0);
+//         const lastDay = new Date(
+//           startOfPeriod.getFullYear(),
+//           startOfPeriod.getMonth() + 1,
+//           0
+//         ).getDate();
+//         endOfPeriod.setDate(lastDay);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//       case 'year': {
+//         startOfPeriod.setMonth(0, 1);
+//         startOfPeriod.setHours(0, 0, 0, 0);
         
-        endOfPeriod.setMonth(11, 31);
-        endOfPeriod.setHours(23, 59, 59, 999);
-        break;
-      }
-    }
-  }
+//         endOfPeriod.setMonth(11, 31);
+//         endOfPeriod.setHours(23, 59, 59, 999);
+//         break;
+//       }
+//     }
+//   }
 
-  const whereClause: Prisma.BinWhereInput = {
-    status: BinStatus.UNDER_MAINTENANCE
-  };
+//   const whereClause: Prisma.BinWhereInput = {
+//     status: BinStatus.UNDER_MAINTENANCE
+//   };
 
-  if (startOfPeriod && endOfPeriod) {
-    whereClause.createdAt = {
-      gte: startOfPeriod,
-      lte: endOfPeriod,
-    };
-  }
+//   if (startOfPeriod && endOfPeriod) {
+//     whereClause.createdAt = {
+//       gte: startOfPeriod,
+//       lte: endOfPeriod,
+//     };
+//   }
 
-  bins = await prisma.bin.findMany({
-    where: whereClause,
-  });
+//   bins = await prisma.bin.findMany({
+//     where: whereClause,
+//   });
 
-  return bins.length;
-};
+//   return bins.length;
+// };
 
 // export const getBinsCountByStatus = async (dateFrom?: Date,
 //   dateTo?: Date,
