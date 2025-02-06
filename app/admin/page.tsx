@@ -1,13 +1,11 @@
 import React from "react";
 import {
   getAllBins,
-  // getBinFunctionalBinsCount,
   getBinDisposalsByTime,
   getBarChartData,
   getDisposals,
   getFaultyBins,
   getPieChartData,
-  // getUMBinsCount,
   getBinCountsByStatus,
 } from "../action/bin";
 import BinDashboard from "./bin/(allBinsTable)/binDashboard";
@@ -24,7 +22,6 @@ const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: stri
     (await getAllBins(startDate, endDate)).length,
     getDisposals(startDate, endDate),
     getBinCountsByStatus(startDate, endDate,true, filter)
-    // getUMBinsCount(startDate, endDate,filter),
   ]);
 
   return {
