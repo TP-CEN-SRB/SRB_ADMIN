@@ -904,16 +904,14 @@ export const getBinCountsByStatus = async (
 ) => {
   let bins: Bin[] = [];
 
-  // Clone dates to avoid mutating original inputs
-  let startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
-  let endOfPeriod = dateTo ? new Date(dateTo) : undefined;
+  const startOfPeriod = dateFrom ? new Date(dateFrom) : undefined;
+  const endOfPeriod = dateTo ? new Date(dateTo) : undefined;
 
   // Adjust dates based on filter
   if (startOfPeriod && endOfPeriod) {
     switch (filter) {
       case 'week': {
-        // Set to start of week (Monday) and end of week (Sunday)
-        const startDay = startOfPeriod.getDay(); // 0 (Sun) - 6 (Sat)
+        const startDay = startOfPeriod.getDay();
         startOfPeriod.setDate(startOfPeriod.getDate() - (startDay === 0 ? 6 : startDay - 1));
         startOfPeriod.setHours(0, 0, 0, 0);
 
@@ -923,10 +921,9 @@ export const getBinCountsByStatus = async (
         break;
       }
       case 'month': {
-        // Set to first day of month and last day of month
         startOfPeriod.setDate(1);
         startOfPeriod.setHours(0, 0, 0, 0);
-        
+
         const lastDay = new Date(
           startOfPeriod.getFullYear(),
           startOfPeriod.getMonth() + 1,
@@ -937,10 +934,9 @@ export const getBinCountsByStatus = async (
         break;
       }
       case 'year': {
-        // Set to first day of year and last day of year
         startOfPeriod.setMonth(0, 1);
         startOfPeriod.setHours(0, 0, 0, 0);
-        
+
         endOfPeriod.setMonth(11, 31);
         endOfPeriod.setHours(23, 59, 59, 999);
         break;
@@ -948,8 +944,7 @@ export const getBinCountsByStatus = async (
     }
   }
 
-  // Build Prisma query
-  const whereClause: any = {};
+  const whereClause: Prisma.BinWhereInput = {};
 
   if (startOfPeriod && endOfPeriod) {
     whereClause.createdAt = {
