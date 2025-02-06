@@ -148,7 +148,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       to: email,
       subject: "[Smart Bin System] Account verification",
       // html: emailTemplate(confirmLink, "VERIFY"),
-      text: `Click on the link to verify your email: ${confirmLink}`,
+      html: `<p>Click on the <a href="${confirmLink}">link</a> to verify your email</p>`,
     });
   } catch (error) {
     console.log(error);
