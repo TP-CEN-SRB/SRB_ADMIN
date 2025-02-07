@@ -32,18 +32,21 @@ const ResetPasswordForm = () => {
   });
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
-  const router = useRouter();
+  const [success, setSuccess] = useState("");
   const onSubmit = (values: z.infer<typeof ResetSchema>) => {
     startTransition(async () => {
       setError(""); // clear error message
       const data = await resetPassword(values);
       setError(data?.error as string);
+      setSuccess(data?.success as string);
       if (!data?.error && data?.success !== undefined) {
         toast({
           title: "Hey there!",
           description: `A reset password email has been sent to ${values.email.toLowerCase()}`,
         });
-        router.push("/login");
+        setTimeout(() => {
+          window.close();
+        }, 5000);
       }
     });
   };
@@ -76,6 +79,12 @@ const ResetPasswordForm = () => {
             )}
           />
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+          {success && (
+            <CustomFormMessage type="Success">
+              {success} <br />
+              If nothing happens, this window will close in 5 seconds
+            </CustomFormMessage>
+          )}
           <Button
             disabled={isPending}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"

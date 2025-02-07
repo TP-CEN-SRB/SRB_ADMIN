@@ -50,12 +50,14 @@ const UserPage = async ({ params }: { params: { id: string } }) => {
                 <p className="text-slate-600">Email</p>
                 <p className="text-slate-700 font-bold text-xl">{user.email}</p>
               </div>
-              <div>
-                <p className="text-slate-600">Admin Number</p>
-                <p className="text-slate-700 font-bold text-xl">
-                  {user.email.split("@")[0].toUpperCase()}
-                </p>
-              </div>
+              {user.email.endsWith("@student.tp.edu.sg") && (
+                <div>
+                  <p className="text-slate-600">Admin Number</p>
+                  <p className="text-slate-700 font-bold text-xl">
+                    {user.email.split("@")[0].toUpperCase()}
+                  </p>
+                </div>
+              )}
               <div>
                 <p className="text-slate-600">Faculty</p>
                 <p className="text-slate-700 font-bold text-xl">

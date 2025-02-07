@@ -36,15 +36,19 @@ const Actions = ({ data }: { data: Student }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() =>
-              navigator.clipboard.writeText(data.email.split("@")[0])
-            }
-          >
-            <FaCopy />
-            Copy admin number
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          {data.email.endsWith("@student.tp.edu.sg") && (
+            <>
+              <DropdownMenuItem
+                onClick={() =>
+                  navigator.clipboard.writeText(data.email.split("@")[0])
+                }
+              >
+                <FaCopy />
+                Copy admin number
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          )}
           <DropdownMenuItem
             onClick={() => router.push(`/admin/student/${data.id}`)}
           >
