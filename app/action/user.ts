@@ -636,7 +636,7 @@ const updateStudent = async (
   return { success: `Student ${updatedUser.id} updated successfully ` };
 };
 
-const getTopHundredUsers = async (dateFrom?: Date, dateTo?: Date) => {
+const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   // Get top users by points
   const data = await prisma.disposal.groupBy({
     by: ["userId"],
@@ -796,6 +796,6 @@ export {
   getAllStudentUsers,
   deleteStudent,
   updateStudent,
-  getTopHundredUsers,
+  getTopTenUsers,
   listOfBinManagersUsed,
 };
