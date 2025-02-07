@@ -24,14 +24,25 @@ Ensure your `.env` has the following environment variables
 4. NEXT_JWT_SECRET_KEY=********************************
 5. API_KEY=********************************
 
-6. NEXT_PUBLIC_PERSONAL_EMAIL=******@gmail.com
-7. NEXT_PUBLIC_EMAIL_PASSWORD=******************************** <!--Generate app password in gmail -->
+Copy broker credentials
+6. NEXT_PUBLIC_BROKER_URL="wss://mqtt.example.com:8844/mqtt" 
+7. NEXT_PUBLIC_BROKER_USERNAME=********************************
+8. NEXT_PUBLIC_BROKER_PASSWORD=********************************
+
+Copy token from [Mapbox](https://console.mapbox.com/)
+9. NEXT_PUBLIC_MAPBOX_TOKEN=********************************
+
+Copy token from [UploadThing](https://uploadthing.com/dashboard/)
+10. UPLOADTHING_TOKEN=********************************
+
+11. NEXT_PUBLIC_PERSONAL_EMAIL=******@gmail.com
+12. NEXT_PUBLIC_EMAIL_PASSWORD=******************************** <!--Generate app password in gmail -->
 
 Copy API keys from [Pusher](https://dashboard.pusher.com/)
 
-8. NEXT_PUBLIC_PUSHER_APP_ID = ********************************
-9. NEXT_PUBLIC_PUSHER_KEY = ********************************
-10. PUSHER_SECRET = ********************************
-11. NEXT_PUBLIC_PUSHER_CLUSTER = ********************************
+13. NEXT_PUBLIC_PUSHER_APP_ID = ********************************
+14. NEXT_PUBLIC_PUSHER_KEY = ********************************
+15. PUSHER_SECRET = ********************************
+16. NEXT_PUBLIC_PUSHER_CLUSTER = ********************************
 
 
