@@ -23,7 +23,7 @@ Copy connection string from [Neon DB](https://console.neon.tech/)
 
 1. DATABASE_URL=********************************
 
-2. BASE_URL="https://cen-smart-bin.vercel.app" # Domain URL -->
+2. BASE_URL="https://cen-smart-bin.vercel.app" <!-- Domain URL -->
 3. AUTH_SECRET=******************************** <!-- Type npx auth secret to generate auth secret key -->
 4. NEXT_JWT_SECRET_KEY=********************************
 5. API_KEY=********************************
