@@ -25,14 +25,17 @@ Ensure your `.env` has the following environment variables
 5. API_KEY=********************************
 
 Copy broker credentials
+
 6. NEXT_PUBLIC_BROKER_URL="wss://mqtt.example.com:8844/mqtt" 
 7. NEXT_PUBLIC_BROKER_USERNAME=********************************
 8. NEXT_PUBLIC_BROKER_PASSWORD=********************************
 
 Copy token from [Mapbox](https://console.mapbox.com/)
+
 9. NEXT_PUBLIC_MAPBOX_TOKEN=********************************
 
 Copy token from [UploadThing](https://uploadthing.com/dashboard/)
+
 10. UPLOADTHING_TOKEN=********************************
 
 11. NEXT_PUBLIC_PERSONAL_EMAIL=******@gmail.com
