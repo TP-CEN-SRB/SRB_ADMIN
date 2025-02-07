@@ -238,77 +238,6 @@ const columns: ColumnDef<User>[] = useMemo(() => [
           </div>
         </div>
       </div>
-
-      {/* Pagination Controls */}
-      <div className="mt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 py-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm whitespace-nowrap">Rows per page</span>
-          <Select
-            value={String(table.getState().pagination.pageSize)}
-            onValueChange={(value) => table.setPageSize(Number(value))}
-          >
-            <SelectTrigger className="w-20">
-              <SelectValue placeholder="10" />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={String(pageSize)}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-sm">
-            <span>Page</span>
-            <span>
-              {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.firstPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-2 py-1"
-            >
-              {"<<"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-2 py-1"
-            >
-              {"<"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-2 py-1"
-            >
-              {">"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.lastPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-2 py-1"
-            >
-              {">>"}
-            </Button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
@@ -324,7 +253,6 @@ const TopUserCard = ({
 }) => {
   const icons = [Firsticon, Secondicon, Thirdicon];
   const gradients = ["to-yellow-200", "to-slate-400", "to-yellow-700"];
-  // const capitaliseMaterial = (material: string | undefined) => material ? (material.charAt(0).toUpperCase() + material.slice(1).toLowerCase()) : undefined;
 
   return (
     <div className="bg-white rounded-lg shadow-md flex flex-col relative w-full">

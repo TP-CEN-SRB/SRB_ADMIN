@@ -656,7 +656,7 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
     orderBy: {
       _sum: { pointsAwarded: "desc" },
     },
-    take: 100,
+    take: 10,
   });
 
   const userIds = data
