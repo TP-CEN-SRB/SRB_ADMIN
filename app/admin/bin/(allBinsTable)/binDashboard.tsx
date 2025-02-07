@@ -139,6 +139,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         setIsFetching(true);
         try {
             const {startDate, endDate} = getDateRange(period);
+            console.log(startDate, endDate);
             if ((startDate && endDate) !== undefined) {
                 const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, chartsData: { DBBarChartData, DBPieChartData, binDisposalsTimeLine }, UMBinsData: UMBinsUpdate } 
                 = await fetchAll(startDate, endDate, period);
