@@ -19,7 +19,7 @@ npx prisma generate # generate prisma client
 
 Ensure your `.env` has the following environment variables
 1. DATABASE_URL=********************************  <!-- Neon DB -->
-2. BASE_URL="https://major-project-tp.vercel.app" <!-- Domain URL -->
+2. BASE_URL="https://cen-smart-bin.vercel.app" <!-- Domain URL -->
 3. AUTH_SECRET=******************************** <!-- Type npx auth secret to generate auth secret key -->
 4. NEXT_JWT_SECRET_KEY=********************************
 5. API_KEY=********************************
