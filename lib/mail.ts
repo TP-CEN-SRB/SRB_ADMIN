@@ -1,4 +1,3 @@
-import { Faculty } from "@prisma/client";
 import nodemailer from "nodemailer";
 
 const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
