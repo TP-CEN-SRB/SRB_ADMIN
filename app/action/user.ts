@@ -327,8 +327,8 @@ const newPassword = async (
   const hasExpired = new Date(existingToken.expires) < new Date();
   if (hasExpired) return { error: "Oops! This link has expired" };
 
-  const existingUser = await prisma.user.findFirst({
-    where: { email: existingToken.email, role: "ADMIN" },
+  const existingUser = await prisma.user.findUnique({
+    where: { email: existingToken.email },
   });
   if (!existingUser) {
     return { error: "Something went wrong!" };
