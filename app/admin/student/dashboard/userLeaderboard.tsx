@@ -6,7 +6,7 @@ import Secondicon from "../../../../public/second_icon.png";
 import Thirdicon from "../../../../public/third_icon.png";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { getTopHundredUsers } from "@/app/action/user";
+import { getTopTenUsers } from "@/app/action/user";
 import {
   Table,
   TableBody,
@@ -33,6 +33,7 @@ import {
 import { FaArrowRight } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { getNameInitials } from "@/utils/getNameInitials";
+import { DateRange } from "@/utils/dateUtils";
 
 type FilterPeriod = "week" | "month" | "year";
 
@@ -69,48 +70,13 @@ const UsersLeaderboard = ({
     pageSize: 10,
   });
 
-  const getDateRange = (period: FilterPeriod) => {
-    const now = new Date();
-
-    switch (period) {
-      case "week": {
-        const monday = now.getDate() - ((now.getDay() + 6) % 7);
-
-        const startDate = new Date(now.setDate(monday));
-        startDate.setHours(0, 0, 0, 0);
-
-        const endDate = new Date(now);
-        endDate.setDate(monday + 6); // Add 6 days to get to Sunday
-        endDate.setHours(23, 59, 59, 999);
-
-        return { startDate, endDate };
-      }
-      case "month": {
-        const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        startDate.setHours(0, 0, 0, 0);
-
-        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-        endDate.setHours(23, 59, 59, 999);
-
-        return { startDate, endDate };
-      }
-      case "year": {
-        const startDate = new Date(now.getFullYear(), 0, 1);
-        startDate.setHours(0, 0, 0, 0);
-
-        const endDate = new Date(now.getFullYear(), 11, 31);
-        endDate.setHours(23, 59, 59, 999);
-
-        return { startDate, endDate };
-      }
-    }
-  };
+  const getDateRange = (period: FilterPeriod) => DateRange(period);
 
   const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
     setIsLoading(true);
     try {
       const { startDate, endDate } = getDateRange(period);
-      const filteredData = await getTopHundredUsers(startDate, endDate);
+      const filteredData = await getTopTenUsers(startDate, endDate);
       setLeaderBoard(filteredData);
       setActivePeriod(period);
       // reset pagination when filter changes
@@ -272,77 +238,6 @@ const columns: ColumnDef<User>[] = useMemo(() => [
           </div>
         </div>
       </div>
-
-      {/* Pagination Controls */}
-      <div className="mt-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 py-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm whitespace-nowrap">Rows per page</span>
-          <Select
-            value={String(table.getState().pagination.pageSize)}
-            onValueChange={(value) => table.setPageSize(Number(value))}
-          >
-            <SelectTrigger className="w-20">
-              <SelectValue placeholder="10" />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={String(pageSize)}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 text-sm">
-            <span>Page</span>
-            <span>
-              {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.firstPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-2 py-1"
-            >
-              {"<<"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-              className="px-2 py-1"
-            >
-              {"<"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-2 py-1"
-            >
-              {">"}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.lastPage()}
-              disabled={!table.getCanNextPage()}
-              className="px-2 py-1"
-            >
-              {">>"}
-            </Button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
@@ -358,7 +253,6 @@ const TopUserCard = ({
 }) => {
   const icons = [Firsticon, Secondicon, Thirdicon];
   const gradients = ["to-yellow-200", "to-slate-400", "to-yellow-700"];
-  // const capitaliseMaterial = (material: string | undefined) => material ? (material.charAt(0).toUpperCase() + material.slice(1).toLowerCase()) : undefined;
 
   return (
     <div className="bg-white rounded-lg shadow-md flex flex-col relative w-full">

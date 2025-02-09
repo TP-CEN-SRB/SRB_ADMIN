@@ -636,16 +636,7 @@ const updateStudent = async (
   return { success: `Student ${updatedUser.id} updated successfully ` };
 };
 
-const getTopHundredUsers = async (dateFrom?: Date, dateTo?: Date) => {
-  const curr = new Date();
-  const monday = curr.getDate() - ((curr.getDay() + 6) % 7);
-
-  const startDate = new Date(curr.setDate(monday));
-  startDate.setHours(0, 0, 0, 0);
-
-  const endDate = new Date(curr);
-  endDate.setDate(monday + 6); // Add 6 days to get to Sunday
-  endDate.setHours(23, 59, 59, 999);
+const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   // Get top users by points
   const data = await prisma.disposal.groupBy({
     by: ["userId"],
@@ -655,8 +646,8 @@ const getTopHundredUsers = async (dateFrom?: Date, dateTo?: Date) => {
       },
       isRedeemed: true,
       createdAt: {
-        gte: dateFrom ?? startDate,
-        lte: dateTo ?? endDate,
+        gte: dateFrom,
+        lte: dateTo,
       },
     },
     _sum: {
@@ -665,7 +656,7 @@ const getTopHundredUsers = async (dateFrom?: Date, dateTo?: Date) => {
     orderBy: {
       _sum: { pointsAwarded: "desc" },
     },
-    take: 100,
+    take: 10,
   });
 
   const userIds = data
@@ -805,6 +796,6 @@ export {
   getAllStudentUsers,
   deleteStudent,
   updateStudent,
-  getTopHundredUsers,
+  getTopTenUsers,
   listOfBinManagersUsed,
 };
