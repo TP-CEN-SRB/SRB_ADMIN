@@ -14,13 +14,14 @@ export async function PUT(
         { status: 401 }
       );
     }
+
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-        if (typeof decodedToken === "string") {
-          return NextResponse.json(
-            { message: "Unauthorized access!" },
-            { status: 401 }
-          );
-        }
+    if (typeof decodedToken === "string") {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
 
     const id = params.id;
     const user = await prisma.user.findUnique({ where: { id } });
@@ -32,21 +33,24 @@ export async function PUT(
       );
     }
 
-    const { treeprogress, treesaved , carbonprint } = await req.json();
+    const { treeprogress, treesaved, carbonprint } = await req.json();
 
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id },
       data: {
         treeprogress,
         treesaved,
         carbonprint,
       },
+      select: {
+        id: true,
+        treeprogress: true,
+        treesaved: true,
+        carbonprint: true,
+      },
     });
 
-    return NextResponse.json(
-      { message: "User tree data updated successfully!" },
-      { status: 200 }
-    );
+    return NextResponse.json(updatedUser, { status: 200 });
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
