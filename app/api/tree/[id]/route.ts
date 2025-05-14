@@ -48,3 +48,4 @@ export const GET = async (req: NextRequest) => {
     return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
   }
 };
+
