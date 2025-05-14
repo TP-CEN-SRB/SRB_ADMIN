@@ -61,7 +61,7 @@ export const getBinsByUserId = async (id: string) => {
           name: true,
         },
       },
-    },
+    },  
   });
 };
 
