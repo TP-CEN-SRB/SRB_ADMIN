@@ -35,6 +35,7 @@ export const GET = async (req: NextRequest) => {
       {
         treesaved: user.treesaved,
         treeprogress: user.treeprogress, 
+        carbonprint: user.carbonprint,
       },
       { status: 200 }
     );
