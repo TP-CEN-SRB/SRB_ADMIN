@@ -32,13 +32,14 @@ export async function PUT(
       );
     }
 
-    const { treeprogress, treesaved } = await req.json();
+    const { treeprogress, treesaved , carbonprint } = await req.json();
 
     await prisma.user.update({
       where: { id },
       data: {
         treeprogress,
         treesaved,
+        carbonprint,
       },
     });
 

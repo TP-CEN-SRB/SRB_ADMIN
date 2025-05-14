@@ -23,6 +23,7 @@ export const GET = async (req: NextRequest) => {
       select: {
         treesaved: true,
         treeprogress: true,
+        carbonprint: true,
       },
     });
 
