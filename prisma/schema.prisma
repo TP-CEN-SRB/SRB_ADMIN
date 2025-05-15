@@ -23,6 +23,7 @@ enum Faculty {
   DES
 }
 
+
 enum BinStatus {
   FUNCTIONAL
   UNDER_MAINTENANCE
