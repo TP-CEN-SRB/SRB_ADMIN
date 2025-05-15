@@ -206,3 +206,37 @@ model Transaction {
 
   @@map("transactions")
 }
+
+model QuestDetails {
+  id           String       @id @default(uuid())
+  title        String       @db.VarChar(255)
+  description  String       @db.Text
+  target       Int
+  materialType String       @db.VarChar(50)
+  startDate    DateTime?
+  endDate      DateTime?
+  rewardPoints Int
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  userQuests   UserQuest[]
+
+  @@map("quest_details")
+}
+
+
+model UserQuest {
+  id           String        @id @default(uuid())
+  progress     Int
+  isCompleted  Boolean       @default(false)
+  completedAt  DateTime?
+
+  userId       String
+  questId      String
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest        QuestDetails  @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@map("user_quest")
+}
+
