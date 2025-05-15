@@ -53,6 +53,7 @@ model User {
   redemptions      Redemption[]
   subscriptions    Subscription[]
   transactions     Transaction[]
+  user_quest       UserQuest[]
   point            Point?
   lat              Decimal?       @db.Decimal(10, 7) // Latitude for bin manager
   long             Decimal?       @db.Decimal(10, 7) // Longitude for bin manager
@@ -231,7 +232,7 @@ model UserQuest {
   isCompleted  Boolean       @default(false)
   completedAt  DateTime?
 
-  userId       String
+  userId       String        
   questId      String
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
