@@ -21,6 +21,7 @@ enum Faculty {
   IIT
   HSS
   DES
+  EXT
 }
 
 enum BinStatus {
@@ -31,12 +32,14 @@ enum BinStatus {
 enum Role {
   STUDENT
   ADMIN
+  STAFF
   BIN
 }
 
 enum TransactionType {
   REDEMPTION
   DISPOSAL
+  QUEST
   OTHERS
 }
 
