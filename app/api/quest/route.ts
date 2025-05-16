@@ -21,6 +21,13 @@ export const GET = async (req: NextRequest) => {
     }
 
     const quests = await prisma.questDetails.findMany({
+      select: {
+        title: true,
+        description: true,
+        target: true,
+        materialType: true,
+        rewardPoints: true,
+      },
       orderBy: { createdAt: "desc" }, // Optional: newest first
     });
 
