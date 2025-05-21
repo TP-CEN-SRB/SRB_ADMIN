@@ -123,7 +123,6 @@ export const PUT = async (
 
     return NextResponse.json(
       {
-        message: `Successfully updated point balance.`,
         newBalance: updatedPoint.balance,
       },
       { status: 200 }
