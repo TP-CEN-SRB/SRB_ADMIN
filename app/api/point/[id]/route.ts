@@ -72,3 +72,79 @@ export const GET = async (
     );
   }
 };
+
+export const PUT = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json(
+        { message: "Missing authorization header!" },
+        { status: 401 }
+      );
+    }
+
+    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+    if (typeof decodedToken === "string") {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
+
+    const userId = params.id;
+    if (decodedToken.userId !== userId) {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+    const amount = body.amount;
+
+    if (typeof amount !== "number") {
+      return NextResponse.json(
+        { message: "Amount must be a number" },
+        { status: 400 }
+      );
+    }
+
+    const updatedPoint = await prisma.point.update({
+      where: { userId: userId },
+      data: {
+        balance: {
+          increment: amount,
+        },
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: `Successfully updated point balance.`,
+        newBalance: updatedPoint.balance,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return NextResponse.json(
+        { message: "Token has expired!" },
+        { status: 401 }
+      );
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
+    } else if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+    return NextResponse.json(
+      { message: "An unknown error occurred" },
+      { status: 500 }
+    );
+  }
+};
