@@ -39,7 +39,8 @@ enum Role {
 enum TransactionType {
   REDEMPTION
   DISPOSAL
-  QUEST
+  QUEST_REWARD
+  TREE_REWARD
   OTHERS
 }
 
