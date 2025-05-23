@@ -3,8 +3,6 @@ import jwt from "jsonwebtoken";
 import prisma from "@/lib/db";
 import { TransactionType } from "@prisma/client";
 
-const TREE_REWARD_POINTS = 100; // Change as needed
-
 export const POST = async (req: NextRequest) => {
   try {
     const token = req.headers.get("Authorization")?.split(" ")[1];
@@ -23,6 +21,15 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    const { pointsAwarded } = await req.json();
+
+    if (!pointsAwarded || typeof pointsAwarded !== "number" || pointsAwarded <= 0) {
+      return NextResponse.json(
+        { message: "Invalid or missing pointsAwarded value." },
+        { status: 400 }
+      );
+    }
+
     const point = await prisma.point.findUnique({
       where: { userId: decodedToken.userId },
     });
@@ -33,20 +40,20 @@ export const POST = async (req: NextRequest) => {
 
     const updatedPoint = await prisma.point.update({
       where: { userId: decodedToken.userId },
-      data: { balance: { increment: TREE_REWARD_POINTS } },
+      data: { balance: { increment: pointsAwarded } },
     });
 
     await prisma.transaction.create({
       data: {
-        pointsChange: TREE_REWARD_POINTS,
-        description: `Claimed a tree and earned ${TREE_REWARD_POINTS} pts`,
+        pointsChange: pointsAwarded,
+        description: `Claimed a tree and earned ${pointsAwarded} pts via wheel spin`,
         transactionType: TransactionType.TREE_REWARD,
         userId: decodedToken.userId,
       },
     });
 
     return NextResponse.json(
-      { message: `Tree claimed! +${TREE_REWARD_POINTS} points awarded.` },
+      { points: pointsAwarded },
       { status: 200 }
     );
   } catch (error) {
