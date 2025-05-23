@@ -139,6 +139,7 @@ model Disposal {
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  carbonprint   Float    @default(0.0)
 
   @@map("disposals")
 }
