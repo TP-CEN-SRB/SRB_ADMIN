@@ -66,12 +66,18 @@ export const PUT = async (
   try {
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
-      return NextResponse.json({ message: "Missing authorization header!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Missing authorization header!" },
+        { status: 401 }
+      );
     }
 
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decodedToken === "string") {
-      return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
     }
 
     const disposalId = params.id;
@@ -79,25 +85,41 @@ export const PUT = async (
     if (!userId || !disposalToken) {
       return NextResponse.json(
         {
-          message: `Missing fields: ${!userId ? "[userId]" : ""} ${!disposalToken ? "[disposalToken]" : ""}`,
+          message: `Missing fields: ${!userId ? "[userId]" : ""} ${
+            !disposalToken ? "[disposalToken]" : ""
+          }`,
         },
         { status: 400 }
       );
     }
 
     if (userId !== decodedToken.userId) {
-      return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
     }
 
-    const decodedDisposalToken = jwt.verify(disposalToken, process.env.NEXT_JWT_SECRET_KEY!);
+    const decodedDisposalToken = jwt.verify(
+      disposalToken,
+      process.env.NEXT_JWT_SECRET_KEY!
+    );
     if (typeof decodedDisposalToken === "string") {
-      return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
     }
 
     const binManagerId = decodedDisposalToken.userId;
-    const binManager = await prisma.user.findUnique({ where: { id: binManagerId } });
+    const binManager = await prisma.user.findUnique({
+      where: { id: binManagerId },
+    });
     if (!binManager) {
-      return NextResponse.json({ message: "Bin manager not found!" }, { status: 404 });
+      return NextResponse.json(
+        { message: "Bin manager not found!" },
+        { status: 404 }
+      );
     }
 
     const disposal = await prisma.disposal.findFirst({
@@ -108,14 +130,22 @@ export const PUT = async (
         weightInGrams: true,
         bin: {
           include: {
-            binMaterial: true,
+            binMaterial: {
+              select: {
+                name: true,
+                carbon_multiplier: true,
+              },
+            },
           },
         },
       },
     });
 
     if (!disposal) {
-      return NextResponse.json({ message: "No disposal found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "No disposal found" },
+        { status: 404 }
+      );
     }
 
     const existingUser = await prisma.user.findFirst({
@@ -126,11 +156,10 @@ export const PUT = async (
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // 🌱 Calculate carbonPrint from weight
-    const EMISSION_FACTOR = 0.0025;
-     const TREE_COMPLETION_CARBON = 1000;
-    const carbonPrint = disposal.weightInGrams * EMISSION_FACTOR;
-    const treeProgressIncrement = carbonPrint / TREE_COMPLETION_CARBON;
+    // 🌱 Calculate carbonPrint using carbon_multiplier
+    const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
+    const carbonPrint = disposal.weightInGrams * emissionFactor;
+    const treeProgressIncrement = carbonPrint * 100;
 
     // 🧾 Transactional updates
     const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
@@ -177,7 +206,11 @@ export const PUT = async (
     });
 
     return NextResponse.json(
-      { message: "Updated disposal", carbonPrint: carbonPrint.toFixed(2) , treeProgressGained: treeProgressIncrement.toFixed(2)},
+      {
+        message: "Updated disposal",
+        carbonPrint: carbonPrint.toFixed(2),
+        treeProgressGained: treeProgressIncrement.toFixed(2),
+      },
       { status: 200 }
     );
   } catch (error) {
