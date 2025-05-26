@@ -9,6 +9,8 @@ const getData = async () => {
     id: binMat.id as string,
     name: binMat.name as string,
     multiplier: binMat.multiplier as number,
+    carbon_multiplier: binMat.carbon_multiplier as number,
+
   }));
 };
 

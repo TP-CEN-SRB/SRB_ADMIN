@@ -119,10 +119,10 @@ model Bin {
 }
 
 model BinMaterial {
-  id         String @id @default(uuid())
-  name       String @unique
-  multiplier Float  @default(1)
-  carbon_multiplier Float @default(1)
+  id                String  @id @default(uuid())
+  name              String  @unique
+  multiplier        Float   @default(1)
+  carbon_multiplier Float   @default(1)
 
   bins Bin[]
 
