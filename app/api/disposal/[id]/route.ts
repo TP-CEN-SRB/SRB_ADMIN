@@ -128,7 +128,9 @@ export const PUT = async (
 
     // 🌱 Calculate carbonPrint from weight
     const EMISSION_FACTOR = 0.0025;
+     const TREE_COMPLETION_CARBON = 1000;
     const carbonPrint = disposal.weightInGrams * EMISSION_FACTOR;
+    const treeProgressIncrement = (carbonPrint / TREE_COMPLETION_CARBON) * 100;
 
     // 🧾 Transactional updates
     const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
@@ -154,6 +156,9 @@ export const PUT = async (
           carbonprint: {
             increment: carbonPrint,
           },
+          treeprogress: {
+            increment: treeProgressIncrement,
+          },
         },
       }),
     ]);
@@ -172,7 +177,7 @@ export const PUT = async (
     });
 
     return NextResponse.json(
-      { message: "Updated disposal", carbonPrint: carbonPrint.toFixed(2) },
+      { message: "Updated disposal", carbonPrint: carbonPrint.toFixed(2) , treeProgressGained: treeProgressIncrement.toFixed(2)},
       { status: 200 }
     );
   } catch (error) {
