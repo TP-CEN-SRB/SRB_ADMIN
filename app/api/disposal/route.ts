@@ -139,10 +139,14 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
+
+    const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
+    
     const disposal = await prisma.disposal.create({
       data: {
         weightInGrams: weightInGrams,
         binId: bin.id,
+        carbonprint: carbonPrint,
         pointsAwarded: Math.floor(weightInGrams * binMaterial.multiplier), // rounds down the points awarded - weight*multiplier
       },
     });
@@ -150,6 +154,7 @@ export const POST = async (req: NextRequest) => {
       {
         id: disposal.id,
         point: disposal.pointsAwarded,
+        carbonprint: carbonPrint, 
       },
       { status: 200 }
     );
