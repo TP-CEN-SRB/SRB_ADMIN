@@ -158,10 +158,9 @@ export const PUT = async (
 
     // 🌱 Calculate carbonPrint using carbon_multiplier
 
-    const TREE_COMPLETION_UNIT_GRAMS = 1000;
     const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
     const carbonPrint = disposal.weightInGrams * emissionFactor;
-    const treeProgressIncrement = (carbonPrint / TREE_COMPLETION_UNIT_GRAMS) * 100;
+    const treeProgressIncrement =   carbonPrint / 1000
 
     // 🧾 Transactional updates
     const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
