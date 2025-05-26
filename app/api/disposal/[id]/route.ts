@@ -160,7 +160,7 @@ export const PUT = async (
 
     const TREE_COMPLETION_UNIT_GRAMS = 1000;
     const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
-    const carbonPrint = (disposal.weightInGrams / 1000) * emissionFactor;
+    const carbonPrint = disposal.weightInGrams * emissionFactor;
     const treeProgressIncrement = (carbonPrint / TREE_COMPLETION_UNIT_GRAMS) * 100;
 
     // 🧾 Transactional updates
