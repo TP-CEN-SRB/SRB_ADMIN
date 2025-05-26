@@ -158,10 +158,10 @@ export const PUT = async (
 
     // 🌱 Calculate carbonPrint using carbon_multiplier
 
-    const TREE_COMPLETION_UNIT = 1000;
+    const TREE_COMPLETION_UNIT_GRAMS = 1000;
     const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
-    const carbonPrint = disposal.weightInGrams * emissionFactor;
-    const treeProgressIncrement = (carbonPrint / TREE_COMPLETION_UNIT) * 100;
+    const carbonPrint = (disposal.weightInGrams / 1000) * emissionFactor;
+    const treeProgressIncrement = (carbonPrint / TREE_COMPLETION_UNIT_GRAMS) * 100;
 
     // 🧾 Transactional updates
     const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
@@ -197,7 +197,7 @@ export const PUT = async (
     await prisma.transaction.create({
       data: {
         pointsChange: disposal.pointsAwarded,
-        description: `Awarded ${disposal.pointsAwarded} pts for recycling ${disposal.weightInGrams}g of ${disposal.bin.binMaterial.name.toLowerCase()} (${carbonPrint.toFixed(2)}kg CO₂ saved)`,
+        description: `Awarded ${disposal.pointsAwarded} pts for recycling ${disposal.weightInGrams}g of ${disposal.bin.binMaterial.name.toLowerCase()} (${carbonPrint.toFixed(2)}g CO₂ saved)`,
         transactionType: TransactionType.DISPOSAL,
         userId,
       },
