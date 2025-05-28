@@ -5,7 +5,6 @@ import { getSessionUser } from "@/utils/getAuth";
 import { QuestSchema, UpdateQuestSchema } from "@/schemas";
 import { z } from "zod";
 
-// Define return type
 type Quest = {
   id: string;
   title: string;
@@ -70,8 +69,11 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
     });
 
     return { success: "Quest created and assigned to users", quest };
-  } catch (error: any) {
-    return { error: error.message || "Failed to create quest" };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "Failed to create quest" };
   }
 };
 
@@ -88,8 +90,11 @@ export const deleteQuest = async (questId: string) => {
     });
 
     return { success: "Quest deleted successfully" };
-  } catch (error: any) {
-    return { error: error.message || "Failed to delete quest" };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "Failed to delete quest" };
   }
 };
 
@@ -132,8 +137,11 @@ export const updateQuest = async (id: string, data: z.infer<typeof UpdateQuestSc
     });
 
     return { success: "Quest updated successfully", quest: updated };
-  } catch (error: any) {
-    return { error: error.message || "Failed to update quest" };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "Failed to update quest" };
   }
 };
 

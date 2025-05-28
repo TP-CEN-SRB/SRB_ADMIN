@@ -45,7 +45,6 @@ interface Quest {
   id: string;
   name: string;
   material: string;
-  [key: string]: any;
 }
 
 interface QuestDataTableProps {
