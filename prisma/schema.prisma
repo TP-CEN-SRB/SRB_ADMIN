@@ -1,10 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-//connection string for pgsql 
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,71 +7,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Faculty {
-  ENG
-  BUS
-  ASC
-  IIT
-  HSS
-  DES
-}
-
-
-enum BinStatus {
-  FUNCTIONAL
-  UNDER_MAINTENANCE
-}
-
-enum Role {
-  STUDENT
-  ADMIN
-  STAFF
-  BIN
-}
-
-enum TransactionType {
-  REDEMPTION
-  DISPOSAL
-  QUEST_REWARD
-  TREE_REWARD
-  OTHERS
-}
-
 model User {
-  id               String         @id @default(uuid())
-  email            String         @unique
-  emailVerified    DateTime?
-  password         String
-  name             String
-  faculty          Faculty
-  role             Role
-  disposals        Disposal[]
-  bins             Bin[]
-  redemptions      Redemption[]
-  subscriptions    Subscription[]
-  transactions     Transaction[]
-  user_quest       UserQuest[]
-  point            Point?
-  lat              Decimal?       @db.Decimal(10, 7) // Latitude for bin manager
-  long             Decimal?       @db.Decimal(10, 7) // Longitude for bin manager
-  location         String?        @unique // Outside library
-  commandUpdatedAt DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  treesaved        Int            @default(0)
-  treeprogress     Float          @default(0.0)      
-  carbonprint      Float          @default(0.0) 
+  id                String            @id @default(uuid())
+  email             String            @unique
+  emailVerified     DateTime?
+  password          String
+  name              String
+  faculty           Faculty
+  role              Role
+  lat               Decimal?          @db.Decimal(10, 7)
+  long              Decimal?          @db.Decimal(10, 7)
+  location          String?           @unique
+  commandUpdatedAt  DateTime?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  treesaved         Int               @default(0)
+  treeprogress      Decimal           @default(0) @db.Decimal(10, 2)
+  carbonprint       Decimal           @default(0) @db.Decimal(10, 2)
+  bins              Bin[]
+  disposals         Disposal[]
+  point             Point?
+  redemptions       Redemption[]
+  subscriptions     Subscription[]
+  transactions      Transaction[]
+  receivedTransfers TransferSession[] @relation("ReceivedTransfers")
+  sentTransfers     TransferSession[] @relation("SentTransfers")
+  user_quest        UserQuest[]
 
   @@map("users")
 }
 
 model VerificationToken {
-  id       String   @id @default(uuid())
-  email    String
-  oldEmail String?
-  token    String   @unique
-  expires  DateTime
-
+  id        String   @id @default(uuid())
+  email     String
+  oldEmail  String?
+  token     String   @unique
+  expires   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -87,11 +51,10 @@ model VerificationToken {
 }
 
 model PassswordResetToken {
-  id      String   @id @default(uuid())
-  email   String
-  token   String   @unique
-  expires DateTime
-
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -104,27 +67,25 @@ model Bin {
   status          BinStatus   @default(FUNCTIONAL)
   currentCapacity Float       @default(0)
   userId          String
-  user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
-  emailSent       Boolean     @default(false) // ensure warning email only sends once when threshold is met
+  emailSent       Boolean     @default(false)
   clearCount      Int         @default(0)
   binMaterialId   String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id])
   disposals       Disposal[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@unique([userId, binMaterialId, status])
   @@map("bins")
 }
 
 model BinMaterial {
-  id                String  @id @default(uuid())
-  name              String  @unique
-  multiplier        Float   @default(1)
-  carbon_multiplier Float   @default(1)
-
-  bins Bin[]
+  id                String @id @default(uuid())
+  name              String @unique
+  multiplier        Float  @default(1)
+  carbon_multiplier Float  @default(1)
+  bins              Bin[]
 
   @@map("bin_materials")
 }
@@ -133,69 +94,64 @@ model Disposal {
   id            String   @id @default(uuid())
   weightInGrams Int
   binId         String
-  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
   isRedeemed    Boolean  @default(false)
   pointsAwarded Int
   userId        String?
-  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  carbonprint   Float    @default(0.0)
+  carbonprint   Decimal  @db.Decimal(10, 2)
+  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
+  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("disposals")
 }
 
 model Point {
-  id      String @id @default(uuid())
-  balance Int    @default(0)
-  userId  String @unique
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id        String   @id @default(uuid())
+  balance   Int      @default(0)
+  userId    String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("points")
 }
 
 model Reward {
-  id             String  @id @default(uuid())
-  name           String  @unique
+  id             String       @id @default(uuid())
+  name           String       @unique
   pointsRequired Int
   description    String
-  isAvailable    Boolean @default(true)
+  isAvailable    Boolean      @default(true)
   image          String
-
-  startDate DateTime?
-  endDate   DateTime?
-
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  redemptions Redemption[]
+  startDate      DateTime?
+  endDate        DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  redemptions    Redemption[]
 
   @@map("rewards")
 }
 
 model Redemption {
-  id       String @id @default(uuid())
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId   String
-  reward   Reward @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  rewardId String
-
+  id        String   @id @default(uuid())
+  userId    String
+  rewardId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  reward    Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("redemptions")
 }
 
 model Subscription {
-  id     String @id @default(uuid())
-  email  String @unique
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  id        String   @id @default(uuid())
+  email     String   @unique
+  userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
 }
@@ -206,44 +162,83 @@ model Transaction {
   description     String
   transactionType TransactionType
   userId          String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@map("transactions")
 }
 
 model QuestDetails {
-  id           String       @id @default(uuid())
-  title        String       @db.VarChar(255)
-  description  String       @db.Text
+  id           String      @id(map: "quest_pkey") @default(uuid())
+  title        String      @db.VarChar(255)
+  description  String
   target       Int
-  materialType String       @db.VarChar(50)
-  startDate    DateTime?
-  endDate      DateTime?
+  materialType String      @db.VarChar(50)
+  startDate    DateTime?   @db.Timestamp(6)
+  endDate      DateTime?   @db.Timestamp(6)
   rewardPoints Int
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
+  createdAt    DateTime    @default(now()) @db.Timestamp(6)
+  updatedAt    DateTime    @updatedAt @db.Timestamp(6)
   userQuests   UserQuest[]
 
   @@map("quest_details")
 }
 
-
 model UserQuest {
-  id           String        @id @default(uuid())
-  progress     Int
-  isCompleted  Boolean       @default(false)
-  completedAt  DateTime?
-
-  userId       String        
-  questId      String
-
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quest        QuestDetails  @relation(fields: [questId], references: [id], onDelete: Cascade)
+  id          String       @id @default(uuid())
+  progress    Int
+  isCompleted Boolean      @default(false)
+  completedAt DateTime?    @db.Timestamp(6)
+  userId      String
+  questId     String
+  quest       QuestDetails @relation(fields: [questId], references: [id], onDelete: Cascade, map: "userquest_questid_fkey")
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade, map: "userquest_userId_fkey")
 
   @@map("user_quest")
 }
 
+model TransferSession {
+  id         String    @id @default(uuid())
+  senderId   String
+  receiverId String?
+  amount_    Int       @default(0) @map("amount ")
+  status     String    @default("pending")
+  createdAt  DateTime  @default(now()) @map("  createdAt") @db.Timestamp(6)
+  redeemedAt DateTime? @db.Timestamp(6)
+  receiver   User?     @relation("ReceivedTransfers", fields: [receiverId], references: [id], map: "transfer_session_receiverid_fkey")
+  sender     User      @relation("SentTransfers", fields: [senderId], references: [id], onDelete: Cascade, map: "transfer_session_senderid_fkey")
+
+  @@map("transfer_session")
+}
+
+enum Faculty {
+  ENG
+  BUS
+  ASC
+  IIT
+  HSS
+  DES
+  EXT
+}
+
+enum BinStatus {
+  FUNCTIONAL
+  UNDER_MAINTENANCE
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+  BIN
+  STAFF
+  STORE
+}
+
+enum TransactionType {
+  REDEMPTION
+  DISPOSAL
+  OTHERS
+  QUEST_REWARD
+  TREE_REWARD
+}
