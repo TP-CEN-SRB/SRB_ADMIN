@@ -22,8 +22,8 @@ model User {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   treesaved         Int               @default(0)
-  treeprogress      Decimal           @default(0) @db.Decimal(10, 2)
-  carbonprint       Decimal           @default(0) @db.Decimal(10, 2)
+  treeprogress      Float             @default(0.0)
+  carbonprint       Float             @default(0.0)
   bins              Bin[]
   disposals         Disposal[]
   point             Point?
@@ -99,7 +99,7 @@ model Disposal {
   userId        String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  carbonprint   Decimal  @db.Decimal(10, 2)
+  carbonprint   Float    @default(0.0)
   bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 

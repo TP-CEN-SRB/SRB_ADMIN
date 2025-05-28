@@ -141,10 +141,16 @@ export const collaspeItems = [
         icon: FaEye,
         url: "/admin/store",
       },
+    ],
+  },
+   {
+    title: "User",
+    icon: GiPresent,
+    child: [
       {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/store/create",
+        title: "View",
+        icon: FaEye,
+        url: "/admin/user",
       },
     ],
   },
