@@ -97,6 +97,7 @@ export const POST = async (req: NextRequest) => {
       {
         userId: existingUser.id,
         name: existingUser.name,
+        role: existingUser.role,
       },
       process.env.NEXT_JWT_SECRET_KEY!,
       { expiresIn: "7d" }
