@@ -26,9 +26,15 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const data = validatedFields.data;
-    const existingUser = await prisma.user.findUnique({
-      where: { email: data.email, role: Role.STUDENT },
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        email: data.email,
+        role: {
+          in: [Role.STUDENT, Role.STORE],
+        },
+      },
     });
+
     if (!existingUser) {
       return NextResponse.json(
         { message: "Invalid Credentials" },
