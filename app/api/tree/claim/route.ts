@@ -29,6 +29,7 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "User not found!" }, { status: 404 });
     }
 
+    // 💰 4. Update balance
     const updatedPoint = await prisma.point.update({
       where: { userId: decodedToken.userId },
       data: { balance: { increment: pointsAwarded } },

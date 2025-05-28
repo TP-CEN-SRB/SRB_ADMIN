@@ -10,7 +10,10 @@ const getData = async () => {
     name: binMat.name as string,
     multiplier: binMat.multiplier as number,
     carbon_multiplier: binMat.carbon_multiplier as number,
+<<<<<<< HEAD
 
+=======
+>>>>>>> tree-claim-v3
   }));
 };
 

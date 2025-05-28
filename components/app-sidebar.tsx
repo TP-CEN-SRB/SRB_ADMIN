@@ -116,6 +116,38 @@ export const collaspeItems = [
       },
     ],
   },
+{
+    title: "Quests",
+    icon: BsFillBarChartFill,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/quest",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/quest/create",
+      },
+    ],
+  },
+  {
+    title: "Store",
+    icon: GiPresent,
+    child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/store",
+      },
+      {
+        title: "Create",
+        icon: FaPlus,
+        url: "/admin/store/create",
+      },
+    ],
+  },
 ];
 
 export const dropdownItems = [

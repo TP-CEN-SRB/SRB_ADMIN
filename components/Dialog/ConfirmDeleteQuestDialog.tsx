@@ -1,4 +1,4 @@
-import { deleteBin } from "@/app/action/bin";
+import { deleteQuest } from "@/app/action/quest";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
@@ -19,59 +19,60 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import CustomFormMessage from "../Form/CustomFormMessage";
-import { Button } from "../ui/button";
+import CustomFormMessage from "@/components/Form/CustomFormMessage";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { formatDateTime } from "@/utils/dateFilter";
 
-interface ConfirmDeleteBinDialogProps {
-  binId: string;
+interface ConfirmDeleteQuestDialogProps {
+  questId: string;
   isOpen: boolean;
   handleDialogOpen: () => void;
 }
 
-const ConfirmDeleteBinDialog = ({
-  binId,
+const ConfirmDeleteQuestDialog = ({
+  questId,
   isOpen,
   handleDialogOpen,
-}: ConfirmDeleteBinDialogProps) => {
+}: ConfirmDeleteQuestDialogProps) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const router = useRouter();
   const datetime = formatDateTime(new Date());
+
   const handleDelete = () => {
     startTransition(async () => {
-      const data = await deleteBin(binId);
+      const data = await deleteQuest(questId);
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
         toast({
-          title: "Bin deleted successfully",
+          title: "Quest deleted successfully",
           description: (
             <div>
-              Bin deleted at {datetime}
-              <br />   
+              Quest deleted at {datetime}
               <br />
-              <strong>Bin ID: </strong> {binId}
+              <br />
+              <strong>Quest ID: </strong> {questId}
             </div>
           ),
           duration: 2000,
           variant: "default",
         });
-        router.push("/admin/bin");
+        router.push("/admin/quest");
       }
     });
   };
-  const isDesktop = useMediaQuery({
-    query: "(min-width: 768px)",
-  });
+
+  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" });
+
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
           <DialogDescription className="text-slate-500 mt-4 text-md">
-            You are about to delete bin {binId}
+            You are about to delete quest {questId}
           </DialogDescription>
         </DialogHeader>
         {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
@@ -102,7 +103,7 @@ const ConfirmDeleteBinDialog = ({
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-2xl">Are you sure?</DrawerTitle>
           <DrawerDescription className="text-slate-500 text-md">
-            You are about to delete bin {binId}
+            You are about to delete quest {questId}
           </DrawerDescription>
         </DrawerHeader>
         {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
@@ -130,4 +131,4 @@ const ConfirmDeleteBinDialog = ({
   );
 };
 
-export default ConfirmDeleteBinDialog;
+export default ConfirmDeleteQuestDialog;
