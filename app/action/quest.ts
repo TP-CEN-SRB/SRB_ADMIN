@@ -32,8 +32,9 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
 
   try {
     const now = new Date();
-    const endDate = new Date(now.getTime() + data.duration * 24 * 60 * 60 * 1000); // ✅ dynamic
+    const endDate = new Date(now.getTime() + data.duration * 24 * 60 * 60 * 1000);
 
+    
     const quest = await prisma.questDetails.create({
       data: {
         title: data.title,
@@ -42,11 +43,33 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
         materialType: data.materialType,
         rewardPoints: data.rewardPoints,
         startDate: now,
-        endDate: endDate, // ✅ use computed value
+        endDate: endDate,
       },
     });
 
-    return { success: "Quest created successfully", quest };
+    
+    const users = await prisma.user.findMany({
+      where: {
+        role: "STUDENT", 
+      },
+      select: { id: true },
+    });
+
+    
+    const userQuests = users.map((u) => ({
+      userId: u.id,
+      questId: quest.id,
+      progress: 0,
+      isCompleted: false,
+      completedAt: null,
+    }));
+
+    await prisma.userQuest.createMany({
+      data: userQuests,
+      skipDuplicates: true, 
+    });
+
+    return { success: "Quest created and assigned to users", quest };
   } catch (error: any) {
     return { error: error.message || "Failed to create quest" };
   }
@@ -70,6 +93,24 @@ export const deleteQuest = async (questId: string) => {
   }
 };
 
+export const getUsersByQuestId = async (questId: string) => {
+  const usersInQuest = await prisma.userQuest.findMany({
+    where: { questId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          faculty: true,
+        },
+      },
+    },
+  });
+
+  return usersInQuest;
+};
+
 export const updateQuest = async (id: string, data: z.infer<typeof UpdateQuestSchema>) => {
   const user = await getSessionUser();
 
@@ -86,7 +127,7 @@ export const updateQuest = async (id: string, data: z.infer<typeof UpdateQuestSc
         target: data.target,
         materialType: data.materialType,
         rewardPoints: data.rewardPoints,
-        updatedAt: new Date(), // optional if you want to explicitly set this
+        updatedAt: new Date(), 
       },
     });
 

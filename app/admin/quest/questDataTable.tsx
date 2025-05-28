@@ -39,6 +39,7 @@ import {
 import { FaEdit, FaTrashRestore } from "react-icons/fa";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
+import ConfirmDeleteQuestDialog from "@/components/Dialog/ConfirmDeleteQuestDialog";
 
 interface Quest {
   id: string;
@@ -70,14 +71,21 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
               <FaEdit className="mr-2" /> Edit Quest
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem onClick={() => alert("Delete feature not yet implemented")}>
+          <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <FaTrashRestore className="mr-2" /> Delete Quest
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => alert("View Users not implemented")}>
-            <FaTrashRestore className="mr-2" /> View Users
-          </DropdownMenuItem>
+          <Link href={`/admin/quest/${quest.id}/users`} passHref>
+            <DropdownMenuItem>
+              <FaTrashRestore className="mr-2" /> View Users
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuContent>
       </DropdownMenu>
+      <ConfirmDeleteQuestDialog
+        questId={quest.id}
+        isOpen={isDialogOpen}
+        handleDialogOpen={() => setDialogOpen((prev) => !prev)}
+      />
     </div>
   );
 };
