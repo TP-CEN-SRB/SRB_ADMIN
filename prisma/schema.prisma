@@ -241,4 +241,5 @@ enum TransactionType {
   OTHERS
   QUEST_REWARD
   TREE_REWARD
+  PURCHASE
 }
