@@ -15,11 +15,7 @@ export const POST = async (req: NextRequest) => {
     const receiverId = decoded.userId;
 
     const payload = verifyQrToken(qrToken);
-    const { sessionId, senderId, amount, type } = payload;
-
-    if (type !== "transfer") {
-      return NextResponse.json({ message: "Invalid QR type" }, { status: 400 });
-    }
+    const { sessionId, senderId, amount} = payload;
 
     const session = await prisma.transferSession.findUnique({
       where: { id: sessionId },

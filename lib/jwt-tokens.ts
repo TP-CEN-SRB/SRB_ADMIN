@@ -23,7 +23,12 @@ export const generateTransferQrToken = (data: {
   });
 };
 
-export const verifyQrToken = (token: string) => {
-  return jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!) as any;
+type TransferQrPayload = {
+  sessionId: string;
+  senderId: string;
+  amount: number;
 };
 
+export const verifyQrToken = (token: string): TransferQrPayload => {
+  return jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!) as TransferQrPayload;
+};
