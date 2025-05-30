@@ -110,7 +110,6 @@ const UpdateBinSchema = z.object({
     .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   materialId: z.string().min(1, "Please select the material type"),
-  // userId: z.string().min(1, "User ID is required"),
 });
 
 const QuestSchema = z.object({
@@ -130,6 +129,33 @@ const UpdateQuestSchema = z.object({
   rewardPoints: z.number().min(1, "Reward must be at least 1"),
 });
 
+const StoreSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email format"),
+  faculty: z.string().min(1, "Faculty is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+const UpdateStoreSchema = z.object({
+    name: z.string().min(1, "Store name is required"),
+    email: z.string().email("Invalid email address"),
+    faculty: z.string().min(1, "Faculty is required"),
+    password: z.string().min(6, "Password must be at least 6 characters").optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      !data.password || data.password === data.confirmPassword,
+    {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    }
+  );
+
 
 
 export {
@@ -141,4 +167,6 @@ export {
   SubscriptionSchema,
   QuestSchema,
   UpdateQuestSchema,
+  StoreSchema,
+  UpdateStoreSchema,
 };
