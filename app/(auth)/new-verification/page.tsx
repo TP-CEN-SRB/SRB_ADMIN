@@ -2,13 +2,13 @@ import NewVerificationForm from "@/components/Form/AuthForms/NewVerificationForm
 import React from "react";
 
 const NewVerificationPage = ({
-  params,
+  searchParams,
 }: {
-  params: { token: string };
+  searchParams: { [key: string]: string };
 }) => {
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <NewVerificationForm token={params.token} />
+      <NewVerificationForm token={searchParams.token} />
     </div>
   );
 };
