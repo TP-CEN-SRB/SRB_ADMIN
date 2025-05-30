@@ -202,7 +202,7 @@ model TransferSession {
   id         String    @id @default(uuid())
   senderId   String
   receiverId String?
-  amount_    Int       @default(0) @map("amount ")
+  amount     Int       @default(0)
   status     String    @default("pending")
   createdAt  DateTime  @default(now()) @map("  createdAt") @db.Timestamp(6)
   redeemedAt DateTime? @db.Timestamp(6)
