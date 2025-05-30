@@ -126,7 +126,7 @@ const warningEmailTemplate = (
 `;
 };
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
+  const confirmLink = `${process.env.BASE_URL}/new-verification/token/${encodeURIComponent(token)}`;
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
