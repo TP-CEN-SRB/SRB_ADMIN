@@ -8,6 +8,10 @@ const getData = async () => {
     id: store.id,
     name: store.name,
     email: store.email,
+    faculty: store.faculty ?? "N/A",
+    totalPoints: store.point?.balance ?? 0,
+    lastActive: store.point?.updatedAt?.toISOString() ?? "N/A",
+    totalPurchases: store._count?.transactions ?? 0,
     createdAt: new Date(store.createdAt).toLocaleDateString(),
   }));
 };

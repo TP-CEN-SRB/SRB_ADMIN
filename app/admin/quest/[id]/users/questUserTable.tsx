@@ -29,7 +29,8 @@ const ClientQuestUserTable = ({ usersInQuest }: { usersInQuest: UserQuest[] }) =
     const nameMatch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
 
     return facultyMatch && completionMatch && nameMatch;
-  });
+  })
+   .sort((a, b) => Number(b.isCompleted) - Number(a.isCompleted));
 
   return (
     <>

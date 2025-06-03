@@ -21,7 +21,7 @@ export const POST = async (req: NextRequest) => {
       where: { id: sessionId },
     });
 
-    if (!session || session.status !== "pending") {
+    if (!session || session.status !== "PENDING") {
       return NextResponse.json({ message: "Invalid or redeemed session" }, { status: 400 });
     }
 
@@ -53,7 +53,7 @@ export const POST = async (req: NextRequest) => {
         where: { id: sessionId },
         data: {
           receiverId,
-          status: "redeemed",
+          status: "REDEEMED",
           redeemedAt: new Date(),
         },
       }),

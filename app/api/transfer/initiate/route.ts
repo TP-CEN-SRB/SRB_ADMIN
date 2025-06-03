@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
       data: {
         senderId,
         amount,
-        status: "pending",
+        status: "PENDING",
       },
     });
 

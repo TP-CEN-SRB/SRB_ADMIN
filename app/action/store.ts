@@ -1,8 +1,9 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { Faculty, Role } from "@prisma/client";
+import { Faculty, Role, TransactionType } from "@prisma/client";
 import { hash } from "bcryptjs";
+import { getSessionUser } from "@/utils/getAuth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { revalidatePath } from "next/cache";
 import { StoreSchema, UpdateStoreSchema } from "@/schemas";
@@ -84,9 +85,60 @@ const getStoreAccounts = async () => {
       name: true,
       email: true,
       faculty: true,
+      point: {
+        select: {
+          balance: true,
+          updatedAt: true, // last active
+        },
+      },
+      _count: {
+        select: {
+          transactions: {
+            where: {
+              transactionType: "PURCHASE",
+            },
+          },
+        },
+      },
       createdAt: true,
     },
   });
+};
+
+export const getStoreById = async (id: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      id,
+      role: "STORE",
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      faculty: true,
+    },
+  });
+};
+
+export const deleteStore = async (storeId: string) => {
+  const user = await getSessionUser();
+
+  if (user?.role !== "ADMIN") {
+    return { error: "Unauthorized" };
+  }
+
+  try {
+    await prisma.questDetails.delete({
+      where: { id: storeId },
+    });
+
+    return { success: "Store deleted successfully" };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "Failed to delete store" };
+  }
 };
 
 export { createStore, updateStore, getStoreAccounts };

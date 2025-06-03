@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -11,6 +10,7 @@ import {
   getFilteredRowModel,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+import { columns } from "./columns";
 import {
   Table,
   TableBody,
@@ -29,10 +29,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface Store {
+export interface Store {
   id: string;
   name: string;
   email: string;
+  faculty: string;
+  totalPoints: number;
+  lastActive: string;
+  totalPurchases: number;
 }
 
 interface StoreDataTableProps {
@@ -40,17 +44,6 @@ interface StoreDataTableProps {
 }
 
 const StoreDataTable = ({ data }: StoreDataTableProps) => {
-  const columns: ColumnDef<Store>[] = [
-    {
-      accessorKey: "name",
-      header: "Store Name",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-  ];
-
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -72,14 +65,14 @@ const StoreDataTable = ({ data }: StoreDataTableProps) => {
     },
   });
 
-  const [filterValue, setFilterValue] = useState(
-    (table.getColumn("name")?.getFilterValue() as string) ?? ""
-  );
+  const [filterValue, setFilterValue] = useState("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setFilterValue(value);
     table.getColumn("name")?.setFilterValue(value);
+    table.getColumn("email")?.setFilterValue(value);
+    table.getColumn("faculty")?.setFilterValue(value);
   };
 
   return (
@@ -87,7 +80,7 @@ const StoreDataTable = ({ data }: StoreDataTableProps) => {
       <div className="flex flex-wrap justify-end items-center gap-3 py-3">
         <div className="max-w-xs">
           <Input
-            placeholder="Filter by name..."
+            placeholder="Filter by name, email, or faculty..."
             type="search"
             value={filterValue}
             onChange={handleInputChange}
@@ -129,7 +122,10 @@ const StoreDataTable = ({ data }: StoreDataTableProps) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
                   No store accounts found.
                 </TableCell>
               </TableRow>
