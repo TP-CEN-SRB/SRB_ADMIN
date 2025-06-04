@@ -30,7 +30,7 @@ export const POST = async (req: NextRequest) => {
       where: {
         email: data.email,
         role: {
-          in: [Role.STUDENT, Role.STORE],
+          in: [Role.STUDENT, Role.STORE, Role.STAFF],
         },
       },
     });
