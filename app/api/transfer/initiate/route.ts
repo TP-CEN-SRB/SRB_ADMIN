@@ -31,10 +31,16 @@ export const POST = async (req: NextRequest) => {
       },
     });
 
+    const user = await prisma.user.findUnique({
+      where: { id: senderId },
+      select: { name: true },
+    });
+
     const qrToken = generateTransferQrToken({
       sessionId: session.id,
       senderId,
       amount,
+      senderName: user?.name ?? "Unknown",
     });
 
     return NextResponse.json({ token: qrToken, id: session.id }, { status: 200 });

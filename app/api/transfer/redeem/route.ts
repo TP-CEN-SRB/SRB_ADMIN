@@ -15,7 +15,7 @@ export const POST = async (req: NextRequest) => {
     const receiverId = decoded.userId;
 
     const payload = verifyQrToken(qrToken);
-    const { sessionId, senderId, amount} = payload;
+    const { sessionId, senderId, amount } = payload;
 
     const session = await prisma.transferSession.findUnique({
       where: { id: sessionId },
@@ -59,8 +59,31 @@ export const POST = async (req: NextRequest) => {
       }),
     ]);
 
-    return NextResponse.json({ success: true }, { status: 200 });
+    const [sender, receiver] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: senderId },
+        select: { name: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: receiverId },
+        select: { name: true },
+      }),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        sessionId,
+        amount,
+        senderId,
+        receiverId,
+        senderName: sender?.name ?? "Unknown",
+        receiverName: receiver?.name ?? "Unknown",
+        redeemedAt: new Date().toISOString(),
+      },
+    }, { status: 200 });
+
   } catch {
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: "Redemption failed" }, { status: 500 });
   }
 };
