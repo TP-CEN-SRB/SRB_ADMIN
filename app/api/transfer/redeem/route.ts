@@ -11,7 +11,7 @@ export const POST = async (req: NextRequest) => {
     const decoded = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decoded === "string") return NextResponse.json({ message: "Invalid token" }, { status: 401 });
 
-    const { qrToken } = await req.json();
+    const { token: qrToken } = await req.json();
     const receiverId = decoded.userId;
 
     const payload = verifyQrToken(qrToken);
@@ -34,41 +34,61 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Sender has insufficient points" }, { status: 400 });
     }
 
-    await prisma.$transaction([
-      prisma.point.update({
-        where: { userId: senderId },
-        data: { balance: { decrement: amount } },
-      }),
-      prisma.point.upsert({
-        where: { userId: receiverId },
-        create: {
-          userId: receiverId,
-          balance: amount,
-        },
-        update: {
-          balance: { increment: amount },
-        },
-      }),
-      prisma.transferSession.update({
-        where: { id: sessionId },
-        data: {
-          receiverId,
-          status: "REDEEMED",
-          redeemedAt: new Date(),
-        },
-      }),
-    ]);
-
     const [sender, receiver] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id: senderId },
-        select: { name: true },
-      }),
-      prisma.user.findUnique({
-        where: { id: receiverId },
-        select: { name: true },
-      }),
-    ]);
+  prisma.user.findUnique({
+    where: { id: senderId },
+    select: { name: true },
+  }),
+  prisma.user.findUnique({
+    where: { id: receiverId },
+    select: { name: true },
+  }),
+]);
+
+await prisma.$transaction([
+  prisma.point.update({
+    where: { userId: senderId },
+    data: { balance: { decrement: amount } },
+  }),
+  prisma.point.upsert({
+    where: { userId: receiverId },
+    create: {
+      userId: receiverId,
+      balance: amount,
+    },
+    update: {
+      balance: { increment: amount },
+    },
+  }),
+  prisma.transferSession.update({
+    where: { id: sessionId },
+    data: {
+      receiverId,
+      status: "REDEEMED",
+      redeemedAt: new Date(),
+    },
+  }),
+  prisma.transaction.create({
+    data: {
+      id: crypto.randomUUID(),
+      userId: senderId,
+      transactionType: "PURCHASE",
+      pointsChange: -amount,
+      description: `Transferred to ${receiver?.name ?? "Unknown"}`,
+      updatedAt: new Date(),
+    },
+  }),
+  prisma.transaction.create({
+    data: {
+      id: crypto.randomUUID(),
+      userId: receiverId,
+      transactionType: "PURCHASE",
+      pointsChange: amount,
+      description: `Received from ${sender?.name ?? "Unknown"}`,
+      updatedAt: new Date(),
+    },
+  }),
+]);
 
     return NextResponse.json({
       success: true,

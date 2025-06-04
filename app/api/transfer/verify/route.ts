@@ -13,7 +13,7 @@ export const POST = async (req: NextRequest) => {
     if (typeof decoded === "string")
       return NextResponse.json({ message: "Invalid token" }, { status: 401 });
 
-    const { qrToken } = await req.json();
+    const { token: qrToken } = await req.json();
     const receiverId = decoded.userId;
 
     const payload = verifyQrToken(qrToken);
