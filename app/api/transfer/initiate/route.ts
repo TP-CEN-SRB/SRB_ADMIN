@@ -43,7 +43,10 @@ export const POST = async (req: NextRequest) => {
       senderName: user?.name ?? "Unknown",
     });
 
-    return NextResponse.json({ token: qrToken }, { status: 200 });
+    return new NextResponse(`token: ${qrToken}`, {
+  status: 200,
+  headers: { "Content-Type": "text/plain" },
+});
   } catch {
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
