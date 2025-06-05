@@ -148,6 +148,17 @@ export const collaspeItems = [
       },
     ],
   },
+  {
+  title: "Live Stream",
+  icon: FaEye,
+  child: [
+      {
+        title: "View",
+        icon: FaEye,
+        url: "/admin/video",
+      },
+    ],
+  }
 ];
 
 export const dropdownItems = [
