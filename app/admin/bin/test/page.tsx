@@ -164,9 +164,13 @@ const TestBinPage = () => {
             >
               <div>
                 <p className="font-bold capitalize">{mat}</p>
-                <p className="text-sm">{statusLabel(statuses[mat])}</p>
+                <p className="text-sm">
+                  {statusLabel(statuses[mat]).replace(/^[^\s]+\s/, "")}
+                </p>
               </div>
-              <span className="text-2xl">{statusLabel(statuses[mat]).split(" ")[0]}</span>
+              <span className="text-2xl">
+                {statusLabel(statuses[mat]).split(" ")[0]}
+              </span>
             </div>
           ))}
         </div>
