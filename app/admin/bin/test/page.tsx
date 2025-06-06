@@ -27,7 +27,7 @@ const TestBinPage = () => {
 
   const waitForReadOnce = (material: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      const topic = `srb/total/${material}/${binId}`;
+      const topic = `srb/${material}/${binId}`;
       const timeout = setTimeout(() => {
         mqttClient?.off("message", onMessage);
         resolve(false);
@@ -60,7 +60,6 @@ const TestBinPage = () => {
     }
 
     setIsTesting(true);
-    mqttClient.subscribe(`srb/total/+/` + binId);
 
     for (const material of materials) {
       const topic = `srb/${material}/${binId}`;
@@ -94,7 +93,6 @@ const TestBinPage = () => {
       }
     }
 
-    mqttClient.unsubscribe(`srb/total/+/` + binId);
     setIsTesting(false);
   };
 
