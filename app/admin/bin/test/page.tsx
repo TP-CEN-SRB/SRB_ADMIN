@@ -1,16 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { MqttClient } from "mqtt";
 import { publishMqtt, connectMqtt } from "@/lib/mqtt";
-import { ableToPublishMqttMessage, updateCommandUpdatedAt, resetCommandCooldown } from "@/utils/mqttPublisher";
+import {
+  ableToPublishMqttMessage,
+  updateCommandUpdatedAt,
+  resetCommandCooldown,
+} from "@/utils/mqttPublisher";
 import { toast } from "@/hooks/use-toast";
 
-const materials = ["plastic", "general", "paper"];
+const materials = ["plastic", "general", "paper"] as const;
 
 const TestBinPage = () => {
   const [binId, setBinId] = useState("");
   const [isTesting, setIsTesting] = useState(false);
-  const [mqttClient, setMqttClient] = useState<any>(null);
+  const [mqttClient, setMqttClient] = useState<MqttClient | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -65,7 +70,10 @@ const TestBinPage = () => {
 
       const canPublish = await ableToPublishMqttMessage(binId);
       if (!canPublish) {
-        toast({ title: "Wait before retrying", description: `Cooldown not finished for ${material}` });
+        toast({
+          title: "Wait before retrying",
+          description: `Cooldown not finished for ${material}`,
+        });
         continue;
       }
 
@@ -96,7 +104,10 @@ const TestBinPage = () => {
       return;
     }
     await resetCommandCooldown(binId);
-    toast({ title: "Cooldown reset", description: "You can now test again immediately" });
+    toast({
+      title: "Cooldown reset",
+      description: "You can now test again immediately",
+    });
   };
 
   return (
