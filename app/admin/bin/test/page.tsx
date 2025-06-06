@@ -1,41 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { publishMqtt } from "@/lib/mqtt";
-import { toast } from "@/hooks/use-toast";
 import {
   ableToPublishMqttMessage,
   updateCommandUpdatedAt,
+  resetCommandCooldown,
 } from "@/utils/mqttPublisher";
+import { toast } from "@/hooks/use-toast";
 
 const materials = ["plastic", "general", "paper"];
 
-const BinTestPage = () => {
+const TestBinPage = () => {
   const [binId, setBinId] = useState("");
   const [isTesting, setIsTesting] = useState(false);
 
-  const waitForReadOnce = (material: string): Promise<void> => {
-    return new Promise((resolve) => {
-      const handler = (event: MessageEvent) => {
-        const { topic, message } = JSON.parse(event.data);
-        if (
-          topic === `srb/total/${material}` &&
-          message?.command === "readonce"
-        ) {
-          window.removeEventListener("message", handler);
-          resolve();
-        }
-      };
-
-      window.addEventListener("message", handler);
-    });
-  };
-
-  const testBin = async () => {
+  const handleTest = async () => {
     if (!binId) {
-      toast({ title: "Error", description: "Please enter a Bin ID" });
+      toast({ title: "Missing Bin ID" });
       return;
     }
 
@@ -43,41 +25,80 @@ const BinTestPage = () => {
 
     for (const material of materials) {
       const topic = `srb/${material}/${binId}`;
-      const readTopic = `srb/total/${material}`;
+      const payload = JSON.stringify({ command: "detect" });
 
-      const able = await ableToPublishMqttMessage(binId);
-      if (!able) {
-        toast({ title: "Rate Limited", description: `Wait before retrying ${material}` });
+      toast({ title: `Testing ${material}...` });
+
+      const canPublish = await ableToPublishMqttMessage(binId);
+      if (!canPublish) {
+        toast({
+          title: "Wait before retrying",
+          description: `Cooldown not finished for ${material}`,
+        });
         continue;
       }
 
-      const success = await publishMqtt(topic, JSON.stringify({ command: "detect" }));
+      const success = await publishMqtt(topic, payload);
       if (success) {
-        toast({ title: `${material.toUpperCase()} Detect Sent`, description: `Waiting for readonce...` });
         await updateCommandUpdatedAt(binId);
-        await waitForReadOnce(material);
-        toast({ title: `${material.toUpperCase()} Readonce`, description: `Response received!` });
+        toast({
+          title: "Command Sent",
+          description: `detect → ${material}`,
+        });
+
+        // Simulate delay for test (replace with listener if needed)
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       } else {
-        toast({ title: "Error", description: `Failed to send to ${material}` });
+        toast({
+          title: "Failed",
+          description: `Could not send to ${material}`,
+        });
       }
     }
 
     setIsTesting(false);
   };
 
+  const handleResetCooldown = async () => {
+    if (!binId) {
+      toast({ title: "Missing Bin ID" });
+      return;
+    }
+
+    await resetCommandCooldown(binId);
+    toast({
+      title: "Cooldown Reset",
+      description: "You can test immediately again.",
+    });
+  };
+
   return (
-    <div className="p-8 max-w-md mx-auto space-y-4">
-      <h1 className="text-xl font-bold">MQTT Bin Test</h1>
-      <Input
+    <div className="max-w-md mx-auto mt-10">
+      <h1 className="text-2xl font-bold mb-4 text-center">Test Bin MQTT</h1>
+      <input
+        type="text"
         placeholder="Enter Bin ID"
         value={binId}
         onChange={(e) => setBinId(e.target.value)}
+        className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4"
       />
-      <Button onClick={testBin} disabled={isTesting}>
-        {isTesting ? "Testing..." : "Test Bin"}
-      </Button>
+      <div className="flex flex-col gap-3">
+        <button
+          onClick={handleTest}
+          disabled={isTesting}
+          className="bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
+        >
+          {isTesting ? "Testing..." : "Test Bin"}
+        </button>
+        <button
+          onClick={handleResetCooldown}
+          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md"
+        >
+          Reset Cooldown
+        </button>
+      </div>
     </div>
   );
 };
 
-export default BinTestPage;
+export default TestBinPage;

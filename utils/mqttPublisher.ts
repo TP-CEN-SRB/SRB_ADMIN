@@ -22,3 +22,12 @@ export const updateCommandUpdatedAt = async (userId: string) => {
     data: { commandUpdatedAt: new Date() },
   });
 };
+
+export const resetCommandCooldown = async (userId: string) => {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      commandUpdatedAt: new Date(Date.now() - 10 * 60 * 1000), // 10 minutes ago
+    },
+  });
+};
