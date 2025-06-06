@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { publishMqtt } from "@/lib/mqtt";
-import {
-  ableToPublishMqttMessage,
-  updateCommandUpdatedAt,
-  resetCommandCooldown,
-} from "@/utils/mqttPublisher";
+import { useState, useEffect } from "react";
+import { publishMqtt, connectMqtt } from "@/lib/mqtt";
+import { ableToPublishMqttMessage, updateCommandUpdatedAt, resetCommandCooldown } from "@/utils/mqttPublisher";
 import { toast } from "@/hooks/use-toast";
 
 const materials = ["plastic", "general", "paper"];
@@ -14,6 +10,38 @@ const materials = ["plastic", "general", "paper"];
 const TestBinPage = () => {
   const [binId, setBinId] = useState("");
   const [isTesting, setIsTesting] = useState(false);
+  const [mqttClient, setMqttClient] = useState<any>(null);
+
+  useEffect(() => {
+    const init = async () => {
+      const client = await connectMqtt();
+      setMqttClient(client);
+    };
+    init();
+  }, []);
+
+  const waitForReadOnce = (material: string): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const topic = `srb/total/${material}/${binId}`;
+      const timeout = setTimeout(() => {
+        mqttClient?.off("message", onMessage);
+        resolve(false);
+      }, 5000); // 5s timeout
+
+      const onMessage = (topicReceived: string, message: Buffer) => {
+        if (topicReceived === topic) {
+          const payload = JSON.parse(message.toString());
+          if (payload.command === "readonce") {
+            clearTimeout(timeout);
+            mqttClient?.off("message", onMessage);
+            resolve(true);
+          }
+        }
+      };
+
+      mqttClient?.on("message", onMessage);
+    });
+  };
 
   const handleTest = async () => {
     if (!binId) {
@@ -21,41 +49,44 @@ const TestBinPage = () => {
       return;
     }
 
+    if (!mqttClient) {
+      toast({ title: "MQTT not connected" });
+      return;
+    }
+
     setIsTesting(true);
+    mqttClient.subscribe(`srb/total/+/` + binId);
 
     for (const material of materials) {
       const topic = `srb/${material}/${binId}`;
       const payload = JSON.stringify({ command: "detect" });
 
-      toast({ title: `Testing ${material}...` });
+      toast({ title: `Testing ${material} bin...` });
 
       const canPublish = await ableToPublishMqttMessage(binId);
       if (!canPublish) {
-        toast({
-          title: "Wait before retrying",
-          description: `Cooldown not finished for ${material}`,
-        });
+        toast({ title: "Wait before retrying", description: `Cooldown not finished for ${material}` });
         continue;
       }
 
       const success = await publishMqtt(topic, payload);
       if (success) {
         await updateCommandUpdatedAt(binId);
-        toast({
-          title: "Command Sent",
-          description: `detect → ${material}`,
-        });
+        toast({ title: "Sent", description: `detect → ${material}` });
 
-        // Simulate delay for test (replace with listener if needed)
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const acknowledged = await waitForReadOnce(material);
+        if (acknowledged) {
+          toast({ title: `${material} bin responded with readonce ✅` });
+        } else {
+          toast({ title: `${material} bin did not respond in time ❌` });
+          break;
+        }
       } else {
-        toast({
-          title: "Failed",
-          description: `Could not send to ${material}`,
-        });
+        toast({ title: "Failed to send", description: `Could not send to ${material}` });
       }
     }
 
+    mqttClient.unsubscribe(`srb/total/+/` + binId);
     setIsTesting(false);
   };
 
@@ -64,39 +95,33 @@ const TestBinPage = () => {
       toast({ title: "Missing Bin ID" });
       return;
     }
-
     await resetCommandCooldown(binId);
-    toast({
-      title: "Cooldown Reset",
-      description: "You can test immediately again.",
-    });
+    toast({ title: "Cooldown reset", description: "You can now test again immediately" });
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4 text-center">Test Bin MQTT</h1>
+    <div className="max-w-md mx-auto mt-10 space-y-4">
+      <h1 className="text-2xl font-bold">Test Bin MQTT</h1>
       <input
         type="text"
         placeholder="Enter Bin ID"
         value={binId}
         onChange={(e) => setBinId(e.target.value)}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md"
       />
-      <div className="flex flex-col gap-3">
-        <button
-          onClick={handleTest}
-          disabled={isTesting}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
-        >
-          {isTesting ? "Testing..." : "Test Bin"}
-        </button>
-        <button
-          onClick={handleResetCooldown}
-          className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md"
-        >
-          Reset Cooldown
-        </button>
-      </div>
+      <button
+        onClick={handleTest}
+        disabled={isTesting}
+        className="bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
+      >
+        {isTesting ? "Testing..." : "Test Bin"}
+      </button>
+      <button
+        onClick={handleResetCooldown}
+        className="bg-gray-600 text-white px-6 py-2 rounded-md"
+      >
+        Reset Cooldown
+      </button>
     </div>
   );
 };
