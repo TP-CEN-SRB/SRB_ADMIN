@@ -89,7 +89,10 @@ const TestBinPage = () => {
           break;
         }
       } else {
-        toast({ title: "Failed to send", description: `Could not send to ${material}` });
+        toast({
+          title: "Failed to send",
+          description: `Could not send to ${material}`,
+        });
       }
     }
 
