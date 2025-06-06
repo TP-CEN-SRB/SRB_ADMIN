@@ -67,6 +67,9 @@ const TestBinPage = () => {
 
       toast({ title: `Testing ${material} bin...` });
 
+      // ✅ Ensure you're subscribed to the response topic
+      await mqttClient.subscribe(topic);
+
       const canPublish = await ableToPublishMqttMessage(binId);
       if (!canPublish) {
         toast({

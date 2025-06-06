@@ -219,6 +219,7 @@ enum Faculty {
   IIT
   HSS
   DES
+  OTHERS
   EXT
 }
 
