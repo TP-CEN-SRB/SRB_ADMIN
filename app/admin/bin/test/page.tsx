@@ -31,7 +31,7 @@ const TestBinPage = () => {
       const timeout = setTimeout(() => {
         mqttClient?.off("message", onMessage);
         resolve(false);
-      }, 5000); // 5s timeout
+      }, 20000); // 20s timeout
 
       const onMessage = (topicReceived: string, message: Buffer) => {
         if (topicReceived === topic) {
