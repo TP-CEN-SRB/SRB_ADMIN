@@ -38,7 +38,7 @@ const TestBinPage = () => {
       const timeout = setTimeout(() => {
         mqttClient?.off("message", onMessage);
         resolve(false);
-      }, 20000); // 20s timeout
+      }, 60000); // 60s timeout
 
       const onMessage = (topicReceived: string, message: Buffer) => {
         if (topicReceived === topic) {
@@ -60,15 +60,27 @@ const TestBinPage = () => {
   };
 
   const handleTest = async () => {
-    if (!binId) return toast({ title: "Missing Bin ID" });
-    if (!mqttClient) return toast({ title: "MQTT not connected" });
+    if (!binId) {
+      toast({ title: "Missing Bin ID" });
+      return;
+    }
+
+    if (!mqttClient) {
+      toast({ title: "MQTT not connected" });
+      return;
+    }
 
     setIsTesting(true);
+
     for (const material of materials) {
       updateStatus(material, "testing");
 
       const topic = `srb/${material}/${binId}`;
       const payload = JSON.stringify({ command: "detect" });
+
+      toast({ title: `Testing ${material} bin...` });
+
+      await mqttClient.subscribe(topic);
 
       const canPublish = await ableToPublishMqttMessage(binId);
       if (!canPublish) {
@@ -86,21 +98,34 @@ const TestBinPage = () => {
         const acknowledged = await waitForReadOnce(material);
         if (acknowledged) {
           updateStatus(material, "success");
+          toast({ title: `${material} bin responded ✅` });
         } else {
           updateStatus(material, "failed");
+          toast({ title: `${material} bin did not respond ❌` });
           break;
         }
       } else {
         updateStatus(material, "failed");
+        toast({
+          title: "Failed to send",
+          description: `Could not send to ${material}`,
+        });
       }
     }
+
     setIsTesting(false);
   };
 
   const handleResetCooldown = async () => {
-    if (!binId) return toast({ title: "Missing Bin ID" });
+    if (!binId) {
+      toast({ title: "Missing Bin ID" });
+      return;
+    }
     await resetCommandCooldown(binId);
-    toast({ title: "Cooldown reset", description: "You can now test again" });
+    toast({
+      title: "Cooldown reset",
+      description: "You can now test again immediately",
+    });
   };
 
   const statusStyle = {
@@ -125,7 +150,7 @@ const TestBinPage = () => {
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
-      <h1 className="text-2xl font-bold">Test Bin MQTT</h1>
+      <h1 className="text-2xl font-bold">QOL Bin Test Dashboard</h1>
 
       <input
         type="text"
