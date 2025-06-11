@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import mqtt from "mqtt";
 import { toast } from "@/hooks/use-toast";
+import { saveRecording } from "@/app/action/video"; // ✅ Import server action
 
 const MQTT_BROKER = "wss://21be7b7891f540b79302d07822b51558.s1.eu.hivemq.cloud:8884/mqtt";
 const MQTT_TOPIC = "srb/cam";
@@ -48,25 +49,18 @@ const VideoStreamPage = () => {
 
         // Handle recorded video
         if (payload.type === "recorded" && payload.url) {
-          const res = await fetch("/api/save-recording", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              url: payload.url,
-              duration: payload.duration,
-            }),
-          });
+          const result = await saveRecording(payload.url, payload.duration);
 
-          if (res.ok) {
+          if (result?.error) {
             toast({
-              title: "✅ Recording Complete",
-              description: `🕒 Total duration: ${payload.duration} seconds`,
+              title: "❌ Failed to Save",
+              description: result.error,
+              variant: "destructive",
             });
           } else {
             toast({
-              title: "❌ Failed to Save",
-              description: "Could not save recording to database",
-              variant: "destructive",
+              title: "✅ Recording Complete",
+              description: `🕒 Total duration: ${payload.duration} seconds`,
             });
           }
         }
