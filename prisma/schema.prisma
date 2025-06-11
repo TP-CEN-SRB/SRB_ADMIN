@@ -222,6 +222,14 @@ model Video {
   @@map("video")
 }
 
+model Crashlog {
+  id        String   @id @default(uuid())
+  message   String
+  createdAt DateTime @default(now())
+
+  @@map("crashlog")
+}
+
 enum Faculty {
   ENG
   BUS

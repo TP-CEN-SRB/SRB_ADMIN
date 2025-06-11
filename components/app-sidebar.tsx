@@ -21,7 +21,7 @@ import {
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
-import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus, FaCogs } from "react-icons/fa";
+import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus, FaCogs, FaClock, FaBug, FaExclamationTriangle } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
@@ -161,6 +161,22 @@ export const collaspeItems = [
         title: "View",
         icon: FaEye,
         url: "/admin/video",
+      },
+      {
+        title: "Recordings",
+        icon: FaClock,
+        url: "/admin/recordings",
+      },
+    ],
+  },
+  {
+  title: "Crash Log",
+  icon: FaBug,
+  child: [
+      {
+        title: "Messages",
+        icon: FaExclamationTriangle,
+        url: "/admin/crashlog",
       },
     ],
   }
