@@ -129,7 +129,7 @@ const VideoDataTable = ({ data }: VideoDataTableProps) => {
                   key={row.id}
                   className="cursor-pointer hover:bg-accent"
                   onClick={() =>
-                    (window.location.href = `/recordings/${row.original.id}`)
+                    (window.location.href = `/admin/recordings/${row.original.id}`)
                   }
                 >
                   {row.getVisibleCells().map((cell) => (
