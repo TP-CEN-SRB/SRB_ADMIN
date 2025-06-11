@@ -212,6 +212,16 @@ model TransferSession {
   @@map("transfer_session")
 }
 
+model Video {
+  id                String   @id @default(uuid())
+  name              String
+  fileUrl           String
+  durationInSeconds Int
+  createdAt         DateTime @default(now())
+
+  @@map("video")
+}
+
 enum Faculty {
   ENG
   BUS
