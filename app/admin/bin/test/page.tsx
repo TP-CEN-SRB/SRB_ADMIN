@@ -16,7 +16,6 @@ type Status = "ready" | "testing" | "success" | "failed";
 
 const TestBinPage = () => {
   const [binId, setBinId] = useState("");
-  const [isTesting, setIsTesting] = useState(false);
   const [mqttClient, setMqttClient] = useState<MqttClient | null>(null);
   const [statuses, setStatuses] = useState<Record<string, Status>>({
     plastic: "ready",
@@ -38,7 +37,7 @@ const TestBinPage = () => {
       const timeout = setTimeout(() => {
         mqttClient?.off("message", onMessage);
         resolve(false);
-      }, 60000); // 60s timeout
+      }, 60000);
 
       const onMessage = (topicReceived: string, message: Buffer) => {
         if (topicReceived === topic) {
@@ -59,61 +58,53 @@ const TestBinPage = () => {
     setStatuses((prev) => ({ ...prev, [material]: status }));
   };
 
-  const handleTest = async () => {
+  const handleMaterialTest = async (material: string) => {
     if (!binId) {
       toast({ title: "Missing Bin ID" });
       return;
     }
-
     if (!mqttClient) {
       toast({ title: "MQTT not connected" });
       return;
     }
 
-    setIsTesting(true);
+    updateStatus(material, "testing");
 
-    for (const material of materials) {
-      updateStatus(material, "testing");
+    const topic = `srb/${material}/${binId}`;
+    const payload = JSON.stringify({ command: "detect" });
 
-      const topic = `srb/${material}/${binId}`;
-      const payload = JSON.stringify({ command: "detect" });
+    toast({ title: `Testing ${material} bin...` });
 
-      toast({ title: `Testing ${material} bin...` });
+    await mqttClient.subscribe(topic);
 
-      await mqttClient.subscribe(topic);
-
-      const canPublish = await ableToPublishMqttMessage(binId);
-      if (!canPublish) {
-        toast({
-          title: "Wait before retrying",
-          description: `Cooldown not finished for ${material}`,
-        });
-        updateStatus(material, "failed");
-        continue;
-      }
-
-      const success = await publishMqtt(topic, payload);
-      if (success) {
-        await updateCommandUpdatedAt(binId);
-        const acknowledged = await waitForReadOnce(material);
-        if (acknowledged) {
-          updateStatus(material, "success");
-          toast({ title: `${material} bin responded ✅` });
-        } else {
-          updateStatus(material, "failed");
-          toast({ title: `${material} bin did not respond ❌` });
-          break;
-        }
-      } else {
-        updateStatus(material, "failed");
-        toast({
-          title: "Failed to send",
-          description: `Could not send to ${material}`,
-        });
-      }
+    const canPublish = await ableToPublishMqttMessage(binId);
+    if (!canPublish) {
+      toast({
+        title: "Cooldown not finished",
+        description: `Wait before retrying ${material}`,
+      });
+      updateStatus(material, "failed");
+      return;
     }
 
-    setIsTesting(false);
+    const success = await publishMqtt(topic, payload);
+    if (success) {
+      await updateCommandUpdatedAt(binId);
+      const acknowledged = await waitForReadOnce(material);
+      if (acknowledged) {
+        updateStatus(material, "success");
+        toast({ title: `${material} bin responded ✅` });
+      } else {
+        updateStatus(material, "failed");
+        toast({ title: `${material} bin did not respond ❌` });
+      }
+    } else {
+      updateStatus(material, "failed");
+      toast({
+        title: "Failed to send",
+        description: `Could not send to ${material}`,
+      });
+    }
   };
 
   const handleResetCooldown = async () => {
@@ -160,30 +151,22 @@ const TestBinPage = () => {
         className="w-full px-4 py-2 border border-gray-300 rounded-md"
       />
 
-      <div className="flex gap-4">
-        <button
-          onClick={handleTest}
-          disabled={isTesting}
-          className="bg-blue-600 text-white px-6 py-2 rounded-md disabled:opacity-50"
-        >
-          {isTesting ? "Testing..." : "Test Bin"}
-        </button>
-        <button
-          onClick={handleResetCooldown}
-          className="bg-gray-600 text-white px-6 py-2 rounded-md"
-        >
-          Reset Cooldown
-        </button>
-      </div>
+      <button
+        onClick={handleResetCooldown}
+        className="bg-gray-600 text-white px-6 py-2 rounded-md"
+      >
+        Reset Cooldown
+      </button>
 
       <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-2">Bin Test Status</h2>
+        <h2 className="text-lg font-semibold mb-2">Click to Test Bin</h2>
         <div className="space-y-3">
           {materials.map((mat) => (
             <div
               key={mat}
+              onClick={() => handleMaterialTest(mat)}
               className={clsx(
-                "border-l-8 rounded-md p-4 bg-white shadow-sm flex justify-between items-center",
+                "cursor-pointer border-l-8 rounded-md p-4 bg-white shadow-sm flex justify-between items-center transition-all hover:shadow-md",
                 statusStyle[statuses[mat]]
               )}
             >
