@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import mqtt from "mqtt";
 import { toast } from "@/hooks/use-toast";
-import { saveRecording } from "@/app/action/video"; // ✅ Import server action
+import { saveRecording } from "@/app/action/video";
 
 const MQTT_BROKER = "wss://21be7b7891f540b79302d07822b51558.s1.eu.hivemq.cloud:8884/mqtt";
 const MQTT_TOPIC = "srb/cam";
@@ -18,7 +18,6 @@ const VideoStreamPage = () => {
   const [mqttClient, setMqttClient] = useState<mqtt.MqttClient | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Setup MQTT client
   useEffect(() => {
     const client = mqtt.connect(MQTT_BROKER, {
       username: MQTT_USER,
@@ -30,9 +29,12 @@ const VideoStreamPage = () => {
 
     client.on("connect", () => {
       console.log("🔌 Connected to MQTT");
+      toast({ title: "Connected to MQTT Broker ✅" });
+
       client.subscribe(MQTT_TOPIC, (err) => {
         if (!err) {
           console.log("📡 Subscribed to topic");
+          toast({ title: `Subscribed to ${MQTT_TOPIC}` });
           client.publish(MQTT_TOPIC, JSON.stringify({ command: "URL" }));
         }
       });
@@ -42,12 +44,11 @@ const VideoStreamPage = () => {
       try {
         const payload = JSON.parse(message.toString());
 
-        // Handle stream URL
         if (payload.url && payload.url.includes("trycloudflare.com")) {
           setStreamUrl(payload.url);
+          toast({ title: "Live stream URL received ✅" });
         }
 
-        // Handle recorded video
         if (payload.type === "recorded" && payload.url) {
           const result = await saveRecording(payload.url, payload.duration);
 
@@ -66,6 +67,11 @@ const VideoStreamPage = () => {
         }
       } catch (err) {
         console.error("❌ MQTT payload error:", err);
+        toast({
+          title: "MQTT Error",
+          description: "Received invalid data",
+          variant: "destructive",
+        });
       }
     });
 
@@ -74,7 +80,6 @@ const VideoStreamPage = () => {
     };
   }, []);
 
-  // Update duration timer while recording
   useEffect(() => {
     if (!recording || !recordStart) return;
 
@@ -85,7 +90,6 @@ const VideoStreamPage = () => {
     return () => clearInterval(interval);
   }, [recording, recordStart]);
 
-  // Toggle recording state and publish command
   const handleToggleRecording = () => {
     if (!mqttClient) return;
 
@@ -93,10 +97,12 @@ const VideoStreamPage = () => {
     mqttClient.publish(MQTT_TOPIC, JSON.stringify({ command }));
 
     if (recording) {
+      toast({ title: "Recording stopped ⏹️" });
       setRecording(false);
       setRecordStart(null);
       setDuration(0);
     } else {
+      toast({ title: "Recording started ⏺️" });
       setRecording(true);
       setRecordStart(Date.now());
     }
@@ -104,30 +110,31 @@ const VideoStreamPage = () => {
 
   return (
     <div className="w-full p-6 space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">Live Surveillance Stream</h1>
-          <p className="text-sm text-muted-foreground">Real-time view from smart bin camera</p>
+          <p className="text-sm text-muted-foreground">
+            Real-time view from smart bin camera
+          </p>
         </div>
         <button
           onClick={handleToggleRecording}
           className={`px-4 py-2 text-white rounded-lg font-semibold ${
-            recording ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"
+            recording
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-green-600 hover:bg-green-700"
           }`}
         >
           {recording ? "Stop Recording" : "Start Recording"}
         </button>
       </div>
 
-      {/* Recording indicator */}
       {recording && (
         <p className="text-center font-mono text-yellow-500">
           ⏺️ Recording... {duration}s elapsed
         </p>
       )}
 
-      {/* Video Frame */}
       <div className="w-full max-w-4xl aspect-video rounded-xl overflow-hidden border bg-black shadow mx-auto">
         {streamUrl ? (
           <iframe
