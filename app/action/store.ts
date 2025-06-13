@@ -31,6 +31,7 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
       email,
       password: hashedPassword,
       faculty: faculty as Faculty,
+      diploma: "N/A",
       role: Role.STORE,
       emailVerified: new Date(),
       point: { create: {} },

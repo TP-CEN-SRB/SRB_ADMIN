@@ -59,6 +59,7 @@ const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
       name: name,
       faculty: faculty,
       email: email,
+      diploma: "N/A",
       role: Role.ADMIN,
       password: hashedPassword,
     },
@@ -99,6 +100,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       emailVerified: new Date(), // automatically verify bin user
       location: location,
       faculty: faculty,
+      diploma: "N/A",
       role: Role.BIN,
       password: hashedPassword,
       lat: lat,
