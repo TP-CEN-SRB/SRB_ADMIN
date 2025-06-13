@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import jwt from "jsonwebtoken";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const decoded = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    if (typeof decoded === "string") throw new Error("Invalid token");
+    const apiKey = req.headers.get("x-api-key");
+    if (apiKey !== process.env.API_KEY) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { message } = await req.json();
-    if (!message) return NextResponse.json({ error: "Missing message" }, { status: 400 });
+    if (!message) {
+      return NextResponse.json({ error: "Missing message" }, { status: 400 });
+    }
 
     await prisma.crashlog.create({ data: { message } });
 
