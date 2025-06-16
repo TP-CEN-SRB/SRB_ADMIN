@@ -155,12 +155,14 @@ const SignUpStudentSchema = z.object({
     // .regex(/^\d{7}@student\.tp\.edu\.sg$/, "Please use your personal TP email")
     .toLowerCase(),
   faculty: z.nativeEnum(Faculty, { message: "Invalid faculty" }),
+  diploma: z.string().min(1, "Diploma is required"), 
   password: z
     .string()
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(1, "Confirm Password is required"),
 });
+
 
 const UpdateStudentSchema = SignUpStudentSchema.omit({
   password: true,

@@ -9,21 +9,25 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const { name, email, password, confirmPassword, faculty } =
+    const { name, email, password, confirmPassword, faculty, diploma } =
       await req.json();
+
     const validatedFields = SignUpStudentSchema.safeParse({
       name,
       email,
       password,
       confirmPassword,
       faculty: faculty as Faculty,
+      diploma,
     });
+
     if (password !== confirmPassword) {
       return NextResponse.json(
         { message: "Passwords do not match" },
         { status: 400 }
       );
     }
+
     if (!validatedFields.success) {
       const errors = validatedFields.error.flatten();
       return NextResponse.json(
@@ -34,34 +38,42 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
+
     const data = validatedFields.data;
+
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
+
     if (existingUser) {
       return NextResponse.json(
         { message: "User already exists" },
         { status: 409 }
       );
     }
+
     const hashedPassword = await hash(data.password, 10);
+
     await prisma.user.create({
       data: {
         name: capitalizeFirstLetter(data.name),
         email: data.email,
         password: hashedPassword,
         faculty: data.faculty,
+        diploma: data.diploma,
         role: Role.STUDENT,
         point: {
           create: {},
         },
       },
     });
+
     const verificationToken = await generateVerificationToken(email);
     await sendVerificationEmail(
       verificationToken.email,
       verificationToken.token
     );
+
     return NextResponse.json(
       { message: "Confirmation email sent!" },
       { status: 201 }
