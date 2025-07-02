@@ -34,7 +34,7 @@ import {
 } from "./ui/collapsible";
 import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
-import { FaHeartPulse } from "react-icons/fa6";
+import { FaHeartPulse} from "react-icons/fa6";
 
 export const collaspeItems = [
   {
