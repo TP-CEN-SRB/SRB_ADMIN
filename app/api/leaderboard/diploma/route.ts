@@ -17,7 +17,6 @@ export const GET = async (req: NextRequest) => {
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     lastDay.setHours(23, 59, 59, 999);
 
-
     const allDiplomas = await prisma.user.findMany({
       where: {
         diploma: { not: null },
@@ -26,7 +25,6 @@ export const GET = async (req: NextRequest) => {
       distinct: ["diploma"],
     });
 
-  
     const diplomaPointsMap: Record<string, number> = {};
     const diplomaDisposalMap: Record<string, number> = {};
 
@@ -37,7 +35,6 @@ export const GET = async (req: NextRequest) => {
       }
     }
 
-  
     const disposalData = await prisma.disposal.findMany({
       where: {
         createdAt: {
@@ -57,34 +54,33 @@ export const GET = async (req: NextRequest) => {
       },
     });
 
-  
     for (const item of disposalData) {
       const diploma = item.user?.diploma;
       if (diploma) {
-        diplomaPointsMap[diploma] += item.pointsAwarded;
+        diplomaPointsMap[diploma] += item.pointsAwarded; // original DB field
         diplomaDisposalMap[diploma] += 1;
       }
     }
 
- 
     const sorted = Object.entries(diplomaPointsMap)
-      .map(([diploma, totalPoints]) => ({
+      .map(([diploma, points]) => ({
         diploma,
-        totalPoints,
+        points,
         disposalCount: diplomaDisposalMap[diploma] || 0,
       }))
-      .sort((a, b) => b.totalPoints - a.totalPoints);
+      .sort((a, b) => b.points - a.points);
 
     return NextResponse.json({ diplomaLeaderboard: sorted }, { status: 200 });
-      } catch (error) {
-        if (error instanceof jwt.TokenExpiredError) {
-          return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
-        } else if (error instanceof jwt.JsonWebTokenError) {
-          return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
-        } else if (error instanceof Error) {
-          return NextResponse.json({ message: error.message }, { status: 500 });
-        }
-    
-        return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
-      }
-    };
+
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
+    } else if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
+    } else if (error instanceof Error) {
+      return NextResponse.json({ message: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
+  }
+};

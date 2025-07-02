@@ -58,12 +58,12 @@ export const GET = async (req: NextRequest) => {
       const stats = studentPoints.find((sp) => sp.userId === user.id);
       return {
         name: user.name,
-        pointsAwarded: stats?._sum.pointsAwarded || 0,
+        points: stats?._sum.pointsAwarded || 0,
         disposalCount: stats?._count.id || 0,
       };
     });
 
-    return NextResponse.json({ students }, { status: 200 });
+    return NextResponse.json({ DiplomaCategory:students }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError)
       return NextResponse.json({ message: "Token expired" }, { status: 401 });
