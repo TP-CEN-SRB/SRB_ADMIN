@@ -21,7 +21,7 @@ import {
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
-import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus, FaCogs, FaClock, FaBug, FaExclamationTriangle } from "react-icons/fa";
+import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus, FaCogs, FaClock, FaBug, FaExclamationTriangle, FaHeart } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
@@ -34,6 +34,7 @@ import {
 } from "./ui/collapsible";
 import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
+import { FaHeartPulse } from "react-icons/fa6";
 
 export const collaspeItems = [
   {
@@ -70,6 +71,11 @@ export const collaspeItems = [
       title: "Test",
       icon: FaCogs,
       url: "/admin/bin/test",
+      },
+      {
+      title: "Alive System",
+      icon: FaHeartPulse,
+      url: "/admin/bin/heartbeat",
       },
     ],
   },
