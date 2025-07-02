@@ -116,6 +116,8 @@ export const GET = async (req: NextRequest) => {
           select: {
             name: true,
             email: true,
+            diploma: true,
+            faculty: true,
           },
         })
 
@@ -142,6 +144,8 @@ export const GET = async (req: NextRequest) => {
           disposalCount: disposal._count.id,
           redemptionCount: userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
           mostFrequentMaterial: mostFrequentMaterial || undefined,
+          diploma: user?.diploma || null,
+          faculty: user?.faculty || null,
         }
       })
     )
