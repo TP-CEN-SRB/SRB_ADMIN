@@ -791,3 +791,49 @@ export const updateBinStatus = async (id: string, status: BinStatus) => {
     return { error: "Unexpected error occurred, Failed to update bin" };
   }
 };
+
+
+
+export const getHeartbeat = async () => {
+  const bins = await prisma.bin.findMany({
+    select: {
+      id: true,
+      status: true,
+      currentCapacity: true,
+      lastHeartBeat: true,
+      binMaterial: {
+        select: {
+          name: true,
+        },
+      },
+      user: {
+        select: {
+          location: true,
+          lat: true,
+          long: true,
+        },
+      },
+    },
+  });
+
+  const now = new Date();
+  const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+
+  return bins.map((bin) => {
+    const isOnline =
+      bin.lastHeartBeat &&
+      now.getTime() - new Date(bin.lastHeartBeat).getTime() < ONLINE_THRESHOLD_MS;
+
+    return {
+      id: bin.id,
+      status: bin.status,
+      currentCapacity: bin.currentCapacity,
+      material: bin.binMaterial.name,
+      location: bin.user.location,
+      lat: bin.user.lat?.toString() ?? null,
+      long: bin.user.long?.toString() ?? null,
+      lastHeartBeat: bin.lastHeartBeat,
+      isOnline,
+    };
+  });
+};

@@ -17,7 +17,7 @@ export const GET = async (req: NextRequest) => {
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     lastDay.setHours(23, 59, 59, 999);
 
-    // Step 1: Get all unique diplomas
+
     const allDiplomas = await prisma.user.findMany({
       where: {
         diploma: { not: null },
@@ -26,7 +26,7 @@ export const GET = async (req: NextRequest) => {
       distinct: ["diploma"],
     });
 
-    // Initialize maps
+  
     const diplomaPointsMap: Record<string, number> = {};
     const diplomaDisposalMap: Record<string, number> = {};
 
@@ -37,7 +37,7 @@ export const GET = async (req: NextRequest) => {
       }
     }
 
-    // Step 2: Get disposal data for this month
+  
     const disposalData = await prisma.disposal.findMany({
       where: {
         createdAt: {
@@ -57,7 +57,7 @@ export const GET = async (req: NextRequest) => {
       },
     });
 
-    // Step 3: Aggregate data
+  
     for (const item of disposalData) {
       const diploma = item.user?.diploma;
       if (diploma) {
@@ -66,7 +66,7 @@ export const GET = async (req: NextRequest) => {
       }
     }
 
-    // Step 4: Format and sort
+ 
     const sorted = Object.entries(diplomaPointsMap)
       .map(([diploma, totalPoints]) => ({
         diploma,
@@ -75,11 +75,16 @@ export const GET = async (req: NextRequest) => {
       }))
       .sort((a, b) => b.totalPoints - a.totalPoints);
 
-    return NextResponse.json(sorted, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { message: "Internal error", error: (error as Error).message },
-      { status: 500 }
-    );
-  }
-};
+    return NextResponse.json({ diplomaLeaderboard: sorted }, { status: 200 });
+      } catch (error) {
+        if (error instanceof jwt.TokenExpiredError) {
+          return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
+        } else if (error instanceof jwt.JsonWebTokenError) {
+          return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
+        } else if (error instanceof Error) {
+          return NextResponse.json({ message: error.message }, { status: 500 });
+        }
+    
+        return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
+      }
+    };

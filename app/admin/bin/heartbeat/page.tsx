@@ -1,26 +1,27 @@
+import { getHeartbeat } from "@/app/action/bin";
 
-import React from "react";
-import HeartbeatBinCard from "@/components/Card/BinHeartbeatCard";
-
-export default function Dashboard() {
-  const bins = [
-    { title: "Plastic", color: "ring-yellow-400", percentage: 12, status: "online" },
-    { title: "Paper", color: "ring-blue-400", percentage: 0, status: "offline" },
-    { title: "Metal", color: "ring-red-400", percentage: 45, status: "online" },
-  ];
+export default async function SmartBinDashboard() {
+  const bins = await getHeartbeat();
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Smart Bin Dashboard</h1>
-      <div className="flex gap-6 flex-wrap">
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Smart Bin Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {bins.map((bin) => (
-          <HeartbeatBinCard
-            key={bin.title}
-            title={bin.title}
-            color={bin.color}
-            percentage={bin.percentage}
-            status={bin.status as "online" | "offline"}
-          />
+          <div
+            key={bin.id}
+            className="p-4 rounded-2xl shadow border border-gray-200 bg-white flex flex-col items-center"
+          >
+            <div className="text-3xl font-semibold">{bin.currentCapacity}%</div>
+            <div className="text-lg mt-2">{bin.material}</div>
+            <div
+              className={`text-sm mt-1 ${
+                bin.isOnline ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              {bin.isOnline ? "online" : "offline"}
+            </div>
+          </div>
         ))}
       </div>
     </div>
