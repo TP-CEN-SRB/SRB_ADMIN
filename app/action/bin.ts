@@ -801,6 +801,7 @@ export const getHeartbeat = async () => {
       status: true,
       currentCapacity: true,
       lastHeartBeat: true,
+      userId: true,
       binMaterial: {
         select: {
           name: true,
@@ -808,32 +809,28 @@ export const getHeartbeat = async () => {
       },
       user: {
         select: {
-          location: true,
-          lat: true,
-          long: true,
+          name: true,
         },
       },
     },
   });
 
-  const now = new Date();
-  const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
-
   return bins.map((bin) => {
-    const isOnline =
-      bin.lastHeartBeat &&
-      now.getTime() - new Date(bin.lastHeartBeat).getTime() < ONLINE_THRESHOLD_MS;
+    const now = new Date();
+    const isOnline = bin.lastHeartBeat
+      ? now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 2 // 2 mins
+      : false;
 
     return {
       id: bin.id,
-      status: bin.status,
       currentCapacity: bin.currentCapacity,
       material: bin.binMaterial.name,
-      location: bin.user.location,
-      lat: bin.user.lat?.toString() ?? null,
-      long: bin.user.long?.toString() ?? null,
-      lastHeartBeat: bin.lastHeartBeat,
       isOnline,
+      userId: bin.userId,
+      user: {
+        name: bin.user.name,
+      },
+      lastHeartBeat: bin.lastHeartBeat, 
     };
   });
 };
