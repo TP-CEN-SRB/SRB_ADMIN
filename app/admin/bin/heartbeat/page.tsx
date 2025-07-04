@@ -57,7 +57,8 @@ export default function SmartBinDashboard() {
 
               setBins((prevBins) =>
                 prevBins.map((bin) =>
-                  bin.id === binId && bin.material === material
+                  bin.id === binId &&
+                  bin.material.toLowerCase() === material.toLowerCase()
                     ? {
                         ...bin,
                         isOnline: true,
@@ -66,11 +67,11 @@ export default function SmartBinDashboard() {
                     : bin
                 )
               );
-          } catch (err) {
-            console.error("Invalid heartbeat message:", err);
+            } catch (err) {
+              console.error("Invalid heartbeat message:", err);
+            }
           }
-        }
-      });
+        });
       } catch (err) {
         console.error("MQTT connection failed:", err);
       }
@@ -83,26 +84,26 @@ export default function SmartBinDashboard() {
     };
   }, []);
 
+  // Auto-mark offline if no heartbeat for 5 minutes
   useEffect(() => {
-  const interval = setInterval(() => {
-    const now = Date.now();
-    setBins((prevBins) =>
-      prevBins.map((bin) => {
-        const last = bin.lastHeartBeat
-          ? new Date(bin.lastHeartBeat).getTime()
-          : 0;
-        const diff = now - last;
-        return {
-          ...bin,
-          isOnline: diff < 300000, 
-        };
-      })
-    );
-  }, 5000); 
+    const interval = setInterval(() => {
+      const now = Date.now();
+      setBins((prevBins) =>
+        prevBins.map((bin) => {
+          const last = bin.lastHeartBeat
+            ? new Date(bin.lastHeartBeat).getTime()
+            : 0;
+          const diff = now - last;
+          return {
+            ...bin,
+            isOnline: diff < 300000, // 5 minutes
+          };
+        })
+      );
+    }, 5000); // check every 5 seconds
 
-  return () => clearInterval(interval);
-}, []);
-
+    return () => clearInterval(interval);
+  }, []);
 
   const userOptions = Array.from(
     new Map(bins.map((b) => [b.userId, b.user.name])).entries()
