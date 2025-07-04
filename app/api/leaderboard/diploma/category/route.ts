@@ -46,24 +46,70 @@ export const GET = async (req: NextRequest) => {
       .filter((id): id is string => !!id);
 
     if (userIds.length === 0) {
-      return NextResponse.json({ students: [] }, { status: 200 });
+      return NextResponse.json({ DiplomaCategory: [] }, { status: 200 });
     }
 
-    const users = await prisma.user.findMany({
-      where: { id: { in: userIds } },
-      select: { id: true, name: true },
-    });
+    const [users, redemptions, allDisposals] = await Promise.all([
+      prisma.user.findMany({
+        where: { id: { in: userIds } },
+        select: { id: true, name: true, diploma: true, faculty: true },
+      }),
+      prisma.redemption.groupBy({
+        by: ["userId"],
+        _count: { id: true },
+        where: { userId: { in: userIds } },
+      }),
+      prisma.disposal.findMany({
+        where: { userId: { in: userIds } },
+        include: {
+          bin: {
+            include: {
+              binMaterial: {
+                select: { name: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
 
-    const students = users.map((user) => {
-      const stats = studentPoints.find((sp) => sp.userId === user.id);
+    const result = users.map((user) => {
+      const stats = studentPoints.find((s) => s.userId === user.id);
+      const disposalCount = stats?._count.id || 0;
+      const balance = stats?._sum.pointsAwarded || 0;
+
+      const redemptionCount =
+        redemptions.find((r) => r.userId === user.id)?._count.id || 0;
+
+      const userDisposals = allDisposals.filter((d) => d.userId === user.id);
+      const materialFrequency: Record<string, number> = {};
+      for (const d of userDisposals) {
+        const material = d.bin?.binMaterial?.name;
+        if (material) {
+          materialFrequency[material] = (materialFrequency[material] || 0) + 1;
+        }
+      }
+
+      const mostFrequentMaterial =
+        Object.entries(materialFrequency).reduce(
+          (max, [material, count]) =>
+            count > max[1] ? [material, count] : max,
+          ["", 0]
+        )[0] || null;
+
       return {
-        name: user.name,
-        points: stats?._sum.pointsAwarded || 0,
-        disposalCount: stats?._count.id || 0,
+        username: user.name,
+        userId: user.id,
+        balance,
+        disposalCount,
+        redemptionCount,
+        mostFrequentMaterial,
+        diploma: user.diploma,
+        faculty: user.faculty,
       };
     });
 
-    return NextResponse.json({ DiplomaCategory:students }, { status: 200 });
+    return NextResponse.json({ DiplomaCategory: result }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError)
       return NextResponse.json({ message: "Token expired" }, { status: 401 });
