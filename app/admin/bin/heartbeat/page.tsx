@@ -10,8 +10,7 @@ import {
 } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip } from "react-tooltip";
-import { publishMqtt } from "@/lib/mqtt";
-import mqtt from "mqtt"; // 🆕
+import { publishMqtt, connectMqtt } from "@/lib/mqtt";
 
 type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
 
@@ -27,6 +26,7 @@ export default function SmartBinDashboard() {
   const [bins, setBins] = useState<Bin[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("all");
 
+  // Initial fetch
   useEffect(() => {
     const fetchData = async () => {
       const data = await getHeartbeat();
@@ -35,43 +35,74 @@ export default function SmartBinDashboard() {
     fetchData();
   }, []);
 
-  // 🆕 MQTT listener for heartbeat
+  // Heartbeat MQTT listener
   useEffect(() => {
-    const client = mqtt.connect(process.env.NEXT_PUBLIC_BROKER_URL!, {
-      username: process.env.NEXT_PUBLIC_BROKER_USERNAME!,
-      password: process.env.NEXT_PUBLIC_BROKER_PASSWORD!,
-      keepalive: 30,
-    });
+    let isMounted = true;
 
-    client.on("connect", () => {
-      client.subscribe("srb/heartbeat", (err) => {
-        if (err) console.error("Subscription error:", err);
-      });
-    });
+    const setupMqtt = async () => {
+      try {
+        const client = await connectMqtt();
 
-    client.on("message", (topic, message) => {
-      if (topic === "srb/heartbeat") {
-        try {
-          const payload = JSON.parse(message.toString());
-          const { binId, timestamp } = payload;
+        client.subscribe("srb/heartbeat", (err) => {
+          if (err) console.error("Subscribe error:", err);
+        });
 
-          setBins((prev) =>
-            prev.map((bin) =>
-              bin.id === binId
-                ? { ...bin, isOnline: true, lastHeartBeat: timestamp }
-                : bin
-            )
-          );
-        } catch (e) {
-          console.error("Failed to parse heartbeat:", e);
+        client.on("message", (topic, message) => {
+          if (topic === "srb/heartbeat") {
+            try {
+              const payload = JSON.parse(message.toString());
+              const { binId, material } = payload;
+
+              if (!binId || !material || !isMounted) return;
+
+              setBins((prevBins) =>
+                prevBins.map((bin) =>
+                  bin.id === binId && bin.material === material
+                    ? {
+                        ...bin,
+                        isOnline: true,
+                        lastHeartBeat: new Date(),
+                      }
+                    : bin
+                )
+              );
+          } catch (err) {
+            console.error("Invalid heartbeat message:", err);
+          }
         }
+      });
+      } catch (err) {
+        console.error("MQTT connection failed:", err);
       }
-    });
+    };
+
+    setupMqtt();
 
     return () => {
-      client.end(true);
+      isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+  const interval = setInterval(() => {
+    const now = Date.now();
+    setBins((prevBins) =>
+      prevBins.map((bin) => {
+        const last = bin.lastHeartBeat
+          ? new Date(bin.lastHeartBeat).getTime()
+          : 0;
+        const diff = now - last;
+        return {
+          ...bin,
+          isOnline: diff < 300000, 
+        };
+      })
+    );
+  }, 5000); 
+
+  return () => clearInterval(interval);
+}, []);
+
 
   const userOptions = Array.from(
     new Map(bins.map((b) => [b.userId, b.user.name])).entries()
