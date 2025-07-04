@@ -109,6 +109,7 @@ export const GET = async (req: NextRequest) => {
       };
     });
 
+    result.sort((a, b) => b.balance - a.balance);
     return NextResponse.json({ DiplomaCategory: result }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError)
