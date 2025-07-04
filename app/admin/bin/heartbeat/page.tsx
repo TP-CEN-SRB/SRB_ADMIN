@@ -11,6 +11,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip } from "react-tooltip";
 import { publishMqtt } from "@/lib/mqtt";
+import mqtt from "mqtt"; // 🆕
 
 type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
 
@@ -32,6 +33,44 @@ export default function SmartBinDashboard() {
       setBins(data);
     };
     fetchData();
+  }, []);
+
+  // 🆕 MQTT listener for heartbeat
+  useEffect(() => {
+    const client = mqtt.connect(process.env.NEXT_PUBLIC_BROKER_URL!, {
+      username: process.env.NEXT_PUBLIC_BROKER_USERNAME!,
+      password: process.env.NEXT_PUBLIC_BROKER_PASSWORD!,
+      keepalive: 30,
+    });
+
+    client.on("connect", () => {
+      client.subscribe("srb/heartbeat", (err) => {
+        if (err) console.error("Subscription error:", err);
+      });
+    });
+
+    client.on("message", (topic, message) => {
+      if (topic === "srb/heartbeat") {
+        try {
+          const payload = JSON.parse(message.toString());
+          const { binId, timestamp } = payload;
+
+          setBins((prev) =>
+            prev.map((bin) =>
+              bin.id === binId
+                ? { ...bin, isOnline: true, lastHeartBeat: timestamp }
+                : bin
+            )
+          );
+        } catch (e) {
+          console.error("Failed to parse heartbeat:", e);
+        }
+      }
+    });
+
+    return () => {
+      client.end(true);
+    };
   }, []);
 
   const userOptions = Array.from(
