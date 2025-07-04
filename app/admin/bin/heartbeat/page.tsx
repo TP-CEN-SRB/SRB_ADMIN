@@ -51,9 +51,9 @@ export default function SmartBinDashboard() {
           if (topic === "srb/heartbeat") {
             try {
               const payload = JSON.parse(message.toString());
-              const { binId, material } = payload;
+              const { binId, material, status } = payload;
 
-              if (!binId || !material || !isMounted) return;
+              if (!binId || !material || !status || !isMounted) return;
 
               setBins((prevBins) =>
                 prevBins.map((bin) =>
@@ -61,7 +61,7 @@ export default function SmartBinDashboard() {
                   bin.material.toLowerCase() === material.toLowerCase()
                     ? {
                         ...bin,
-                        isOnline: true,
+                        isOnline: status === "online",
                         lastHeartBeat: new Date(),
                       }
                     : bin
@@ -161,9 +161,7 @@ export default function SmartBinDashboard() {
               <Tooltip id={`tooltip-${bin.id}`} />
 
               <div className="text-lg mt-2">{bin.material}</div>
-              <div className={`text-sm mt-1 ${statusColor}`}>
-                {statusText}
-              </div>
+              <div className={`text-sm mt-1 ${statusColor}`}>{statusText}</div>
 
               {bin.lastHeartBeat && (
                 <div className="text-xs text-gray-500 mt-1">
