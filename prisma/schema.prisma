@@ -189,7 +189,7 @@ model QuestDetails {
 
 model UserQuest {
   id          String       @id @default(uuid())
-  progress    Int
+  progress    Float        @default(0.0)
   isCompleted Boolean      @default(false)
   completedAt DateTime?    @db.Timestamp(6)
   userId      String
