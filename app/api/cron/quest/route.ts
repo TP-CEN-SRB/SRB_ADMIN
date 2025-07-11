@@ -5,7 +5,7 @@ import prisma from "@/lib/db";
  * Automatically create 3 random quests from quest_template.
  * Scheduled to run via cron job.
  */
-export const GET = async (req: NextRequest) => {
+export const PUT = async (req: NextRequest) => {
   try {
     const authorization = req.headers.get("x-api-key");
     if (authorization !== process.env.API_KEY) {

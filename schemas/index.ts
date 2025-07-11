@@ -121,11 +121,16 @@ const QuestSchema = z.object({
   duration: z.coerce.number().min(1, "Duration must be at least 1 day"),
 });
 
+export const MaterialEnum = ["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"] as const;
+export type MaterialType = (typeof MaterialEnum)[number];
+
 const UpdateQuestSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   target: z.coerce.number().min(1, "Target must be at least 1"),
-  materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
+  materialType: z.enum(MaterialEnum, {
+    errorMap: () => ({ message: "Material is required" }),
+  }),
   rewardPoints: z.coerce.number().min(1, "Reward must be at least 1"),
 });
 

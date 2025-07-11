@@ -53,7 +53,12 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
       title: quest.title,
       description: quest.description,
       target: quest.target,
-      materialType: quest.materialType as any,
+      materialType: quest.materialType as  
+      | "PLASTIC"
+      | "METAL"
+      | "PAPER"
+      | "E_WASTE"
+      | "GENERAL",
       rewardPoints: quest.rewardPoints,
     },
   });
