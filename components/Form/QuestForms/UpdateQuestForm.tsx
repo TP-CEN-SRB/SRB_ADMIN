@@ -39,13 +39,21 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
   const { toast } = useToast();
   const router = useRouter();
 
+  const materialOptions = [
+    { label: "Plastic", value: "PLASTIC" },
+    { label: "Metal", value: "METAL" },
+    { label: "Paper", value: "PAPER" },
+    { label: "E-Waste", value: "E_WASTE" },
+    { label: "General", value: "GENERAL" },
+  ];
+
   const form = useForm<z.infer<typeof UpdateQuestSchema>>({
     resolver: zodResolver(UpdateQuestSchema),
     defaultValues: {
       title: quest.title,
       description: quest.description,
       target: quest.target,
-      materialType: quest.materialType,
+      materialType: quest.materialType as any,
       rewardPoints: quest.rewardPoints,
     },
   });
@@ -124,7 +132,7 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Target</FormLabel>
                 <FormControl>
-                  <Input type="number" disabled={isPending} {...field} />
+                  <Input type="number" min={1} disabled={isPending} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -137,7 +145,18 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Material Type</FormLabel>
                 <FormControl>
-                  <Input disabled={isPending} {...field} />
+                  <select
+                    disabled={isPending}
+                    {...field}
+                    className="w-full rounded-md border px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  >
+                    <option value="">Select a material...</option>
+                    {materialOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -150,7 +169,7 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Reward Points</FormLabel>
                 <FormControl>
-                  <Input type="number" disabled={isPending} {...field} />
+                  <Input type="number" min={1} disabled={isPending} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

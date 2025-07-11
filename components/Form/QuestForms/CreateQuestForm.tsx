@@ -24,6 +24,14 @@ import { Loader2 } from "lucide-react";
 import CustomFormMessage from "../CustomFormMessage";
 import { createQuest } from "@/app/action/quest";
 
+const materialOptions = [
+  { label: "Plastic", value: "PLASTIC" },
+  { label: "Metal", value: "METAL" },
+  { label: "Paper", value: "PAPER" },
+  { label: "E-Waste", value: "E_WASTE" },
+  { label: "General", value: "GENERAL" },
+];
+
 const CreateQuestForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
@@ -36,7 +44,7 @@ const CreateQuestForm = () => {
       title: "",
       description: "",
       target: 1,
-      materialType: "",
+      materialType: undefined,
       rewardPoints: 10,
       duration: 7,
     },
@@ -136,11 +144,18 @@ const CreateQuestForm = () => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Material Type</FormLabel>
                 <FormControl>
-                  <Input
+                  <select
                     disabled={isPending}
-                    placeholder="e.g. Plastic, Metal, Paper"
                     {...field}
-                  />
+                    className="w-full rounded-md border px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  >
+                    <option value="">Select a material...</option>
+                    {materialOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

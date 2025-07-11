@@ -115,10 +115,10 @@ const UpdateBinSchema = z.object({
 const QuestSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  target: z.number().min(1, "Target must be at least 1"),
-  materialType: z.string().min(1, "Material type is required"),
-  rewardPoints: z.number().min(1, "Reward must be at least 1"),
-  duration: z.number().min(1, "Duration must be at least 1 day"),
+  target: z.coerce.number().min(1, "Target must be at least 1"),
+  materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
+  rewardPoints: z.coerce.number().min(1, "Reward must be at least 1"),
+  duration: z.coerce.number().min(1, "Duration must be at least 1 day"),
 });
 
 const UpdateQuestSchema = z.object({
