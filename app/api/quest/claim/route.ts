@@ -15,14 +15,17 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
     }
 
-    const { questId } = await req.json();
+    const { questId, isCompleted } = await req.json();
     const userId = decodedToken.userId;
 
     if (!questId || typeof questId !== "string") {
-      return NextResponse.json({ message: "Invalid or missing questId." }, { status: 400 });
+      return NextResponse.json({ message: "Missing or invalid questId." }, { status: 400 });
     }
 
-    // Get user's quest progress
+    if (!isCompleted) {
+      return NextResponse.json({ message: "Quest is not completed yet." }, { status: 400 });
+    }
+
     const userQuest = await prisma.userQuest.findFirst({
       where: { userId, questId },
       include: { quest: true },
@@ -32,23 +35,17 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "User quest not found!" }, { status: 404 });
     }
 
-    if (!userQuest.isCompleted) {
-      return NextResponse.json({ message: "Quest not completed yet." }, { status: 400 });
-    }
-
     const pointsAwarded = userQuest.quest.rewardPoints;
 
     if (!pointsAwarded || pointsAwarded <= 0) {
       return NextResponse.json({ message: "Invalid reward points." }, { status: 400 });
     }
 
-    // Update point balance
-    const updatedPoint = await prisma.point.update({
+    await prisma.point.update({
       where: { userId },
       data: { balance: { increment: pointsAwarded } },
     });
 
-    // Log transaction
     try {
       await prisma.transaction.create({
         data: {
@@ -66,6 +63,7 @@ export const POST = async (req: NextRequest) => {
       { message: "Reward claimed successfully!", points: pointsAwarded },
       { status: 200 }
     );
+
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
@@ -74,6 +72,7 @@ export const POST = async (req: NextRequest) => {
     } else if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
+
     return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
   }
 };
