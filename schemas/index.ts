@@ -124,21 +124,22 @@ const QuestSchema = z.object({
 const UpdateQuestSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  target: z.number().min(1, "Target must be at least 1"),
-  materialType: z.string().min(1, "Material is required"),
-  rewardPoints: z.number().min(1, "Reward must be at least 1"),
+  target: z.coerce.number().min(1, "Target must be at least 1"),
+  materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
+  rewardPoints: z.coerce.number().min(1, "Reward must be at least 1"),
 });
 
 const StoreSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email format"),
-  faculty: z.string().min(1, "Faculty is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
-});
+    name: z.string().min(1, "Store name is required"),
+    email: z.string().email("Invalid email"),
+    faculty: z.enum(["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"]),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const UpdateStoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),

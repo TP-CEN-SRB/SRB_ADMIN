@@ -22,6 +22,9 @@ import { updateStore } from "@/app/action/store";
 import Card from "@/components/Card/Card";
 import FormHeader from "@/components/Form/FormHeader";
 
+// Faculty options
+const FacultyEnum = ["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"] as const;
+
 interface UpdateStoreFormProps {
   id: string;
   store: {
@@ -56,6 +59,16 @@ const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
     startTransition(async () => {
       try {
         const result = await updateStore(id, values);
+
+        if (result?.fieldErrors) {
+          for (const [field, messages] of Object.entries(result.fieldErrors)) {
+            form.setError(field as keyof typeof values, {
+              type: "manual",
+              message: messages?.[0] || "Invalid input",
+            });
+          }
+        }
+
         if (result?.success) {
           toast({
             title: "Success",
@@ -66,7 +79,7 @@ const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
         } else if (result?.error) {
           toast({
             title: "Error",
-            description: result.error || "Failed to update store",
+            description: result.error,
             variant: "destructive",
           });
         }
@@ -141,15 +154,26 @@ const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
             control={form.control}
             name="faculty"
             render={({ field }) => (
-                <FormItem>
+              <FormItem>
                 <FormLabel>Faculty</FormLabel>
                 <FormControl>
-                    <Input disabled={isPending} {...field} />
+                  <select
+                    disabled={isPending}
+                    {...field}
+                    className="w-full rounded-md border px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  >
+                    <option value="">Select a faculty...</option>
+                    {FacultyEnum.map((fac) => (
+                      <option key={fac} value={fac}>
+                        {fac}
+                      </option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+              </FormItem>
             )}
-            />
+          />
 
           <Button
             disabled={isPending}

@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/db";
-import { Faculty, Role, TransactionType } from "@prisma/client";
+import { Faculty, Role } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { getSessionUser } from "@/utils/getAuth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
@@ -9,18 +9,40 @@ import { revalidatePath } from "next/cache";
 import { StoreSchema, UpdateStoreSchema } from "@/schemas";
 import { z } from "zod";
 
+// Create Store
 const createStore = async (values: z.infer<typeof StoreSchema>) => {
   const validated = StoreSchema.safeParse(values);
-  if (!validated.success) return { error: "Invalid fields!" };
+  if (!validated.success) {
+    return {
+      error: "Invalid fields",
+      fieldErrors: validated.error.flatten().fieldErrors,
+    };
+  }
 
   const { name, email, password, faculty } = validated.data;
 
-  const existingUser = await prisma.user.findUnique({
-    where: { email },
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { name: name.toLowerCase() },
+        { email: email.toLowerCase() },
+      ],
+    },
   });
 
-  if (existingUser) {
-    return { error: "A user with this email already exists." };
+  if (existing) {
+    const fieldErrors: Record<string, string[]> = {};
+    if (existing.name === name.toLowerCase()) {
+      fieldErrors.name = ["A store with that name already exists."];
+    }
+    if (existing.email === email.toLowerCase()) {
+      fieldErrors.email = ["A store with that email already exists."];
+    }
+
+    return {
+      error: "Duplicate store",
+      fieldErrors,
+    };
   }
 
   const hashedPassword = await hash(password, 10);
@@ -28,7 +50,7 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
   const user = await prisma.user.create({
     data: {
       name: capitalizeFirstLetter(name),
-      email,
+      email: email.toLowerCase(),
       password: hashedPassword,
       faculty: faculty as Faculty,
       diploma: "N/A",
@@ -42,14 +64,42 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
   return { success: "Store created successfully", user };
 };
 
-const updateStore = async (
-  id: string,
-  values: z.infer<typeof UpdateStoreSchema>
-) => {
+// Update Store
+const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>) => {
   const validated = UpdateStoreSchema.safeParse(values);
-  if (!validated.success) return { error: "Invalid fields!" };
+  if (!validated.success) {
+    return {
+      error: "Invalid fields",
+      fieldErrors: validated.error.flatten().fieldErrors,
+    };
+  }
 
   const { name, email, password, faculty } = validated.data;
+
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { name: name.toLowerCase() },
+        { email: email.toLowerCase() },
+      ],
+      NOT: { id },
+    },
+  });
+
+  if (existing) {
+    const fieldErrors: Record<string, string[]> = {};
+    if (existing.name === name.toLowerCase()) {
+      fieldErrors.name = ["Another store with that name already exists."];
+    }
+    if (existing.email === email.toLowerCase()) {
+      fieldErrors.email = ["Another store with that email already exists."];
+    }
+
+    return {
+      error: "Duplicate store",
+      fieldErrors,
+    };
+  }
 
   const user = await prisma.user.findUnique({ where: { id, role: Role.STORE } });
   if (!user) return { error: "Store user not found" };
@@ -61,7 +111,7 @@ const updateStore = async (
     password?: string;
   } = {
     name: capitalizeFirstLetter(name),
-    email,
+    email: email.toLowerCase(),
     faculty: faculty as Faculty,
   };
 
@@ -78,6 +128,7 @@ const updateStore = async (
   return { success: `Store ${updatedUser.id} updated successfully` };
 };
 
+// Get All Stores
 const getStoreAccounts = async () => {
   return await prisma.user.findMany({
     where: { role: Role.STORE },
@@ -89,15 +140,13 @@ const getStoreAccounts = async () => {
       point: {
         select: {
           balance: true,
-          updatedAt: true, // last active
+          updatedAt: true,
         },
       },
       _count: {
         select: {
           transactions: {
-            where: {
-              transactionType: "PURCHASE",
-            },
+            where: { transactionType: "PURCHASE" },
           },
         },
       },
@@ -106,11 +155,12 @@ const getStoreAccounts = async () => {
   });
 };
 
-export const getStoreById = async (id: string) => {
+// Get Store by ID
+const getStoreById = async (id: string) => {
   return await prisma.user.findUnique({
     where: {
       id,
-      role: "STORE",
+      role: Role.STORE,
     },
     select: {
       id: true,
@@ -121,18 +171,20 @@ export const getStoreById = async (id: string) => {
   });
 };
 
-export const deleteStore = async (storeId: string) => {
+// Delete Store
+const deleteStore = async (storeId: string) => {
   const user = await getSessionUser();
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== Role.ADMIN) {
     return { error: "Unauthorized" };
   }
 
   try {
-    await prisma.questDetails.delete({
-      where: { id: storeId },
+    await prisma.user.delete({
+      where: { id: storeId, role: Role.STORE },
     });
 
+    revalidatePath("/admin/store");
     return { success: "Store deleted successfully" };
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -142,4 +194,10 @@ export const deleteStore = async (storeId: string) => {
   }
 };
 
-export { createStore, updateStore, getStoreAccounts };
+export {
+  createStore,
+  updateStore,
+  getStoreAccounts,
+  getStoreById,
+  deleteStore,
+};

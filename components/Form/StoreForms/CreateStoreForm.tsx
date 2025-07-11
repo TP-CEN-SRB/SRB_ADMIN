@@ -21,13 +21,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { createStore } from "@/app/action/store";
 
+// Faculty enum values
+const FacultyEnum = ["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"] as const;
+
 // Schema
 const StoreSchema = z
   .object({
     name: z.string().min(1, "Store name is required"),
     email: z.string().email("Invalid email"),
-    faculty: z.string().min(1, "Faculty is required"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
+    faculty: z.enum(FacultyEnum, {
+      errorMap: () => ({ message: "Faculty is required" }),
+    }),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -46,7 +53,7 @@ const CreateStoreForm = () => {
     defaultValues: {
       name: "",
       email: "",
-      faculty: "",
+      faculty: undefined,
       password: "",
       confirmPassword: "",
     },
@@ -66,7 +73,7 @@ const CreateStoreForm = () => {
         setSuccess("Store created successfully at " + datetime);
         form.reset();
       } else if (result?.error) {
-        setError(result.error);
+        setError(result.error); // should return duplicate email/name errors
       }
     });
   };
@@ -83,11 +90,7 @@ const CreateStoreForm = () => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Store Name</FormLabel>
                 <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="EcoMart"
-                    {...field}
-                  />
+                  <Input disabled={isPending} placeholder="EcoMart" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,11 +123,18 @@ const CreateStoreForm = () => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Faculty</FormLabel>
                 <FormControl>
-                  <Input
+                  <select
                     disabled={isPending}
-                    placeholder="e.g. Engineering, Business"
                     {...field}
-                  />
+                    className="w-full rounded-md border px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  >
+                    <option value="">Select a faculty...</option>
+                    {FacultyEnum.map((fac) => (
+                      <option key={fac} value={fac}>
+                        {fac}
+                      </option>
+                    ))}
+                  </select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
