@@ -15,24 +15,29 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
     }
 
-    const { questId, isCompleted } = await req.json();
+    const { userQuestId, isCompleted } = await req.json();
     const userId = decodedToken.userId;
 
-    if (!questId || typeof questId !== "string") {
-      return NextResponse.json({ message: "Missing or invalid questId." }, { status: 400 });
+    if (!userQuestId || typeof userQuestId !== "string") {
+      return NextResponse.json({ message: "Missing or invalid userQuestId." }, { status: 400 });
     }
 
     if (!isCompleted) {
       return NextResponse.json({ message: "Quest is not completed yet." }, { status: 400 });
     }
 
-    const userQuest = await prisma.userQuest.findFirst({
-      where: { userId, questId },
+    // Fetch userQuest by its own ID
+    const userQuest = await prisma.userQuest.findUnique({
+      where: { id: userQuestId },
       include: { quest: true },
     });
 
     if (!userQuest) {
       return NextResponse.json({ message: "User quest not found!" }, { status: 404 });
+    }
+
+    if (userQuest.userId !== userId) {
+      return NextResponse.json({ message: "Unauthorized: This quest does not belong to you." }, { status: 403 });
     }
 
     const pointsAwarded = userQuest.quest.rewardPoints;

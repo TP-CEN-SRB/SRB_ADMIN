@@ -232,6 +232,16 @@ model Crashlog {
   @@map("crashlog")
 }
 
+model QuestTemplate {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  target       Int
+  rewardPoints Int
+  materialType String
+  createdAt    DateTime @default(now())
+}
+
 enum Faculty {
   ENG
   BUS
