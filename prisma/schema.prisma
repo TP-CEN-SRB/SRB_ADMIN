@@ -240,6 +240,8 @@ model QuestTemplate {
   rewardPoints Int
   materialType String
   createdAt    DateTime @default(now())
+
+  @@map("quest_template")
 }
 
 enum Faculty {
