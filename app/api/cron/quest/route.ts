@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 /**
- * Clean up expired quests and create 3 new quests weekly.
+ * Clean up expired quests, create 3 new ones, and assign to all users.
  */
 export const PUT = async (req: NextRequest) => {
   try {
@@ -13,18 +13,16 @@ export const PUT = async (req: NextRequest) => {
 
     const now = new Date();
 
-    // 1. CLEAN UP EXPIRED QUESTS
+    // 1. Delete expired quests
     const deleted = await prisma.questDetails.deleteMany({
       where: {
-        endDate: {
-          lt: now,
-        },
+        endDate: { lt: now },
       },
     });
 
-    // 2. CREATE 3 NEW QUESTS FROM TEMPLATE
+    // 2. Fetch templates and randomly select 3
     const templates = await prisma.questTemplate.findMany();
-    if (!templates || templates.length < 3) {
+    if (templates.length < 3) {
       return NextResponse.json(
         { message: "Not enough templates to generate quests" },
         { status: 400 }
@@ -32,26 +30,44 @@ export const PUT = async (req: NextRequest) => {
     }
 
     const selected = templates.sort(() => Math.random() - 0.5).slice(0, 3);
-
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setDate(startDate.getDate() + 7); // +7 days
+    endDate.setDate(startDate.getDate() + 7); // 1 week duration
 
-    await prisma.questDetails.createMany({
-      data: selected.map((q) => ({
-        title: q.title,
-        description: q.description,
-        target: q.target,
-        rewardPoints: q.rewardPoints,
-        materialType: q.materialType,
-        startDate,
-        endDate,
-      })),
+    // 3. Create the 3 quests
+    const createdQuests = await Promise.all(
+      selected.map((q) =>
+        prisma.questDetails.create({
+          data: {
+            title: q.title,
+            description: q.description,
+            target: q.target,
+            rewardPoints: q.rewardPoints,
+            materialType: q.materialType,
+            startDate,
+            endDate,
+          },
+        })
+      )
+    );
+
+    // 4. Assign each quest to all users
+    const users = await prisma.user.findMany({ where: { role: "STUDENT" } });
+    const assignments = createdQuests.flatMap((quest) =>
+      users.map((user) => ({
+        userId: user.id,
+        questId: quest.id,
+      }))
+    );
+
+    await prisma.user_quest.createMany({
+      data: assignments,
+      skipDuplicates: true,
     });
 
     return NextResponse.json(
       {
-        message: `Deleted ${deleted.count} expired quest(s), added 3 new quest(s).`,
+        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 new quest(s) to ${users.length} users.`,
       },
       { status: 200 }
     );

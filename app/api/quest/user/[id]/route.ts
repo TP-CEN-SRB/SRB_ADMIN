@@ -20,7 +20,6 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
       );
     }
 
-    // Check if the decoded userId matches the requested userId from params
     const decodedUserId = (decodedToken as { userId: string }).userId;
     const requestedUserId = params.id;
 
@@ -46,6 +45,8 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
             target: true,
             rewardPoints: true,
             materialType: true,
+            startDate: true,
+            endDate: true,
           },
         },
       },
@@ -60,22 +61,13 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
 
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return NextResponse.json(
-        { message: "Token has expired!" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
     } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json(
-        { message: "Token is invalid!" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
     } else if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(
-      { message: "An unknown error occurred" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
   }
 };
