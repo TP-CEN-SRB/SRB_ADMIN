@@ -26,6 +26,10 @@ export const PUT = async (req: NextRequest) => {
     // Shuffle and take 3 random quests
     const selected = templates.sort(() => Math.random() - 0.5).slice(0, 3);
 
+    const now = new Date();
+    const oneWeekLater = new Date(now);
+    oneWeekLater.setDate(now.getDate() + 7);
+
     await prisma.questDetails.createMany({
       data: selected.map((q) => ({
         title: q.title,
@@ -33,6 +37,8 @@ export const PUT = async (req: NextRequest) => {
         target: q.target,
         rewardPoints: q.rewardPoints,
         materialType: q.materialType,
+        startDate: now,
+        endDate: oneWeekLater,
       })),
     });
 
