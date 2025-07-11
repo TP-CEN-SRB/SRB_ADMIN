@@ -15,18 +15,13 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
     }
 
-    const { userQuestId, isCompleted } = await req.json();
+    const { userQuestId, isCompleted } = await req.json(); // <- accepts isCompleted
     const userId = decodedToken.userId;
 
     if (!userQuestId || typeof userQuestId !== "string") {
       return NextResponse.json({ message: "Missing or invalid userQuestId." }, { status: 400 });
     }
 
-    if (!isCompleted) {
-      return NextResponse.json({ message: "Quest is not completed yet." }, { status: 400 });
-    }
-
-    // Fetch userQuest by its own ID
     const userQuest = await prisma.userQuest.findUnique({
       where: { id: userQuestId },
       include: { quest: true },
@@ -46,10 +41,21 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Invalid reward points." }, { status: 400 });
     }
 
+    
+    await prisma.userQuest.update({
+      where: { id: userQuestId },
+      data: {
+        isCompleted: true,
+        completedAt: new Date(),
+      },
+    });
+
+  
     await prisma.point.update({
       where: { userId },
       data: { balance: { increment: pointsAwarded } },
     });
+
 
     try {
       await prisma.transaction.create({
@@ -65,7 +71,7 @@ export const POST = async (req: NextRequest) => {
     }
 
     return NextResponse.json(
-      { message: "Reward claimed successfully!", points: pointsAwarded },
+      { message: "Quest marked as completed and reward claimed!", points: pointsAwarded },
       { status: 200 }
     );
 
