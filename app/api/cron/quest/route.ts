@@ -60,7 +60,7 @@ export const PUT = async (req: NextRequest) => {
       }))
     );
 
-    await prisma.user_quest.createMany({
+    await prisma.userQuest.createMany({
       data: assignments,
       skipDuplicates: true,
     });
