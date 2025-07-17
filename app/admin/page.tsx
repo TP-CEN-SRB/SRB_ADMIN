@@ -91,6 +91,7 @@ const { month, bin, ...materials }: ChartDataItem = chartsData.DBBarChartData[0]
         initialStatsData={binStatsData} 
         UMBinsData={UMBinsData}
         fetchAll={fetchAll}/>
+        
     </div>
     
   );

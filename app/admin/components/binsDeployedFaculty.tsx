@@ -52,7 +52,7 @@ const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
                   y={(viewBox.cy || 0) + 24}
                   className="fill-muted-foreground text-sm font-bold"
                 >
-                  Bins Deployed
+                  Disposals
                 </tspan>
               </text>
             );

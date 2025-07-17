@@ -108,7 +108,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     const [isResolved, setIsResolved] = useState(false);
     const [UMBinsTable, setUMBinsTable] = useState(UMBinsData);
     const [lineChart, setLineChart] = useState(DBLineChartData);
-    const [datetime, setDateTime] = useState(formatDateTime(new Date()));
+    const [datetime, setDateTime] = useState(formatDateTime(new Date())); 
     
     const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
     const barChartConfig = BarChartConfig({ materials }) as ChartConfig;
