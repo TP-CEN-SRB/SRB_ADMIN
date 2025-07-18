@@ -177,9 +177,11 @@ model QuestDetails {
   description  String
   target       Int
   materialType String      @db.VarChar(50)
+  questType    QuestType   @default(NORMAL)
+  prizeWinners Int         @default(1) 
   startDate    DateTime?   @db.Timestamp(6)
   endDate      DateTime?   @db.Timestamp(6)
-  rewardPoints Int
+  rewardPoints Int         @default(1)
   createdAt    DateTime    @default(now()) @db.Timestamp(6)
   updatedAt    DateTime    @updatedAt @db.Timestamp(6)
   userQuests   UserQuest[]
@@ -275,4 +277,9 @@ enum TransactionType {
   QUEST_REWARD
   TREE_REWARD
   PURCHASE
+}
+
+enum QuestType {
+  NORMAL
+  EVENT
 }

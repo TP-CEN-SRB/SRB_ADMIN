@@ -112,27 +112,40 @@ const UpdateBinSchema = z.object({
   materialId: z.string().min(1, "Please select the material type"),
 });
 
-const QuestSchema = z.object({
+  const QuestSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  target: z.coerce.number().min(1, "Target must be at least 1"),
+  target: z.coerce.number().min(1, "Target must be 1 or more"),
   materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
-  rewardPoints: z.coerce.number().min(1, "Reward must be at least 1"),
-  duration: z.coerce.number().min(1, "Duration must be at least 1 day"),
+  rewardPoints: z.coerce
+    .number({ invalid_type_error: "Reward points must be a number" })
+    .min(0, "Must be 0 or more")
+    .default(0),
+  duration: z.coerce.number().min(1, "Duration must be 1 or more"),
+  prizeWinners: z.coerce
+    .number({ invalid_type_error: "Prize winners must be a number" })
+    .min(1, "There must be at least 1 winner"),
+  questType: z.enum(["NORMAL", "EVENT"]),
 });
 
 export const MaterialEnum = ["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"] as const;
 export type MaterialType = (typeof MaterialEnum)[number];
 
-const UpdateQuestSchema = z.object({
+  const UpdateQuestSchema = QuestSchema.partial().extend({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  target: z.coerce.number().min(1, "Target must be at least 1"),
-  materialType: z.enum(MaterialEnum, {
-    errorMap: () => ({ message: "Material is required" }),
-  }),
-  rewardPoints: z.coerce.number().min(1, "Reward must be at least 1"),
+  target: z.coerce.number().min(1, "Target must be 1 or more"),
+  materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
+  rewardPoints: z.coerce
+    .number({ invalid_type_error: "Reward points must be a number" })
+    .min(0, "Must be 0 or more")
+    .default(0),
+  prizeWinners: z.coerce
+    .number({ invalid_type_error: "Prize winners must be a number" })
+    .min(1, "There must be at least 1 winner"),
+  questType: z.enum(["NORMAL", "EVENT"]),
 });
+
 
 const StoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),

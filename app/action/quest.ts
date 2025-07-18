@@ -5,6 +5,7 @@ import { getSessionUser } from "@/utils/getAuth";
 import { QuestSchema, UpdateQuestSchema } from "@/schemas";
 import { z } from "zod";
 
+
 type Quest = {
   id: string;
   title: string;
@@ -15,6 +16,8 @@ type Quest = {
   startDate: Date | null;
   endDate: Date | null;
   createdAt: Date;
+  questType: string;
+  prizeWinners: number;
 };
 
 type GetQuestsResult = {
@@ -33,7 +36,6 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
     const now = new Date();
     const endDate = new Date(now.getTime() + data.duration * 24 * 60 * 60 * 1000);
 
-    
     const quest = await prisma.questDetails.create({
       data: {
         title: data.title,
@@ -43,18 +45,19 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
         rewardPoints: data.rewardPoints,
         startDate: now,
         endDate: endDate,
+        questType: data.questType,
+        prizeWinners: data.prizeWinners,
       },
     });
 
-    
     const users = await prisma.user.findMany({
       where: {
-        role: "STUDENT", 
+        role: "STUDENT",
+        emailVerified: { not: null },
       },
       select: { id: true },
     });
 
-    
     const userQuests = users.map((u) => ({
       userId: u.id,
       questId: quest.id,
@@ -65,7 +68,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
 
     await prisma.userQuest.createMany({
       data: userQuests,
-      skipDuplicates: true, 
+      skipDuplicates: true,
     });
 
     return { success: "Quest created and assigned to users", quest };
@@ -116,7 +119,10 @@ export const getUsersByQuestId = async (questId: string) => {
   return usersInQuest;
 };
 
-export const updateQuest = async (id: string, data: z.infer<typeof UpdateQuestSchema>) => {
+export const updateQuest = async (
+  id: string,
+  data: z.infer<typeof UpdateQuestSchema>
+) => {
   const user = await getSessionUser();
 
   if (user?.role !== "ADMIN") {
@@ -132,7 +138,9 @@ export const updateQuest = async (id: string, data: z.infer<typeof UpdateQuestSc
         target: data.target,
         materialType: data.materialType,
         rewardPoints: data.rewardPoints,
-        updatedAt: new Date(), 
+        questType: data.questType,
+        prizeWinners: data.prizeWinners,
+        updatedAt: new Date(),
       },
     });
 
@@ -160,6 +168,8 @@ export const getQuestById = async (id: string) => {
       startDate: true,
       endDate: true,
       createdAt: true,
+      questType: true,
+      prizeWinners: true,
     },
   });
 };
@@ -203,10 +213,11 @@ export const getQuests = async (
         startDate: true,
         endDate: true,
         createdAt: true,
+        questType: true,
+        prizeWinners: true,
       },
     }),
   ]);
-
 
   return { questCount, quests };
 };

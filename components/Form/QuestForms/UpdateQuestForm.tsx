@@ -31,6 +31,8 @@ interface UpdateQuestFormProps {
     target: number;
     materialType: string;
     rewardPoints: number;
+    prizeWinners: number;
+    questType: "EVENT" | "NORMAL";
   };
 }
 
@@ -54,12 +56,13 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
       description: quest.description,
       target: quest.target,
       materialType: quest.materialType as  
-      | "PLASTIC"
-      | "METAL"
-      | "PAPER"
-      | "E_WASTE"
-      | "GENERAL",
+        | "PLASTIC"
+        | "METAL"
+        | "PAPER"
+        | "E_WASTE"
+        | "GENERAL",
       rewardPoints: quest.rewardPoints,
+      prizeWinners: quest.prizeWinners, // required — no null fallback
     },
   });
 
@@ -79,11 +82,10 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
             variant: "default",
           });
           router.push("/admin/quest");
-        } else if (result?.error) {
+        } else {
           toast({
             title: "Error",
-            description: result.error || "Failed to update quest",
-            duration: 2000,
+            description: result?.error || "Failed to update quest",
             variant: "destructive",
           });
         }
@@ -92,7 +94,6 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
         toast({
           title: "Error",
           description: "An unexpected error occurred",
-          duration: 2000,
           variant: "destructive",
         });
       }
@@ -174,6 +175,19 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Reward Points</FormLabel>
                 <FormControl>
+                  <Input type="number" min={0} disabled={isPending} {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="prizeWinners"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">Prize Winners</FormLabel>
+                <FormControl>
                   <Input type="number" min={1} disabled={isPending} {...field} />
                 </FormControl>
                 <FormMessage />
@@ -187,7 +201,7 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
             type="submit"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isPending ? "Loading..." : "Submit"}
+            {isPending ? "Submitting..." : "Submit"}
           </Button>
         </form>
       </Form>

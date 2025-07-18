@@ -47,6 +47,8 @@ const CreateQuestForm = () => {
       materialType: undefined,
       rewardPoints: 10,
       duration: 7,
+      prizeWinners: 1,
+      questType: "EVENT",
     },
   });
 
@@ -57,14 +59,19 @@ const CreateQuestForm = () => {
     });
 
     startTransition(async () => {
-      setError("");
-      setSuccess("");
-      const result = await createQuest(values);
-      if (result?.success) {
-        setSuccess("Quest created successfully at " + datetime);
-        form.reset();
-      } else if (result?.error) {
-        setError(result.error);
+      try {
+        setError("");
+        setSuccess("");
+        const result = await createQuest(values);
+        if (result?.success) {
+          setSuccess("Quest created successfully at " + datetime);
+          form.reset();
+        } else {
+          setError(result?.error || "Unknown error");
+        }
+      } catch (err) {
+        console.error("createQuest threw an error:", err);
+        setError("An unexpected error occurred.");
       }
     });
   };
@@ -81,11 +88,7 @@ const CreateQuestForm = () => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Title</FormLabel>
                 <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="Recycle challenge"
-                    {...field}
-                  />
+                  <Input disabled={isPending} placeholder="Recycle challenge" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -108,6 +111,7 @@ const CreateQuestForm = () => {
               </FormItem>
             )}
           />
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -130,13 +134,20 @@ const CreateQuestForm = () => {
                 <FormItem>
                   <FormLabel className="font-bold text-slate-700">Reward Points</FormLabel>
                   <FormControl>
-                    <Input type="number" min={1} disabled={isPending} {...field} />
+                    <Input
+                      type="number"
+                      min={0}
+                      disabled={isPending}
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
+
           <FormField
             control={form.control}
             name="materialType"
@@ -168,15 +179,31 @@ const CreateQuestForm = () => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Duration (days)</FormLabel>
                 <FormControl>
+                  <Input type="number" min={1} disabled={isPending} placeholder="e.g. 7" {...field} />
+                </FormControl>
+                <FormDescription>This determines how long the quest lasts</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="prizeWinners"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-bold text-slate-700">Prize Winners</FormLabel>
+                <FormControl>
                   <Input
                     type="number"
                     min={1}
                     disabled={isPending}
-                    placeholder="e.g. 7"
+                    placeholder="e.g. 3"
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>This determines how long the quest lasts</FormDescription>
+                <FormDescription>
+                  Number of students who will be rewarded upon quest completion
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
