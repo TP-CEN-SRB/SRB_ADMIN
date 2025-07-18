@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 import { IoRocket } from "react-icons/io5";
 import { useState, useTransition } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
