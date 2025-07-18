@@ -235,13 +235,15 @@ model Crashlog {
 }
 
 model QuestTemplate {
-  id           String   @id @default(cuid())
-  title        String
-  description  String
-  target       Int
-  rewardPoints Int
-  materialType String
-  createdAt    DateTime @default(now())
+  id            String      @id @default(cuid())
+  title         String
+  description   String
+  target        Int
+  rewardPoints  Int
+  materialType  String
+  questType     QuestType
+  prizeWinners  Int?        
+  createdAt     DateTime    @default(now())
 
   @@map("quest_template")
 }

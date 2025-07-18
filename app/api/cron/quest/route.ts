@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 /**
- * Clean up expired quests, create 3 new ones, and assign to all verified users.
+ * Clean up expired quests, create 3 new NORMAL quests, and assign to all verified users.
+ * Sets prizeWinners = number of assigned users (for ranking/prize logic if needed).
  */
 export const PUT = async (req: NextRequest) => {
   try {
@@ -34,24 +35,7 @@ export const PUT = async (req: NextRequest) => {
     const endDate = new Date();
     endDate.setDate(startDate.getDate() + 7); // 1 week duration
 
-    // 3. Create the 3 quests
-    const createdQuests = await Promise.all(
-      selected.map((q) =>
-        prisma.questDetails.create({
-          data: {
-            title: q.title,
-            description: q.description,
-            target: q.target,
-            rewardPoints: q.rewardPoints,
-            materialType: q.materialType,
-            startDate,
-            endDate,
-          },
-        })
-      )
-    );
-
-    // 4. Assign each quest to verified student users only
+    // 3. Fetch all verified student users
     const users = await prisma.user.findMany({
       where: {
         role: "STUDENT",
@@ -59,6 +43,28 @@ export const PUT = async (req: NextRequest) => {
       },
     });
 
+    const totalUsers = users.length;
+
+    // 4. Create the 3 quests with type "NORMAL" and prizeWinners = total users
+    const createdQuests = await Promise.all(
+      selected.map((q) =>
+        prisma.questDetails.create({
+          data: {
+            title: q.title,
+            description: q.description,
+            target: q.target,
+            rewardPoints: q.rewardPoints ?? 0,
+            materialType: q.materialType,
+            questType: "NORMAL", // force all to be normal
+            prizeWinners: totalUsers, // set to number of assigned users
+            startDate,
+            endDate,
+          },
+        })
+      )
+    );
+
+    // 5. Assign each quest to all verified users
     const assignments = createdQuests.flatMap((quest) =>
       users.map((user) => ({
         userId: user.id,
@@ -73,7 +79,7 @@ export const PUT = async (req: NextRequest) => {
 
     return NextResponse.json(
       {
-        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 new quest(s) to ${users.length} verified users.`,
+        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 NORMAL quest(s) with ${totalUsers} prize winners each.`,
       },
       { status: 200 }
     );
