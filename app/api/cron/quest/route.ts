@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
 /**
- * Clean up expired quests, create 3 new ones, and assign to all users.
+ * Clean up expired quests, create 3 new ones, and assign to all verified users.
  */
 export const PUT = async (req: NextRequest) => {
   try {
@@ -51,8 +51,14 @@ export const PUT = async (req: NextRequest) => {
       )
     );
 
-    // 4. Assign each quest to all users
-    const users = await prisma.user.findMany({ where: { role: "STUDENT" } });
+    // 4. Assign each quest to verified student users only
+    const users = await prisma.user.findMany({
+      where: {
+        role: "STUDENT",
+        emailVerified: { not: null },
+      },
+    });
+
     const assignments = createdQuests.flatMap((quest) =>
       users.map((user) => ({
         userId: user.id,
@@ -67,7 +73,7 @@ export const PUT = async (req: NextRequest) => {
 
     return NextResponse.json(
       {
-        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 new quest(s) to ${users.length} users.`,
+        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 new quest(s) to ${users.length} verified users.`,
       },
       { status: 200 }
     );
