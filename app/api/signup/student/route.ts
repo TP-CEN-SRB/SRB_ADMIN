@@ -54,7 +54,8 @@ export const POST = async (req: NextRequest) => {
 
     const hashedPassword = await hash(data.password, 10);
 
-    await prisma.user.create({
+    // Create the new user
+    const newUser = await prisma.user.create({
       data: {
         name: capitalizeFirstLetter(data.name),
         email: data.email,
@@ -67,6 +68,22 @@ export const POST = async (req: NextRequest) => {
         },
       },
     });
+
+    // Assign default quest(s)
+    const allQuests = await prisma.questDetails.findMany();
+
+    // Create userQuest records for each quest
+    if (allQuests.length > 0) {
+      await prisma.userQuest.createMany({
+        data: allQuests.map((quest) => ({
+          userId: newUser.id,
+          questId: quest.id,
+          progress: 0,
+          isCompleted: false,
+        })),
+      });
+    }
+
 
     const verificationToken = await generateVerificationToken(email);
     await sendVerificationEmail(
