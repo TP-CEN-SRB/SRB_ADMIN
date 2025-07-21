@@ -51,9 +51,10 @@ export default function SmartBinDashboard() {
           if (topic === "srb/heartbeat") {
             try {
               const payload = JSON.parse(message.toString());
-              const { binId, material, status } = payload;
+              const binId = payload.binid;
+              const material = payload.material;
 
-              if (!binId || !material || !status || !isMounted) return;
+              if (!binId || !material || !isMounted) return;
 
               setBins((prevBins) =>
                 prevBins.map((bin) =>
@@ -61,7 +62,7 @@ export default function SmartBinDashboard() {
                   bin.material.toLowerCase() === material.toLowerCase()
                     ? {
                         ...bin,
-                        isOnline: status === "online",
+                        isOnline: true,
                         lastHeartBeat: new Date(),
                       }
                     : bin
@@ -100,7 +101,7 @@ export default function SmartBinDashboard() {
           };
         })
       );
-    }, 5000); // check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
