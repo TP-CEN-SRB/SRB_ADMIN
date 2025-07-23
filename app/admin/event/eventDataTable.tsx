@@ -33,10 +33,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FaEdit, FaTrashRestore } from "react-icons/fa";
+import { FaEdit, FaTrashRestore, FaUsers } from "react-icons/fa";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog";
@@ -72,6 +71,11 @@ const EventActions = ({ event }: { event: Event }) => {
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <FaTrashRestore className="mr-2" /> Delete Event
           </DropdownMenuItem>
+          <Link href={`/admin/event/${event.id}/users`} passHref>
+            <DropdownMenuItem>
+              <FaUsers className="mr-2" /> View Users
+            </DropdownMenuItem>
+          </Link>
         </DropdownMenuContent>
       </DropdownMenu>
       <ConfirmDeleteEventDialog

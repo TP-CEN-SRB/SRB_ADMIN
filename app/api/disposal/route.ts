@@ -76,6 +76,7 @@ export const POST = async (req: NextRequest) => {
         { status: 401 }
       );
     }
+
     const { userId, material, weightInGrams } = await req.json();
 
     const validatedFields = DisposalSchema.safeParse({
@@ -90,6 +91,7 @@ export const POST = async (req: NextRequest) => {
         { status: 400 }
       );
     }
+
     const [bin, binMaterial] = await Promise.all([
       prisma.bin.findFirst({
         where: {
@@ -110,13 +112,13 @@ export const POST = async (req: NextRequest) => {
         where: { name: material.toUpperCase() },
       }),
     ]);
-    if (!bin)
+
+    if (!bin) {
       return NextResponse.json(
-        {
-          message: "No bin found!",
-        },
+        { message: "No bin found!" },
         { status: 404 }
       );
+    }
     if (!binMaterial) {
       return NextResponse.json(
         { message: "No bin material found!" },
@@ -125,36 +127,59 @@ export const POST = async (req: NextRequest) => {
     }
     if (bin.status === "UNDER_MAINTENANCE") {
       return NextResponse.json(
-        {
-          message: "Bin is current under maintenance!",
-        },
+        { message: "Bin is current under maintenance!" },
         { status: 400 }
       );
     }
     if (bin.currentCapacity === 100) {
       return NextResponse.json(
-        {
-          message: "Bin is already full!",
-        },
+        { message: "Bin is already full!" },
         { status: 400 }
       );
     }
 
     const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
-    
+    const pointsAwarded = Math.floor(weightInGrams * binMaterial.multiplier);
+
     const disposal = await prisma.disposal.create({
       data: {
-        weightInGrams: weightInGrams,
+        weightInGrams,
         binId: bin.id,
         carbonprint: carbonPrint,
-        pointsAwarded: Math.floor(weightInGrams * binMaterial.multiplier), // rounds down the points awarded - weight*multiplier
+        pointsAwarded,
       },
     });
+
+    // 🟢 Add disposal points to current active event
+    const now = new Date();
+
+    const activeEvent = await prisma.userEvent.findFirst({
+      where: {
+        userId,
+        event: {
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (activeEvent) {
+      await prisma.userEvent.update({
+        where: { id: activeEvent.id },
+        data: {
+          points: {
+            increment: pointsAwarded,
+          },
+        },
+      });
+    }
+
     return NextResponse.json(
       {
         id: disposal.id,
         point: disposal.pointsAwarded,
-        carbonprint: carbonPrint, 
+        carbonprint: carbonPrint,
       },
       { status: 200 }
     );

@@ -157,10 +157,9 @@ export const PUT = async (
     }
 
     // 🌱 Calculate carbonPrint using carbon_multiplier
-
     const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
     const carbonPrint = disposal.weightInGrams * emissionFactor;
-    const treeProgressIncrement =   carbonPrint / 1000
+    const treeProgressIncrement = carbonPrint / 1000;
 
     // 🧾 Transactional updates
     const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
@@ -205,6 +204,31 @@ export const PUT = async (
     await pusherServer.trigger(`disposal-qr-${binManagerId}`, "disposal-update", {
       updated: true,
     });
+
+    // 🟢 Add awarded points to active event, if any
+    const now = new Date();
+
+    const activeEvent = await prisma.userEvent.findFirst({
+      where: {
+        userId,
+        event: {
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (activeEvent) {
+      await prisma.userEvent.update({
+        where: { id: activeEvent.id },
+        data: {
+          points: {
+            increment: disposal.pointsAwarded,
+          },
+        },
+      });
+    }
 
     return NextResponse.json(
       {

@@ -22,7 +22,10 @@ type GetEventsResult = {
 
 export const createEvent = async (data: z.infer<typeof EventSchema>) => {
   const user = await getSessionUser();
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" };
+
+  if (user?.role !== "ADMIN") {
+    return { error: "Unauthorized" };
+  }
 
   try {
     const event = await prisma.event.create({
@@ -34,10 +37,31 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
       },
     });
 
-    return { success: "Event created successfully", event };
-  } catch (error) {
-    const err = error as Error;
-    return { error: err.message || "Failed to create event" };
+    const students = await prisma.user.findMany({
+      where: {
+        role: "STUDENT",
+        emailVerified: { not: null },
+      },
+      select: { id: true },
+    });
+
+    const userEvents = students.map((u) => ({
+      userId: u.id,
+      eventId: event.id,
+      points: 0,
+    }));
+
+    await prisma.userEvent.createMany({
+      data: userEvents,
+      skipDuplicates: true,
+    });
+
+    return { success: "Event created and assigned to all students", event };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return { error: error.message };
+    }
+    return { error: "Failed to create event" };
   }
 };
 
