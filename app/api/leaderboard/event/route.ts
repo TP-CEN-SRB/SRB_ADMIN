@@ -97,7 +97,7 @@ export const GET = async (req: NextRequest) => {
     ]);
 
     // Step 4: Assemble payload
-    const orderedDisposals = participants.map((entry) => {
+    const event = participants.map((entry) => {
       const userId = entry.user.id;
 
       const disposal = userDisposals.find((d) => d.userId === userId) || {
@@ -133,14 +133,14 @@ export const GET = async (req: NextRequest) => {
     });
 
     // Step 5: Sort by points (balance), then by diploma
-    const sortedDisposals = orderedDisposals.sort((a, b) => {
+    const sortedDisposals = event.sort((a, b) => {
       if (b.balance !== a.balance) return b.balance - a.balance;
       const diplomaA = a.diploma?.toUpperCase() || "";
       const diplomaB = b.diploma?.toUpperCase() || "";
       return diplomaA.localeCompare(diplomaB);
     });
 
-    return NextResponse.json({ orderedDisposals: sortedDisposals }, { status: 200 });
+    return NextResponse.json({ event: sortedDisposals }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
