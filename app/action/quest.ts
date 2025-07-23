@@ -5,7 +5,6 @@ import { getSessionUser } from "@/utils/getAuth";
 import { QuestSchema, UpdateQuestSchema } from "@/schemas";
 import { z } from "zod";
 
-
 type Quest = {
   id: string;
   title: string;
@@ -17,7 +16,6 @@ type Quest = {
   endDate: Date | null;
   createdAt: Date;
   questType: string;
-  prizeWinners: number;
 };
 
 type GetQuestsResult = {
@@ -46,7 +44,6 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
         startDate: now,
         endDate: endDate,
         questType: data.questType,
-        prizeWinners: data.prizeWinners,
       },
     });
 
@@ -139,7 +136,6 @@ export const updateQuest = async (
         materialType: data.materialType,
         rewardPoints: data.rewardPoints,
         questType: data.questType,
-        prizeWinners: data.prizeWinners,
         updatedAt: new Date(),
       },
     });
@@ -169,7 +165,6 @@ export const getQuestById = async (id: string) => {
       endDate: true,
       createdAt: true,
       questType: true,
-      prizeWinners: true,
     },
   });
 };
@@ -214,7 +209,6 @@ export const getQuests = async (
         endDate: true,
         createdAt: true,
         questType: true,
-        prizeWinners: true,
       },
     }),
   ]);

@@ -3,7 +3,6 @@ import prisma from "@/lib/db";
 
 /**
  * Clean up expired quests, create 3 new NORMAL quests, and assign to all verified users.
- * Sets prizeWinners = number of assigned users (for ranking/prize logic if needed).
  */
 export const PUT = async (req: NextRequest) => {
   try {
@@ -43,9 +42,7 @@ export const PUT = async (req: NextRequest) => {
       },
     });
 
-    const totalUsers = users.length;
-
-    // 4. Create the 3 quests with type "NORMAL" and prizeWinners = total users
+    // 4. Create the 3 quests with type "NORMAL"
     const createdQuests = await Promise.all(
       selected.map((q) =>
         prisma.questDetails.create({
@@ -56,7 +53,6 @@ export const PUT = async (req: NextRequest) => {
             rewardPoints: q.rewardPoints ?? 0,
             materialType: q.materialType,
             questType: "NORMAL", // force all to be normal
-            prizeWinners: totalUsers, // set to number of assigned users
             startDate,
             endDate,
           },
@@ -79,7 +75,7 @@ export const PUT = async (req: NextRequest) => {
 
     return NextResponse.json(
       {
-        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 NORMAL quest(s) with ${totalUsers} prize winners each.`,
+        message: `Deleted ${deleted.count} expired quest(s), created and assigned 3 NORMAL quest(s).`,
       },
       { status: 200 }
     );

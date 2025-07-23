@@ -177,8 +177,7 @@ model QuestDetails {
   description  String
   target       Int
   materialType String      @db.VarChar(50)
-  questType    QuestType   @default(NORMAL)
-  prizeWinners Int         @default(1) 
+  questType    QuestType   @default(NORMAL) 
   startDate    DateTime?   @db.Timestamp(6)
   endDate      DateTime?   @db.Timestamp(6)
   rewardPoints Int         @default(1)
@@ -241,8 +240,7 @@ model QuestTemplate {
   target        Int
   rewardPoints  Int
   materialType  String
-  questType     QuestType
-  prizeWinners  Int?        
+  questType     QuestType      
   createdAt     DateTime    @default(now())
 
   @@map("quest_template")

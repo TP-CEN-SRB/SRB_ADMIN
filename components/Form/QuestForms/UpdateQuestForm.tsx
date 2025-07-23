@@ -31,7 +31,6 @@ interface UpdateQuestFormProps {
     target: number;
     materialType: string;
     rewardPoints: number;
-    prizeWinners: number;
     questType: "EVENT" | "NORMAL";
   };
 }
@@ -62,7 +61,6 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
         | "E_WASTE"
         | "GENERAL",
       rewardPoints: quest.rewardPoints,
-      prizeWinners: quest.prizeWinners, // required — no null fallback
     },
   });
 
@@ -176,19 +174,6 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
                 <FormLabel className="font-bold text-slate-700">Reward Points</FormLabel>
                 <FormControl>
                   <Input type="number" min={0} disabled={isPending} {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="prizeWinners"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">Prize Winners</FormLabel>
-                <FormControl>
-                  <Input type="number" min={1} disabled={isPending} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

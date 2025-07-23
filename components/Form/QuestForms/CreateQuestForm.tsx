@@ -47,7 +47,6 @@ const CreateQuestForm = () => {
       materialType: undefined,
       rewardPoints: 10,
       duration: 7,
-      prizeWinners: 1,
       questType: "EVENT",
     },
   });
@@ -172,6 +171,7 @@ const CreateQuestForm = () => {
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="duration"
@@ -182,28 +182,6 @@ const CreateQuestForm = () => {
                   <Input type="number" min={1} disabled={isPending} placeholder="e.g. 7" {...field} />
                 </FormControl>
                 <FormDescription>This determines how long the quest lasts</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="prizeWinners"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">Prize Winners</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min={1}
-                    disabled={isPending}
-                    placeholder="e.g. 3"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Number of students who will be rewarded upon quest completion
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
