@@ -37,8 +37,6 @@ export default function SmartBinDashboard() {
 
   // Heartbeat MQTT listener
   useEffect(() => {
-    let isMounted = true;
-
     const setupMqtt = async () => {
       try {
         const client = await connectMqtt();
@@ -48,45 +46,45 @@ export default function SmartBinDashboard() {
         });
 
         client.on("message", (topic, message) => {
-        if (topic === "srb/heartbeat") {
-          try {
-            console.log("RAW MQTT MESSAGE:", message.toString());
-            const payload = JSON.parse(message.toString());
-            const binId = payload.binid;
-            const material = payload.material;
+          if (topic === "srb/heartbeat") {
+            try {
+              console.log("RAW MQTT MESSAGE:", message.toString());
+              const payload = JSON.parse(message.toString());
+              const binUserId = payload.binid;
+              const material = payload.material;
 
-            console.log("HEARTBEAT RECEIVED:", binId, material);
+              console.log("HEARTBEAT RECEIVED:", binUserId, material);
 
-            setBins((prevBins) =>
-              prevBins.map((bin) => {
-                if (bin.id === binId) {
-                  console.log("MATCHING BIN:", bin.id, bin.material);
-                }
-                return bin.id === binId &&
-                  bin.material.toLowerCase() === material.toLowerCase()
-                  ? {
-                      ...bin,
-                      isOnline: true,
-                      lastHeartBeat: new Date(),
-                    }
-                  : bin;
-              })
-            );
-          } catch (err) {
-            console.error("Invalid heartbeat message:", err);
+              setBins((prevBins) =>
+                prevBins.map((bin) => {
+                  const isMatch =
+                    bin.userId === binUserId &&
+                    bin.material.toLowerCase() === material.toLowerCase();
+
+                  if (isMatch) {
+                    console.log("MATCHED BIN:", bin.id, bin.material);
+                  }
+
+                  return isMatch
+                    ? {
+                        ...bin,
+                        isOnline: true,
+                        lastHeartBeat: new Date(),
+                      }
+                    : bin;
+                })
+              );
+            } catch (err) {
+              console.error("Invalid heartbeat message:", err);
+            }
           }
-        }
-      });
+        });
       } catch (err) {
         console.error("MQTT connection failed:", err);
       }
     };
 
     setupMqtt();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   // Auto-mark offline if no heartbeat for 5 minutes
