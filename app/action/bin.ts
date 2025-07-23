@@ -791,10 +791,6 @@ export const updateBinStatus = async (id: string, status: BinStatus) => {
   }
 };
 
-
-
-export const dynamic = "force-dynamic"; 
-
 export const getHeartbeat = async () => {
   const bins = await prisma.bin.findMany({
     select: {

@@ -45,7 +45,6 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
             target: true,
             rewardPoints: true,
             materialType: true,
-            questType: true, // include quest type
             startDate: true,
             endDate: true,
           },

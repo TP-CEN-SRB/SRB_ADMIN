@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import prisma from "@/lib/db";
-import { Role } from "@prisma/client";
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -21,27 +20,22 @@ export const GET = async (req: NextRequest) => {
       );
     }
 
-    // Step 1: Find the latest EVENT quest
-    const eventQuest = await prisma.questDetails.findFirst({
-      where: {
-        questType: "EVENT",
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+    // Step 1: Get the latest event
+    const latestEvent = await prisma.event.findFirst({
+      orderBy: { createdAt: "desc" },
     });
 
-    if (!eventQuest) {
+    if (!latestEvent) {
       return NextResponse.json(
-        { message: "No active event quest found." },
+        { message: "No active event found." },
         { status: 404 }
       );
     }
 
-    // Step 2: Fetch all participants (including 0 points)
-    const participants = await prisma.userQuest.findMany({
+    // Step 2: Fetch all UserEvent entries for the event (including 0 points)
+    const userEvents = await prisma.userEvent.findMany({
       where: {
-        questId: eventQuest.id,
+        eventId: latestEvent.id,
         user: {
           role: "STUDENT",
         },
@@ -58,7 +52,7 @@ export const GET = async (req: NextRequest) => {
       },
     });
 
-    const userIds = participants.map((p) => p.user.id);
+    const userIds = userEvents.map((entry) => entry.user.id);
 
     // Step 3: Fetch disposal and redemption counts, and disposal data
     const [userDisposals, userRedemptions, allDisposals] = await Promise.all([
@@ -86,7 +80,6 @@ export const GET = async (req: NextRequest) => {
             include: {
               binMaterial: {
                 select: {
-                  id: true,
                   name: true,
                 },
               },
@@ -96,8 +89,8 @@ export const GET = async (req: NextRequest) => {
       }),
     ]);
 
-    // Step 4: Assemble payload
-    const event = participants.map((entry) => {
+    // Step 4: Assemble leaderboard data
+    const leaderboard = userEvents.map((entry) => {
       const userId = entry.user.id;
 
       const disposal = userDisposals.find((d) => d.userId === userId) || {
@@ -123,24 +116,22 @@ export const GET = async (req: NextRequest) => {
       return {
         username: entry.user.name,
         userId,
-        balance: entry.progress ?? 0, // use EVENT progress as points
+        balance: entry.points ?? 0,
         disposalCount: disposal._count.id,
         redemptionCount: redemption._count.id,
         mostFrequentMaterial: mostFrequentMaterial || undefined,
-        diploma: entry.user.diploma || null,
-        faculty: entry.user.faculty || null,
+        diploma: entry.user.diploma ?? null,
+        faculty: entry.user.faculty ?? null,
       };
     });
 
-    // Step 5: Sort by points (balance), then by diploma
-    const sortedDisposals = event.sort((a, b) => {
+    // Step 5: Sort by balance then diploma
+    leaderboard.sort((a, b) => {
       if (b.balance !== a.balance) return b.balance - a.balance;
-      const diplomaA = a.diploma?.toUpperCase() || "";
-      const diplomaB = b.diploma?.toUpperCase() || "";
-      return diplomaA.localeCompare(diplomaB);
+      return (a.diploma ?? "").localeCompare(b.diploma ?? "");
     });
 
-    return NextResponse.json({ event: sortedDisposals }, { status: 200 });
+    return NextResponse.json({ event: leaderboard }, { status: 200 });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json({ message: "Token has expired!" }, { status: 401 });

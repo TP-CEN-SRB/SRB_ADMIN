@@ -6,13 +6,11 @@ import FormHeader from "../FormHeader";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { QuestSchema } from "@/schemas";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,53 +20,43 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "../CustomFormMessage";
-import { createQuest } from "@/app/action/quest";
+import { createEvent } from "@/app/action/event";
+import { EventSchema } from "@/schemas";
 
-const materialOptions = [
-  { label: "Plastic", value: "PLASTIC" },
-  { label: "Metal", value: "METAL" },
-  { label: "Paper", value: "PAPER" },
-  { label: "E-Waste", value: "E_WASTE" },
-  { label: "General", value: "GENERAL" },
-];
-
-const CreateQuestForm = () => {
+const CreateEventForm = () => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof QuestSchema>>({
-    resolver: zodResolver(QuestSchema),
+  const form = useForm<z.infer<typeof EventSchema>>({
+    resolver: zodResolver(EventSchema),
     defaultValues: {
       title: "",
       description: "",
-      target: 1,
-      materialType: undefined,
-      rewardPoints: 10,
-      duration: 7,
+      startDate: new Date(),
+      endDate: new Date(),
     },
   });
 
-  const onSubmit = (values: z.infer<typeof QuestSchema>) => {
-    const datetime = new Date().toLocaleString("en-SG", {
-      timeZone: "Asia/Singapore",
-      hour12: false,
-    });
-
+  const onSubmit = (values: z.infer<typeof EventSchema>) => {
     startTransition(async () => {
       try {
         setError("");
         setSuccess("");
-        const result = await createQuest(values);
+        const result = await createEvent(values);
         if (result?.success) {
-          setSuccess("Quest created successfully at " + datetime);
+          const timestamp = new Date().toLocaleString("en-SG", {
+            timeZone: "Asia/Singapore",
+            hour12: false,
+          });
+          setSuccess("Event created successfully at " + timestamp);
           form.reset();
         } else {
           setError(result?.error || "Unknown error");
         }
       } catch (err) {
-        console.error("createQuest threw an error:", err);
+        console.error("createEvent error:", err);
         setError("An unexpected error occurred.");
       }
     });
@@ -76,7 +64,7 @@ const CreateQuestForm = () => {
 
   return (
     <Card isAdmin rounded fullWidth>
-      <FormHeader>Add a quest</FormHeader>
+      <FormHeader>Add an event</FormHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -86,12 +74,13 @@ const CreateQuestForm = () => {
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Title</FormLabel>
                 <FormControl>
-                  <Input disabled={isPending} placeholder="Recycle challenge" {...field} />
+                  <Input disabled={isPending} placeholder="Clean-up Campaign" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="description"
@@ -101,7 +90,7 @@ const CreateQuestForm = () => {
                 <FormControl>
                   <Textarea
                     disabled={isPending}
-                    placeholder="Describe the objective of the quest..."
+                    placeholder="Describe the event in detail..."
                     {...field}
                   />
                 </FormControl>
@@ -113,31 +102,35 @@ const CreateQuestForm = () => {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="target"
+              name="startDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold text-slate-700">Target</FormLabel>
+                  <FormLabel className="font-bold text-slate-700">Start Date</FormLabel>
                   <FormControl>
-                    <Input type="number" min={1} disabled={isPending} {...field} />
+                    <Input
+                      type="date"
+                      disabled={isPending}
+                      value={field.value?.toISOString().split("T")[0]}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
+                    />
                   </FormControl>
-                  <FormDescription>How many items to complete</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
-              name="rewardPoints"
+              name="endDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-bold text-slate-700">Reward Points</FormLabel>
+                  <FormLabel className="font-bold text-slate-700">End Date</FormLabel>
                   <FormControl>
                     <Input
-                      type="number"
-                      min={0}
+                      type="date"
                       disabled={isPending}
-                      value={field.value ?? 0}
-                      onChange={field.onChange}
+                      value={field.value?.toISOString().split("T")[0]}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                     />
                   </FormControl>
                   <FormMessage />
@@ -145,46 +138,6 @@ const CreateQuestForm = () => {
               )}
             />
           </div>
-
-          <FormField
-            control={form.control}
-            name="materialType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">Material Type</FormLabel>
-                <FormControl>
-                  <select
-                    disabled={isPending}
-                    {...field}
-                    className="w-full rounded-md border px-3 py-2 text-sm text-gray-900 shadow-sm"
-                  >
-                    <option value="">Select a material...</option>
-                    {materialOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="duration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">Duration (days)</FormLabel>
-                <FormControl>
-                  <Input type="number" min={1} disabled={isPending} placeholder="e.g. 7" {...field} />
-                </FormControl>
-                <FormDescription>This determines how long the quest lasts</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
           {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
           {success && <CustomFormMessage type="Success">{success}</CustomFormMessage>}
@@ -203,4 +156,4 @@ const CreateQuestForm = () => {
   );
 };
 
-export default CreateQuestForm;
+export default CreateEventForm;

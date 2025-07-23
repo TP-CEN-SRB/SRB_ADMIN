@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { getHeartbeat } from "@/app/action/bin";
 import { useEffect, useState } from "react";
 import {

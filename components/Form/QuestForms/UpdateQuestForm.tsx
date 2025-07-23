@@ -31,7 +31,6 @@ interface UpdateQuestFormProps {
     target: number;
     materialType: string;
     rewardPoints: number;
-    questType: "EVENT" | "NORMAL";
   };
 }
 

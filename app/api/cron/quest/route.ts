@@ -52,7 +52,6 @@ export const PUT = async (req: NextRequest) => {
             target: q.target,
             rewardPoints: q.rewardPoints ?? 0,
             materialType: q.materialType,
-            questType: "NORMAL", // force all to be normal
             startDate,
             endDate,
           },

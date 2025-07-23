@@ -132,14 +132,24 @@ export const collaspeItems = [
     icon: BsFillBarChartFill,
     child: [
       {
-        title: "View",
+        title: "View Quests",
         icon: FaEye,
         url: "/admin/quest",
       },
       {
-        title: "Create",
+        title: "View Events",
+        icon: FaEye,
+        url: "/admin/event",
+      },
+      {
+        title: "Create Quests",
         icon: FaPlus,
         url: "/admin/quest/create",
+      },
+      {
+        title: "Create Events",
+        icon: FaPlus,
+        url: "/admin/event/create",
       },
     ],
   },

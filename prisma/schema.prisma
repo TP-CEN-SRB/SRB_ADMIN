@@ -34,6 +34,7 @@ model User {
   receivedTransfers TransferSession[] @relation("ReceivedTransfers")
   sentTransfers     TransferSession[] @relation("SentTransfers")
   user_quest        UserQuest[]
+  user_event        UserEvent[]
 
   @@map("users")
 }
@@ -176,8 +177,7 @@ model QuestDetails {
   title        String      @db.VarChar(255)
   description  String
   target       Int
-  materialType String      @db.VarChar(50)
-  questType    QuestType   @default(NORMAL) 
+  materialType String      @db.VarChar(50) 
   startDate    DateTime?   @db.Timestamp(6)
   endDate      DateTime?   @db.Timestamp(6)
   rewardPoints Int         @default(1)
@@ -239,11 +239,35 @@ model QuestTemplate {
   description   String
   target        Int
   rewardPoints  Int
-  materialType  String
-  questType     QuestType      
+  materialType  String    
   createdAt     DateTime    @default(now())
 
   @@map("quest_template")
+}
+
+model Event {
+  id           String     @id @default(uuid())
+  title        String
+  description  String
+  startDate    DateTime
+  endDate      DateTime
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  userEvent    UserEvent[]
+
+  @@map("event")
+}
+
+model UserEvent {
+  id      String @id @default(uuid())
+  points  Int    @default(0)
+  userId  String
+  eventId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "userevent_userId_fkey")
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade, map: "userevent_eventId_fkey")
+
+  @@map("user_event")
 }
 
 enum Faculty {
@@ -277,9 +301,4 @@ enum TransactionType {
   QUEST_REWARD
   TREE_REWARD
   PURCHASE
-}
-
-enum QuestType {
-  NORMAL
-  EVENT
 }

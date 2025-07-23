@@ -122,7 +122,6 @@ const UpdateBinSchema = z.object({
     .min(0, "Must be 0 or more")
     .default(0),
   duration: z.coerce.number().min(1, "Duration must be 1 or more"),
-  questType: z.enum(["NORMAL", "EVENT"]),
 });
 
 
@@ -138,10 +137,7 @@ export type MaterialType = (typeof MaterialEnum)[number];
     .number({ invalid_type_error: "Reward points must be a number" })
     .min(0, "Must be 0 or more")
     .default(0),
-  questType: z.enum(["NORMAL", "EVENT"]),
 });
-
-
 
 const StoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),
@@ -171,6 +167,17 @@ const UpdateStoreSchema = z.object({
     }
   );
 
+  
+const EventSchema = z.object({
+  title: z.string().min(3, "Title is too short"),
+  description: z.string().min(10, "Description is too short"),
+  startDate: z.date({ required_error: "Start date is required" }),
+  endDate: z.date({ required_error: "End date is required" }),
+});
+
+const UpdateEventSchema = EventSchema.partial().extend({
+  id: z.string().uuid({ message: "Invalid Event ID" }),
+});
 
 
 export {
@@ -184,4 +191,6 @@ export {
   UpdateQuestSchema,
   StoreSchema,
   UpdateStoreSchema,
+  UpdateEventSchema,
+  EventSchema,
 };

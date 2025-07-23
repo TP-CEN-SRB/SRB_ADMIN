@@ -15,7 +15,6 @@ type Quest = {
   startDate: Date | null;
   endDate: Date | null;
   createdAt: Date;
-  questType: string;
 };
 
 type GetQuestsResult = {
@@ -43,7 +42,6 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
         rewardPoints: data.rewardPoints,
         startDate: now,
         endDate: endDate,
-        questType: data.questType,
       },
     });
 
@@ -135,7 +133,6 @@ export const updateQuest = async (
         target: data.target,
         materialType: data.materialType,
         rewardPoints: data.rewardPoints,
-        questType: data.questType,
         updatedAt: new Date(),
       },
     });
@@ -164,7 +161,6 @@ export const getQuestById = async (id: string) => {
       startDate: true,
       endDate: true,
       createdAt: true,
-      questType: true,
     },
   });
 };
@@ -208,7 +204,6 @@ export const getQuests = async (
         startDate: true,
         endDate: true,
         createdAt: true,
-        questType: true,
       },
     }),
   ]);

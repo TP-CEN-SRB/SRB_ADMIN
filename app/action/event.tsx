@@ -1,0 +1,166 @@
+"use server";
+
+import prisma from "@/lib/db";
+import { getSessionUser } from "@/utils/getAuth";
+import { EventSchema, UpdateEventSchema } from "@/schemas";
+import { z } from "zod";
+
+// Event type for returned fields (can also be imported from Prisma)
+type Event = {
+  id: string;
+  title: string;
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  createdAt: Date;
+};
+
+type GetEventsResult = {
+  events: Event[];
+  eventCount: number;
+};
+
+export const createEvent = async (data: z.infer<typeof EventSchema>) => {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return { error: "Unauthorized" };
+
+  try {
+    const event = await prisma.event.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      },
+    });
+
+    return { success: "Event created successfully", event };
+  } catch (error) {
+    const err = error as Error;
+    return { error: err.message || "Failed to create event" };
+  }
+};
+
+export const updateEvent = async (
+  id: string,
+  data: z.infer<typeof UpdateEventSchema>
+) => {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return { error: "Unauthorized" };
+
+  try {
+    const updated = await prisma.event.update({
+      where: { id },
+      data: {
+        title: data.title,
+        description: data.description,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        updatedAt: new Date(),
+      },
+    });
+
+    return { success: "Event updated successfully", event: updated };
+  } catch (error) {
+    const err = error as Error;
+    return { error: err.message || "Failed to update event" };
+  }
+};
+
+export const deleteEvent = async (eventId: string) => {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return { error: "Unauthorized" };
+
+  try {
+    await prisma.event.delete({ where: { id: eventId } });
+    return { success: "Event deleted successfully" };
+  } catch (error) {
+    const err = error as Error;
+    return { error: err.message || "Failed to delete event" };
+  }
+};
+
+export const getEventById = async (id: string) => {
+  return await prisma.event.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      startDate: true,
+      endDate: true,
+      createdAt: true,
+    },
+  });
+};
+
+type UserInEvent = {
+  points: number;
+  user: {
+    id: string;
+    name: string | null;
+    email: string;
+    faculty: string;
+  };
+};
+
+export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]> => {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return [];
+
+  const userEvents = await prisma.userEvent.findMany({
+    where: { eventId },
+    select: {
+      points: true,
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          faculty: true,
+        },
+      },
+    },
+  });
+
+  return userEvents;
+};
+
+export const getEvents = async (
+  page: number | null,
+  sortOrder: string | undefined,
+  sortItem: string | undefined
+): Promise<GetEventsResult> => {
+  const user = await getSessionUser();
+  if (user?.role !== "ADMIN") return { eventCount: 0, events: [] };
+
+  const sortableItems = ["title", "startDate", "endDate", "createdAt"];
+  const isInvalidPage = page != null && page < 0;
+  const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder);
+  const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem);
+
+  if (isInvalidPage || isInvalidSortOrder || isInvalidSortItem) {
+    return { eventCount: 0, events: [] };
+  }
+
+  const [eventCount, events] = await Promise.all([
+    prisma.event.count(),
+    prisma.event.findMany({
+      take: page ? 10 : undefined,
+      skip: page ? (page - 1) * 10 : 0,
+      orderBy: sortItem
+        ? { [sortItem]: sortOrder === "asc" ? "asc" : "desc" }
+        : { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  return { eventCount, events };
+};
