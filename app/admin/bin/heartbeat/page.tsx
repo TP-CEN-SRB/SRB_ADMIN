@@ -38,7 +38,7 @@ export default function SmartBinDashboard() {
     };
 
     fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 10000); // every 10s
+    const interval = setInterval(fetchData, 3000); // every 3s
 
     return () => clearInterval(interval);
   }, []);

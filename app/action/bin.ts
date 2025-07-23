@@ -793,6 +793,8 @@ export const updateBinStatus = async (id: string, status: BinStatus) => {
 
 
 
+export const dynamic = "force-dynamic"; 
+
 export const getHeartbeat = async () => {
   const bins = await prisma.bin.findMany({
     select: {
@@ -814,10 +816,11 @@ export const getHeartbeat = async () => {
     },
   });
 
+  const now = new Date();
+
   return bins.map((bin) => {
-    const now = new Date();
     const isOnline = bin.lastHeartBeat
-      ? now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10 // 10 mins
+      ? now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10
       : false;
 
     return {
@@ -829,7 +832,7 @@ export const getHeartbeat = async () => {
       user: {
         name: bin.user.name,
       },
-      lastHeartBeat: bin.lastHeartBeat, 
+      lastHeartBeat: bin.lastHeartBeat,
     };
   });
 };
