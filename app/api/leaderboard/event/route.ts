@@ -38,7 +38,7 @@ export const GET = async (req: NextRequest) => {
       );
     }
 
-    // Step 2: Fetch all participants (including 0 kg)
+    // Step 2: Fetch all participants (including 0 points)
     const participants = await prisma.userQuest.findMany({
       where: {
         questId: eventQuest.id,
@@ -64,11 +64,20 @@ export const GET = async (req: NextRequest) => {
       username: entry.user.name,
       faculty: entry.user.faculty,
       diploma: entry.user.diploma,
-      weight: entry.progress ?? 0,
+      points: entry.progress ?? 0,
     }));
 
-    // Step 4: Sort descending by weight
-    const sorted = leaderboard.sort((a, b) => b.weight - a.weight);
+    // Step 4: Sort descending by points
+    const sorted = leaderboard.sort((a, b) => {
+    if (b.points !== a.points) {
+        return b.points - a.points; // sort by points descending
+    }
+
+    // If points are equal, sort by diploma (case-insensitive)
+    const diplomaA = a.diploma?.toUpperCase() || "";
+    const diplomaB = b.diploma?.toUpperCase() || "";
+    return diplomaA.localeCompare(diplomaB);
+    });
 
     return NextResponse.json({ leaderboard: sorted }, { status: 200 });
   } catch (error) {
