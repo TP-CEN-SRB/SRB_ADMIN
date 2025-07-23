@@ -817,7 +817,7 @@ export const getHeartbeat = async () => {
   return bins.map((bin) => {
     const now = new Date();
     const isOnline = bin.lastHeartBeat
-      ? now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 2 // 2 mins
+      ? now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10 // 10 mins
       : false;
 
     return {

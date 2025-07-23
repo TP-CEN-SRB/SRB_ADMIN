@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip } from "react-tooltip";
-import { publishMqtt, connectMqtt } from "@/lib/mqtt";
+import { publishMqtt } from "@/lib/mqtt";
 
 type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
 
@@ -26,88 +26,24 @@ export default function SmartBinDashboard() {
   const [bins, setBins] = useState<Bin[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("all");
 
-  // Initial fetch
+  // Fetch bins every 10 seconds
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getHeartbeat();
-      setBins(data);
-    };
-    fetchData();
-  }, []);
-
-  // Heartbeat MQTT listener
-  useEffect(() => {
-    const setupMqtt = async () => {
       try {
-        const client = await connectMqtt();
-
-        client.subscribe("srb/heartbeat", (err) => {
-          if (err) console.error("Subscribe error:", err);
-        });
-
-        client.on("message", (topic, message) => {
-          if (topic === "srb/heartbeat") {
-            try {
-              console.log("RAW MQTT MESSAGE:", message.toString());
-              const payload = JSON.parse(message.toString());
-              const binUserId = payload.binid;
-              const material = payload.material;
-
-              console.log("HEARTBEAT RECEIVED:", binUserId, material);
-
-              setBins((prevBins) =>
-                prevBins.map((bin) => {
-                  const isMatch =
-                    bin.userId === binUserId &&
-                    bin.material.toLowerCase() === material.toLowerCase();
-
-                  if (isMatch) {
-                    console.log("MATCHED BIN:", bin.id, bin.material);
-                  }
-
-                  return isMatch
-                    ? {
-                        ...bin,
-                        isOnline: true,
-                        lastHeartBeat: new Date(),
-                      }
-                    : bin;
-                })
-              );
-            } catch (err) {
-              console.error("Invalid heartbeat message:", err);
-            }
-          }
-        });
+        const data = await getHeartbeat();
+        setBins(data);
       } catch (err) {
-        console.error("MQTT connection failed:", err);
+        console.error("Failed to fetch heartbeat data:", err);
       }
     };
 
-    setupMqtt();
-  }, []);
-
-  // Auto-mark offline if no heartbeat for 5 minutes
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setBins((prevBins) =>
-        prevBins.map((bin) => {
-          const last = bin.lastHeartBeat
-            ? new Date(bin.lastHeartBeat).getTime()
-            : 0;
-          const diff = now - last;
-          return {
-            ...bin,
-            isOnline: diff < 300000, // 5 minutes
-          };
-        })
-      );
-    }, 5000);
+    fetchData(); // Initial fetch
+    const interval = setInterval(fetchData, 10000); // every 10s
 
     return () => clearInterval(interval);
   }, []);
 
+  // Filter options
   const userOptions = Array.from(
     new Map(bins.map((b) => [b.userId, b.user.name])).entries()
   ).map(([id, name]) => ({ id, name }));
