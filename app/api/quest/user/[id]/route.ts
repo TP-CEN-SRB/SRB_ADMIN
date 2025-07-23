@@ -45,6 +45,7 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
             target: true,
             rewardPoints: true,
             materialType: true,
+            questType: true, // include quest type
             startDate: true,
             endDate: true,
           },
@@ -57,7 +58,7 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ message: "No quests found for this user!" }, { status: 404 });
     }
 
-    return NextResponse.json({ data: userQuests }, { status: 200 });
+    return NextResponse.json({ quests: userQuests }, { status: 200 });
 
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
