@@ -48,31 +48,35 @@ export default function SmartBinDashboard() {
         });
 
         client.on("message", (topic, message) => {
-          if (topic === "srb/heartbeat") {
-            try {
-              const payload = JSON.parse(message.toString());
-              const binId = payload.binid;
-              const material = payload.material;
+        if (topic === "srb/heartbeat") {
+          try {
+            console.log("RAW MQTT MESSAGE:", message.toString());
+            const payload = JSON.parse(message.toString());
+            const binId = payload.binid;
+            const material = payload.material;
 
-              if (!binId || !material || !isMounted) return;
+            console.log("HEARTBEAT RECEIVED:", binId, material);
 
-              setBins((prevBins) =>
-                prevBins.map((bin) =>
-                  bin.id === binId &&
+            setBins((prevBins) =>
+              prevBins.map((bin) => {
+                if (bin.id === binId) {
+                  console.log("MATCHING BIN:", bin.id, bin.material);
+                }
+                return bin.id === binId &&
                   bin.material.toLowerCase() === material.toLowerCase()
-                    ? {
-                        ...bin,
-                        isOnline: true,
-                        lastHeartBeat: new Date(),
-                      }
-                    : bin
-                )
-              );
-            } catch (err) {
-              console.error("Invalid heartbeat message:", err);
-            }
+                  ? {
+                      ...bin,
+                      isOnline: true,
+                      lastHeartBeat: new Date(),
+                    }
+                  : bin;
+              })
+            );
+          } catch (err) {
+            console.error("Invalid heartbeat message:", err);
           }
-        });
+        }
+      });
       } catch (err) {
         console.error("MQTT connection failed:", err);
       }
