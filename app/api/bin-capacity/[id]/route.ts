@@ -24,15 +24,8 @@ export const PUT = async (
       );
     }
 
-    /**
-     * Expects an array as follows
-     * [
-     *   { "material": "MATERIAL", "binCapacity": VALUE },
-     * ]
-     */
     const data = await req.json();
 
-    // Array of warning emails to send if the capacity > 85
     const emailsToSend: {
       emails: string[];
       binCapacity: number;
@@ -55,9 +48,7 @@ export const PUT = async (
                 where: { name: material.toUpperCase() },
               });
 
-              if (!binMaterial) {
-                return;
-              }
+              if (!binMaterial) return;
 
               const bin = await transaction.bin.findUnique({
                 where: {
@@ -70,17 +61,13 @@ export const PUT = async (
                 include: { binMaterial: true, user: true },
               });
 
-              if (!bin) {
-                return;
-              }
+              if (!bin) return;
 
-              // Update the bin's capacity
               await transaction.bin.update({
                 where: { id: bin.id },
                 data: { currentCapacity: parseFloat(binCapacity.toFixed(2)) },
               });
 
-              // Populate the email array if bin is almost full and warning email has not been sent
               if (binCapacity > 85 && !bin.emailSent) {
                 const subscriptions = await transaction.subscription.findMany({
                   where: { userId: bin.userId },
@@ -88,9 +75,7 @@ export const PUT = async (
 
                 if (subscriptions.length > 0) {
                   emailsToSend.push({
-                    emails: subscriptions.map(
-                      (subscription) => subscription.email
-                    ),
+                    emails: subscriptions.map((s) => s.email),
                     binCapacity,
                     material: bin.binMaterial.name,
                     location: bin.user.location as string,
@@ -103,7 +88,6 @@ export const PUT = async (
                 }
               }
 
-              // Clear the email flag if bin is cleared and warning email was sent previously
               if (binCapacity < 85 && bin.emailSent) {
                 await transaction.bin.update({
                   where: { id: bin.id },
@@ -115,12 +99,11 @@ export const PUT = async (
         );
       },
       {
-        maxWait: 5000, // 5 seconds max wait to connect to prisma
-        timeout: 20000, // 20 seconds
+        maxWait: 5000,
+        timeout: 20000,
       }
     );
 
-    // Send emails outside the transaction
     await Promise.all(
       emailsToSend.map(({ emails, binCapacity, material, location }) =>
         sendBinWarningEmail(emails, binCapacity, material, location)
@@ -137,6 +120,49 @@ export const PUT = async (
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
+      { status: 500 }
+    );
+  }
+};
+
+// 🆕 GET method to fetch bin capacity for IdleVideo
+export const GET = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    const id = params.id;
+    const { searchParams } = new URL(req.url);
+    const material = searchParams.get("material");
+
+    const bin = await prisma.bin.findFirst({
+      where: {
+        userId: id,
+        status: "FUNCTIONAL",
+        ...(material && {
+          binMaterial: {
+            name: material.toUpperCase(),
+          },
+        }),
+      },
+      include: { binMaterial: true },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    if (!bin) {
+      return NextResponse.json({ percentage: 0 }, { status: 200 });
+    }
+
+    return NextResponse.json(
+      {
+        percentage: bin.currentCapacity,
+        material: bin.binMaterial.name,
+      },
+      { status: 200 }
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { message: "Failed to get bin capacity" },
       { status: 500 }
     );
   }
