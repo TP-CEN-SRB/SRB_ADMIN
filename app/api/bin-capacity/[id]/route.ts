@@ -132,37 +132,29 @@ export const GET = async (
 ) => {
   try {
     const id = params.id;
-    const { searchParams } = new URL(req.url);
-    const material = searchParams.get("material");
 
-    const bin = await prisma.bin.findFirst({
+    const bins = await prisma.bin.findMany({
       where: {
         userId: id,
         status: "FUNCTIONAL",
-        ...(material && {
-          binMaterial: {
-            name: material.toUpperCase(),
-          },
-        }),
       },
-      include: { binMaterial: true },
-      orderBy: { updatedAt: "desc" },
+      include: {
+        binMaterial: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
     });
 
-    if (!bin) {
-      return NextResponse.json({ percentage: 0 }, { status: 200 });
-    }
+    const result = bins.map((bin) => ({
+      material: bin.binMaterial.name,
+      percentage: bin.currentCapacity,
+    }));
 
-    return NextResponse.json(
-      {
-        percentage: bin.currentCapacity,
-        material: bin.binMaterial.name,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(result, { status: 200 });
   } catch (err) {
     return NextResponse.json(
-      { message: "Failed to get bin capacity" },
+      { message: "Failed to get bin capacities" },
       { status: 500 }
     );
   }
