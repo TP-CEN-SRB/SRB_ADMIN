@@ -1,30 +1,7 @@
-import nodemailer from "nodemailer";
-import dns from "dns/promises";
+// lib/emailService.ts
+import { sendEmail } from "@/lib/email"; // Resend wrapper
 
-// 🔧 Force IPv4 address resolution for Gmail
-const resolveIPv4GmailHost = async () => {
-  const { address } = await dns.lookup("smtp.gmail.com", { family: 4 });
-  return address;
-};
-
-// 📩 Create reusable transporter with forced IPv4 and debug logging
-const createIPv4Transporter = async () => {
-  const host = await resolveIPv4GmailHost();
-
-  return nodemailer.createTransport({
-    host,
-    port: 465, // Gmail SSL
-    secure: true,
-    auth: {
-      user: process.env.NEXT_PUBLIC_PERSONAL_EMAIL,
-      pass: process.env.NEXT_PUBLIC_EMAIL_PASSWORD,
-    },
-    logger: true,
-    debug: true,
-  });
-};
-
-// ✉️ Email Template - Verification / Reset
+// 🔗 Email Templates
 const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
   return `
 <!DOCTYPE html>
@@ -34,69 +11,29 @@ const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${type === "RESET" ? "Reset Password" : "Verify Email"}</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background-color: #fff;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      color: #333;
-    }
-    p {
-      color: #555;
-    }
-    .btn {
-      display: inline-block;
-      padding: 12px 24px;
-      background-color: #007bff;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      margin-top: 20px;
-    }
-    .btn:hover {
-      background-color: #3399ff;
-    }
-    .footer {
-      margin-top: 30px;
-      font-size: 12px;
-      color: #999;
-    }
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+    h1 { color: #333; }
+    p { color: #555; }
+    .btn { display: inline-block; padding: 12px 24px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 20px; }
+    .btn:hover { background-color: #3399ff; }
+    .footer { margin-top: 30px; font-size: 12px; color: #999; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Hello,</h1>
-    <p>
-      We received a request to ${
-        type === "RESET" ? "reset your password" : "verify your email address"
-      }.
-      If you made this request, please click the link below:
-    </p>
-    <a href="${link}" class="btn">
-      ${type === "RESET" ? "Reset Password" : "Verify Email"}
-    </a>
-    <p>If you didn't request this, you can safely ignore this email.</p>
-    <div class="footer">
-      <p>Thank you,<br />Temasek Polytechnic CEN</p>
-    </div>
+    <p>We received a request to ${
+      type === "RESET" ? "reset your password" : "verify your email address"
+    }. If you made this request, please click the link below:</p>
+    <a href="${link}" class="btn">${type === "RESET" ? "Reset Password" : "Verify Email"}</a>
+    <p>If you didn't request this, you can ignore this email.</p>
+    <div class="footer"><p>Thank you,<br>Temasek Polytechnic CEN</p></div>
   </div>
 </body>
-</html>
-`;
+</html>`;
 };
 
-// ⚠️ Bin Warning Template
 const warningEmailTemplate = (
   binCapacity: number,
   material: string,
@@ -110,105 +47,75 @@ const warningEmailTemplate = (
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bin Capacity Warning</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 40px auto;
-      background-color: #fff;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      color: #333;
-    }
-    p {
-      color: #555;
-    }
-    .footer {
-      margin-top: 30px;
-      font-size: 12px;
-      color: #999;
-    }
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background-color: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); }
+    h1 { color: #333; }
+    p { color: #555; }
+    .footer { margin-top: 30px; font-size: 12px; color: #999; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Hello,</h1>
-    <p>
-      Please be informed that the <b>${material}</b> bin at
-      <b>${location ?? "unknown location"}</b> is currently
-      <b>${binCapacity.toFixed(2)}%</b> full.
-    </p>
-    <p>You may proceed to the location to empty the bin.</p>
-    <div class="footer">
-      <p>Thank you,<br />Temasek Polytechnic CEN</p>
-    </div>
+    <p>The <b>${material}</b> bin at <b>${location ?? "Unknown Location"}</b> is currently <b>${binCapacity.toFixed(2)}%</b> full.</p>
+    <p>Please proceed to clear it as soon as possible.</p>
+    <div class="footer"><p>Thank you,<br>Temasek Polytechnic CEN</p></div>
   </div>
 </body>
-</html>
-`;
+</html>`;
 };
 
-// ✅ Send Verification Email
-export const sendVerificationEmail = async (
-  email: string,
-  token: string
-) => {
-  const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
+export const sendVerificationEmail = async (email: string, token: string) => {
+  const link = `${process.env.BASE_URL}/new-verification?token=${token}`;
+  const html = emailTemplate(link, "VERIFY");
+
   try {
-    const transporter = await createIPv4Transporter();
-    await transporter.sendMail({
-      from: `Temasek Polytechnic CEN <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
+    console.time("sendVerificationEmail");
+    await sendEmail({
       to: email,
-      subject: "[Smart Bin System] Account verification",
-      html: emailTemplate(confirmLink, "VERIFY"),
+      subject: "[Smart Bin System] Account Verification",
+      html,
     });
+    console.timeEnd("sendVerificationEmail");
   } catch (error) {
-    console.error("Error sending verification email:", error);
+    console.error("❌ Verification email failed:", error);
   }
 };
 
-// ✅ Send Password Reset Email
-export const sendPasswordResetEmail = async (
-  email: string,
-  token: string
-) => {
-  const resetLink = `${process.env.BASE_URL}/new-password?token=${token}`;
+export const sendPasswordResetEmail = async (email: string, token: string) => {
+  const link = `${process.env.BASE_URL}/new-password?token=${token}`;
+  const html = emailTemplate(link, "RESET");
+
   try {
-    const transporter = await createIPv4Transporter();
-    await transporter.sendMail({
-      from: `Temasek Polytechnic CEN <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
+    console.time("sendPasswordResetEmail");
+    await sendEmail({
       to: email,
-      subject: "[Smart Bin System] Reset password",
-      html: emailTemplate(resetLink, "RESET"),
+      subject: "[Smart Bin System] Reset Password",
+      html,
     });
+    console.timeEnd("sendPasswordResetEmail");
   } catch (error) {
-    console.error("Error sending reset email:", error);
+    console.error("❌ Password reset email failed:", error);
   }
 };
 
-// ✅ Send Bin Capacity Warning
 export const sendBinWarningEmail = async (
-  email: string[],
+  emails: string[],
   binCapacity: number,
   material: string,
   location: string | null
 ) => {
+  const html = warningEmailTemplate(binCapacity, material, location);
+
   try {
-    const transporter = await createIPv4Transporter();
-    await transporter.sendMail({
-      from: `Temasek Polytechnic CEN <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
-      to: email,
-      subject: "[Smart Bin System] Bin Capacity Information",
-      html: warningEmailTemplate(binCapacity, material, location),
+    console.time("sendBinWarningEmail");
+    await sendEmail({
+      to: emails,
+      subject: "[Smart Bin System] Bin Capacity Warning",
+      html,
     });
+    console.timeEnd("sendBinWarningEmail");
   } catch (error) {
-    console.error("Error sending bin warning email:", error);
+    console.error("❌ Bin warning email failed:", error);
   }
 };
