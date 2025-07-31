@@ -1,4 +1,6 @@
 // lib/email.ts
+"use server";
+
 import { Resend } from "resend";
 
 // Initialize Resend with API key from environment
