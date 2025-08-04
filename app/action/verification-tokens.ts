@@ -3,29 +3,10 @@
 import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 
-// 🔐 Safe Base64URL decode to support Outlook-escaped links
-function decodeBase64UrlSafe(token: string): string {
-  try {
-    const base64 = token.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + (4 - (base64.length % 4)) % 4, "=");
-    return Buffer.from(padded, "base64").toString("utf8");
-  } catch (err) {
-    console.error("[verifyToken] Failed to decode token:", err);
-    return ""; // fallback will be triggered
-  }
-}
-
-const verifyToken = async (incomingToken: string) => {
-  if (!incomingToken) {
+const verifyToken = async (token: string) => {
+  if (!token) {
     console.error("[verifyToken] No token received.");
     return { error: "Something went wrong!" };
-  }
-
-  // 🧩 Try decoding — fallback to raw if it fails
-  let token = decodeBase64UrlSafe(incomingToken);
-  if (!token || token.trim() === "") {
-    console.warn("[verifyToken] Base64 decode failed or empty. Using raw token.");
-    token = incomingToken;
   }
 
   console.log("[verifyToken] Using token:", token);
