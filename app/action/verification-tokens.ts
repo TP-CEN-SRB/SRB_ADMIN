@@ -16,30 +16,43 @@ function decodeBase64UrlSafe(token: string): string {
 }
 
 const verifyToken = async (incomingToken: string) => {
-  if (!incomingToken) return { error: "Something went wrong!" };
+  if (!incomingToken) {
+    console.error("[verifyToken] No token received.");
+    return { error: "Something went wrong!" };
+  }
 
   // 🧩 Try decoding — fallback to raw if it fails
   let token = decodeBase64UrlSafe(incomingToken);
-  if (!token || token.trim() === "") token = incomingToken;
+  if (!token || token.trim() === "") {
+    console.warn("[verifyToken] Base64 decode failed or empty. Using raw token.");
+    token = incomingToken;
+  }
+
+  console.log("[verifyToken] Using token:", token);
 
   const existingToken = await getVerificationTokenByToken(token);
   if (!existingToken) {
+    console.warn("[verifyToken] Token not found in DB.");
     return { error: "Oops! This link may have already been used" };
   }
 
   const hasExpired = new Date(existingToken.expires) < new Date();
   if (hasExpired) {
+    console.warn("[verifyToken] Token expired.");
     return { error: "Oops! This link has expired" };
   }
 
   // ✅ Email update (e.g. from settings)
   if (existingToken.oldEmail) {
+    console.log("[verifyToken] Performing email update from", existingToken.oldEmail, "→", existingToken.email);
+
     await prisma.user.update({
       where: { email: existingToken.oldEmail },
       data: { email: existingToken.email },
     });
 
     await prisma.verificationToken.delete({ where: { id: existingToken.id } });
+
     return { success: "Your email has been updated!" };
   }
 
@@ -48,7 +61,10 @@ const verifyToken = async (incomingToken: string) => {
     where: { email: existingToken.email },
   });
 
-  if (!existingUser) return { error: "Something went wrong!" };
+  if (!existingUser) {
+    console.error("[verifyToken] User with email not found:", existingToken.email);
+    return { error: "Something went wrong!" };
+  }
 
   const verifiedUser = await prisma.user.update({
     where: { id: existingUser.id },
@@ -73,6 +89,8 @@ const verifyToken = async (incomingToken: string) => {
   }
 
   await prisma.verificationToken.delete({ where: { id: existingToken.id } });
+
+  console.log("[verifyToken] Verification success for:", verifiedUser.email);
 
   return { success: "Your email has been verified and quests assigned!" };
 };
