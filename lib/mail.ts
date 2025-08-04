@@ -17,7 +17,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ✨ Styled HTML template + plain text fallback
+// ✨ Styled HTML + fallback text
 const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
   const action = type === "RESET" ? "reset your password" : "verify your email address";
   const button = type === "RESET" ? "Reset Password" : "Verify Email";
@@ -53,10 +53,10 @@ const warningEmailTemplate = (binCapacity: number, material: string, location: s
   text: `The ${material} bin at ${location} is currently ${binCapacity.toFixed(2)}% full.\n\nPlease clear the bin.\n\n- Temasek Polytechnic CEN`
 });
 
-// ✅ Verification email with Base64-URL encoded token
+// ✅ Email Verification
 export const sendVerificationEmail = async (email: string, token: string) => {
   const encodedToken = base64UrlEncode(token);
-  const link = `${process.env.BASE_URL}/new-verification?token=${token}`;
+  const link = `${process.env.BASE_URL}/new-verification?token=${encodedToken}`; // encoded token in URL
   const content = emailTemplate(link, "VERIFY");
 
   try {
@@ -76,10 +76,10 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   }
 };
 
-// ✅ Password reset email with Base64-URL encoded token
+// ✅ Password Reset
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   const encodedToken = base64UrlEncode(token);
-  const link = `${process.env.BASE_URL}/new-password?token=${token}`;
+  const link = `${process.env.BASE_URL}/new-password?token=${encodedToken}`;
   const content = emailTemplate(link, "RESET");
 
   try {
@@ -99,7 +99,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   }
 };
 
-// ✅ Bin warning email (unchanged)
+// ✅ Bin Capacity Warning
 export const sendBinWarningEmail = async (
   email: string[],
   binCapacity: number,
