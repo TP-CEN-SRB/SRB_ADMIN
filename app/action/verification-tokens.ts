@@ -3,20 +3,41 @@
 import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 
-const verifyToken = async (token: string) => {
-  if (!token) return { error: "Something went wrong!" };
+// 🔐 Base64 URL decode fallback for Outlook links
+function decodeBase64UrlSafe(token: string): string {
+  try {
+    const padded = token.padEnd(token.length + (4 - (token.length % 4)) % 4, "=")
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    return Buffer.from(padded, "base64").toString("utf8");
+  } catch (err) {
+    console.error("[verifyToken] Base64 decode failed:", err);
+    return "";
+  }
+}
+
+const verifyToken = async (incomingToken: string) => {
+  if (!incomingToken) return { error: "Something went wrong!" };
+
+  // 🌐 Try decoding first — fallback to raw token if decoding fails
+  let token = decodeBase64UrlSafe(incomingToken);
+  if (!token || token.trim() === "") {
+    token = incomingToken;
+  }
 
   const existingToken = await getVerificationTokenByToken(token);
-  if (!existingToken)
+  if (!existingToken) {
     return {
       error: "Oops! This link may have already been used",
     };
+  }
 
   const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired)
+  if (hasExpired) {
     return {
       error: "Oops! This link has expired",
     };
+  }
 
   // ✅ Email update case
   if (existingToken.oldEmail) {
@@ -45,11 +66,11 @@ const verifyToken = async (token: string) => {
     },
     data: {
       emailVerified: new Date(),
-      email: existingToken.email, // needed when user updates email in settings
+      email: existingToken.email,
     },
   });
 
-  // ✅ Assign all quests after verification
+  // ✅ Assign all quests
   const allQuests = await prisma.questDetails.findMany();
 
   if (allQuests.length > 0) {
@@ -60,7 +81,7 @@ const verifyToken = async (token: string) => {
         progress: 0,
         isCompleted: false,
       })),
-      skipDuplicates: true, // avoid duplicates if somehow already added
+      skipDuplicates: true,
     });
   }
 
