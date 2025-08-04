@@ -56,7 +56,7 @@ const warningEmailTemplate = (binCapacity: number, material: string, location: s
 // ✅ Verification email with Base64-URL encoded token
 export const sendVerificationEmail = async (email: string, token: string) => {
   const encodedToken = base64UrlEncode(token);
-  const link = `${process.env.BASE_URL}/new-verification?token=${encodedToken}`;
+  const link = `${process.env.BASE_URL}/new-verification?token=${token}`;
   const content = emailTemplate(link, "VERIFY");
 
   try {
@@ -79,7 +79,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 // ✅ Password reset email with Base64-URL encoded token
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   const encodedToken = base64UrlEncode(token);
-  const link = `${process.env.BASE_URL}/new-password?token=${encodedToken}`;
+  const link = `${process.env.BASE_URL}/new-password?token=${token}`;
   const content = emailTemplate(link, "RESET");
 
   try {
