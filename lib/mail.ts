@@ -1,5 +1,14 @@
 import nodemailer from "nodemailer";
 
+// ✅ Base64-URL encode helper
+function base64UrlEncode(str: string) {
+  return Buffer.from(str)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -44,9 +53,10 @@ const warningEmailTemplate = (binCapacity: number, material: string, location: s
   text: `The ${material} bin at ${location} is currently ${binCapacity.toFixed(2)}% full.\n\nPlease clear the bin.\n\n- Temasek Polytechnic CEN`
 });
 
-// ✅ Verification email
+// ✅ Verification email with Base64-URL encoded token
 export const sendVerificationEmail = async (email: string, token: string) => {
-  const link = `${process.env.BASE_URL}/new-verification?token=${token}`;
+  const encodedToken = base64UrlEncode(token);
+  const link = `${process.env.BASE_URL}/new-verification?token=${encodedToken}`;
   const content = emailTemplate(link, "VERIFY");
 
   try {
@@ -66,9 +76,10 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   }
 };
 
-// ✅ Password reset email
+// ✅ Password reset email with Base64-URL encoded token
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  const link = `${process.env.BASE_URL}/new-password?token=${token}`;
+  const encodedToken = base64UrlEncode(token);
+  const link = `${process.env.BASE_URL}/new-password?token=${encodedToken}`;
   const content = emailTemplate(link, "RESET");
 
   try {
@@ -88,7 +99,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   }
 };
 
-// ✅ Bin full warning email
+// ✅ Bin warning email (unchanged)
 export const sendBinWarningEmail = async (
   email: string[],
   binCapacity: number,
