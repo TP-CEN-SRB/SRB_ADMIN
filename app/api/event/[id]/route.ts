@@ -30,11 +30,11 @@ export const GET = async (
       );
     }
 
+    // Get all events this user has joined (via userEvent)
     const userEvents = await prisma.userEvent.findMany({
       where: { userId: requestedUserId },
       select: {
         id: true,
-        points: true,
         eventId: true,
         event: {
           select: {
@@ -55,7 +55,35 @@ export const GET = async (
       );
     }
 
-    return NextResponse.json({ events: userEvents }, { status: 200 });
+    // For each event, calculate total disposal points within its date range
+    const enrichedEvents = await Promise.all(
+      userEvents.map(async (ue) => {
+        const totalPoints = await prisma.disposal.aggregate({
+          where: {
+            userId: requestedUserId,
+            createdAt: {
+              gte: ue.event.startDate,
+              lte: ue.event.endDate,
+            },
+          },
+          _sum: {
+            pointsAwarded: true,
+          },
+        });
+
+        return {
+          userEventId: ue.id,
+          eventId: ue.eventId,
+          title: ue.event.title,
+          description: ue.event.description,
+          startDate: ue.event.startDate,
+          endDate: ue.event.endDate,
+          points: totalPoints._sum.pointsAwarded ?? 0,
+        };
+      })
+    );
+
+    return NextResponse.json({ events: enrichedEvents }, { status: 200 });
 
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
