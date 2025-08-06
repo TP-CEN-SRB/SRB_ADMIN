@@ -103,6 +103,7 @@ model Disposal {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   carbonprint   Float    @default(0.0)
+  queueId       String   @default("0")      
   bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
