@@ -6,75 +6,23 @@ import { MqttClient } from "mqtt";
 import { useEffect, useState } from "react";
 import {
   FaHeartbeat,
-  FaCamera,
-  FaServer,
-  FaTrash,
+  FaBatteryFull,
+  FaPowerOff,
+  FaClock,
 } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
 import { Tooltip } from "react-tooltip";
 import { publishMqtt, connectMqtt } from "@/lib/mqtt";
-import { FaBatteryFull, FaPowerOff, FaClock } from "react-icons/fa";
-
-type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
-
 import { toast } from "@/hooks/use-toast";
 
-const handleMqttCommand = async (command: "on" | "off" | "time") => {
-  if (!MqttClient) {
-    toast({
-      title: "MQTT Not Connected",
-      description: "Client is not connected to the broker.",
-      variant: "default", 
-    });
-    return;
-  }
-
-  const topic = "srb/power";
-  const payload = JSON.stringify({ command });
-
-  try {
-  
-    toast({
-      title: `Sending "${command}"...`,
-      description: "Sending command to SRB Power system.",
-      variant: "default",
-    });
-
-    const success = await publishMqtt(topic, payload);
-
-    if (success) {
-      toast({
-        title: "Command Sent",
-        description:
-          command === "on"
-            ? "System switched to manual ON mode."
-            : command === "off"
-            ? "System switched to manual OFF mode."
-            : "System switched to RTC time-managed mode.",
-        variant: "default", 
-      });
-    } else {
-      toast({
-        title: "MQTT Error",
-        description: `Failed to send "${command}".`,
-        variant: "destructive",
-      });
-    }
-  } catch (err) {
-    console.error("MQTT Publish Error:", err);
-    toast({
-      title: "Unexpected Error",
-      description: `Something went wrong sending "${command}".`,
-      variant: "destructive",
-    });
-  }
-};
+type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
 
 export default function SmartBinDashboard() {
   const [bins, setBins] = useState<Bin[]>([]);
   const [selectedUserId, setSelectedUserId] = useState("all");
   const [mqttClient, setMqttClient] = useState<MqttClient | null>(null);
 
+  // Connect MQTT
   useEffect(() => {
     const init = async () => {
       const client = await connectMqtt();
@@ -83,7 +31,7 @@ export default function SmartBinDashboard() {
     init();
   }, []);
 
-  // Fetch bins every 10 seconds
+  // Fetch heartbeat data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -94,13 +42,62 @@ export default function SmartBinDashboard() {
       }
     };
 
-    fetchData(); // Initial fetch
+    fetchData();
     const interval = setInterval(fetchData, 3000); // every 3s
-
     return () => clearInterval(interval);
   }, []);
 
-  // Filter options
+  // Handle MQTT Commands
+  const handleMqttCommand = async (command: "on" | "off" | "time") => {
+    if (!mqttClient) {
+      toast({
+        title: "MQTT Not Connected",
+        description: "Client is not connected to the broker.",
+        variant: "default",
+      });
+      return;
+    }
+
+    const topic = "srb/power";
+    const payload = JSON.stringify({ command });
+
+    try {
+      toast({
+        title: `Sending "${command}"...`,
+        description: "Sending command to SRB Power system.",
+        variant: "default",
+      });
+
+      const success = await publishMqtt(topic, payload);
+
+      if (success) {
+        toast({
+          title: "Command Sent",
+          description:
+            command === "on"
+              ? "System switched to manual ON mode."
+              : command === "off"
+              ? "System switched to manual OFF mode."
+              : "System switched to RTC time-managed mode.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "MQTT Error",
+          description: `Failed to send "${command}".`,
+          variant: "destructive",
+        });
+      }
+    } catch (err) {
+      console.error("MQTT Publish Error:", err);
+      toast({
+        title: "Unexpected Error",
+        description: `Something went wrong sending "${command}".`,
+        variant: "destructive",
+      });
+    }
+  };
+
   const userOptions = Array.from(
     new Map(bins.map((b) => [b.userId, b.user.name])).entries()
   ).map(([id, name]) => ({ id, name }));
@@ -172,52 +169,51 @@ export default function SmartBinDashboard() {
         })}
       </div>
 
-  
-
       {/* Divider */}
       <hr className="my-8 border-gray-300" />
-        {/* Remote Power Controls */}
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300">
-          <h2 className="text-xl font-semibold mb-4">Remote Power Controls</h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            {/* ON */}
-            <div>
-              <FaBatteryFull className="text-3xl mx-auto mb-1 text-green-600" />
-              <div className="text-sm font-medium mb-2">Manual On</div>
-              <button
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full"
-                onClick={() => handleMqttCommand("on")}
-              >
-                ON
-              </button>
-            </div>
+      {/* Remote Power Controls */}
+      <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300">
+        <h2 className="text-xl font-semibold mb-4">Remote Power Controls</h2>
 
-            {/* OFF */}
-            <div>
-              <FaPowerOff className="text-3xl mx-auto mb-1 text-red-600" />
-              <div className="text-sm font-medium mb-2">Manual Off</div>
-              <button
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 w-full"
-                onClick={() => handleMqttCommand("off")}
-              >
-                OFF
-              </button>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+          {/* ON */}
+          <div>
+            <FaBatteryFull className="text-3xl mx-auto mb-1 text-green-600" />
+            <div className="text-sm font-medium mb-2">Manual On</div>
+            <button
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full"
+              onClick={() => handleMqttCommand("on")}
+            >
+              ON
+            </button>
+          </div>
 
-            {/* TIME MODE */}
-            <div>
-              <FaClock className="text-3xl mx-auto mb-1 text-blue-600" />
-              <div className="text-sm font-medium mb-2">RTC Time Mode</div>
-              <button
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full"
-                onClick={() => handleMqttCommand("time")}
-              >
-                TIME MODE
-              </button>
-            </div>
+          {/* OFF */}
+          <div>
+            <FaPowerOff className="text-3xl mx-auto mb-1 text-red-600" />
+            <div className="text-sm font-medium mb-2">Manual Off</div>
+            <button
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 w-full"
+              onClick={() => handleMqttCommand("off")}
+            >
+              OFF
+            </button>
+          </div>
+
+          {/* TIME MODE */}
+          <div>
+            <FaClock className="text-3xl mx-auto mb-1 text-blue-600" />
+            <div className="text-sm font-medium mb-2">RTC Time Mode</div>
+            <button
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full"
+              onClick={() => handleMqttCommand("time")}
+            >
+              TIME MODE
+            </button>
           </div>
         </div>
+      </div>
     </div>
   );
 }
