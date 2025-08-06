@@ -1,19 +1,19 @@
 "use client";
 
 export const dynamic = "force-dynamic";
-import { getHeartbeat } from "@/app/action/bin";
+import { useState, useEffect } from "react";
 import { MqttClient } from "mqtt";
-import { useEffect, useState } from "react";
+import { getHeartbeat } from "@/app/action/bin";
+import { publishMqtt, connectMqtt } from "@/lib/mqtt";
+import { toast } from "@/hooks/use-toast";
 import {
   FaHeartbeat,
   FaBatteryFull,
   FaPowerOff,
   FaClock,
 } from "react-icons/fa";
-import { formatDistanceToNow } from "date-fns";
 import { Tooltip } from "react-tooltip";
-import { publishMqtt, connectMqtt } from "@/lib/mqtt";
-import { toast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from "date-fns";
 
 type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
 
@@ -22,7 +22,6 @@ export default function SmartBinDashboard() {
   const [selectedUserId, setSelectedUserId] = useState("all");
   const [mqttClient, setMqttClient] = useState<MqttClient | null>(null);
 
-  // Connect MQTT
   useEffect(() => {
     const init = async () => {
       const client = await connectMqtt();
@@ -31,7 +30,6 @@ export default function SmartBinDashboard() {
     init();
   }, []);
 
-  // Fetch heartbeat data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,11 +41,10 @@ export default function SmartBinDashboard() {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 3000); // every 3s
+    const interval = setInterval(fetchData, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  // Handle MQTT Commands
   const handleMqttCommand = async (command: "on" | "off" | "time") => {
     if (!mqttClient) {
       toast({
@@ -63,7 +60,7 @@ export default function SmartBinDashboard() {
 
     try {
       toast({
-        title: `Sending "${command}"...`,
+        title: `Sending \"${command}\"...`,
         description: "Sending command to SRB Power system.",
         variant: "default",
       });
@@ -84,7 +81,7 @@ export default function SmartBinDashboard() {
       } else {
         toast({
           title: "MQTT Error",
-          description: `Failed to send "${command}".`,
+          description: `Failed to send \"${command}\".`,
           variant: "destructive",
         });
       }
@@ -92,7 +89,7 @@ export default function SmartBinDashboard() {
       console.error("MQTT Publish Error:", err);
       toast({
         title: "Unexpected Error",
-        description: `Something went wrong sending "${command}".`,
+        description: `Something went wrong sending \"${command}\".`,
         variant: "destructive",
       });
     }
@@ -111,7 +108,6 @@ export default function SmartBinDashboard() {
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Smart Bin Dashboard</h1>
 
-      {/* Dropdown Filter */}
       <div className="mb-4">
         <label htmlFor="user-filter" className="mr-2 font-medium">
           Filter by Bin Owner:
@@ -131,7 +127,6 @@ export default function SmartBinDashboard() {
         </select>
       </div>
 
-      {/* Bin Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredBins.map((bin) => {
           const statusText = bin.isOnline ? "Online" : "Offline";
@@ -158,7 +153,7 @@ export default function SmartBinDashboard() {
 
               {bin.lastHeartBeat && (
                 <div className="text-xs text-gray-500 mt-1">
-                  Last seen{" "}
+                  Last seen {" "}
                   {formatDistanceToNow(new Date(bin.lastHeartBeat), {
                     addSuffix: true,
                   })}
@@ -169,15 +164,12 @@ export default function SmartBinDashboard() {
         })}
       </div>
 
-      {/* Divider */}
       <hr className="my-8 border-gray-300" />
 
-      {/* Remote Power Controls */}
       <div className="bg-white p-6 rounded-xl shadow-md border border-gray-300">
         <h2 className="text-xl font-semibold mb-4">Remote Power Controls</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          {/* ON */}
           <div>
             <FaBatteryFull className="text-3xl mx-auto mb-1 text-green-600" />
             <div className="text-sm font-medium mb-2">Manual On</div>
@@ -189,7 +181,6 @@ export default function SmartBinDashboard() {
             </button>
           </div>
 
-          {/* OFF */}
           <div>
             <FaPowerOff className="text-3xl mx-auto mb-1 text-red-600" />
             <div className="text-sm font-medium mb-2">Manual Off</div>
@@ -201,7 +192,6 @@ export default function SmartBinDashboard() {
             </button>
           </div>
 
-          {/* TIME MODE */}
           <div>
             <FaClock className="text-3xl mx-auto mb-1 text-blue-600" />
             <div className="text-sm font-medium mb-2">RTC Time Mode</div>
