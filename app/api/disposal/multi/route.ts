@@ -15,12 +15,17 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
     }
 
-    const { userId, disposals }: { userId: string; disposals: { material: string; weightInGrams: number }[] } =
-      await req.json();
+    const {
+      userId,
+      disposals,
+    }: { userId: string; disposals: { material: string; weightInGrams: number }[] } = await req.json();
 
     if (!userId || !Array.isArray(disposals) || disposals.length === 0) {
       return NextResponse.json({ message: "Missing or invalid disposal payload!" }, { status: 400 });
     }
+
+    // ✅ Step 1: Create a DisposalQueue
+    const queue = await prisma.disposalQueue.create({ data: {} });
 
     const allResults = [];
     let totalPoints = 0;
@@ -69,16 +74,19 @@ export const POST = async (req: NextRequest) => {
       const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
       const pointsAwarded = Math.floor(weightInGrams * binMaterial.multiplier);
 
+      // ✅ Step 2: Create disposal with queueId
       const disposal = await prisma.disposal.create({
         data: {
           weightInGrams,
           binId: bin.id,
           carbonprint: carbonPrint,
           pointsAwarded,
+          queueId: queue.id,
+          userId,
         },
       });
 
-      // Add disposal points to active event
+      // 🟢 Add disposal points to active event
       const now = new Date();
       const activeEvent = await prisma.userEvent.findFirst({
         where: {
@@ -104,6 +112,7 @@ export const POST = async (req: NextRequest) => {
 
       totalPoints += pointsAwarded;
       totalCarbon += carbonPrint;
+
       allResults.push({
         id: disposal.id,
         material: binMaterial.name,
@@ -115,6 +124,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json(
       {
         message: "Multi-disposal recorded",
+        queueId: queue.id, // ✅ include this for QR usage
         totalDisposals: allResults.length,
         totalPoints,
         totalCarbonprint: totalCarbon.toFixed(2),

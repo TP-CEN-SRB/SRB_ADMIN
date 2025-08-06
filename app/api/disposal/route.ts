@@ -58,7 +58,6 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
-// sent by locally hosted bin
 export const POST = async (req: NextRequest) => {
   try {
     const token = req.headers.get("Authorization")?.split(" ")[1];
@@ -138,6 +137,9 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
+    // ✅ Create a new disposal queue
+    const queue = await prisma.disposalQueue.create({ data: {} });
+
     const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
     const pointsAwarded = Math.floor(weightInGrams * binMaterial.multiplier);
 
@@ -147,6 +149,8 @@ export const POST = async (req: NextRequest) => {
         binId: bin.id,
         carbonprint: carbonPrint,
         pointsAwarded,
+        queueId: queue.id,
+        userId,
       },
     });
 

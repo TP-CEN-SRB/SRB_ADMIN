@@ -17,7 +17,10 @@ export const GET = async (
 
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decodedToken === "string") {
-      return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
     }
 
     const decodedUserId = (decodedToken as { userId: string }).userId;
@@ -30,60 +33,48 @@ export const GET = async (
       );
     }
 
-    // Get all events this user has joined (via userEvent)
-    const userEvents = await prisma.userEvent.findMany({
-      where: { userId: requestedUserId },
+    const events = await prisma.event.findMany({
+      orderBy: { startDate: "desc" },
       select: {
         id: true,
-        eventId: true,
-        event: {
-          select: {
-            title: true,
-            description: true,
-            startDate: true,
-            endDate: true,
-          },
-        },
+        title: true,
+        description: true,
+        startDate: true,
+        endDate: true,
       },
-      orderBy: { event: { startDate: "desc" } },
     });
 
-    if (userEvents.length === 0) {
-      return NextResponse.json(
-        { message: "No events found for this user!" },
-        { status: 404 }
-      );
+    if (!events || events.length === 0) {
+      return NextResponse.json({ message: "No events found!" }, { status: 404 });
     }
 
-    // For each event, calculate total disposal points within its date range
-    const enrichedEvents = await Promise.all(
-      userEvents.map(async (ue) => {
+    const results = await Promise.all(
+      events.map(async (event) => {
         const totalPoints = await prisma.disposal.aggregate({
+          _sum: {
+            pointsAwarded: true,
+          },
           where: {
             userId: requestedUserId,
             createdAt: {
-              gte: ue.event.startDate,
-              lte: ue.event.endDate,
+              gte: event.startDate,
+              lte: event.endDate,
             },
-          },
-          _sum: {
-            pointsAwarded: true,
           },
         });
 
         return {
-          userEventId: ue.id,
-          eventId: ue.eventId,
-          title: ue.event.title,
-          description: ue.event.description,
-          startDate: ue.event.startDate,
-          endDate: ue.event.endDate,
-          points: totalPoints._sum.pointsAwarded ?? 0,
+          eventId: event.id,
+          title: event.title,
+          description: event.description,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          usersPoints: totalPoints._sum.pointsAwarded ?? 0,
         };
       })
     );
 
-    return NextResponse.json({ events: enrichedEvents }, { status: 200 });
+    return NextResponse.json({ events: results }, { status: 200 });
 
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
