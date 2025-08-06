@@ -9,7 +9,7 @@ export const PUT = async (req: NextRequest) => {
   try {
     // ✅ Step 1: Check API Key
     const apiKey = req.headers.get("x-api-key");
-    if (apiKey !== process.env.API_KEY) {
+    if (apiKey !== "oiKWuSpfjx7NZjU85bgdx7HXPqUCIsOv8ghauPXC8b1cfAq5QLdkg7rqaUskCinuj1ebHogbqB  aIgkIZ0H9U6labkVe6AmtIScQWy5YV0hGasKA43wKL2OztPMVXg9ZWndKdf1Gc9I8t2mZEOv2tDF2cbg  D23x1mzYFEuTgkilczcPJSoLQYfoyw12XMhsMbuhz3FKDvipLjfSJunTogmeOJN262NmoKzBAeOk4CDJ  RNkAkX1QlaBfvyTVdgvg6g") {
       return NextResponse.json({ message: "Permission denied!" }, { status: 401 });
     }
 
