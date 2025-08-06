@@ -32,36 +32,46 @@ export const GET = async (req: NextRequest) => {
       );
     }
 
-    // Step 2: Fetch all UserEvent entries for the event
-    const userEvents = await prisma.userEvent.findMany({
+    // Step 2: Aggregate total points for students within the event's date range
+    const disposals = await prisma.user.findMany({
       where: {
-        eventId: latestEvent.id,
-        user: {
-          role: "STUDENT",
+        role: "STUDENT",
+        disposals: {
+          some: {
+            createdAt: {
+              gte: latestEvent.startDate,
+              lte: latestEvent.endDate,
+            },
+          },
         },
       },
-      include: {
-        user: {
+      select: {
+        id: true,
+        name: true,
+        faculty: true,
+        diploma: true,
+        disposals: {
+          where: {
+            createdAt: {
+              gte: latestEvent.startDate,
+              lte: latestEvent.endDate,
+            },
+          },
           select: {
-            id: true,
-            name: true,
-            faculty: true,
-            diploma: true,
+            pointsAwarded: true,
           },
         },
       },
     });
 
-    // Step 3: Assemble leaderboard data with 'points'
-    const leaderboard = userEvents.map((entry) => ({
-      username: entry.user.name,
-      userId: entry.user.id,
-      points: entry.points ?? 0,
-      diploma: entry.user.diploma ?? null,
-      faculty: entry.user.faculty ?? null,
+    const leaderboard = disposals.map((user) => ({
+      username: user.name,
+      userId: user.id,
+      diploma: user.diploma ?? null,
+      faculty: user.faculty ?? null,
+      points: user.disposals.reduce((total, d) => total + d.pointsAwarded, 0),
     }));
 
-    // Step 4: Sort by points then diploma
     leaderboard.sort((a, b) => {
       if (b.points !== a.points) return b.points - a.points;
       return (a.diploma ?? "").localeCompare(b.diploma ?? "");
@@ -84,4 +94,3 @@ export const GET = async (req: NextRequest) => {
     );
   }
 };
-  
