@@ -3,7 +3,7 @@ import prisma from "@/lib/db";
 
 /**
  * Auto-delete expired quests.
- * This should be triggered daily via cron job with correct `x-api-key` header.
+ * This should be triggered daily via cron job with correct `x-api-key` header!
  */
 export const DELETE = async (req: NextRequest) => {
   try {
