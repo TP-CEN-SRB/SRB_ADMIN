@@ -3,23 +3,22 @@ import prisma from "@/lib/db";
 
 /**
  * Auto-delete expired quests.
- * This should be triggered daily via cron job.
+ * This should be triggered daily via cron job with correct `x-api-key` header.
  */
 export const DELETE = async (req: NextRequest) => {
   try {
-    const auth = req.headers.get("x-api-key");
-    if (auth !== process.env.API_KEY) {
+    // ✅ Secure with API key
+    const apiKey = req.headers.get("x-api-key");
+    if (apiKey !== process.env.API_KEY) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const now = new Date();
 
-    // Find expired quests
+    // ✅ Find quests that have expired (endDate < now)
     const expiredQuests = await prisma.questDetails.findMany({
       where: {
-        endDate: {
-          lt: now,
-        },
+        endDate: { lt: now },
       },
       select: { id: true },
     });
@@ -30,24 +29,21 @@ export const DELETE = async (req: NextRequest) => {
 
     const questIds = expiredQuests.map((q) => q.id);
 
-    // Delete userQuest entries first to maintain referential integrity
+    // ✅ Delete userQuest entries first (foreign key constraint)
     await prisma.userQuest.deleteMany({
-      where: {
-        questId: { in: questIds },
-      },
+      where: { questId: { in: questIds } },
     });
 
-    // Delete expired quests
+    // ✅ Delete the expired quests themselves
     await prisma.questDetails.deleteMany({
-      where: {
-        id: { in: questIds },
-      },
+      where: { id: { in: questIds } },
     });
 
     return NextResponse.json(
       { message: `Deleted ${questIds.length} expired quests.` },
       { status: 200 }
     );
+
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });

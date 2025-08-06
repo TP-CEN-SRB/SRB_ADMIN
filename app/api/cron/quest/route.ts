@@ -3,24 +3,24 @@ import prisma from "@/lib/db";
 
 /**
  * Clean up expired quests, create 3 new NORMAL quests, and assign to all verified users.
+ * This route is secured with an x-api-key header.
  */
 export const PUT = async (req: NextRequest) => {
   try {
-    const authorization = req.headers.get("x-api-key");
-    if (authorization !== process.env.API_KEY) {
+    // ✅ Step 1: Check API Key
+    const apiKey = req.headers.get("x-api-key");
+    if (apiKey !== process.env.API_KEY) {
       return NextResponse.json({ message: "Permission denied!" }, { status: 401 });
     }
 
     const now = new Date();
 
-    // 1. Delete expired quests
+    // ✅ Step 2: Delete expired quests
     const deleted = await prisma.questDetails.deleteMany({
-      where: {
-        endDate: { lt: now },
-      },
+      where: { endDate: { lt: now } },
     });
 
-    // 2. Fetch templates and randomly select 3
+    // ✅ Step 3: Fetch and randomly select 3 quest templates
     const templates = await prisma.questTemplate.findMany();
     if (templates.length < 3) {
       return NextResponse.json(
@@ -29,12 +29,15 @@ export const PUT = async (req: NextRequest) => {
       );
     }
 
-    const selected = templates.sort(() => Math.random() - 0.5).slice(0, 3);
+    const selectedTemplates = templates
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 3);
+
     const startDate = new Date();
     const endDate = new Date();
-    endDate.setDate(startDate.getDate() + 7); // 1 week duration
+    endDate.setDate(startDate.getDate() + 7); // 1 week
 
-    // 3. Fetch all verified student users
+    // ✅ Step 4: Fetch verified student users
     const users = await prisma.user.findMany({
       where: {
         role: "STUDENT",
@@ -42,16 +45,16 @@ export const PUT = async (req: NextRequest) => {
       },
     });
 
-    // 4. Create the 3 quests with type "NORMAL"
+    // ✅ Step 5: Create new NORMAL quests
     const createdQuests = await Promise.all(
-      selected.map((q) =>
+      selectedTemplates.map((template) =>
         prisma.questDetails.create({
           data: {
-            title: q.title,
-            description: q.description,
-            target: q.target,
-            rewardPoints: q.rewardPoints ?? 0,
-            materialType: q.materialType,
+            title: template.title,
+            description: template.description,
+            target: template.target,
+            rewardPoints: template.rewardPoints ?? 0,
+            materialType: template.materialType,
             startDate,
             endDate,
           },
@@ -59,7 +62,7 @@ export const PUT = async (req: NextRequest) => {
       )
     );
 
-    // 5. Assign each quest to all verified users
+    // ✅ Step 6: Assign quests to users
     const assignments = createdQuests.flatMap((quest) =>
       users.map((user) => ({
         userId: user.id,
