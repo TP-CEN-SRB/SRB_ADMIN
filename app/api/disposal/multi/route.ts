@@ -49,7 +49,6 @@ export const POST = async (req: NextRequest) => {
             id: true,
             status: true,
             currentCapacity: true,
-            user: { select: { location: true, faculty: true } },
             binMaterial: { select: { name: true } },
           },
         }),
@@ -74,7 +73,6 @@ export const POST = async (req: NextRequest) => {
       const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
       const pointsAwarded = Math.floor(weightInGrams * binMaterial.multiplier);
 
-      // ✅ Step 2: Create disposal with queueId
       const disposal = await prisma.disposal.create({
         data: {
           weightInGrams,
@@ -85,30 +83,6 @@ export const POST = async (req: NextRequest) => {
           userId,
         },
       });
-
-      // 🟢 Add disposal points to active event
-      const now = new Date();
-      const activeEvent = await prisma.userEvent.findFirst({
-        where: {
-          userId,
-          event: {
-            startDate: { lte: now },
-            endDate: { gte: now },
-          },
-        },
-        select: { id: true },
-      });
-
-      if (activeEvent) {
-        await prisma.userEvent.update({
-          where: { id: activeEvent.id },
-          data: {
-            points: {
-              increment: pointsAwarded,
-            },
-          },
-        });
-      }
 
       totalPoints += pointsAwarded;
       totalCarbon += carbonPrint;
@@ -124,7 +98,7 @@ export const POST = async (req: NextRequest) => {
     return NextResponse.json(
       {
         message: "Multi-disposal recorded",
-        queueId: queue.id, // ✅ include this for QR usage
+        queueId: queue.id,
         totalDisposals: allResults.length,
         totalPoints,
         totalCarbonprint: totalCarbon.toFixed(2),
@@ -140,6 +114,7 @@ export const POST = async (req: NextRequest) => {
     } else if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
+
     return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
   }
 };
