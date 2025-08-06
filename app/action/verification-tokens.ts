@@ -7,18 +7,20 @@ const verifyToken = async (token: string) => {
   if (!token) return { error: "Something went wrong!" };
 
   const existingToken = await getVerificationTokenByToken(token);
-  if (!existingToken)
+  if (!existingToken) {
     return {
       error: "Oops! This link may have already been used",
     };
+  }
 
   const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired)
+  if (hasExpired) {
     return {
       error: "Oops! This link has expired",
     };
+  }
 
-  // ✅ Email update case
+  // ✅ Handle email update case
   if (existingToken.oldEmail) {
     await prisma.user.update({
       where: { email: existingToken.oldEmail },
@@ -45,11 +47,11 @@ const verifyToken = async (token: string) => {
     },
     data: {
       emailVerified: new Date(),
-      email: existingToken.email, // needed when user updates email in settings
+      email: existingToken.email,
     },
   });
 
-  // ✅ Assign all quests after verification
+  // ✅ Assign all quests
   const allQuests = await prisma.questDetails.findMany();
 
   if (allQuests.length > 0) {
@@ -60,15 +62,45 @@ const verifyToken = async (token: string) => {
         progress: 0,
         isCompleted: false,
       })),
-      skipDuplicates: true, // avoid duplicates if somehow already added
+      skipDuplicates: true,
     });
+  }
+
+  // ✅ Assign currently ongoing event (not past or future)
+  const now = new Date();
+  const existingEvent = await prisma.event.findFirst({
+    where: {
+      startDate: { lte: now },
+      endDate: { gte: now },
+    },
+  });
+
+  if (existingEvent) {
+    const alreadyAssigned = await prisma.userEvent.findFirst({
+      where: {
+        userId: verifiedUser.id,
+        eventId: existingEvent.id,
+      },
+    });
+
+    if (!alreadyAssigned) {
+      await prisma.userEvent.create({
+        data: {
+          userId: verifiedUser.id,
+          eventId: existingEvent.id,
+          points: 0,
+        },
+      });
+    }
   }
 
   await prisma.verificationToken.delete({
     where: { id: existingToken.id },
   });
 
-  return { success: "Your email has been verified and quests assigned!" };
+  return {
+    success: "Your email has been verified! Quests and current event assigned.",
+  };
 };
 
 export { verifyToken };
