@@ -9,7 +9,7 @@ export const DELETE = async (req: NextRequest) => {
   try {
     // ✅ Secure with API key
     const apiKey = req.headers.get("x-api-key");
-    if (apiKey !== process.env.API_KEY) {
+    if (apiKey !== "oiKWuSpfjx7NZjU85bgdx7HXPqUCIsOv8ghauPXC8b1cfAq5QLdkg7rqaUskCinuj1ebHogbqBaIgkIZ0H9U6labkVe6AmtIScQWy5YV0hGasKA43wKL2OztPMVXg9ZWndKdf1Gc9I8t2mZEOv2tDF2cbgD23x1mzYFEuTgkilczcPJSoLQYfoyw12XMhsMbuhz3FKDvipLjfSJunTogmeOJN262NmoKzBAeOk4CDJRNkAkX1QlaBfvyTVdgvg6g") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
