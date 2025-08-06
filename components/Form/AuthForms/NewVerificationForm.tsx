@@ -1,4 +1,4 @@
-"use client";
+  "use client";
 import { IoRocket } from "react-icons/io5";
 import { useState, useTransition } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
@@ -8,16 +8,14 @@ import Card from "@/components/Card/Card";
 import { MdVerified } from "react-icons/md";
 import { MdError } from "react-icons/md";
 import CardHeader from "@/components/Card/CardHeader";
-
 interface VerificationFormProps {
   token: string;
 }
-
 const NewVerificationForm = ({ token }: VerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-  const [isPending, startTransition] = useTransition();
 
+  const [isPending, startTransition] = useTransition();
   const handleSubmit = () => {
     startTransition(async () => {
       setError(""); // clear error message
@@ -26,7 +24,6 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
       setSuccess(data?.success as string);
     });
   };
-
   return (
     <Card fullWidth rounded>
       {!success && !error && (
@@ -38,7 +35,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
           </p>
           <Button
             onClick={handleSubmit}
-            disabled={isPending || !!success || !!error}
+            disabled={isPending}
             className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-gray-50"
             type="submit"
           >
