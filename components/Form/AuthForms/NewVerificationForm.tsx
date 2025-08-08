@@ -1,6 +1,6 @@
-  "use client";
+"use client";
 import { IoRocket } from "react-icons/io5";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,22 +8,35 @@ import Card from "@/components/Card/Card";
 import { MdVerified } from "react-icons/md";
 import { MdError } from "react-icons/md";
 import CardHeader from "@/components/Card/CardHeader";
+
 interface VerificationFormProps {
   token: string;
 }
+
 const NewVerificationForm = ({ token }: VerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-
   const [isPending, startTransition] = useTransition();
+
+  // 🔍 Log token once on mount
+  useEffect(() => {
+    console.log("[NewVerificationForm] Received token:", token);
+  }, [token]);
+
   const handleSubmit = () => {
     startTransition(async () => {
-      setError(""); // clear error message
+      setError(""); // clear old error
+      console.log("[NewVerificationForm] Calling verifyToken() with token:", token);
+
       const data = await verifyToken(token);
+
+      console.log("[NewVerificationForm] verifyToken response:", data);
+
       setError(data?.error as string);
       setSuccess(data?.success as string);
     });
   };
+
   return (
     <Card fullWidth rounded>
       {!success && !error && (
