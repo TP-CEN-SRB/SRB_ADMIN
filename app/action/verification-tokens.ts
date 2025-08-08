@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
+import { decodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
 const verifyToken = async (token: string) => {
   console.log("[verifyToken] Received token:", token);
@@ -10,7 +11,14 @@ const verifyToken = async (token: string) => {
     return { error: "Something went wrong!" };
   }
 
-  const existingToken = await getVerificationTokenByToken(token);
+  // 🧩 Decode token (for Outlook-safe base64 URL tokens)
+  const decodedToken = decodeBase64UrlSafe(token);
+  if (!decodedToken) {
+    console.warn("[verifyToken] Token could not be decoded");
+    return { error: "Something went wrong!" };
+  }
+
+  const existingToken = await getVerificationTokenByToken(decodedToken);
   if (!existingToken) {
     console.warn("[verifyToken] Token not found in DB");
     return {
