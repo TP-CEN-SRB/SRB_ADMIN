@@ -156,13 +156,12 @@ export const PUT = async (
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // 🌱 Calculate carbonPrint using carbon_multiplier
-
+    // Calculate carbonPrint using carbon_multiplier
     const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
     const carbonPrint = disposal.weightInGrams * emissionFactor;
-    const treeProgressIncrement =   carbonPrint / 1000
+    const treeProgressIncrement = carbonPrint / 1000;
 
-    // 🧾 Transactional updates
+    // Transactional updates
     const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
       prisma.disposal.update({
         where: { id: disposalId },
@@ -205,6 +204,63 @@ export const PUT = async (
     await pusherServer.trigger(`disposal-qr-${binManagerId}`, "disposal-update", {
       updated: true,
     });
+
+    // Add awarded points to active event, if any
+    const now = new Date();
+
+    const activeEvent = await prisma.userEvent.findFirst({
+      where: {
+        userId,
+        event: {
+          startDate: { lte: now },
+          endDate: { gte: now },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (activeEvent) {
+      await prisma.userEvent.update({
+        where: { id: activeEvent.id },
+        data: {
+          points: {
+            increment: disposal.pointsAwarded,
+          },
+        },
+      });
+    }
+
+      // Update matching quest progress
+    const matchingQuests = await prisma.userQuest.findMany({
+      where: {
+        userId,
+        isCompleted: false,
+        quest: {
+          startDate: { lte: now },
+          endDate: { gte: now },
+          materialType: disposal.bin.binMaterial.name.toUpperCase(),
+        },
+      },
+      include: {
+        quest: true,
+      },
+    });
+
+    for (const userQuest of matchingQuests) {
+      const newProgress = userQuest.progress + disposal.weightInGrams;
+      const completed = newProgress >= userQuest.quest.target;
+
+      await prisma.userQuest.update({
+        where: { id: userQuest.id },
+        data: {
+          progress: newProgress,
+          ...(completed && {
+            isCompleted: true,
+            completedAt: now,
+          }),
+        },
+      });
+    }
 
     return NextResponse.json(
       {
