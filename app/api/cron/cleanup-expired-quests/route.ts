@@ -7,7 +7,7 @@ import prisma from "@/lib/db";
  */
 export const DELETE = async (req: NextRequest) => {
   try {
-    // ✅ Secure with API key
+    //Secure with API key
     const apiKey = req.headers.get("x-api-key");
     if (apiKey !== "oiKWuSpfjx7NZjU85bgdx7HXPqUCIsOv8ghauPXC8b1cfAq5QLdkg7rqaUskCinuj1ebHogbqBaIgkIZ0H9U6labkVe6AmtIScQWy5YV0hGasKA43wKL2OztPMVXg9ZWndKdf1Gc9I8t2mZEOv2tDF2cbgD23x1mzYFEuTgkilczcPJSoLQYfoyw12XMhsMbuhz3FKDvipLjfSJunTogmeOJN262NmoKzBAeOk4CDJRNkAkX1QlaBfvyTVdgvg6g") {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -15,7 +15,7 @@ export const DELETE = async (req: NextRequest) => {
 
     const now = new Date();
 
-    // ✅ Find quests that have expired (endDate < now)
+    //Find quests that have expired (endDate < now)
     const expiredQuests = await prisma.questDetails.findMany({
       where: {
         endDate: { lt: now },
@@ -29,12 +29,12 @@ export const DELETE = async (req: NextRequest) => {
 
     const questIds = expiredQuests.map((q) => q.id);
 
-    // ✅ Delete userQuest entries first (foreign key constraint)
+    //Delete userQuest entries first (foreign key constraint)
     await prisma.userQuest.deleteMany({
       where: { questId: { in: questIds } },
     });
 
-    // ✅ Delete the expired quests themselves
+    //Delete the expired quests themselves
     await prisma.questDetails.deleteMany({
       where: { id: { in: questIds } },
     });
