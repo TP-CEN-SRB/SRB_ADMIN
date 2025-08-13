@@ -245,15 +245,18 @@ export const PUT = async (
 });
 
 for (const uq of matchingQuests) {
-  const progressIncrease = disposal.weightInGrams;
-  const newProgress = uq.progress + progressIncrease;
+  const target = uq.quest.target ?? 0;
+
+  // Convert stored fraction to achieved grams
+  const achievedBefore = target > 0 ? uq.progress * target : 0;
+  const achievedAfter = achievedBefore + disposal.weightInGrams;
+
+  // Convert back to fraction and cap at 1.0
+  const fraction = target > 0 ? Math.min(1.0, achievedAfter / target) : 1.0;
 
   await prisma.userQuest.update({
     where: { id: uq.id },
-    data: {
-      // Cap at 100
-      progress: newProgress > 100 ? 100 : newProgress,
-    },
+    data: { progress: fraction },
   });
 }
 
