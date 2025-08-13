@@ -64,7 +64,7 @@ const verifyToken = async (token: string) => {
 
   // ✅ Normal email verification
   const existingUser = await prisma.user.findUnique({
-    where: { email: existingToken.email },
+  where: { email: existingToken.email.toLowerCase() }, // normalize casing
   });
 
   if (!existingUser) {
