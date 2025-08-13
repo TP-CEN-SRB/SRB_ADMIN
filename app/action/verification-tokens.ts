@@ -5,7 +5,9 @@ import { getVerificationTokenByToken } from "@/utils/verificationToken";
 import { decodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
 const verifyToken = async (token: string) => {
-  console.log("[verifyToken] Received token:", token);
+  console.log("[verifyToken] === START VERIFICATION ===");
+  console.log("[verifyToken] Received token (raw from URL):", token);
+
   if (!token) {
     console.warn("[verifyToken] No token received");
     return { error: "Something went wrong!" };
@@ -13,12 +15,17 @@ const verifyToken = async (token: string) => {
 
   // 🧩 Decode token (for Outlook-safe base64 URL tokens)
   const decodedToken = decodeBase64UrlSafe(token);
+  console.log("[verifyToken] Decoded token (after decodeBase64UrlSafe):", decodedToken);
+
   if (!decodedToken) {
     console.warn("[verifyToken] Token could not be decoded");
     return { error: "Something went wrong!" };
   }
 
+  // Check DB entry
   const existingToken = await getVerificationTokenByToken(decodedToken);
+  console.log("[verifyToken] Token fetched from DB:", existingToken?.token || null);
+
   if (!existingToken) {
     console.warn("[verifyToken] Token not found in DB");
     return {
@@ -27,6 +34,8 @@ const verifyToken = async (token: string) => {
   }
 
   const hasExpired = new Date(existingToken.expires) < new Date();
+  console.log("[verifyToken] Token expiration:", existingToken.expires, "Expired:", hasExpired);
+
   if (hasExpired) {
     console.warn("[verifyToken] Token has expired");
     return {
@@ -45,6 +54,7 @@ const verifyToken = async (token: string) => {
       await prisma.verificationToken.delete({
         where: { id: existingToken.id },
       });
+      console.log("[verifyToken] Email updated and token deleted");
       return { success: "Your email has been updated!" };
     } catch (err) {
       console.error("[verifyToken] Failed during email update:", err);
@@ -143,6 +153,8 @@ const verifyToken = async (token: string) => {
   } catch (err) {
     console.error("[verifyToken] Failed to delete verification token:", err);
   }
+
+  console.log("[verifyToken] === END VERIFICATION ===");
 
   return {
     success: "Your email has been verified! Quests and current event assigned.",
