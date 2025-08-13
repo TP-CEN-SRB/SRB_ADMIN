@@ -128,7 +128,7 @@ export const collaspeItems = [
     ],
   },
 {
-    title: "Quests",
+    title: "Activity",
     icon: BsFillBarChartFill,
     child: [
       {
