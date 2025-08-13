@@ -21,7 +21,7 @@ export const BarChartConfig = ({materials}: BarChartProps): ChartConfig => {
       color: "#0066CC",
     },
     binToolTipLabel: {
-      label: "Bins Deployed Per Month",
+      label: "Disposal Made Per Month",
     },
     ...Object.entries(materials).reduce(
       (acc, [material, _], index) => ({

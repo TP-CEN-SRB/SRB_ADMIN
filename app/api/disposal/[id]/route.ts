@@ -232,35 +232,30 @@ export const PUT = async (
 
       // Update matching quest progress
     const matchingQuests = await prisma.userQuest.findMany({
-      where: {
-        userId,
-        isCompleted: false,
-        quest: {
-          startDate: { lte: now },
-          endDate: { gte: now },
-          materialType: disposal.bin.binMaterial.name.toUpperCase(),
-        },
-      },
-      include: {
-        quest: true,
-      },
-    });
+  where: {
+    userId,
+    isCompleted: false,
+    quest: {
+      startDate: { lte: now },
+      endDate: { gte: now },
+      materialType: disposal.bin.binMaterial.name.toUpperCase(),
+    },
+  },
+  include: { quest: { select: { target: true } } },
+});
 
-    for (const userQuest of matchingQuests) {
-      const newProgress = userQuest.progress + disposal.weightInGrams;
-      const completed = newProgress >= userQuest.quest.target;
+for (const uq of matchingQuests) {
+  const progressIncrease = disposal.weightInGrams;
+  const newProgress = uq.progress + progressIncrease;
 
-      await prisma.userQuest.update({
-        where: { id: userQuest.id },
-        data: {
-          progress: newProgress,
-          ...(completed && {
-            isCompleted: true,
-            completedAt: now,
-          }),
-        },
-      });
-    }
+  await prisma.userQuest.update({
+    where: { id: uq.id },
+    data: {
+      // Cap at 100
+      progress: newProgress > 100 ? 100 : newProgress,
+    },
+  });
+}
 
     return NextResponse.json(
       {
