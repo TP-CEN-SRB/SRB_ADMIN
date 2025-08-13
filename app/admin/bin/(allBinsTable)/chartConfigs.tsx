@@ -10,6 +10,10 @@ interface PieChartProps {
   DBPieChartData: { binType: string; binCount: number; fill?: string }[];
 };
 
+interface UserChartProps {
+  userData: { [key: string]: string | number }; 
+}
+
 export const BarChartConfig = ({materials}: BarChartProps): ChartConfig => {
   return {
     binTotal: {
@@ -54,6 +58,28 @@ export const PieChartConfig = ({DBPieChartData}:PieChartProps): ChartConfig => {
   };
 };
 
+export const UserChartConfig = ({ userData }: UserChartProps): ChartConfig => {
+  return {
+    totalUsers: {
+      label: "Total Users",
+      color: "#4CAF50", 
+    },
+    userToolTipLabel: {
+      label: "User Registrations Per Month",
+      color: "#4CAF50",
+    },
+    ...Object.entries(userData).reduce(
+      (acc, [month, _], index) => ({
+        ...acc,
+        [month]: {
+          label: month,
+          color: `hsl(${200 + index * 15}, 70%, 50%)`,
+        },
+      }),
+      {}
+    ),
+  };
+};
 
 // export const binDisposalsTimeLineConfig: ChartConfig = {
 //   totalDisposals: {

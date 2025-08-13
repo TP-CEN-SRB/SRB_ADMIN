@@ -13,7 +13,10 @@ import {
 
 export const POST = async (req: NextRequest) => {
   try {
-    let { email, password } = await req.json();
+    // Separate mutable and immutable variables
+    const body: { email: string; password: string } = await req.json();
+    let email = body.email; // will be normalized
+    const password = body.password; // never reassigned
 
     // Normalize email to lowercase and remove accidental spaces
     email = String(email).toLowerCase().trim();
