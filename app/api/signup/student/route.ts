@@ -10,9 +10,26 @@ import { encodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
 export const POST = async (req: NextRequest) => {
   try {
-    const { name, email, password, confirmPassword, faculty, diploma } =
-      await req.json();
+    // Destructure, then normalize email
+    const {
+      name,
+      email: rawEmail,
+      password,
+      confirmPassword,
+      faculty,
+      diploma,
+    } = await req.json();
 
+    const email = String(rawEmail).toLowerCase().trim();
+
+    if (password !== confirmPassword) {
+      return NextResponse.json(
+        { message: "Passwords do not match" },
+        { status: 400 }
+      );
+    }
+
+    // Validate with normalized email
     const validatedFields = SignUpStudentSchema.safeParse({
       name,
       email,
@@ -22,26 +39,17 @@ export const POST = async (req: NextRequest) => {
       diploma,
     });
 
-    if (password !== confirmPassword) {
-      return NextResponse.json(
-        { message: "Passwords do not match" },
-        { status: 400 }
-      );
-    }
-
     if (!validatedFields.success) {
       const errors = validatedFields.error.flatten();
       return NextResponse.json(
-        {
-          message: "Something went wrong",
-          errors: errors.fieldErrors,
-        },
+        { message: "Something went wrong", errors: errors.fieldErrors },
         { status: 400 }
       );
     }
 
     const data = validatedFields.data;
 
+    // Uniqueness check uses normalized email
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -55,7 +63,7 @@ export const POST = async (req: NextRequest) => {
 
     const hashedPassword = await hash(data.password, 10);
 
-    // Create the new user
+    // Create the new user (email already lowercase)
     await prisma.user.create({
       data: {
         name: capitalizeFirstLetter(data.name),
@@ -64,13 +72,11 @@ export const POST = async (req: NextRequest) => {
         faculty: data.faculty,
         diploma: data.diploma,
         role: Role.STUDENT,
-        point: {
-          create: {},
-        },
+        point: { create: {} },
       },
     });
 
-    // Send verification email
+    // Send verification email using normalized email
     const verificationToken = await generateVerificationToken(email);
     const safeToken = encodeBase64UrlSafe(verificationToken.token);
     await sendVerificationEmail(verificationToken.email, safeToken);
