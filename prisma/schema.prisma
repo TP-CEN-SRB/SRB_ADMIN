@@ -93,6 +93,15 @@ model BinMaterial {
   @@map("bin_materials")
 }
 
+model DisposalQueue {
+  id        String     @id @default(uuid())
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt()
+
+  disposals Disposal[]
+  @@map("disposal_queue")
+}
+
 model Disposal {
   id            String   @id @default(uuid())
   weightInGrams Int
