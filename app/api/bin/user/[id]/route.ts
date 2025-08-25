@@ -8,49 +8,42 @@ export const GET = async (
   try {
     const authorization = req.headers.get("x-api-key");
     if (authorization !== process.env.API_KEY) {
-      return NextResponse.json(
-        { message: "Permission denied!" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Permission denied!" }, { status: 401 });
     }
+
     const binManagerId = params.id;
     const searchParams = req.nextUrl.searchParams;
-    const material = searchParams.get("material");
+
+    // Supports: ?material=plastic&material=paper and ?material=plastic,paper
+    const materials = searchParams
+      .getAll("material")
+      .flatMap((m) => m.split(","))       // split comma lists
+      .map((m) => m.trim().toUpperCase()) // normalize
+      .filter(Boolean);
+
     const bins = await prisma.bin.findMany({
       where: {
         userId: binManagerId,
-        ...(material && {
+        ...(materials.length > 0 && {
           binMaterial: {
-            name: material.toUpperCase(),
+            name: { in: materials }, // e.g. ["PLASTIC","PAPER"]
           },
         }),
       },
       select: {
         status: true,
         currentCapacity: true,
-        binMaterial: {
-          select: {
-            name: true,
-          },
-        },
+        binMaterial: { select: { name: true } },
       },
     });
+
     if (bins.length === 0) {
       return NextResponse.json({ message: "No bin found!" }, { status: 404 });
     }
-    return NextResponse.json(
-      { bins },
-      {
-        status: 200,
-      }
-    );
+
+    return NextResponse.json({ bins }, { status: 200 });
   } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
-    return NextResponse.json(
-      { message: "An unknown error occurred" },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ message }, { status: 500 });
   }
 };
