@@ -109,11 +109,13 @@ model Disposal {
   isRedeemed    Boolean  @default(false)
   pointsAwarded Int
   userId        String?
+  queueId       String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   carbonprint   Float    @default(0.0)      
   bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
   user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  queue         DisposalQueue  @relation(fields: [queueId], references: [id], onDelete: Cascade)
 
   @@map("disposals")
 }
