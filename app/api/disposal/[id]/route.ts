@@ -4,7 +4,14 @@ import jwt from "jsonwebtoken";
 import { TransactionType } from "@prisma/client";
 import { pusherServer } from "@/lib/pusher";
 
-// retrieve by disposalId (legacy) OR by queueId (new)
+// Safely extract userId from a decoded JWT without using `any`
+const extractUserId = (decoded: unknown): string | null => {
+  if (typeof decoded !== "object" || decoded === null) return null;
+  const uid = (decoded as Record<string, unknown>).userId;
+  return typeof uid === "string" ? uid : null;
+};
+
+// retrieve the disposal (by disposalId) OR the whole queue (by queueId)
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -27,18 +34,22 @@ export const GET = async (
 
     const id = params.id;
 
-    // 1) Try disposal by id (legacy path)
+    // 1) Try legacy: disposal by id
     const disposal = await prisma.disposal.findUnique({
       where: { id },
       include: {
-        bin: { include: { binMaterial: true } },
+        bin: {
+          include: {
+            binMaterial: true,
+          },
+        },
       },
     });
     if (disposal) {
       return NextResponse.json({ disposal }, { status: 200 });
     }
 
-    // 2) If not a disposal, try queue by id (new path)
+    // 2) If not a disposal, try queue by id
     const queue = await prisma.disposalQueue.findUnique({
       where: { id },
       select: { id: true },
@@ -50,9 +61,13 @@ export const GET = async (
     const disposals = await prisma.disposal.findMany({
       where: { queueId: queue.id },
       include: {
-        bin: { include: { binMaterial: true } },
+        bin: {
+          include: {
+            binMaterial: true,
+          },
+        },
       },
-      orderBy: { createdAt: "asc" }, // optional
+      orderBy: { createdAt: "asc" },
     });
 
     return NextResponse.json({ queueId: queue.id, disposals }, { status: 200 });
@@ -97,6 +112,13 @@ export const PUT = async (
         { status: 401 }
       );
     }
+    const authUserId = extractUserId(decodedToken);
+    if (!authUserId) {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
 
     const id = params.id;
     const { userId, disposalToken } = await req.json();
@@ -111,7 +133,7 @@ export const PUT = async (
       );
     }
 
-    if (userId !== (decodedToken as any).userId) {
+    if (userId !== authUserId) {
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
@@ -128,8 +150,14 @@ export const PUT = async (
         { status: 401 }
       );
     }
+    const binManagerId = extractUserId(decodedDisposalToken);
+    if (!binManagerId) {
+      return NextResponse.json(
+        { message: "Unauthorized access!" },
+        { status: 401 }
+      );
+    }
 
-    const binManagerId = (decodedDisposalToken as any).userId;
     const binManager = await prisma.user.findUnique({
       where: { id: binManagerId },
     });
@@ -161,7 +189,7 @@ export const PUT = async (
       },
     });
 
-    // ===== Legacy single disposal (UNCHANGED behavior) =====
+    // ===== Legacy single disposal (UNCHANGED core behavior) =====
     if (maybeDisposal) {
       const disposal = maybeDisposal;
 
@@ -169,7 +197,7 @@ export const PUT = async (
       const carbonPrint = disposal.weightInGrams * emissionFactor;
       const treeProgressIncrement = carbonPrint / 1000;
 
-      const [updatedDisposal, userPoint, updatedUser] = await prisma.$transaction([
+      await prisma.$transaction([
         prisma.disposal.update({
           where: { id },
           data: {
@@ -207,21 +235,8 @@ export const PUT = async (
         updated: true,
       });
 
-      // Active event points (single)
+      // --- Events removed (kept quests only) ---
       const now = new Date();
-      const activeEvent = await prisma.userEvent.findFirst({
-        where: {
-          userId,
-          event: { startDate: { lte: now }, endDate: { gte: now } },
-        },
-        select: { id: true },
-      });
-      if (activeEvent) {
-        await prisma.userEvent.update({
-          where: { id: activeEvent.id },
-          data: { points: { increment: disposal.pointsAwarded } },
-        });
-      }
 
       // Quests (single)
       const matchingQuests = await prisma.userQuest.findMany({
@@ -264,7 +279,10 @@ export const PUT = async (
       select: { id: true },
     });
     if (!queue) {
-      return NextResponse.json({ message: "No disposal or queue found" }, { status: 404 });
+      return NextResponse.json(
+        { message: "No disposal or queue found" },
+        { status: 404 }
+      );
     }
 
     const disposals = await prisma.disposal.findMany({
@@ -285,10 +303,13 @@ export const PUT = async (
     });
 
     if (disposals.length === 0) {
-      return NextResponse.json({ message: "No unredeemed disposals in this queue" }, { status: 404 });
+      return NextResponse.json(
+        { message: "No unredeemed disposals in this queue" },
+        { status: 404 }
+      );
     }
 
-    // Aggregate
+    // Aggregate totals
     let totalPoints = 0;
     let totalCarbon = 0;
     const carbonById: Record<string, number> = {};
@@ -332,7 +353,7 @@ export const PUT = async (
         },
       });
 
-      // single summary transaction (you can also create one per disposal if you prefer)
+      // single summary transaction
       await tx.transaction.create({
         data: {
           pointsChange: totalPoints,
@@ -345,21 +366,8 @@ export const PUT = async (
       });
     });
 
-    // Active event points (sum)
+    // --- Events removed (kept quests only) ---
     const now = new Date();
-    const activeEvent = await prisma.userEvent.findFirst({
-      where: {
-        userId,
-        event: { startDate: { lte: now }, endDate: { gte: now } },
-      },
-      select: { id: true },
-    });
-    if (activeEvent) {
-      await prisma.userEvent.update({
-        where: { id: activeEvent.id },
-        data: { points: { increment: totalPoints } },
-      });
-    }
 
     // Quests: update per disposal/material
     for (const d of disposals) {
