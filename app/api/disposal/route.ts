@@ -68,7 +68,7 @@ export const GET = async (req: NextRequest) => {
 // sent by locally hosted bin
 export const POST = async (req: NextRequest) => {
   try {
-    // Auth
+    // Auth (unchanged)
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json(
@@ -76,7 +76,6 @@ export const POST = async (req: NextRequest) => {
         { status: 401 }
       );
     }
-
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decodedToken === "string") {
       return NextResponse.json(
@@ -85,76 +84,120 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // Body + basic validation
-    const { userId, material, weightInGrams, queueId }: Body = await req.json();
+    // Body (back-compat + multi)
+    const raw = await req.json();
+    const userId: string = raw.userId;
+    let { queueId } = raw as { queueId?: string };
 
-    const validatedFields = DisposalSchema.safeParse({ material, weightInGrams });
-    if (!validatedFields.success) {
-      return NextResponse.json({ message: "Invalid fields!" }, { status: 400 });
+    // Normalize to items[]
+    type Item = { material: string; weightInGrams: number };
+    const items: Item[] = Array.isArray(raw.items) && raw.items.length > 0
+      ? raw.items
+      : [{ material: raw.material, weightInGrams: raw.weightInGrams }];
+
+    // Validate each item with your existing schema
+    for (const it of items) {
+      const validated = DisposalSchema.safeParse({
+        material: it.material,
+        weightInGrams: it.weightInGrams,
+      });
+      if (!validated.success) {
+        return NextResponse.json({ message: "Invalid fields!" }, { status: 400 });
+      }
     }
 
-    // Lookups in parallel
-    const [bin, binMaterial] = await Promise.all([
-      prisma.bin.findFirst({
-        where: {
-          userId,
-          binMaterial: { name: material.toUpperCase() },
-        },
-        select: {
-          id: true,
-          status: true,
-          currentCapacity: true,
-          binMaterial: { select: { name: true } },
-        },
-      }),
-      prisma.binMaterial.findUnique({
-        where: { name: material.toUpperCase() },
-      }),
-    ]);
-
-    if (!bin) return NextResponse.json({ message: "No bin found!" }, { status: 404 });
-    if (!binMaterial) return NextResponse.json({ message: "No bin material found!" }, { status: 404 });
-    if (bin.status === "UNDER_MAINTENANCE") {
-      return NextResponse.json({ message: "Bin is current under maintenance!" }, { status: 400 });
-    }
-    if (bin.currentCapacity >= 100) {
-      return NextResponse.json({ message: "Bin is already full!" }, { status: 400 });
-    }
-
-    // Ensure/validate queue
-    let resolvedQueueId = queueId;
-    if (resolvedQueueId) {
-      const exists = await prisma.disposalQueue.findUnique({ where: { id: resolvedQueueId } });
+    // Ensure/validate queue (always)
+    if (queueId) {
+      const exists = await prisma.disposalQueue.findUnique({ where: { id: queueId } });
       if (!exists) {
         return NextResponse.json({ message: "Invalid queueId" }, { status: 404 });
       }
     } else {
       const q = await prisma.disposalQueue.create({ data: {} });
-      resolvedQueueId = q.id;
+      queueId = q.id;
     }
 
-    // Points / carbon (same formulas)
-    const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
-    const pointsAwarded = Math.floor(weightInGrams * (binMaterial.multiplier ?? 1));
+    // Transaction: create one or many disposals
+    const { ids, points, carbonprints } = await prisma.$transaction(async (tx) => {
+      const ids: string[] = [];
+      const points: number[] = [];
+      const carbonprints: number[] = [];
 
-    // Create disposal
-    const disposal = await prisma.disposal.create({
-      data: {
-        weightInGrams,
-        binId: bin.id,
-        carbonprint: carbonPrint,
-        pointsAwarded,
-        queueId: resolvedQueueId,
-      },
+      for (const { material: mRaw, weightInGrams } of items) {
+        const material = (mRaw ?? "").toUpperCase();
+
+        // Lookups (same as your code)
+        const [bin, binMaterial] = await Promise.all([
+          tx.bin.findFirst({
+            where: {
+              userId,
+              binMaterial: { name: material },
+            },
+            select: {
+              id: true,
+              status: true,
+              currentCapacity: true,
+              binMaterial: { select: { name: true } },
+            },
+          }),
+          tx.binMaterial.findUnique({
+            where: { name: material },
+          }),
+        ]);
+
+        if (!bin) throw new Error("No bin found!");
+        if (!binMaterial) throw new Error("No bin material found!");
+        if (bin.status === "UNDER_MAINTENANCE") {
+          throw new Error("Bin is currently under maintenance!");
+        }
+        if (bin.currentCapacity >= 100) {
+          throw new Error("Bin is already full!");
+        }
+
+        // Points / carbon (same formulas as yours)
+        const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
+        const pointsAwarded = Math.floor(
+          weightInGrams * (binMaterial.multiplier ?? 1)
+        );
+
+        const disposal = await tx.disposal.create({
+          data: {
+            weightInGrams,
+            binId: bin.id,
+            carbonprint: carbonPrint,
+            pointsAwarded,
+            queueId, // ensured above
+          },
+          select: { id: true, pointsAwarded: true, carbonprint: true },
+        });
+
+        ids.push(disposal.id);
+        points.push(disposal.pointsAwarded);
+        carbonprints.push(disposal.carbonprint);
+      }
+
+      return { ids, points, carbonprints };
     });
 
-    // Response (keeps old shape + queueId)
+    // Response formatting (keep yours for single; add minimal multi)
+    if (ids.length === 1) {
+      return NextResponse.json(
+        {
+          id: ids[0],
+          point: points[0],
+          carbonprint: carbonprints[0],
+          queueId,
+        },
+        { status: 200 }
+      );
+    }
+
     return NextResponse.json(
       {
-        id: disposal.id,
-        point: pointsAwarded,
-        carbonprint: carbonPrint,
-        queueId: resolvedQueueId,
+        ids,
+        points,
+        carbonprints,
+        queueId,
       },
       { status: 200 }
     );
@@ -164,8 +207,13 @@ export const POST = async (req: NextRequest) => {
     } else if (error instanceof jwt.JsonWebTokenError) {
       return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
     } else if (error instanceof Error) {
+      // keep 500 like your original for unexpected errors
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
     return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
   }
 };
+
+
+
+
