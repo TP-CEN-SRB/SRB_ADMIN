@@ -9,11 +9,10 @@ export const POST = async (req: NextRequest) => {
     const decoded = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decoded === "string") return NextResponse.json({ message: "Unauthorized access!" }, { status: 401 });
 
-    const q = await prisma.disposalQueue.create({ data: {} });
-    return NextResponse.json({ queueId: q.id }, { status: 201 });
-  } catch (e) {
-    if (e instanceof jwt.TokenExpiredError) return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
-    if (e instanceof jwt.JsonWebTokenError) return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+       const q = await prisma.disposalQueue.create({ data: {} });
+    return NextResponse.json({ queueId: q.id }, { status: 200 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json({ message }, { status: 500 });
   }
 };
