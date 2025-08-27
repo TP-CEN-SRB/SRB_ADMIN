@@ -68,7 +68,7 @@ export const GET = async (req: NextRequest) => {
 // sent by locally hosted bin
 export const POST = async (req: NextRequest) => {
   try {
-    // Auth (unchanged)
+    // Auth
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json(
@@ -84,37 +84,39 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // Body (back-compat + multi)
+    // Body
     const raw = await req.json();
     const userId: string = raw.userId;
-    let { queueId } = raw as { queueId?: string };
+    const queueId: string | undefined = raw.queueId;
+
+    if (!queueId) {
+      return NextResponse.json(
+        { message: "queueId is required!" },
+        { status: 400 }
+      );
+    }
 
     // Normalize to items[]
     type Item = { material: string; weightInGrams: number };
-    const items: Item[] = Array.isArray(raw.items) && raw.items.length > 0
-      ? raw.items
-      : [{ material: raw.material, weightInGrams: raw.weightInGrams }];
+    const items: Item[] =
+      Array.isArray(raw.items) && raw.items.length > 0
+        ? raw.items
+        : [{ material: raw.material, weightInGrams: raw.weightInGrams }];
 
-    // Validate each item with your existing schema
+    // Validate each item
     for (const it of items) {
-      const validated = DisposalSchema.safeParse({
-        material: it.material,
-        weightInGrams: it.weightInGrams,
-      });
+      const validated = DisposalSchema.safeParse(it);
       if (!validated.success) {
         return NextResponse.json({ message: "Invalid fields!" }, { status: 400 });
       }
     }
 
-    // Ensure/validate queue (always)
-    if (queueId) {
-      const exists = await prisma.disposalQueue.findUnique({ where: { id: queueId } });
-      if (!exists) {
-        return NextResponse.json({ message: "Invalid queueId" }, { status: 404 });
-      }
-    } else {
-      const q = await prisma.disposalQueue.create({ data: {} });
-      queueId = q.id;
+    // Validate queue exists
+    const exists = await prisma.disposalQueue.findUnique({
+      where: { id: queueId },
+    });
+    if (!exists) {
+      return NextResponse.json({ message: "Invalid queueId" }, { status: 404 });
     }
 
     // Transaction: create one or many disposals
@@ -126,7 +128,6 @@ export const POST = async (req: NextRequest) => {
       for (const { material: mRaw, weightInGrams } of items) {
         const material = (mRaw ?? "").toUpperCase();
 
-        // Lookups (same as your code)
         const [bin, binMaterial] = await Promise.all([
           tx.bin.findFirst({
             where: {
@@ -154,8 +155,8 @@ export const POST = async (req: NextRequest) => {
           throw new Error("Bin is already full!");
         }
 
-        // Points / carbon (same formulas as yours)
-        const carbonPrint = weightInGrams * (binMaterial.carbon_multiplier ?? 0);
+        const carbonPrint =
+          weightInGrams * (binMaterial.carbon_multiplier ?? 0);
         const pointsAwarded = Math.floor(
           weightInGrams * (binMaterial.multiplier ?? 1)
         );
@@ -166,7 +167,7 @@ export const POST = async (req: NextRequest) => {
             binId: bin.id,
             carbonprint: carbonPrint,
             pointsAwarded,
-            queueId, // ensured above
+            queueId,
           },
           select: { id: true, pointsAwarded: true, carbonprint: true },
         });
@@ -179,7 +180,7 @@ export const POST = async (req: NextRequest) => {
       return { ids, points, carbonprints };
     });
 
-    // Response formatting (keep yours for single; add minimal multi)
+    // Response
     if (ids.length === 1) {
       return NextResponse.json(
         {
@@ -203,17 +204,21 @@ export const POST = async (req: NextRequest) => {
     );
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Token has expired!" },
+        { status: 401 }
+      );
     } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
     } else if (error instanceof Error) {
-      // keep 500 like your original for unexpected errors
       return NextResponse.json({ message: error.message }, { status: 500 });
     }
-    return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { message: "An unknown error occurred" },
+      { status: 500 }
+    );
   }
 };
-
-
-
-
