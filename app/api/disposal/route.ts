@@ -87,14 +87,6 @@ export const POST = async (req: NextRequest) => {
     // Body
     const raw = await req.json();
     const userId: string = raw.userId;
-    const queueId: string | undefined = raw.queueId;
-
-    if (!queueId) {
-      return NextResponse.json(
-        { message: "queueId is required!" },
-        { status: 400 }
-      );
-    }
 
     // Normalize to items[]
     type Item = { material: string; weightInGrams: number };
@@ -109,14 +101,6 @@ export const POST = async (req: NextRequest) => {
       if (!validated.success) {
         return NextResponse.json({ message: "Invalid fields!" }, { status: 400 });
       }
-    }
-
-    // Validate queue exists
-    const exists = await prisma.disposalQueue.findUnique({
-      where: { id: queueId },
-    });
-    if (!exists) {
-      return NextResponse.json({ message: "Invalid queueId" }, { status: 404 });
     }
 
     // Transaction: create one or many disposals
@@ -167,7 +151,6 @@ export const POST = async (req: NextRequest) => {
             binId: bin.id,
             carbonprint: carbonPrint,
             pointsAwarded,
-            queueId,
           },
           select: { id: true, pointsAwarded: true, carbonprint: true },
         });
@@ -187,7 +170,6 @@ export const POST = async (req: NextRequest) => {
           id: ids[0],
           point: points[0],
           carbonprint: carbonprints[0],
-          queueId,
         },
         { status: 200 }
       );
@@ -198,7 +180,6 @@ export const POST = async (req: NextRequest) => {
         ids,
         points,
         carbonprints,
-        queueId,
       },
       { status: 200 }
     );
