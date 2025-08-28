@@ -27,6 +27,7 @@ model User {
   carbonprint       Float             @default(0.0)
   bins              Bin[]
   disposals         Disposal[]
+  disposal_queue    DisposalQueue[]
   point             Point?
   redemptions       Redemption[]
   subscriptions     Subscription[]
@@ -95,10 +96,13 @@ model BinMaterial {
 
 model DisposalQueue {
   id        String     @id @default(uuid())
+  status    QueueStatus @default(OPEN)
+  userId    String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt()
 
   disposals Disposal[]
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("disposal_queue")
 }
 
@@ -312,4 +316,9 @@ enum TransactionType {
   QUEST_REWARD
   TREE_REWARD
   PURCHASE
+}
+
+enum QueueStatus {
+  OPEN
+  CLOSED
 }
