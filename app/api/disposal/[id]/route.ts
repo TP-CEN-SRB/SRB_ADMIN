@@ -105,16 +105,25 @@ export const PUT = async (
   { params }: { params: { id: string } }
 ) => {
   try {
+    console.group("[PUT] Debug");
+
+    // --- Extract token ---
     const token = req.headers.get("Authorization")?.split(" ")[1];
+    console.log("🔑 Auth header token:", token ? "present" : "missing");
     if (!token) {
+      console.groupEnd();
       return NextResponse.json(
         { message: "Missing authorization header!" },
         { status: 401 }
       );
     }
 
+    // --- Verify token ---
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
+    console.log("📜 Decoded token payload:", decodedToken);
     if (typeof decodedToken === "string") {
+      console.warn("❌ Decoded token is a string → unauthorized");
+      console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
@@ -122,76 +131,86 @@ export const PUT = async (
     }
 
     const authUserId = extractUserId(decodedToken);
+    console.log("🧑 UserId from JWT:", authUserId);
     if (!authUserId) {
+      console.warn("❌ No userId in JWT");
+      console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
 
-    // request body
-    const { userId, disposalToken } = await req.json();
-    if (!userId || !disposalToken) {
+    // --- Request body ---
+    const { disposalToken } = await req.json();
+    console.log("📦 disposalToken received:", disposalToken ? "present" : "missing");
+    if (!disposalToken) {
+      console.groupEnd();
       return NextResponse.json(
-        {
-          message: `Missing fields: ${!userId ? "[userId]" : ""} ${
-            !disposalToken ? "[disposalToken]" : ""
-          }`,
-        },
+        { message: "Missing field: [disposalToken]" },
         { status: 400 }
       );
     }
 
-    // user making the request must match JWT user
-    if (userId !== authUserId) {
-      return NextResponse.json(
-        { message: "Unauthorized access!" },
-        { status: 401 }
-      );
-    }
+    // ✅ Trust JWT userId
+    const userId = authUserId;
+    console.log("✅ Using userId from JWT:", userId);
 
-    // verify disposalToken (issued by bin manager)
+    // --- Verify disposalToken (QR token) ---
     const decodedDisposalToken = jwt.verify(
       disposalToken,
       process.env.NEXT_JWT_SECRET_KEY!
     );
+    console.log("📜 Decoded disposalToken:", decodedDisposalToken);
     if (typeof decodedDisposalToken === "string") {
+      console.warn("❌ Decoded disposalToken is string → unauthorized");
+      console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
     const binManagerId = extractUserId(decodedDisposalToken);
+    console.log("🗂️ binManagerId from disposalToken:", binManagerId);
     if (!binManagerId) {
+      console.warn("❌ No binManagerId in disposalToken");
+      console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
       );
     }
 
+    // --- Verify bin manager exists ---
     const binManager = await prisma.user.findUnique({
       where: { id: binManagerId },
     });
+    console.log("👷 Bin manager found:", !!binManager);
     if (!binManager) {
+      console.groupEnd();
       return NextResponse.json(
         { message: "Bin manager not found!" },
         { status: 404 }
       );
     }
 
-    // --- Always queue mode ---
+    // --- Fetch queue ---
     const queueId = params.id;
+    console.log("🗂️ QueueId from params:", queueId);
     const queue = await prisma.disposalQueue.findUnique({
       where: { id: queueId },
       select: { id: true },
     });
+    console.log("📦 Queue found:", !!queue);
     if (!queue) {
+      console.groupEnd();
       return NextResponse.json(
         { message: "Queue not found" },
         { status: 404 }
       );
     }
 
+    // --- Fetch disposals ---
     const disposals = await prisma.disposal.findMany({
       where: { queueId: queue.id, isRedeemed: false },
       select: {
@@ -208,15 +227,16 @@ export const PUT = async (
       },
       orderBy: { createdAt: "asc" },
     });
-
+    console.log("♻️ Disposals count:", disposals.length);
     if (disposals.length === 0) {
+      console.groupEnd();
       return NextResponse.json(
         { message: "No unredeemed disposals in this queue" },
         { status: 404 }
       );
     }
 
-    // aggregate totals
+    // --- Aggregate totals ---
     let totalPoints = 0;
     let totalCarbon = 0;
     const carbonById: Record<string, number> = {};
@@ -229,8 +249,9 @@ export const PUT = async (
       totalPoints += d.pointsAwarded;
     }
     const treeProgressIncrement = totalCarbon / 1000;
+    console.log("📊 Totals:", { totalPoints, totalCarbon, treeProgressIncrement });
 
-    // transaction: mark disposals redeemed + update user + transaction
+    // --- Transaction ---
     await prisma.$transaction(async (tx) => {
       for (const d of disposals) {
         await tx.disposal.update({
@@ -268,8 +289,9 @@ export const PUT = async (
         },
       });
     });
+    console.log("✅ Transaction committed");
 
-    // quests: update based on each disposal
+    // --- Quest updates ---
     const now = new Date();
     for (const d of disposals) {
       const matchingQuests = await prisma.userQuest.findMany({
@@ -284,6 +306,7 @@ export const PUT = async (
         },
         include: { quest: { select: { target: true } } },
       });
+      console.log(`📋 Matching quests for disposal ${d.id}:`, matchingQuests.length);
 
       for (const uq of matchingQuests) {
         const target = uq.quest.target ?? 0;
@@ -298,12 +321,14 @@ export const PUT = async (
       }
     }
 
-    // notify kiosk / listener
+    // --- Notify listeners ---
     await pusherServer.trigger(`disposal-qr-${binManagerId}`, "disposal-update", {
       updated: true,
       queueId: queue.id,
     });
+    console.log("📡 Pusher event sent → disposal-qr-" + binManagerId);
 
+    console.groupEnd();
     return NextResponse.json(
       {
         message: "Updated queue",
@@ -316,6 +341,7 @@ export const PUT = async (
       { status: 200 }
     );
   } catch (error) {
+    console.error("[PUT] Error:", error);
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
     } else if (error instanceof jwt.JsonWebTokenError) {
