@@ -11,7 +11,7 @@ const extractUserId = (decoded: unknown): string | null => {
   return typeof uid === "string" ? uid : null;
 };
 
-// retrieve the disposal (by disposalId) OR the whole queue (by queueId)
+// ✅ Only queue mode now
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -24,6 +24,7 @@ export const GET = async (
         { status: 401 }
       );
     }
+
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     if (typeof decodedToken === "string") {
       return NextResponse.json(
@@ -32,45 +33,28 @@ export const GET = async (
       );
     }
 
-    const id = params.id;
-
-    // 1) Try legacy: disposal by id
-    const disposal = await prisma.disposal.findUnique({
-      where: { id },
-      include: {
-        bin: {
-          include: {
-            binMaterial: true,
-          },
-        },
-      },
-    });
-    if (disposal) {
-      return NextResponse.json({ disposal }, { status: 200 });
-    }
-
-    // 2) If not a disposal, try queue by id
     const queue = await prisma.disposalQueue.findUnique({
-      where: { id },
+      where: { id: params.id },
       select: { id: true },
     });
     if (!queue) {
-      return NextResponse.json({ message: "Not found" }, { status: 404 });
+      return NextResponse.json({ message: "Queue not found" }, { status: 404 });
     }
 
     const disposals = await prisma.disposal.findMany({
       where: { queueId: queue.id },
       include: {
         bin: {
-          include: {
-            binMaterial: true,
-          },
+          include: { binMaterial: true },
         },
       },
       orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json({ queueId: queue.id, disposals }, { status: 200 });
+    return NextResponse.json(
+      { queueId: queue.id, disposals },
+      { status: 200 }
+    );
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(
@@ -112,6 +96,7 @@ export const PUT = async (
         { status: 401 }
       );
     }
+
     const authUserId = extractUserId(decodedToken);
     if (!authUserId) {
       return NextResponse.json(
@@ -120,7 +105,7 @@ export const PUT = async (
       );
     }
 
-    const id = params.id;
+    // request body
     const { userId, disposalToken } = await req.json();
     if (!userId || !disposalToken) {
       return NextResponse.json(
@@ -133,6 +118,7 @@ export const PUT = async (
       );
     }
 
+    // user making the request must match JWT user
     if (userId !== authUserId) {
       return NextResponse.json(
         { message: "Unauthorized access!" },
@@ -140,6 +126,7 @@ export const PUT = async (
       );
     }
 
+    // verify disposalToken (issued by bin manager)
     const decodedDisposalToken = jwt.verify(
       disposalToken,
       process.env.NEXT_JWT_SECRET_KEY!
@@ -168,119 +155,15 @@ export const PUT = async (
       );
     }
 
-    /**
-     * Decide mode:
-     * - Legacy single: id is a disposalId
-     * - Queue mode:   id is a queueId
-     */
-    const maybeDisposal = await prisma.disposal.findFirst({
-      where: { id, isRedeemed: false },
-      select: {
-        id: true,
-        pointsAwarded: true,
-        weightInGrams: true,
-        bin: {
-          include: {
-            binMaterial: {
-              select: { name: true, carbon_multiplier: true },
-            },
-          },
-        },
-      },
-    });
-
-    // ===== Legacy single disposal (UNCHANGED core behavior) =====
-    if (maybeDisposal) {
-      const disposal = maybeDisposal;
-
-      const emissionFactor = disposal.bin.binMaterial.carbon_multiplier ?? 0;
-      const carbonPrint = disposal.weightInGrams * emissionFactor;
-      const treeProgressIncrement = carbonPrint / 1000;
-
-      await prisma.$transaction([
-        prisma.disposal.update({
-          where: { id },
-          data: {
-            userId,
-            isRedeemed: true,
-            carbonprint: carbonPrint,
-          },
-        }),
-        prisma.point.upsert({
-          where: { userId },
-          update: { balance: { increment: disposal.pointsAwarded } },
-          create: { userId, balance: disposal.pointsAwarded },
-        }),
-        prisma.user.update({
-          where: { id: userId },
-          data: {
-            carbonprint: { increment: carbonPrint },
-            treeprogress: { increment: treeProgressIncrement },
-          },
-        }),
-      ]);
-
-      await prisma.transaction.create({
-        data: {
-          pointsChange: disposal.pointsAwarded,
-          description: `Awarded ${disposal.pointsAwarded} pts for recycling ${disposal.weightInGrams}g of ${disposal.bin.binMaterial.name.toLowerCase()} (${carbonPrint.toFixed(
-            2
-          )}g CO2 saved)`,
-          transactionType: TransactionType.DISPOSAL,
-          userId,
-        },
-      });
-
-      await pusherServer.trigger(`disposal-qr-${binManagerId}`, "disposal-update", {
-        updated: true,
-      });
-
-      // --- Events removed (kept quests only) ---
-      const now = new Date();
-
-      // Quests (single)
-      const matchingQuests = await prisma.userQuest.findMany({
-        where: {
-          userId,
-          isCompleted: false,
-          quest: {
-            startDate: { lte: now },
-            endDate: { gte: now },
-            materialType: disposal.bin.binMaterial.name.toUpperCase(),
-          },
-        },
-        include: { quest: { select: { target: true } } },
-      });
-
-      for (const uq of matchingQuests) {
-        const target = uq.quest.target ?? 0;
-        const achievedBefore = target > 0 ? uq.progress * target : 0;
-        const achievedAfter = achievedBefore + disposal.weightInGrams;
-        const fraction = target > 0 ? Math.min(1.0, achievedAfter / target) : 1.0;
-        await prisma.userQuest.update({
-          where: { id: uq.id },
-          data: { progress: fraction },
-        });
-      }
-
-      return NextResponse.json(
-        {
-          message: "Updated disposal",
-          carbonPrint: carbonPrint.toFixed(2),
-          treeProgressGained: treeProgressIncrement.toFixed(2),
-        },
-        { status: 200 }
-      );
-    }
-
-    // ===== Queue mode (NEW): id is queueId, redeem all unredeemed disposals in this queue =====
+    // --- Always queue mode ---
+    const queueId = params.id;
     const queue = await prisma.disposalQueue.findUnique({
-      where: { id },
+      where: { id: queueId },
       select: { id: true },
     });
     if (!queue) {
       return NextResponse.json(
-        { message: "No disposal or queue found" },
+        { message: "Queue not found" },
         { status: 404 }
       );
     }
@@ -309,7 +192,7 @@ export const PUT = async (
       );
     }
 
-    // Aggregate totals
+    // aggregate totals
     let totalPoints = 0;
     let totalCarbon = 0;
     const carbonById: Record<string, number> = {};
@@ -323,9 +206,8 @@ export const PUT = async (
     }
     const treeProgressIncrement = totalCarbon / 1000;
 
-    // Transactional updates for ALL items in the queue
+    // transaction: mark disposals redeemed + update user + transaction
     await prisma.$transaction(async (tx) => {
-      // mark each disposal redeemed + set user + carbon
       for (const d of disposals) {
         await tx.disposal.update({
           where: { id: d.id },
@@ -337,14 +219,12 @@ export const PUT = async (
         });
       }
 
-      // points balance
       await tx.point.upsert({
         where: { userId },
         update: { balance: { increment: totalPoints } },
         create: { userId, balance: totalPoints },
       });
 
-      // user carbon + tree
       await tx.user.update({
         where: { id: userId },
         data: {
@@ -353,7 +233,6 @@ export const PUT = async (
         },
       });
 
-      // single summary transaction
       await tx.transaction.create({
         data: {
           pointsChange: totalPoints,
@@ -366,10 +245,8 @@ export const PUT = async (
       });
     });
 
-    // --- Events removed (kept quests only) ---
+    // quests: update based on each disposal
     const now = new Date();
-
-    // Quests: update per disposal/material
     for (const d of disposals) {
       const matchingQuests = await prisma.userQuest.findMany({
         where: {
@@ -388,7 +265,8 @@ export const PUT = async (
         const target = uq.quest.target ?? 0;
         const achievedBefore = target > 0 ? uq.progress * target : 0;
         const achievedAfter = achievedBefore + d.weightInGrams;
-        const fraction = target > 0 ? Math.min(1.0, achievedAfter / target) : 1.0;
+        const fraction =
+          target > 0 ? Math.min(1.0, achievedAfter / target) : 1.0;
         await prisma.userQuest.update({
           where: { id: uq.id },
           data: { progress: fraction },
@@ -396,7 +274,7 @@ export const PUT = async (
       }
     }
 
-    // Notify kiosk (include queueId so listener can filter)
+    // notify kiosk / listener
     await pusherServer.trigger(`disposal-qr-${binManagerId}`, "disposal-update", {
       updated: true,
       queueId: queue.id,
