@@ -107,7 +107,7 @@ export const PUT = async (
   try {
     console.group("[PUT] Debug");
 
-    // --- Extract token ---
+    // --- Extract token (student scanning) ---
     const token = req.headers.get("Authorization")?.split(" ")[1];
     console.log("🔑 Auth header token:", token ? "present" : "missing");
     if (!token) {
@@ -118,7 +118,7 @@ export const PUT = async (
       );
     }
 
-    // --- Verify token ---
+    // --- Verify student JWT ---
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
     console.log("📜 Decoded token payload:", decodedToken);
     if (typeof decodedToken === "string") {
@@ -140,8 +140,9 @@ export const PUT = async (
         { status: 401 }
       );
     }
+    const userId = authUserId;
 
-    // --- Request body ---
+    // --- Request body (only disposalToken needed) ---
     const { disposalToken } = await req.json();
     console.log("📦 disposalToken received:", disposalToken ? "present" : "missing");
     if (!disposalToken) {
@@ -152,45 +153,19 @@ export const PUT = async (
       );
     }
 
-    // ✅ Trust JWT userId
-    const userId = authUserId;
-    console.log("✅ Using userId from JWT:", userId);
-
     // --- Verify disposalToken (QR token) ---
-    const decodedDisposalToken = jwt.verify(
-      disposalToken,
-      process.env.NEXT_JWT_SECRET_KEY!
-    );
-    console.log("📜 Decoded disposalToken:", decodedDisposalToken);
-    if (typeof decodedDisposalToken === "string") {
-      console.warn("❌ Decoded disposalToken is string → unauthorized");
-      console.groupEnd();
-      return NextResponse.json(
-        { message: "Unauthorized access!" },
-        { status: 401 }
+    try {
+      const decodedDisposalToken = jwt.verify(
+        disposalToken,
+        process.env.NEXT_JWT_SECRET_KEY!
       );
-    }
-    const binManagerId = extractUserId(decodedDisposalToken);
-    console.log("🗂️ binManagerId from disposalToken:", binManagerId);
-    if (!binManagerId) {
-      console.warn("❌ No binManagerId in disposalToken");
+      console.log("📜 disposalToken verified OK:", decodedDisposalToken);
+    } catch (err) {
+      console.warn("❌ Invalid disposalToken:", err);
       console.groupEnd();
       return NextResponse.json(
-        { message: "Unauthorized access!" },
+        { message: "Unauthorized disposal token!" },
         { status: 401 }
-      );
-    }
-
-    // --- Verify bin manager exists ---
-    const binManager = await prisma.user.findUnique({
-      where: { id: binManagerId },
-    });
-    console.log("👷 Bin manager found:", !!binManager);
-    if (!binManager) {
-      console.groupEnd();
-      return NextResponse.json(
-        { message: "Bin manager not found!" },
-        { status: 404 }
       );
     }
 
@@ -322,11 +297,12 @@ export const PUT = async (
     }
 
     // --- Notify listeners ---
-    await pusherServer.trigger(`disposal-qr-${binManagerId}`, "disposal-update", {
+    await pusherServer.trigger(`disposal-qr-${userId}`, "disposal-update", {
       updated: true,
       queueId: queue.id,
+      scannedBy: userId, // 👈 now shows *who scanned the QR*
     });
-    console.log("📡 Pusher event sent → disposal-qr-" + binManagerId);
+    console.log("📡 Pusher event sent → disposal-qr-" + userId);
 
     console.groupEnd();
     return NextResponse.json(
