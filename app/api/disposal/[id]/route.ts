@@ -41,15 +41,39 @@ export const GET = async (
       return NextResponse.json({ message: "Queue not found" }, { status: 404 });
     }
 
-    const disposals = await prisma.disposal.findMany({
+    // 🔹 Fetch with binMaterial
+    const disposalsRaw = await prisma.disposal.findMany({
       where: { queueId: queue.id },
-      include: {
+      select: {
+        id: true,
+        weightInGrams: true,
+        pointsAwarded: true,
+        carbonprint: true,
+        isRedeemed: true,
+        createdAt: true,
+        updatedAt: true,
         bin: {
-          include: { binMaterial: true },
+          select: {
+            binMaterial: {
+              select: { name: true },
+            },
+          },
         },
       },
       orderBy: { createdAt: "asc" },
     });
+
+    // 🔹 Flatten material into top-level field
+    const disposals = disposalsRaw.map((d) => ({
+      id: d.id,
+      weightInGrams: d.weightInGrams,
+      pointsAwarded: d.pointsAwarded,
+      carbonprint: d.carbonprint,
+      isRedeemed: d.isRedeemed,
+      createdAt: d.createdAt,
+      updatedAt: d.updatedAt,
+      material: d.bin?.binMaterial?.name ?? null,
+    }));
 
     return NextResponse.json(
       { queueId: queue.id, disposals },
