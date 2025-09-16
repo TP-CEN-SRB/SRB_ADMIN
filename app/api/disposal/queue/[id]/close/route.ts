@@ -23,22 +23,29 @@ export const PUT = async (
       data: { status: "CLOSED" },
     });
 
-    console.log(
-      "[closeQueue] Closed queue:",
-      closedQueue.id,
-      "userId:",
-      closedQueue.userId
-    );
+    console.log("==============================================");
+    console.log("[closeQueue] Queue closed in DB");
+    console.log("  queueId:", closedQueue.id);
+    console.log("  userId :", closedQueue.userId);
+    console.log("  status :", closedQueue.status);
 
-    // Notify QrScanListener with the correct channel
-    await pusherServer.trigger(
-      `disposal-qr-${closedQueue.userId}-${closedQueue.id}`,
-      "disposal-update",
-      {
-        updated: true,
-        queueId: closedQueue.id,
-      }
-    );
+    // Prepare channel + payload
+    const channel = `disposal-qr-${closedQueue.userId}-${closedQueue.id}`;
+    const payload = {
+      updated: true,
+      queueId: closedQueue.id,
+    };
+
+    console.log("[closeQueue] Triggering Pusher event...");
+    console.log("  Channel :", channel);
+    console.log("  Event   : disposal-update");
+    console.log("  Payload :", payload);
+
+    // Notify QrScanListener
+    await pusherServer.trigger(channel, "disposal-update", payload);
+
+    console.log("[closeQueue] Event successfully sent to Pusher");
+    console.log("==============================================");
 
     return NextResponse.json({ queue: closedQueue }, { status: 200 });
   } catch (error) {
