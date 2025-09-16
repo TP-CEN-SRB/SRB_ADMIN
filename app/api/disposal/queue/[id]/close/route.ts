@@ -17,16 +17,20 @@ export const PUT = async (
 
     const queueId = params.id;
 
-    // Close the queue & include userId so we know which channel to trigger
+    // Close the queue
     const closedQueue = await prisma.disposalQueue.update({
       where: { id: queueId },
       data: { status: "CLOSED" },
-      include: { user: true }, 
     });
 
-    console.log("Closed queue:", closedQueue.id);
+    console.log(
+      "[closeQueue] Closed queue:",
+      closedQueue.id,
+      "userId:",
+      closedQueue.userId
+    );
 
-    // Notify QrScanListener
+    // Notify QrScanListener with the correct channel
     await pusherServer.trigger(
       `disposal-qr-${closedQueue.userId}-${closedQueue.id}`,
       "disposal-update",
