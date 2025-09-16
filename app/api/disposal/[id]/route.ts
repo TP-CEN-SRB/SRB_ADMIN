@@ -173,7 +173,7 @@ export const PUT = async (
     console.log("QueueId from params:", queueId);
     const queue = await prisma.disposalQueue.findUnique({
       where: { id: queueId },
-      select: { id: true },
+      select: { id: true, userId: true }, 
     });
     console.log("Queue found:", !!queue);
     if (!queue) {
@@ -297,16 +297,21 @@ export const PUT = async (
 
     // --- Notify listeners ---
     await pusherServer.trigger(
-      `disposal-qr-${userId}-${queue.id}`, 
+      `disposal-qr-${queue.userId}-${queue.id}`,  // bin manager ID + queueId
       "disposal-update",
       {
         updated: true,
         queueId: queue.id,
-        scannedBy: userId,
+        scannedBy: userId, // student ID for logging/debugging
       }
     );
 
-    console.log("Pusher event sent → disposal-qr-" + userId + "-" + queue.id);
+    console.log(
+      "Pusher event sent →",
+      `disposal-qr-${queue.userId}-${queue.id}`,
+      "payload:",
+      { updated: true, queueId: queue.id, scannedBy: userId }
+    );
 
     console.groupEnd();
     return NextResponse.json(

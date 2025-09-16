@@ -17,10 +17,11 @@ export const PUT = async (
 
     const queueId = params.id;
 
-    // Close the queue
+    // Close the queue and fetch userId (bin manager)
     const closedQueue = await prisma.disposalQueue.update({
       where: { id: queueId },
       data: { status: "CLOSED" },
+      select: { id: true, userId: true, status: true },
     });
 
     console.log("==============================================");
