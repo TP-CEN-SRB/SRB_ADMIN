@@ -296,12 +296,17 @@ export const PUT = async (
     }
 
     // --- Notify listeners ---
-    await pusherServer.trigger(`disposal-qr-${userId}`, "disposal-update", {
-      updated: true,
-      queueId: queue.id,
-      scannedBy: userId,
-    });
-    console.log("📡 Pusher event sent → disposal-qr-" + userId);
+    await pusherServer.trigger(
+      `disposal-qr-${userId}-${queue.id}`, 
+      "disposal-update",
+      {
+        updated: true,
+        queueId: queue.id,
+        scannedBy: userId,
+      }
+    );
+
+    console.log("Pusher event sent → disposal-qr-" + userId + "-" + queue.id);
 
     console.groupEnd();
     return NextResponse.json(
