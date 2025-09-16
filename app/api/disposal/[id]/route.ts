@@ -255,7 +255,7 @@ export const PUT = async (
       await tx.transaction.create({
         data: {
           pointsChange: totalPoints,
-          description: `Awarded ${totalPoints} pts for ${disposals.length} disposals in queue ${queue.id} (${totalCarbon.toFixed(
+          description: `Awarded ${totalPoints} pts for ${disposals.length} disposals in queue. (${totalCarbon.toFixed(
             2
           )}g CO2 saved)`,
           transactionType: TransactionType.DISPOSAL,
