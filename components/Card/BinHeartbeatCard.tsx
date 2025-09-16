@@ -1,10 +1,13 @@
+"use client";
 import React from "react";
+import { formatDistanceToNow } from "date-fns";
 
 type HeartbeatBinCardProps = {
-  title: string;
-  color: string; // tailwind ring color, e.g. 'ring-red-400'
-  percentage: number;
-  status: "online" | "offline";
+  title: string;                     // Bin title (e.g. "Plastic Bin")
+  color: string;                     // Tailwind ring color, e.g. 'ring-red-400'
+  percentage: number;                // Fill percentage
+  status: "online" | "offline";      // Heartbeat status
+  lastActive?: string | null;        // Last heartbeat timestamp
 };
 
 export default function HeartbeatBinCard({
@@ -12,18 +15,22 @@ export default function HeartbeatBinCard({
   color,
   percentage,
   status,
+  lastActive,
 }: HeartbeatBinCardProps) {
   const statusColor = status === "online" ? "text-green-600" : "text-red-500";
 
   return (
-    <div className="flex flex-col items-center space-y-2 p-3 rounded-xl bg-white shadow-sm w-[120px]">
-      {/* Outer Circle with color ring */}
-      <div className={`relative w-20 h-20 rounded-full border-4 ${color} flex items-center justify-center`}>
-        {/* Heartbeat Image Inside */}
+    <div className="flex flex-col items-center space-y-2 p-3 rounded-2xl bg-white shadow-md border w-[140px]">
+      {/* Outer Circle with heartbeat image */}
+      <div
+        className={`relative w-20 h-20 rounded-full border-4 ${color} flex items-center justify-center`}
+      >
         <img
           src="/heartbeat.png"
           alt="heartbeat"
-          className="w-10 h-10 opacity-80 animate-pulse"
+          className={`w-10 h-10 opacity-80 ${
+            status === "online" ? "animate-pulse" : "opacity-30"
+          }`}
         />
         {/* Percent Overlay */}
         <div className="absolute bottom-1 text-sm font-semibold text-gray-700">
@@ -31,11 +38,23 @@ export default function HeartbeatBinCard({
         </div>
       </div>
 
-      {/* Label */}
-      <div className="text-sm font-medium text-gray-700 text-center">{title}</div>
+      {/* Title */}
+      <div className="text-sm font-medium text-gray-700 text-center">
+        {title}
+      </div>
 
       {/* Status */}
-      <div className={`text-xs font-medium ${statusColor}`}>{status}</div>
+      <div className={`text-xs font-semibold ${statusColor}`}>{status}</div>
+
+      {/* Last Active */}
+      {lastActive && (
+        <div className="text-[10px] text-gray-500 text-center">
+          Last seen{" "}
+          {formatDistanceToNow(new Date(lastActive), {
+            addSuffix: true,
+          })}
+        </div>
+      )}
     </div>
   );
 }

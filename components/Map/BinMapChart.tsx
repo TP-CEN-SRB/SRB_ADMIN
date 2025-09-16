@@ -225,6 +225,12 @@ export default function MapChart({ data }: MapChartProps) {
                 >
                   <FaPlus /> Add bin
                 </Link>
+                <Link
+                  href={`/admin/bin/manager/view/${popupInfo.id}`}
+                  className="flex gap-1 items-center text-purple-600 hover:underline text-sm"
+                >
+                  <IoLocationSharp /> View bins
+              </Link>
               </div>
             </div>
           </Popup>
