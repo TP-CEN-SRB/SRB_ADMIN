@@ -34,7 +34,7 @@ export const POST = async (req: NextRequest) => {
 
     const existingUser = await prisma.user.findFirst({
       where: {
-        email: data.email, // already lowercase
+        email: data.email, 
         role: { in: [Role.STUDENT, Role.STORE, Role.STAFF] },
       },
     });

@@ -11,7 +11,6 @@ const extractUserId = (decoded: unknown): string | null => {
   return typeof uid === "string" ? uid : null;
 };
 
-// ✅ Only queue mode now
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -41,7 +40,7 @@ export const GET = async (
       return NextResponse.json({ message: "Queue not found" }, { status: 404 });
     }
 
-    // 🔹 Fetch with binMaterial
+    // Fetch with binMaterial
     const disposalsRaw = await prisma.disposal.findMany({
       where: { queueId: queue.id },
       select: {
@@ -63,7 +62,7 @@ export const GET = async (
       orderBy: { createdAt: "asc" },
     });
 
-    // 🔹 Flatten material into top-level field
+    // Flatten material into top-level field
     const disposals = disposalsRaw.map((d) => ({
       id: d.id,
       weightInGrams: d.weightInGrams,
@@ -107,9 +106,9 @@ export const PUT = async (
   try {
     console.group("[PUT] Debug");
 
-    // --- Extract token (student scanning) ---
+    // Extract token (student scanning) ---
     const token = req.headers.get("Authorization")?.split(" ")[1];
-    console.log("🔑 Auth header token:", token ? "present" : "missing");
+    console.log("Auth header token:", token ? "present" : "missing");
     if (!token) {
       console.groupEnd();
       return NextResponse.json(
@@ -120,9 +119,9 @@ export const PUT = async (
 
     // --- Verify student JWT ---
     const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    console.log("📜 Decoded token payload:", decodedToken);
+    console.log("Decoded token payload:", decodedToken);
     if (typeof decodedToken === "string") {
-      console.warn("❌ Decoded token is a string → unauthorized");
+      console.warn("Decoded token is a string → unauthorized");
       console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized access!" },
@@ -131,9 +130,9 @@ export const PUT = async (
     }
 
     const authUserId = extractUserId(decodedToken);
-    console.log("🧑 UserId from JWT:", authUserId);
+    console.log("UserId from JWT:", authUserId);
     if (!authUserId) {
-      console.warn("❌ No userId in JWT");
+      console.warn("No userId in JWT");
       console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized access!" },
@@ -144,7 +143,7 @@ export const PUT = async (
 
     // --- Request body (only disposalToken needed) ---
     const { disposalToken } = await req.json();
-    console.log("📦 disposalToken received:", disposalToken ? "present" : "missing");
+    console.log("disposalToken received:", disposalToken ? "present" : "missing");
     if (!disposalToken) {
       console.groupEnd();
       return NextResponse.json(
@@ -159,9 +158,9 @@ export const PUT = async (
         disposalToken,
         process.env.NEXT_JWT_SECRET_KEY!
       );
-      console.log("📜 disposalToken verified OK:", decodedDisposalToken);
+      console.log("disposalToken verified OK:", decodedDisposalToken);
     } catch (err) {
-      console.warn("❌ Invalid disposalToken:", err);
+      console.warn("Invalid disposalToken:", err);
       console.groupEnd();
       return NextResponse.json(
         { message: "Unauthorized disposal token!" },
@@ -171,12 +170,12 @@ export const PUT = async (
 
     // --- Fetch queue ---
     const queueId = params.id;
-    console.log("🗂️ QueueId from params:", queueId);
+    console.log("QueueId from params:", queueId);
     const queue = await prisma.disposalQueue.findUnique({
       where: { id: queueId },
       select: { id: true },
     });
-    console.log("📦 Queue found:", !!queue);
+    console.log("Queue found:", !!queue);
     if (!queue) {
       console.groupEnd();
       return NextResponse.json(
@@ -202,7 +201,7 @@ export const PUT = async (
       },
       orderBy: { createdAt: "asc" },
     });
-    console.log("♻️ Disposals count:", disposals.length);
+    console.log("Disposals count:", disposals.length);
     if (disposals.length === 0) {
       console.groupEnd();
       return NextResponse.json(
@@ -224,7 +223,7 @@ export const PUT = async (
       totalPoints += d.pointsAwarded;
     }
     const treeProgressIncrement = totalCarbon / 1000;
-    console.log("📊 Totals:", { totalPoints, totalCarbon, treeProgressIncrement });
+    console.log("Totals:", { totalPoints, totalCarbon, treeProgressIncrement });
 
     // --- Transaction ---
     await prisma.$transaction(async (tx) => {
@@ -264,7 +263,7 @@ export const PUT = async (
         },
       });
     });
-    console.log("✅ Transaction committed");
+    console.log("Transaction committed");
 
     // --- Quest updates ---
     const now = new Date();
@@ -281,7 +280,7 @@ export const PUT = async (
         },
         include: { quest: { select: { target: true } } },
       });
-      console.log(`📋 Matching quests for disposal ${d.id}:`, matchingQuests.length);
+      console.log(`Matching quests for disposal ${d.id}:`, matchingQuests.length);
 
       for (const uq of matchingQuests) {
         const target = uq.quest.target ?? 0;
@@ -300,7 +299,7 @@ export const PUT = async (
     await pusherServer.trigger(`disposal-qr-${userId}`, "disposal-update", {
       updated: true,
       queueId: queue.id,
-      scannedBy: userId, // 👈 now shows *who scanned the QR*
+      scannedBy: userId,
     });
     console.log("📡 Pusher event sent → disposal-qr-" + userId);
 

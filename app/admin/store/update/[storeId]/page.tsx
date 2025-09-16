@@ -12,7 +12,7 @@ const UpdateStorePage = async ({
   const store = await getStoreById(params.storeId);
 
   if (!store) {
-    notFound(); // Or you can use <NotFoundPage />
+    notFound(); 
   }
 
   return (

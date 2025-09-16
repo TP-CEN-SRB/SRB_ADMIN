@@ -28,7 +28,7 @@ export const GET = async (req: NextRequest) => {
         materialType: true,
         rewardPoints: true,
       },
-      orderBy: { createdAt: "desc" }, // Optional: newest first
+      orderBy: { createdAt: "desc" }, 
     });
 
     if (!quests || quests.length === 0) {

@@ -127,7 +127,7 @@ export const PUT = async (
   }
 };
 
-// 🆕 GET method to fetch bin capacity for IdleVideo
+// GET method to fetch bin capacity for IdleVideo
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }

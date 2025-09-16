@@ -13,7 +13,7 @@ const verifyToken = async (token: string) => {
     return { error: "Something went wrong!" };
   }
 
-  // 🧩 Decode token (for Outlook-safe base64 URL tokens)
+  // Decode token (for Outlook-safe base64 URL tokens)
   const decodedToken = decodeBase64UrlSafe(token);
   console.log("[verifyToken] Decoded token (after decodeBase64UrlSafe):", decodedToken);
 
@@ -43,7 +43,7 @@ const verifyToken = async (token: string) => {
     };
   }
 
-  // ✅ Handle email update case
+  // Handle email update case
   if (existingToken.oldEmail) {
     console.log("[verifyToken] Detected email update from", existingToken.oldEmail, "to", existingToken.email);
     try {
@@ -62,7 +62,7 @@ const verifyToken = async (token: string) => {
     }
   }
 
-  // ✅ Normal email verification
+  // Normal email verification
   const existingUser = await prisma.user.findUnique({
   where: { email: existingToken.email.toLowerCase() }, // normalize casing
   });
@@ -89,7 +89,7 @@ const verifyToken = async (token: string) => {
     return { error: "Something went wrong!" };
   }
 
-  // ✅ Assign all quests
+  // Assign all quests
   try {
     const allQuests = await prisma.questDetails.findMany();
     if (allQuests.length > 0) {
@@ -108,7 +108,7 @@ const verifyToken = async (token: string) => {
     console.error("[verifyToken] Failed to assign quests:", err);
   }
 
-  // ✅ Assign currently ongoing event
+  // Assign currently ongoing event
   try {
     const now = new Date();
     const existingEvent = await prisma.event.findFirst({

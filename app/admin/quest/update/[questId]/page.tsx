@@ -13,7 +13,7 @@ const UpdateQuestPage = async ({
   const quest = await getQuestById(params.questId);
 
   if (!quest) {
-    notFound(); // Or return <NotFoundPage />
+    notFound(); 
   }
 
   return (

@@ -17,7 +17,7 @@ export const saveRecording = async (url: string, duration: number) => {
 
     return { video };
   } catch (err) {
-    console.error("❌ Failed to save recording:", err);
+    console.error("Failed to save recording:", err);
     return { error: "Database save failed" };
   }
 };

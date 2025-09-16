@@ -105,7 +105,7 @@ const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
       password: hashedPassword,
       lat: lat,
       long: long,
-      //to update faculty (cfm have merge conflict)
+      //to update faculty 
     },
   });
   revalidatePath("/admin/bin/manager");

@@ -16,13 +16,13 @@ export const PUT = async (
 
     const queueId = params.id;
 
-    // 📴 Close the queue
+    // Close the queue
     const closedQueue = await prisma.disposalQueue.update({
       where: { id: queueId },
       data: { status: "CLOSED" },
     });
 
-    console.log("🔒 Closed queue:", closedQueue.id);
+    console.log("Closed queue:", closedQueue.id);
     return NextResponse.json({ queue: closedQueue }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

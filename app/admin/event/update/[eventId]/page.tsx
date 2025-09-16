@@ -12,7 +12,7 @@ const UpdateEventPage = async ({
   const event = await getEventById(params.eventId);
 
   if (!event) {
-    notFound(); // Or return <NotFoundPage />
+    notFound(); 
   }
 
   return (

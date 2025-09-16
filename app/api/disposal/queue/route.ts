@@ -21,21 +21,21 @@ export const POST = async (req: NextRequest) => {
       );
     }
 
-    // 🔍 Check for an existing OPEN queue for this user
+    // Check for an existing OPEN queue for this user
     const existingQueue = await prisma.disposalQueue.findFirst({
       where: { userId, status: "OPEN" },
     });
 
     if (existingQueue) {
-      console.log("♻️ Reusing existing OPEN queue:", existingQueue.id);
+      console.log("Reusing existing OPEN queue:", existingQueue.id);
       return NextResponse.json({ queue: existingQueue }, { status: 200 });
     }
 
-    // 🚀 Create a new queue if none found
+    // Create a new queue if none found
     const newQueue = await prisma.disposalQueue.create({
       data: {
         userId,
-        status: "OPEN", // default if your Prisma model has it, but explicit is good
+        status: "OPEN",
       },
     });
 
