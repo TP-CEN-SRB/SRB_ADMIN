@@ -36,6 +36,31 @@ import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
 import { FaHeartPulse} from "react-icons/fa6";
 
+
+//         /\/\,\,\ ,
+//                 /        ` \'\,
+//                /               '/|_
+//               /                   /
+//              /                   /
+//             /                   ;
+//             ;-""-.  ____       ,
+//            /      )'    `.     '
+//           (    o |        )   ;
+//            ),'"""\    o   ;  :
+//            ;\___  `._____/ ,-:
+//           ;                 @ )
+//          /                `;-'
+//       ,. `-.______________,|
+//  ,(`._||         \__\__\__)|
+// ,`.`-   \        '.        |
+//  `._  ) :          )______,;\_
+//     \    \_   _,--/       ,   `.
+//      \     `--\   :      /      `.
+//       \        \  ;     |         \
+//        `-._____ ;|      |       _,'
+//    -hrr-       \/'      `-.----' \
+//                 /          \      \
+
 export const collaspeItems = [
   {
     title: "Bin Managers",
@@ -322,3 +347,4 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
     </>
   );
 }
+
