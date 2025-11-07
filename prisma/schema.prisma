@@ -36,6 +36,7 @@ model User {
   sentTransfers     TransferSession[] @relation("SentTransfers")
   user_quest        UserQuest[]
   user_event        UserEvent[]
+  user_feedback      UserFeedback[]
 
   @@map("users")
 }
@@ -283,6 +284,31 @@ model UserEvent {
   event Event @relation(fields: [eventId], references: [id], onDelete: Cascade, map: "userevent_eventId_fkey")
 
   @@map("user_event")
+}
+
+model UserFeedback {
+  id           String   @id @default(uuid())
+  userId       String?  // optional if feedback is anonymous
+  rating       Int?     // 1–5 stars or satisfaction score
+  category     FeedbackCategory @default(GENERAL)
+  message      String   // user’s written feedback
+  suggestion   String?  // optional improvement ideas
+  isResolved   Boolean  @default(false) // mark if addressed
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_feedback")
+}
+
+enum FeedbackCategory {
+  GENERAL
+  BUG_REPORT
+  FEATURE_REQUEST
+  PERFORMANCE
+  UI_UX
+  OTHER
 }
 
 enum Faculty {

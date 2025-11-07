@@ -111,16 +111,14 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className={hasBins ? "cursor-not-allowed" : ""}>
-                    <DropdownMenuItem
-                      onClick={() => setDialogOpen(true)}
-                      disabled={hasBins}
-                    >
-                      <MdDeleteForever />
+                  <div>
+                    <DropdownMenuItem onClick={() => setDialogOpen(true)}>
+                      <MdDeleteForever className="text-red-500" />
                       Delete manager
                     </DropdownMenuItem>
                   </div>
                 </TooltipTrigger>
+
                 {hasBins && (
                   <TooltipContent
                     side="left"
@@ -130,7 +128,7 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
                   >
                     <div className="flex items-start space-x-2">
                       <svg
-                        className="w-5 h-5 text-red-500"
+                        className="w-5 h-5 text-yellow-500"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
@@ -144,10 +142,10 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
                         />
                       </svg>
                       <div>
-                        <p className="font-semibold text-gray-800">Warning</p>
+                        <p className="font-semibold text-gray-800">Has assigned bins</p>
                         <p className="mt-1 text-sm">
-                          This manager has bins assigned. Deleting is not
-                          allowed.
+                          This manager currently has {binManager._count.bins} bins linked.
+                          Deleting will remove all of them.
                         </p>
                       </div>
                     </div>

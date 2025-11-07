@@ -7,22 +7,29 @@ import {
   getFaultyBins,
   getPieChartData,
   getBinCountsByStatus,
+  getHeartbeat,
 } from "../action/bin";
 import BinDashboard from "./bin/(allBinsTable)/binDashboard";
 const Page = async () => {
-const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: string) => {
+const fetchDashboardData = async (startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";
-  const [
-    totalFuncBins,
-    totalCount,
-    totalDisposalCount,
-    totalUMBins,
-  ] = await Promise.all([
-    getBinCountsByStatus(startDate, endDate,false, filter),
-    (await getAllBins(startDate, endDate)).length,
-    getDisposals(startDate, endDate),
-    getBinCountsByStatus(startDate, endDate,true, filter)
-  ]);
+
+  // 🟢 Fetch heartbeat data for all bins
+  const heartbeatData = await getHeartbeat();
+
+  // 🧠 Compute hybrid status
+  const totalFuncBins = heartbeatData.filter(
+    (b) => b.effectiveStatus === "FUNCTIONAL"
+  ).length;
+
+  const totalUMBins = heartbeatData.filter(
+    (b) => b.effectiveStatus === "UNDER_MAINTENANCE"
+  ).length;
+
+  const totalCount = heartbeatData.length;
+
+  // 🗑️ Disposal count can stay as before
+  const totalDisposalCount = await getDisposals(startDate, endDate);
 
   return {
     totalFuncBins,
@@ -30,7 +37,8 @@ const fetchDashboardData = async(startDate?: Date, endDate?: Date, filter?: stri
     totalDisposalCount,
     totalUMBins,
   };
-}
+};
+
 
 const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";

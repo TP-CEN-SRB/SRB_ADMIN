@@ -33,13 +33,13 @@ import { DateRange } from '@/utils/dateUtils';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { truncateText } from '@/utils/truncateString';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import ConfirmResolveBinIssueDialog from '@/components/Dialog/ConfirmResolveBinIssueDialog';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import { IoLocation } from "react-icons/io5";
-import { MdOutlineDownloadDone } from "react-icons/md";
+import { formatDistanceToNow } from "date-fns";
+
 
 interface BinDashboardProps {
   DBBarChartData: {
@@ -103,12 +103,14 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
     const [gridData, setGridData] = useState<number[]>(initialStatsData);
     const [chartData, setChartData] = useState<[typeof DBBarChartData, typeof DBPieChartData]>([DBBarChartData, DBPieChartData]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [binId, setBinId] = useState<string>('');
-    const [isResolved, setIsResolved] = useState(false);
-    const [UMBinsTable, setUMBinsTable] = useState(UMBinsData);
     const [lineChart, setLineChart] = useState(DBLineChartData);
-    const [datetime, setDateTime] = useState(formatDateTime(new Date())); 
+    const [datetime, setDateTime] = useState(formatDateTime(new Date()));
+    const [alertCount, setAlertCount] = useState(0);
+    const [alertData, setAlertData] = useState<any[]>([]);
+    const [sortField, setSortField] = useState<"capacity" | "lastSeen">("capacity");
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+ 
     
     const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0];
     const barChartConfig = BarChartConfig({ materials }) as ChartConfig;
@@ -146,12 +148,10 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                 setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
                 setChartData([DBBarChartData, DBPieChartData]);
                 setLineChart(binDisposalsTimeLine);
-                setUMBinsTable(UMBinsUpdate);
             } else {
               setGridData(initialStatsData);
               setChartData([DBBarChartData, DBPieChartData]);
               setLineChart(DBLineChartData);
-              setUMBinsTable(UMBinsData);
             }
         } catch (error){
             toast({
@@ -165,31 +165,48 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         }
         },[getDateRange]);
 
+        useEffect(() => {
+          const fetchAlerts = async () => {
+            try {
+              const res = await fetch("/api/alerts", { cache: "no-store" });
+              if (!res.ok) throw new Error("Failed to fetch alerts");
+              const data: {
+                id: string;
+                location: string;
+                material: string;
+                capacity: number;
+                lastHeartBeat: string | null;
+                lat: number | null;
+                long: number | null;
+                alertLevel: "online" | "offline" | "warning" | "critical";
+              }[] = await res.json();
 
-    useEffect(() => {
-      const updateUMBinsTable = async () => {
-        if (isResolved){
-        setIsFetching(true);
-        try {
-        const { startDate, endDate } = getDateRange(isActive);
-            const { dashboardData: { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }, UMBinsData: UMBinsUpdate } = await fetchAll(startDate, endDate, isActive);
-            setUMBinsTable(UMBinsUpdate);
-            setGridData([totalFuncBins, totalCount, totalDisposalCount, totalUMBins]);
-        } catch (error) {
-          toast({
-            title: "Error!",
-            description: "Failed to update bin status",
-            duration: 2000,
-            variant: "destructive",
-          });
-        } finally {
-          setIsResolved(false);
-        setIsFetching(false);
-        }
-      }
-      };
-      updateUMBinsTable();
-    }, [isResolved]);
+              console.log("📡 Received Alerts:", data.length, data);
+              // 🔹 filter duplicates locally (client-side)
+              const uniqueAlerts = data.filter(
+                (item, index, self) =>
+                  index === self.findIndex((t) => t.id === item.id)
+              );
+              setAlertData(uniqueAlerts);
+
+              // ✅ Explicitly typed filter
+              const issues = data.filter(
+                (b) =>
+                  b.alertLevel === "offline" ||
+                  b.alertLevel === "critical" ||
+                  b.alertLevel === "warning"
+              );
+
+              setAlertCount(issues.length);
+            } catch (error) {
+              console.error("❌ Error fetching alerts:", error);
+            }
+          };
+
+          fetchAlerts(); // initial fetch
+          const interval = setInterval(fetchAlerts, 30000); // refresh every 30s
+          return () => clearInterval(interval);
+        }, []);
 
     const binDashBoardItems = useMemo(()=> [
         {
@@ -223,8 +240,9 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
           title: "Alerts",
           description: "Issues found",
           button: "View",
+          value: alertCount,
         },
-      ], []);
+      ], [alertCount]);
     
     const router = useRouter();
     const {data, isLoading, refetch} = useQuery({
@@ -236,7 +254,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         setGridData([data.dashboardData.totalFuncBins, data.dashboardData.totalCount, data.dashboardData.totalDisposalCount, data.dashboardData.totalUMBins]);
         setChartData([data.chartsData.DBBarChartData, data.chartsData.DBPieChartData]);
         setLineChart(data.chartsData.binDisposalsTimeLine);
-        setUMBinsTable(data.UMBinsData);
         setDateTime(formatDateTime(new Date()));
         return data;
         }
@@ -258,12 +275,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
   return (
     <>
     {isFetching ? <Loading/> : <>
-    <ConfirmResolveBinIssueDialog 
-      binId={binId} 
-      isOpen={isDeleteDialogOpen} 
-      handleDialogOpen={() => setIsDeleteDialogOpen(!isDeleteDialogOpen)} 
-      isResolved={isResolved}
-      handleResolved={() => setIsResolved(!isResolved)}/>
       <div className="px-4 md:px-6 lg:px-8 mt-4">
         <div className="flex flex-row md:items-center justify-between">
             <span className="text-gray-600 text-sm sm:text-base" suppressHydrationWarning={true}>
@@ -336,97 +347,125 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                       )}
                     </div>
                     {items.button && (
-                      <Dialog
-                        open={isDialogOpen}
-                        onOpenChange={setIsDialogOpen}
-                      >
+                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
                           <IoMdInformationCircleOutline className='text-xl sm:text-3xl text-[#f44336] mr-2 hover:cursor-pointer hover:animate-sway'/>
                         </DialogTrigger>
                         <DialogContent className="w-[90vw] min-h-[500px] max-h-[90vh] sm:max-w-screen-sm rounded-md flex flex-col items-center">
                           <DialogHeader className='w-full items-center'>
-                            <DialogTitle>Bins Under Maintenance</DialogTitle>
+                            <DialogTitle>Alert Center</DialogTitle>
                             <DialogDescription>
-                              Update the status of the bin. Click resolve if
-                              issue has been corrected.
+                              Real-time statuses of bins detected as offline, full, or almost full.
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="rounded-md border w-full">
+                          <div className="flex justify-end w-full mb-3 pr-2">
+                            <div className="flex items-center gap-2">
+                              <label className="text-sm text-gray-600 font-medium">Sort by:</label>
+                              <select
+                                className="border rounded-md text-sm px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                value={sortField}
+                                onChange={(e) => setSortField(e.target.value as "capacity" | "lastSeen")}
+                              >
+                                <option value="capacity">Capacity</option>
+                                <option value="lastSeen">Last Seen</option>
+                              </select>
+
+                              <button
+                                onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                                className="border rounded-md px-2 py-1 text-xs text-gray-700 hover:bg-gray-100"
+                              >
+                                {sortOrder === "asc" ? "▲ Asc" : "▼ Desc"}
+                              </button>
+                            </div>
+                          </div>
+                          <div className="rounded-md border w-full mt-2">
                             <div className="max-h-[400px] overflow-y-auto">
                               <Table className="w-full">
-                                <TableHeader className='bg-gray-200 hover:bg-gray-300'>
+                                <TableHeader className='bg-gray-200'>
                                   <TableRow>
-                                    <TableHead className="text-center font-bold text-md text-gray-800">
-                                      Location
-                                    </TableHead>
-                                    <TableHead className="text-center font-bold text-md text-gray-800">
-                                      Type
-                                    </TableHead>
-                                    <TableHead className="text-center font-bold text-md text-gray-800">
-                                      Action
-                                    </TableHead>
+                                    <TableHead className="text-center font-bold">Location</TableHead>
+                                    <TableHead className="text-center font-bold">Type</TableHead>
+                                    <TableHead className="text-center font-bold">Capacity</TableHead>
+                                    <TableHead className="text-center font-bold">Last Seen</TableHead>
+                                    <TableHead className="text-center font-bold">Status</TableHead>
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                  
-                                  {UMBinsTable?.map((bin, index) => (
-                                    <TableRow key={index}>
-                                      <TableCell className="text-center">
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                          {truncateText(bin.user.location as string, 10)}
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            {bin.user.location}
-                                          </TooltipContent>
-                                        </Tooltip>
-                                        </TableCell>
-                                      <TableCell className="text-center">
-                                        {bin.binMaterial.name.length > 10 ? 
-                                        <>
+                                  {[...alertData]
+                                    .sort((a, b) => {
+                                      if (sortField === "capacity") {
+                                        return sortOrder === "asc"
+                                          ? a.capacity - b.capacity
+                                          : b.capacity - a.capacity;
+                                      } else if (sortField === "lastSeen") {
+                                        const aTime = a.lastHeartBeat ? new Date(a.lastHeartBeat).getTime() : 0;
+                                        const bTime = b.lastHeartBeat ? new Date(b.lastHeartBeat).getTime() : 0;
+                                        return sortOrder === "asc" ? aTime - bTime : bTime - aTime;
+                                      }
+                                      return 0;
+                                    })
+                                    .filter((bin, index, self) => self.findIndex(b => b.id === bin.id) === index)
+                                    .map((bin, i) => (
+                                      <TableRow key={i}>
+                                        <TableCell className="text-center">
                                           <TooltipProvider>
-                                        <Tooltip>
-                                          <TooltipTrigger>
-                                          {truncateText(bin.binMaterial.name as string, 10)}
-                                          </TooltipTrigger>
-                                          <TooltipContent>
-                                            {bin.binMaterial.name}
-                                          </TooltipContent>
-                                        </Tooltip>
-                                        </TooltipProvider>
-                                        </>
-                                        : bin.binMaterial.name}
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <span className="truncate max-w-[120px] inline-block align-middle">
+                                                  {bin.location || "-"}
+                                                </span>
+                                              </TooltipTrigger>
+                                              <TooltipContent>
+                                                {bin.location || "No location available"}
+                                              </TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
                                         </TableCell>
-                                      <TableCell className="text-center">
-                                        <DropdownMenu modal={false}>
-                                          <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
-                                              <span className="sr-only">Open menu</span>
-                                              <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                          </DropdownMenuTrigger>
-                                          <DropdownMenuContent align="end">
-                                          <DropdownMenuItem className="flex items-center font-bold text-sm text-gray-600" 
-                                          onClick={() => (setIsDeleteDialogOpen(!isDeleteDialogOpen), setBinId(bin.id))}>
-                                            <MdOutlineDownloadDone />
-                                            <span className="hover:cursor-pointer">
-                                              Resolved
-                                            </span>
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem className="flex items-center font-bold text-sm text-gray-600">
-                                            <IoLocation />
-                                            <span
-                                              className="hover:cursor-pointer font-bold"
-                                              onClick={() => (router.push(`/admin/bin/manager/map?lat=${bin.user.lat}&long=${bin.user.long}`))}
-                                            >
-                                              View Bin Location
-                                            </span>
-                                          </DropdownMenuItem>
-                                          </DropdownMenuContent>
-                                        </DropdownMenu>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
+                                        <TableCell className="text-center">{bin.material}</TableCell>
+                                        <TableCell className="text-center">{bin.capacity}%</TableCell>
+                                        <TableCell className="text-center text-sm text-gray-600">
+                                          {bin.lastHeartBeat
+                                            ? `${formatDistanceToNow(new Date(bin.lastHeartBeat))} ago`
+                                            : "No signal yet"}
+                                        </TableCell>
+                                        <TableCell className="text-center font-bold">
+                                          <div className="flex flex-col items-center gap-1">
+                                            {bin.alertLevel === "offline" && (
+                                              <span className="text-red-600 text-sm font-semibold">Offline</span>
+                                            )}
+                                            {bin.alertLevel === "online" && (
+                                              <span className="text-green-600 text-sm font-semibold">Online</span>
+                                            )}
+                                            {bin.capacity >= 75 && bin.capacity < 100 && (
+                                              <span className="text-orange-500 text-sm font-semibold">
+                                                Almost Full ({bin.capacity}%)
+                                              </span>
+                                            )}
+                                            {bin.capacity === 100 && (
+                                              <span className="text-red-700 text-sm font-semibold">
+                                                Full (100%)
+                                              </span>
+                                            )}
+                                          </div>
+
+                                          <div className="mt-2">
+                                            {bin.lat && bin.long ? (
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                  router.push(`/admin/bin/manager/map?lat=${bin.lat}&long=${bin.long}`)
+                                                }
+                                              >
+                                                View Location
+                                              </Button>
+                                            ) : (
+                                              <span className="text-gray-400 text-xs">No location</span>
+                                            )}
+                                          </div>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))}
                                 </TableBody>
                               </Table>
                             </div>
@@ -437,11 +476,15 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                   </div>
                   <div className="flex flex-col">
                     <span className="font-bold text-3xl sm:text-4xl">
-                      {items.map ? (
-                            <span className="hover:cursor-pointer" onClick={() => router.push(`${items.map}`)}>{gridData[index]}</span>
-                          ) : (
-                            gridData[index]
-                          )}
+                      {items.value !== undefined
+                        ? items.value
+                        : items.map
+                        ? (
+                          <span className="hover:cursor-pointer" onClick={() => router.push(`${items.map}`)}>
+                            {gridData[index]}
+                          </span>
+                        )
+                        : gridData[index]}
                     </span>
                     <span className="font-light text-sm sm:text-base">
                       {items.description}

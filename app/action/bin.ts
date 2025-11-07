@@ -92,6 +92,7 @@ export const createBin = async (
           status: formData.status as BinStatus,
           binMaterialId: formData.materialIds[i] as string,
           userId: binUserId,
+          lastHeartBeat: null,
         },
       });
       if (i == formData.materialIds.length - 1) {
@@ -776,21 +777,6 @@ export const getFaultyBins = async (
   }));
 };
 
-export const updateBinStatus = async (id: string, status: BinStatus) => {
-  try {
-    await prisma.bin.update({
-      where: { id },
-      data: { status },
-    });
-    revalidatePath("/admin");
-    return {
-      success: `Bin status updated successfully, Bin ID: ${id}`,
-    };
-  } catch (error) {
-    return { error: "Unexpected error occurred, Failed to update bin" };
-  }
-};
-
 export const getHeartbeat = async () => {
   const bins = await prisma.bin.findMany({
     select: {
@@ -799,36 +785,136 @@ export const getHeartbeat = async () => {
       currentCapacity: true,
       lastHeartBeat: true,
       userId: true,
-      binMaterial: {
-        select: {
-          name: true,
-        },
-      },
+      binMaterial: { select: { name: true } },
+      user: { select: { name: true } },
+    },
+  });
+
+  const now = new Date();
+
+  // 🧩 Determine live status
+  const heartbeatData = bins.map((bin) => {
+    const isOnline =
+      bin.lastHeartBeat &&
+      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10; // 10 min timeout
+
+    let effectiveStatus: "FUNCTIONAL" | "UNDER_MAINTENANCE" = bin.status;
+
+    if (bin.status === "FUNCTIONAL" && !isOnline) {
+      effectiveStatus = "UNDER_MAINTENANCE";
+    } else if (bin.status === "UNDER_MAINTENANCE" && isOnline) {
+      effectiveStatus = "FUNCTIONAL";
+    }
+
+    return { ...bin, isOnline, effectiveStatus };
+  });
+
+  // 🟢 Optional: Sync back to database if status changed
+  await Promise.all(
+    heartbeatData.map(async (bin) => {
+      if (bin.status !== bin.effectiveStatus) {
+        await prisma.bin.update({
+          where: { id: bin.id },
+          data: { status: bin.effectiveStatus },
+        });
+      }
+    })
+  );
+
+  return heartbeatData.map((bin) => ({
+    id: bin.id,
+    material: bin.binMaterial.name,
+    isOnline: bin.isOnline,
+    effectiveStatus: bin.effectiveStatus,
+    userId: bin.userId,
+    user: { name: bin.user.name },
+    lastHeartBeat: bin.lastHeartBeat,
+    currentCapacity: bin.currentCapacity,
+  }));
+};
+
+export const updateBinStatus = async (id: string, status: BinStatus) => {
+  try {
+    await prisma.bin.update({
+      where: { id },
+      data: { status },
+    });
+
+    revalidatePath("/admin"); // Refresh dashboard after update
+    return { success: `Bin status updated successfully (ID: ${id})` };
+  } catch (error) {
+    console.error("updateBinStatus error:", error);
+    return { error: "Failed to update bin status" };
+  }
+};
+
+export const getSmartAlerts = async () => {
+  const bins = await prisma.bin.findMany({
+    include: {
       user: {
         select: {
-          name: true,
+          location: true,
+          lat: true,
+          long: true,
         },
+      },
+      binMaterial: {
+        select: { name: true },
       },
     },
   });
 
   const now = new Date();
 
-  return bins.map((bin) => {
-    const isOnline = bin.lastHeartBeat
-      ? now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10
-      : false;
+  // 🧠 Use a Map to ensure each bin ID is unique
+  const alertsMap = new Map<string, any>();
 
-    return {
-      id: bin.id,
-      currentCapacity: bin.currentCapacity,
-      material: bin.binMaterial.name,
-      isOnline,
-      userId: bin.userId,
-      user: {
-        name: bin.user.name,
-      },
-      lastHeartBeat: bin.lastHeartBeat,
-    };
-  });
+  for (const bin of bins) {
+    const isOnline =
+      bin.lastHeartBeat &&
+      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10;
+
+    const isFull = bin.currentCapacity >= 75;
+    const isOffline = !isOnline;
+    const isUnderMaintenance = bin.status === "UNDER_MAINTENANCE";
+
+    let alertLevel = "online";
+    if (isUnderMaintenance) alertLevel = "offline";
+    else if (isOffline) alertLevel = "offline";
+    else if (isFull) alertLevel = "critical";
+
+    // ✅ Convert Prisma Decimal → Number safely
+    const lat =
+      typeof bin.user?.lat === "object"
+        ? Number(bin.user.lat)
+        : bin.user?.lat;
+    const long =
+      typeof bin.user?.long === "object"
+        ? Number(bin.user.long)
+        : bin.user?.long;
+
+    if (alertLevel !== "online") {
+      // ✅ Use the bin ID as the unique key to prevent duplicates
+      alertsMap.set(bin.id, {
+        id: bin.id,
+        location: bin.user?.location || "Unknown",
+        material: bin.binMaterial?.name || "Unknown",
+        capacity: bin.currentCapacity || 0,
+        lastHeartBeat: bin.lastHeartBeat,
+        lat,
+        long,
+        alertLevel,
+      });
+    }
+  }
+
+  const uniqueAlerts = Array.from(alertsMap.values());
+
+  console.log("✅ Smart Alerts Count (unique):", uniqueAlerts.length);
+  return uniqueAlerts;
 };
+
+
+
+
+

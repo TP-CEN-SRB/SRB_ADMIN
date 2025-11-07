@@ -463,23 +463,40 @@ const getAllBinUsers = async () => {
 };
 
 const deleteBinUser = async (id: string) => {
+  // Find the bin manager by ID
   const user = await prisma.user.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
   });
-  if (user) {
+
+  if (!user) {
+    return { error: `User with ID ${id} does not exist` };
+  }
+
+  try {
+    // 🗑️ Step 1: Delete all bins assigned to this manager
+    await prisma.bin.deleteMany({
+      where: {
+        userId: id,
+      },
+    });
+
+    // 👤 Step 2: Delete the bin manager (user)
     await prisma.user.delete({
       where: {
         id: id,
       },
     });
+
+    // 🔁 Step 3: Revalidate admin dashboard to update table
     revalidatePath("/admin/bin/manager");
-    return { success: `User with ID ${id} deleted successfully` };
-  } else {
-    return { error: `User with ID ${id} does not exist` };
+
+    return { success: `Bin Manager with ID ${id} and all assigned bins were permanently deleted.` };
+  } catch (error) {
+    console.error("Error deleting bin user and bins:", error);
+    return { error: "Unexpected error occurred while deleting user and bins." };
   }
 };
+
 
 const getAllStudentUsers = async (
   page: number | null,

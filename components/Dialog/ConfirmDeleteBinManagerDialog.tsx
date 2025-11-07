@@ -1,3 +1,5 @@
+"use client";
+
 import { deleteBinUser } from "@/app/action/user";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -21,7 +23,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
 import CustomFormMessage from "../Form/CustomFormMessage";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 
 interface DeleteBinManagerDialogProps {
   userId: string;
@@ -37,6 +39,8 @@ const ConfirmDeleteBinManagerDialog = ({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const router = useRouter();
+  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" });
+
   const handleDelete = () => {
     startTransition(async () => {
       const data = await deleteBinUser(userId);
@@ -44,72 +48,102 @@ const ConfirmDeleteBinManagerDialog = ({
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
         toast({
-          title: "Success!",
-          description: data.success,
+          title: "Bin Manager Deleted",
+          description:
+            "The bin manager and all their assigned bins have been permanently deleted.",
         });
         router.push("/admin/bin/manager");
       }
     });
   };
-  const isDesktop = useMediaQuery({
-    query: "(min-width: 768px)",
-  });
-  return isDesktop ? (
-    <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
-          <DialogDescription className="text-slate-500 mt-4 text-md">
-            You are about to delete user {userId}
-          </DialogDescription>
-        </DialogHeader>
-        {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
-        <DialogFooter>
-          <Button
-            disabled={isPending}
-            onClick={handleDialogOpen}
-            type="button"
-            className="border border-red-500 bg-gray-50 text-red-500 hover:bg-gray-200"
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={isPending}
-            onClick={handleDelete}
-            type="button"
-            className="bg-red-500 hover:bg-red-600 text-gray-50"
-          >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Confirm"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  ) : (
+
+  const WarningContent = (
+    <>
+      <div className="flex items-center gap-3 mb-4 text-red-600">
+        <AlertTriangle className="h-6 w-6" />
+        <span className="font-semibold text-lg">Warning</span>
+      </div>
+      <p className="text-sm text-gray-700">
+        You are about to permanently delete this <strong>Bin Manager</strong> and
+        all <strong>bins assigned</strong> to them.
+      </p>
+      <p className="text-sm text-gray-700 mt-2">
+        This action <span className="font-semibold text-red-600">cannot be undone</span>.
+        Are you sure you want to continue?
+      </p>
+    </>
+  );
+
+  // Desktop: use Dialog
+  if (isDesktop) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-2xl text-red-600">
+              Delete Bin Manager
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 mt-2 text-md">
+              {WarningContent}
+            </DialogDescription>
+          </DialogHeader>
+
+          {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+
+          <DialogFooter>
+            <Button
+              disabled={isPending}
+              onClick={handleDialogOpen}
+              type="button"
+              className="border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={isPending}
+              onClick={handleDelete}
+              type="button"
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isPending ? "Deleting..." : "Confirm Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Mobile: use Drawer
+  return (
     <Drawer open={isOpen} onOpenChange={handleDialogOpen}>
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle className="text-2xl">Are you sure?</DrawerTitle>
+          <DrawerTitle className="text-xl text-red-600">
+            Delete Bin Manager
+          </DrawerTitle>
           <DrawerDescription className="text-slate-500 text-md">
-            You are about to delete user {userId}
+            {WarningContent}
           </DrawerDescription>
         </DrawerHeader>
+
         {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
+
         <DrawerFooter>
           <Button
             disabled={isPending}
             onClick={handleDelete}
             type="button"
-            className="bg-red-500 hover:bg-red-600 text-gray-50"
+            className="bg-red-500 hover:bg-red-600 text-white"
           >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Confirm"}
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending ? "Deleting..." : "Confirm Delete"}
           </Button>
           <Button
             disabled={isPending}
             onClick={handleDialogOpen}
             type="button"
-            className="border border-red-500 bg-gray-50 text-red-500 hover:bg-gray-200"
+            className="border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
           >
             Cancel
           </Button>
