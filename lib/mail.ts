@@ -1,10 +1,11 @@
-import nodemailer from "nodemailer";
+import { transporter } from "@/utils/emailTransporter"; // adjust path if needed
+
+// -------------------- EMAIL TEMPLATES --------------------
 
 const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
   const actionText = type === "RESET" ? "Reset Password" : "Verify Email";
-  const actionInstruction = type === "RESET"
-    ? "reset your password"
-    : "verify your email address";
+  const actionInstruction =
+    type === "RESET" ? "reset your password" : "verify your email address";
 
   return `
 <!DOCTYPE html>
@@ -28,12 +29,8 @@ const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      color: #333333;
-    }
-    p {
-      color: #555555;
-    }
+    h1 { color: #333333; }
+    p { color: #555555; }
     .btn {
       display: inline-block;
       padding: 12px 24px;
@@ -44,9 +41,7 @@ const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
       font-weight: bold;
       margin-top: 20px;
     }
-    .btn:hover {
-      background-color: #0056b3;
-    }
+    .btn:hover { background-color: #0056b3; }
     .footer {
       margin-top: 20px;
       font-size: 12px;
@@ -102,12 +97,8 @@ const warningEmailTemplate = (
       border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      color: #333333;
-    }
-    p {
-      color: #555555;
-    }
+    h1 { color: #333333; }
+    p { color: #555555; }
     .footer {
       margin-top: 20px;
       font-size: 12px;
@@ -131,81 +122,64 @@ const warningEmailTemplate = (
 `;
 };
 
-export const sendVerificationEmail = async (email: string, token: string) => {
-  const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.NEXT_PUBLIC_PERSONAL_EMAIL,
-      pass: process.env.NEXT_PUBLIC_EMAIL_PASSWORD,
-    },
-  });
+// -------------------- EMAIL FUNCTIONS --------------------
 
-  try {
-    await transporter.verify();
-    await transporter.sendMail({
+export const sendVerificationEmail = (email: string, token: string): void => {
+  const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
+
+  transporter
+    .sendMail({
       from: `"Temasek Polytechnic CEN" <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Account Verification",
       text: `Verify your email by clicking this link:\n\n${confirmLink}\n\nIf the button doesn't work, copy and paste the link into your browser.`,
       html: emailTemplate(confirmLink, "VERIFY"),
-    });
-  } catch (error) {
-    console.log("Verification email error:", error);
-    return;
-  }
+    })
+    .then(() => console.log(`✅ Verification email queued for ${email}`))
+    .catch((error: Error) =>
+      console.error("❌ Verification email error:", error.message)
+    );
 };
 
-export const sendPasswordResetEmail = async (email: string, token: string) => {
+export const sendPasswordResetEmail = (email: string, token: string): void => {
   const resetLink = `${process.env.BASE_URL}/new-password?token=${token}`;
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.NEXT_PUBLIC_PERSONAL_EMAIL,
-      pass: process.env.NEXT_PUBLIC_EMAIL_PASSWORD,
-    },
-  });
 
-  try {
-    await transporter.verify();
-    await transporter.sendMail({
+  transporter
+    .sendMail({
       from: `"Temasek Polytechnic CEN" <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Reset Password",
       text: `Reset your password using this link:\n\n${resetLink}\n\nIf the button doesn't work, copy and paste the link into your browser.`,
       html: emailTemplate(resetLink, "RESET"),
-    });
-  } catch (error) {
-    console.log("Password reset email error:", error);
-    return;
-  }
+    })
+    .then(() => console.log(`✅ Password reset email queued for ${email}`))
+    .catch((error: Error) =>
+      console.error("❌ Password reset email error:", error.message)
+    );
 };
 
-export const sendBinWarningEmail = async (
+export const sendBinWarningEmail = (
   email: string[],
   binCapacity: number,
   material: string,
   location: string | null
-) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.NEXT_PUBLIC_PERSONAL_EMAIL,
-      pass: process.env.NEXT_PUBLIC_EMAIL_PASSWORD,
-    },
-  });
-
-  try {
-    await transporter.verify();
-    await transporter.sendMail({
+): void => {
+  transporter
+    .sendMail({
       from: `"Temasek Polytechnic CEN" <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
       to: email,
       subject: "[Smart Bin System] Bin Capacity Information",
-      text: `The ${material} bin at ${location} is ${binCapacity.toFixed(2)}% full. Please clear it soon.`,
+      text: `The ${material} bin at ${location} is ${binCapacity.toFixed(
+        2
+      )}% full. Please clear it soon.`,
       html: warningEmailTemplate(binCapacity, material, location),
-    });
-  } catch (error) {
-    console.log("Bin warning email error:", error);
-    return;
-  }
+    })
+    .then(() =>
+      console.log(
+        `✅ Bin warning email queued for ${material} bin at ${location}`
+      )
+    )
+    .catch((error: Error) =>
+      console.error("❌ Bin warning email error:", error.message)
+    );
 };

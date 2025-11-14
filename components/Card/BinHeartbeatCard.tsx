@@ -6,7 +6,7 @@ type HeartbeatBinCardProps = {
   title: string;                     // Bin title (e.g. "Plastic Bin")
   color: string;                     // Tailwind ring color, e.g. 'ring-red-400'
   percentage: number;                // Fill percentage
-  status: "online" | "offline";      // Heartbeat status
+  status: "online" | "offline" | "warning"; // ⬅️ Add warning here
   lastActive?: string | null;        // Last heartbeat timestamp
 };
 
@@ -17,7 +17,13 @@ export default function HeartbeatBinCard({
   status,
   lastActive,
 }: HeartbeatBinCardProps) {
-  const statusColor = status === "online" ? "text-green-600" : "text-red-500";
+  const statusColor =
+      status === "online"
+        ? "text-green-600"
+        : status === "warning"
+        ? "text-yellow-500"
+        : "text-red-500";
+
 
   return (
     <div className="flex flex-col items-center space-y-2 p-3 rounded-2xl bg-white shadow-md border w-[140px]">
@@ -44,7 +50,10 @@ export default function HeartbeatBinCard({
       </div>
 
       {/* Status */}
-      <div className={`text-xs font-semibold ${statusColor}`}>{status}</div>
+      <div className={`text-xs font-semibold ${statusColor}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </div>
+
 
       {/* Last Active */}
       {lastActive && (

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import HeartbeatBinCard from "../Card/BinHeartbeatCard";
 import { Faculty, BinStatus } from "@prisma/client";
 import {
@@ -12,10 +12,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// Types aligned with Prisma
+// -------------------- TYPES --------------------
 interface Disposal {
   id: string;
-  createdAt: string; // ISO string
+  createdAt: string;
   weightInGrams: number;
   carbonprint: number;
 }
@@ -37,8 +37,8 @@ interface BinManager {
   name: string;
   email: string;
   faculty: Faculty;
-  lat: number | undefined;
-  long: number | undefined;
+  lat?: number;
+  long?: number;
   bins: Bin[];
 }
 
@@ -46,223 +46,202 @@ interface ScreenProps {
   binManager: BinManager;
 }
 
+// -------------------- COMPONENT --------------------
 const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
-  const [selectedYear, setSelectedYear] = useState<number>(
-    new Date().getFullYear()
-  );
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMaterial, setSelectedMaterial] = useState<string>("All");
 
-  // Flatten disposals
-  const disposals = binManager.bins.flatMap((b) => b.disposals);
-
-  // Helper → derive online/offline from heartbeat
-  const getHeartbeatStatus = (lastHeartBeat: string | null): "online" | "offline" => {
+  // -------------------- HELPER FUNCTIONS --------------------
+  const getHeartbeatStatus = (lastHeartBeat: string | null): "online" | "warning" | "offline" => {
     if (!lastHeartBeat) return "offline";
-    const diff = Date.now() - new Date(lastHeartBeat).getTime();
-    return diff < 60_000 ? "online" : "offline"; // online if < 1min old
+    const diffMinutes = (Date.now() - new Date(lastHeartBeat).getTime()) / 1000 / 60;
+    if (diffMinutes < 10) return "online";
+    if (diffMinutes < 30) return "warning";
+    return "offline";
   };
 
-  // ---- Group by Year ----
-  const yearData = Object.values(
-    disposals.reduce((acc: Record<string, { year: string; count: number }>, d) => {
-      const year = new Date(d.createdAt).getFullYear().toString();
-      if (!acc[year]) acc[year] = { year, count: 0 };
-      acc[year].count++;
-      return acc;
-    }, {})
-  );
+  // Health score (based on uptime + capacity)
+  const calculateHealthScore = (bins: Bin[]): number => {
+    if (!bins.length) return 0;
+    const scores = bins.map((bin) => {
+      const status = getHeartbeatStatus(bin.lastHeartBeat);
+      const uptimeScore = status === "online" ? 1 : status === "warning" ? 0.6 : 0.2;
+      const capacityScore = 1 - Math.abs(bin.currentCapacity / 100 - 0.5); // balanced load
+      return (uptimeScore * 0.7 + capacityScore * 0.3) * 100;
+    });
+    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+  };
 
-  // ---- Group by Month ----
-  const monthData =
-    selectedYear != null
-      ? Object.values(
-          disposals.reduce(
-            (
-              acc: Record<string, { month: string; count: number }>,
-              d
-            ) => {
-              const date = new Date(d.createdAt);
-              if (date.getFullYear() !== selectedYear) return acc;
-              const month = (date.getMonth() + 1).toString(); // 1-12
-              if (!acc[month]) acc[month] = { month, count: 0 };
-              acc[month].count++;
-              return acc;
-            },
-            {}
-          )
-        )
-      : [];
+  // Flatten disposals & filter by bin type
+  const disposals = useMemo(() => {
+    const all = binManager.bins.flatMap((b) =>
+      b.disposals.map((d) => ({
+        ...d,
+        material: b.binMaterial.name,
+      }))
+    );
+    if (selectedMaterial === "All") return all;
+    return all.filter((d) => d.material === selectedMaterial);
+  }, [binManager.bins, selectedMaterial]);
 
-  // ---- Group by Day ----
-  const dayData =
-    selectedMonth != null
-      ? Object.values(
-          disposals.reduce(
-            (acc: Record<string, { day: string; count: number }>, d) => {
-              const date = new Date(d.createdAt);
-              if (
-                date.getFullYear() !== selectedYear ||
-                date.getMonth() + 1 !== selectedMonth
-              )
-                return acc;
-              const day = date.getDate().toString();
-              if (!acc[day]) acc[day] = { day, count: 0 };
-              acc[day].count++;
-              return acc;
-            },
-            {}
-          )
-        )
-      : [];
+  // -------------------- DATA AGGREGATION --------------------
+  const monthData = useMemo(() => {
+    return Object.values(
+      disposals.reduce(
+        (acc: Record<string, { month: string; count: number }>, d) => {
+          const date = new Date(d.createdAt);
+          if (date.getFullYear() !== selectedYear) return acc;
+          const month = (date.getMonth() + 1).toString();
+          if (!acc[month]) acc[month] = { month, count: 0 };
+          acc[month].count++;
+          return acc;
+        },
+        {}
+      )
+    );
+  }, [disposals, selectedYear]);
 
-  // ---- Group by Hour ----
-  const hourData =
-    selectedDay != null
-      ? Object.values(
-          disposals.reduce(
-            (acc: Record<string, { hour: string; count: number }>, d) => {
-              const date = new Date(d.createdAt);
-              if (
-                date.getFullYear() !== selectedYear ||
-                date.getMonth() + 1 !== selectedMonth ||
-                date.getDate() !== selectedDay
-              )
-                return acc;
-              const hour = date.getHours().toString(); // 0-23
-              if (!acc[hour]) acc[hour] = { hour, count: 0 };
-              acc[hour].count++;
-              return acc;
-            },
-            {}
-          )
-        )
-      : [];
+  // Uptime trend per bin
+  const uptimeTrend = binManager.bins.map((b) => {
+    const status = getHeartbeatStatus(b.lastHeartBeat);
+    const diffMins = b.lastHeartBeat
+      ? (Date.now() - new Date(b.lastHeartBeat).getTime()) / 1000 / 60
+      : 9999;
+    const uptime =
+      status === "online" ? 100 : status === "warning" ? 60 : 0;
+    return {
+      name: b.binMaterial.name,
+      uptime,
+      lastSeenMins: Math.round(diffMins),
+    };
+  });
+
+  // -------------------- UI --------------------
+  const healthScore = calculateHealthScore(binManager.bins);
 
   return (
-    <div className="flex flex-col gap-6 p-4">
-      {/* 1. Bin heartbeat/status cards */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {binManager.bins.map((bin) => (
-          <HeartbeatBinCard
-            key={bin.id}
-            title={bin.binMaterial.name}
-            percentage={bin.currentCapacity}
-            status={getHeartbeatStatus(bin.lastHeartBeat)}
-            lastActive={bin.lastHeartBeat}
-            color={
-              getHeartbeatStatus(bin.lastHeartBeat) === "online"
-                ? "ring-green-400"
-                : "ring-red-400"
-            }
-          />
-        ))}
+    <div className="flex flex-col gap-6 p-6">
+      {/* 🧾 Quick Summary Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h3 className="text-sm font-semibold text-gray-500">Overall Health Score</h3>
+          <p
+            className={`text-3xl font-bold ${
+              healthScore > 90
+                ? "text-green-600"
+                : healthScore > 70
+                ? "text-yellow-500"
+                : "text-red-500"
+            }`}
+          >
+            {healthScore}%
+          </p>
+        </div>
+
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h3 className="text-sm font-semibold text-gray-500">Total Bins</h3>
+          <p className="text-3xl font-bold">{binManager.bins.length}</p>
+        </div>
+
+        <div className="p-4 bg-white rounded-xl shadow text-center">
+          <h3 className="text-sm font-semibold text-gray-500">Active Year</h3>
+          <p className="text-3xl font-bold text-blue-600">{selectedYear}</p>
+        </div>
+      </div>
+
+      {/* 🩺 Bin Heartbeat Cards */}
+      <section>
+        <h2 className="text-lg font-bold mb-4">Bin Status Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {binManager.bins.map((bin) => {
+            const status = getHeartbeatStatus(bin.lastHeartBeat);
+            return (
+              <HeartbeatBinCard
+                key={bin.id}
+                title={bin.binMaterial.name}
+                percentage={bin.currentCapacity}
+                status={status}
+                lastActive={bin.lastHeartBeat}
+                color={
+                  status === "online"
+                    ? "ring-green-400"
+                    : status === "warning"
+                    ? "ring-yellow-400"
+                    : "ring-red-400"
+                }
+              />
+            );
+          })}
+        </div>
       </section>
 
-      {/* 2. Year dropdown */}
-        <section className="border rounded-xl p-4 shadow-sm">
-        <h2 className="text-lg font-bold mb-4">Disposals by Year</h2>
-        <select
-            value={selectedYear}
-            onChange={(e) => {
-            setSelectedMonth(null);
-            setSelectedDay(null);
-            setSelectedYear(Number(e.target.value));
-            }}
-            className="border px-3 py-2 rounded bg-white text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-            {yearData.map((y) => (
-            <option key={y.year} value={y.year}>
-                {y.year}
-            </option>
-            ))}
-        </select>
-        </section>
+      {/* 📈 Disposal Trends */}
+      <section className="border rounded-xl p-6 bg-white shadow-sm">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold">Disposals by Month throughout {selectedYear}</h2>
+          <div className="flex items-center gap-2">
+            <select
+              className="border px-3 py-1 rounded text-sm"
+              value={selectedMaterial}
+              onChange={(e) => setSelectedMaterial(e.target.value)}
+            >
+              <option value="All">All Materials</option>
+              {Array.from(
+                new Set(binManager.bins.map((b) => b.binMaterial.name))
+              ).map((mat) => (
+                <option key={mat} value={mat}>
+                  {mat}
+                </option>
+              ))}
+            </select>
+            <select
+              className="border px-3 py-1 rounded text-sm"
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+            >
+              {Array.from(
+                new Set(
+                  binManager.bins
+                    .flatMap((b) =>
+                      b.disposals.map((d) =>
+                        new Date(d.createdAt).getFullYear()
+                      )
+                    )
+                    .sort((a, b) => b - a)
+                )
+              ).map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
 
-        {/* 3. Month drilldown */}
-        {selectedYear && (
-        <section className="border rounded-xl p-4 shadow-sm">
-            <h2 className="text-lg font-bold mb-4">
-            Disposals in {selectedYear} (by Month)
-            </h2>
-            <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-                data={monthData}
-                onClick={(e) => {
-                if (e && e.activeLabel) {
-                    setSelectedMonth(Number(e.activeLabel));
-                    setSelectedDay(null);
-                }
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#82ca9d" />
-            </LineChart>
-            </ResponsiveContainer>
-        </section>
-        )}
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={monthData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="count" stroke="#16a34a" />
+          </LineChart>
+        </ResponsiveContainer>
+      </section>
 
-        {/* 4. Day drilldown */}
-        {selectedMonth && (
-        <section className="border rounded-xl p-4 shadow-sm">
-            <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold mb-4">
-                Disposals in {selectedYear}-{selectedMonth} (by Day)
-            </h2>
-            <button
-                onClick={() => setSelectedMonth(null)}
-                className="text-blue-600 underline text-sm"
-            >
-                Back to Year
-            </button>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-            <LineChart
-                data={dayData}
-                onClick={(e) => {
-                if (e && e.activeLabel) {
-                    setSelectedDay(Number(e.activeLabel));
-                }
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#ffc658" />
-            </LineChart>
-            </ResponsiveContainer>
-        </section>
-        )}
-
-        {/* 5. Hour drilldown */}
-        {selectedDay && (
-        <section className="border rounded-xl p-4 shadow-sm">
-            <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold mb-4">
-                Disposals on {selectedYear}-{selectedMonth}-{selectedDay} (by Hour)
-            </h2>
-            <button
-                onClick={() => setSelectedDay(null)}
-                className="text-blue-600 underline text-sm"
-            >
-                Back to Month
-            </button>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={hourData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="hour" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="count" stroke="#ff7300" />
-            </LineChart>
-            </ResponsiveContainer>
-        </section>
-        )}
+      {/* ⏱️ Uptime Trend */}
+      <section className="border rounded-xl p-6 bg-white shadow-sm">
+        <h2 className="text-lg font-bold mb-4">Uptime Trend by Bin</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={uptimeTrend}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis domain={[0, 100]} />
+            <Tooltip />
+            <Line type="monotone" dataKey="uptime" stroke="#0284c7" />
+          </LineChart>
+        </ResponsiveContainer>
+      </section>
     </div>
   );
 };
