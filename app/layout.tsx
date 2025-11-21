@@ -6,13 +6,14 @@ import "react-image-crop/dist/ReactCrop.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import ReactQueryProvider from "./providers/reactqueryprovider";
 import { initMqttHeartbeatSync } from "@/lib/mqttHeartbeatSync";
-import { startAutoUptimeLogger } from "@/lib/autoUptimeLogger";
+import { initAutoUptimeLogger } from "@/lib/autoUptimeLogger";
+
 
 
 // ✅ Only run MQTT sync on the server, not client or build
 if (typeof window === "undefined") {
   initMqttHeartbeatSync();
-  startAutoUptimeLogger();
+  initAutoUptimeLogger();
 }
 
 const geistSans = localFont({

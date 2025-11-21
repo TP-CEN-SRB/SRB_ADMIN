@@ -1,6 +1,7 @@
 // lib/mqttHeartbeatSync.ts
 import { connect } from "mqtt";
 import prisma from "@/lib/db";
+import { BinStatus } from "@prisma/client"; 
 
 const brokerUrl = process.env.MQTT_URL || "mqtts://YOUR_HIVEMQ_URL:8883";
 const mqttUser = process.env.MQTT_USERNAME;
@@ -40,7 +41,7 @@ export const initMqttHeartbeatSync = () => {
         where: { id: data.binId },
         data: {
           lastHeartBeat: now,
-          status: "FUNCTIONAL",
+          status: BinStatus.FUNCTIONAL,
         },
       });
 
@@ -49,7 +50,7 @@ export const initMqttHeartbeatSync = () => {
         data: {
           binId: data.binId,
           timestamp: now,
-          status: "FUNCTIONAL",
+          status: BinStatus.FUNCTIONAL,
         },
       });
 

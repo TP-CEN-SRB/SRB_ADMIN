@@ -1,6 +1,6 @@
 // lib/autoUptimeLogger.ts
 import prisma from "@/lib/db";
-import { BinStatus } from "@prisma/client"; // ✅ import the enum
+import { BinStatus } from "@prisma/client"; 
 
 export const initAutoUptimeLogger = () => {
   const logInterval = 60_000; // every 1 min
