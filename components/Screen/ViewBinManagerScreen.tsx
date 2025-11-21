@@ -34,8 +34,11 @@ interface BinManager {
   name: string;
   email: string;
   faculty: Faculty;
+  lat?: number; 
+  long?: number;    
   bins: Bin[];
 }
+
 interface ScreenProps {
   binManager: BinManager;
 }
