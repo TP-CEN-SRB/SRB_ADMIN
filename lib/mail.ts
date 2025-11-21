@@ -1,6 +1,8 @@
-import { transporter } from "@/utils/emailTransporter"; // adjust path if needed
+import { resend } from "@/utils/emailTransporter";
 
-// -------------------- EMAIL TEMPLATES --------------------
+// ---------------------------------------------------
+// EMAIL TEMPLATES
+// ---------------------------------------------------
 
 const emailTemplate = (link: string, type: "VERIFY" | "RESET") => {
   const actionText = type === "RESET" ? "Reset Password" : "Verify Email";
@@ -110,8 +112,8 @@ const warningEmailTemplate = (
   <div class="container">
     <h1>Hello,</h1>
     <p>Please be informed that the <b>${material}</b> bin at <b>${location}</b> is currently <b>${binCapacity.toFixed(
-    2
-  )}%</b> full.</p>
+        2
+      )}%</b> full.</p>
     <p>You may head to the specified location for the clearing of bins.</p>
     <div class="footer">
       <p>Thank you,<br>Temasek Polytechnic CEN</p>
@@ -122,64 +124,68 @@ const warningEmailTemplate = (
 `;
 };
 
-// -------------------- EMAIL FUNCTIONS --------------------
+// ---------------------------------------------------
+// EMAIL SEND FUNCTIONS (RESEND)
+// ---------------------------------------------------
 
-export const sendVerificationEmail = (email: string, token: string): void => {
+export const sendVerificationEmail = async (
+  email: string,
+  token: string
+): Promise<void> => {
   const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
 
-  transporter
-    .sendMail({
-      from: `"Temasek Polytechnic CEN" <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
+  try {
+    await resend.emails.send({
+      from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
       to: email,
       subject: "[Smart Bin System] Account Verification",
-      text: `Verify your email by clicking this link:\n\n${confirmLink}\n\nIf the button doesn't work, copy and paste the link into your browser.`,
       html: emailTemplate(confirmLink, "VERIFY"),
-    })
-    .then(() => console.log(`✅ Verification email queued for ${email}`))
-    .catch((error: Error) =>
-      console.error("❌ Verification email error:", error.message)
-    );
+    });
+
+    console.log(`📧 Verification email SENT → ${email}`);
+  } catch (err: any) {
+    console.error("❌ Verification email failed:", err.message);
+  }
 };
 
-export const sendPasswordResetEmail = (email: string, token: string): void => {
+export const sendPasswordResetEmail = async (
+  email: string,
+  token: string
+): Promise<void> => {
   const resetLink = `${process.env.BASE_URL}/new-password?token=${token}`;
 
-  transporter
-    .sendMail({
-      from: `"Temasek Polytechnic CEN" <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
+  try {
+    await resend.emails.send({
+      from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
       to: email,
       subject: "[Smart Bin System] Reset Password",
-      text: `Reset your password using this link:\n\n${resetLink}\n\nIf the button doesn't work, copy and paste the link into your browser.`,
       html: emailTemplate(resetLink, "RESET"),
-    })
-    .then(() => console.log(`✅ Password reset email queued for ${email}`))
-    .catch((error: Error) =>
-      console.error("❌ Password reset email error:", error.message)
-    );
+    });
+
+    console.log(`📧 Password reset email SENT → ${email}`);
+  } catch (err: any) {
+    console.error("❌ Password reset email failed:", err.message);
+  }
 };
 
-export const sendBinWarningEmail = (
-  email: string[],
+export const sendBinWarningEmail = async (
+  emailList: string[],
   binCapacity: number,
   material: string,
   location: string | null
-): void => {
-  transporter
-    .sendMail({
-      from: `"Temasek Polytechnic CEN" <${process.env.NEXT_PUBLIC_PERSONAL_EMAIL}>`,
-      to: email,
+): Promise<void> => {
+  try {
+    await resend.emails.send({
+      from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
+      to: emailList,
       subject: "[Smart Bin System] Bin Capacity Information",
-      text: `The ${material} bin at ${location} is ${binCapacity.toFixed(
-        2
-      )}% full. Please clear it soon.`,
       html: warningEmailTemplate(binCapacity, material, location),
-    })
-    .then(() =>
-      console.log(
-        `✅ Bin warning email queued for ${material} bin at ${location}`
-      )
-    )
-    .catch((error: Error) =>
-      console.error("❌ Bin warning email error:", error.message)
+    });
+
+    console.log(
+      `📧 Bin warning email SENT → ${material} at ${location} (${binCapacity}%)`
     );
+  } catch (err: any) {
+    console.error("❌ Bin warning email failed:", err.message);
+  }
 };

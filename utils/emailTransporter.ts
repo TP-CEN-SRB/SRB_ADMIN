@@ -1,21 +1,19 @@
-import nodemailer, { Transporter } from "nodemailer";
+// utils/emailTransporter.ts
+
+import { Resend } from "resend";
 
 /**
- * Shared Gmail transporter with connection pooling.
- * Keeps the SMTP connection alive for faster email sending.
+ * Resend email client
+ * No SMTP, no ports, no Gmail limits. Pure API-based.
  */
-export const transporter: Transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.NEXT_PUBLIC_PERSONAL_EMAIL,
-    pass: process.env.NEXT_PUBLIC_EMAIL_PASSWORD,
-  },
-  pool: true,
-  maxConnections: 5,
-  maxMessages: 100,
-});
+export const resend = new Resend(process.env.RESEND_API_KEY!);
 
-transporter
-  .verify()
-  .then(() => console.log("✅ Gmail SMTP connection verified."))
-  .catch((err) => console.error("❌ Gmail verification failed:", err));
+// Optional: Ping Resend to verify the API key works
+(async () => {
+  try {
+    await resend.domains.list();
+    console.log("✅ Resend API connection verified.");
+  } catch (error: any) {
+    console.error("❌ Resend API verification failed:", error.message);
+  }
+})();

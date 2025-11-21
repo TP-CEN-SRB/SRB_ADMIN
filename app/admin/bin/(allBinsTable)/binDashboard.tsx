@@ -7,6 +7,7 @@ import { RiDeleteBin6Line, RiRecycleFill } from "react-icons/ri";
 import { TiWarningOutline } from "react-icons/ti";
 import { Button } from "@/components/ui/button";
 import { MdDateRange } from "react-icons/md";
+import { connectMqtt } from "@/lib/mqtt";
 import {
   Dialog,
   DialogContent,
@@ -207,6 +208,65 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
           const interval = setInterval(fetchAlerts, 30000); // refresh every 30s
           return () => clearInterval(interval);
         }, []);
+
+        // 🧠 Real-time MQTT listener to auto-update alerts & statuses
+        useEffect(() => {
+          let client: any;
+
+          const initMqtt = async () => {
+            try {
+              client = await connectMqtt();
+              if (client?.connected) return;
+
+              client.subscribe("srb/heartbeat/#");
+              console.log("📡 Subscribed to MQTT heartbeat topic");
+
+              client.on("close", () => {
+                console.warn("⚠️ MQTT connection closed, attempting reconnect...");
+                setTimeout(initMqtt, 5000);
+              });
+
+              client.on("message", (topic: string, payload: Buffer) => {
+                try {
+                  const data = JSON.parse(payload.toString());
+                  setAlertData(prev => {
+                    const updated = prev.map((bin) =>
+                      bin.id === data.binId
+                        ? { ...bin, lastHeartBeat: data.timestamp, alertLevel: "online" }
+                        : bin
+                    );
+
+                    const stillIssues = updated.filter(
+                      (b) =>
+                        b.alertLevel === "offline" ||
+                        b.alertLevel === "critical" ||
+                        b.alertLevel === "warning"
+                    ).length;
+
+                    setAlertCount(stillIssues);
+                    return updated;
+                  });
+                  refetch?.();
+                } catch (err) {
+                  console.error("⚠️ Error parsing MQTT message:", err);
+                }
+              });
+            } catch (err) {
+              console.error("❌ Failed to connect MQTT:", err);
+            }
+          };
+
+          initMqtt();
+
+          return () => {
+            try {
+              if (client) client.end(true);
+            } catch (err) {
+              console.warn("MQTT cleanup error:", err);
+            }
+          };
+        }, []);
+
 
     const binDashBoardItems = useMemo(()=> [
         {

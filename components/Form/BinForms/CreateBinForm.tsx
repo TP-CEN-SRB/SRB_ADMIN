@@ -106,7 +106,7 @@ const CreateBinForm = ({
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
@@ -118,7 +118,7 @@ const CreateBinForm = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           {/* change to drop down list to select material */}
           <FormField
             control={form.control}

@@ -1,5 +1,7 @@
+// app/api/heartbeat/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { BinStatus } from "@prisma/client";
 
 export const PUT = async (
   req: NextRequest,
@@ -13,7 +15,6 @@ export const PUT = async (
 
     const userId = params.id;
     const { material } = await req.json();
-
     if (!material) {
       return NextResponse.json({ message: "Missing material" }, { status: 400 });
     }
@@ -22,10 +23,7 @@ export const PUT = async (
       where: {
         userId,
         binMaterial: {
-          name: {
-            equals: material,
-            mode: "insensitive",
-          },
+          name: { equals: material, mode: "insensitive" },
         },
       },
     });
@@ -34,13 +32,43 @@ export const PUT = async (
       return NextResponse.json({ message: "Bin not found" }, { status: 404 });
     }
 
+    const now = new Date();
+
+    // update bin
     await prisma.bin.update({
       where: { id: bin.id },
-      data: { lastHeartBeat: new Date() },
+      data: {
+        lastHeartBeat: now,
+        status: BinStatus.FUNCTIONAL,
+      },
     });
 
-    return NextResponse.json({ message: "Heartbeat updated." }, { status: 200 });
+    // create uptime log if no recent duplicate within 30 seconds
+    const recentLog = await prisma.binUptimeLog.findFirst({
+      where: {
+        binId: bin.id,
+        timestamp: {
+          gte: new Date(Date.now() - 30 * 1000), // last 30s
+        },
+      },
+    });
+
+    if (!recentLog) {
+      await prisma.binUptimeLog.create({
+        data: {
+          binId: bin.id,
+          timestamp: now,
+          status: BinStatus.FUNCTIONAL,
+        },
+      });
+      console.log(`📡 Heartbeat logged for ${bin.id} (${material})`);
+    } else {
+      console.log(`⏱️ Skipped duplicate heartbeat log for ${bin.id}`);
+    }
+
+    return NextResponse.json({ message: "Heartbeat logged successfully." }, { status: 200 });
   } catch (error) {
+    console.error("❌ Heartbeat API error:", error);
     return NextResponse.json(
       { message: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }

@@ -1,6 +1,9 @@
-import prisma from "@/lib/db";
+
 import { Prisma } from "@prisma/client";
 import { BinStatus } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
 const userData: Prisma.UserCreateInput[] = [
   {
     id: "eabc24b6-ca1c-4c94-86e1-2ebbc4952a78",
@@ -42,7 +45,7 @@ const userData: Prisma.UserCreateInput[] = [
     subscriptions: { create: { email: "testadmin@tp.edu.sg" } },
   },
   {
-    id: "eabc24b6-ca1c-4c94-86e1-2ebbc4944a78",
+    id: "eppp24b6-ca1c-4c94-86e1-2ebbc4952a78",
     name: "testBin",
     email: "testbin2@tp.bin.sg",
     emailVerified: new Date(),
@@ -80,7 +83,7 @@ const userData: Prisma.UserCreateInput[] = [
     },
   },
   {
-    id: "eppp24b6-ca1c-4c94-86e1-2ebbc4952a78",
+    id: "e10b1f86-7a8e-4fa1-b2b8-1a1726a812f6",
     name: "testBin",
     email: "testbin3@tp.bin.sg",
     emailVerified: new Date(),

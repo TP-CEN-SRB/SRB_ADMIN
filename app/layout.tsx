@@ -5,6 +5,15 @@ import { Toaster } from "@/components/ui/toaster";
 import "react-image-crop/dist/ReactCrop.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import ReactQueryProvider from "./providers/reactqueryprovider";
+import { initMqttHeartbeatSync } from "@/lib/mqttHeartbeatSync";
+import { startAutoUptimeLogger } from "@/lib/autoUptimeLogger";
+
+
+// ✅ Only run MQTT sync on the server, not client or build
+if (typeof window === "undefined") {
+  initMqttHeartbeatSync();
+  startAutoUptimeLogger();
+}
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,15 +36,15 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ReactQueryProvider>
-        <main>{children}</main>
-        <Toaster />
+          <main>{children}</main>
+          <Toaster />
         </ReactQueryProvider>
       </body>
     </html>

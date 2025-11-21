@@ -1,7 +1,8 @@
 "use client";
-import React, { useState, useMemo } from "react";
+
+import React, { useState, useEffect, useMemo } from "react";
 import HeartbeatBinCard from "../Card/BinHeartbeatCard";
-import { Faculty, BinStatus } from "@prisma/client";
+import { Faculty } from "@prisma/client";
 import {
   LineChart,
   Line,
@@ -10,81 +11,65 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Legend,
 } from "recharts";
 
-// -------------------- TYPES --------------------
+// ----------- TYPES -----------
 interface Disposal {
   id: string;
   createdAt: string;
   weightInGrams: number;
   carbonprint: number;
 }
-
 interface Bin {
   id: string;
-  status: BinStatus;
+  status: string;
   currentCapacity: number;
   lastHeartBeat: string | null;
-  binMaterial: {
-    id: string;
-    name: string;
-  };
+  binMaterial: { id: string; name: string };
   disposals: Disposal[];
 }
-
 interface BinManager {
   id: string;
   name: string;
   email: string;
   faculty: Faculty;
-  lat?: number;
-  long?: number;
   bins: Bin[];
 }
-
 interface ScreenProps {
   binManager: BinManager;
 }
 
-// -------------------- COMPONENT --------------------
+// ----------- COMPONENT -----------
 const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
+  const [liveBins, setLiveBins] = useState<Bin[]>(binManager.bins);
+  const [uptimeData, setUptimeData] = useState<any[]>([]);
+  const [selectedMaterial, setSelectedMaterial] = useState("All");
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMaterial, setSelectedMaterial] = useState<string>("All");
+  const [selectedRange, setSelectedRange] = useState("hour");
 
-  // -------------------- HELPER FUNCTIONS --------------------
-  const getHeartbeatStatus = (lastHeartBeat: string | null): "online" | "warning" | "offline" => {
+  // ---- Online/offline check ----
+  const getStatus = (lastHeartBeat: string | null) => {
     if (!lastHeartBeat) return "offline";
-    const diffMinutes = (Date.now() - new Date(lastHeartBeat).getTime()) / 1000 / 60;
-    if (diffMinutes < 10) return "online";
-    if (diffMinutes < 30) return "warning";
-    return "offline";
+    const diff = (Date.now() - new Date(lastHeartBeat).getTime()) / 60000;
+    return diff < 10 ? "online" : "offline";
   };
 
-  // Health score (based on uptime + capacity)
-  const calculateHealthScore = (bins: Bin[]): number => {
-    if (!bins.length) return 0;
-    const scores = bins.map((bin) => {
-      const status = getHeartbeatStatus(bin.lastHeartBeat);
-      const uptimeScore = status === "online" ? 1 : status === "warning" ? 0.6 : 0.2;
-      const capacityScore = 1 - Math.abs(bin.currentCapacity / 100 - 0.5); // balanced load
-      return (uptimeScore * 0.7 + capacityScore * 0.3) * 100;
-    });
-    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-  };
+  // ---- Health score ----
+  const healthScore = useMemo(() => {
+    if (!liveBins.length) return 0;
+    const scores = liveBins.map((b) => (getStatus(b.lastHeartBeat) === "online" ? 1 : 0));
+    return Math.round((scores.reduce((a: number, b: number) => a + b, 0) / liveBins.length) * 100);
+  }, [liveBins]);
 
-  // Flatten disposals & filter by bin type
+  // ---- Disposal trends ----
   const disposals = useMemo(() => {
-    const all = binManager.bins.flatMap((b) =>
-      b.disposals.map((d) => ({
-        ...d,
-        material: b.binMaterial.name,
-      }))
+    const all = liveBins.flatMap((b) =>
+      b.disposals.map((d) => ({ ...d, material: b.binMaterial.name }))
     );
-    if (selectedMaterial === "All") return all;
-    return all.filter((d) => d.material === selectedMaterial);
-  }, [binManager.bins, selectedMaterial]);
+    return selectedMaterial === "All" ? all : all.filter((d) => d.material === selectedMaterial);
+  }, [liveBins, selectedMaterial]);
 
-  // -------------------- DATA AGGREGATION --------------------
   const monthData = useMemo(() => {
     return Object.values(
       disposals.reduce(
@@ -101,60 +86,77 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
     );
   }, [disposals, selectedYear]);
 
-  // Uptime trend per bin
-  const uptimeTrend = binManager.bins.map((b) => {
-    const status = getHeartbeatStatus(b.lastHeartBeat);
-    const diffMins = b.lastHeartBeat
-      ? (Date.now() - new Date(b.lastHeartBeat).getTime()) / 1000 / 60
-      : 9999;
-    const uptime =
-      status === "online" ? 100 : status === "warning" ? 60 : 0;
-    return {
-      name: b.binMaterial.name,
-      uptime,
-      lastSeenMins: Math.round(diffMins),
-    };
-  });
+// ---- Auto-refresh + real uptime ----
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      // Fetch bin heartbeat data
+      const res = await fetch(`/api/bin-data?managerId=${binManager.id}`);
+      const binData = await res.json();
 
-  // -------------------- UI --------------------
-  const healthScore = calculateHealthScore(binManager.bins);
+      // Fetch real uptime data
+      const uptimeRes = await fetch(
+        `/api/uptime?managerId=${binManager.id}&range=${selectedRange}`
+      );
+      const uptimeDataJson = await uptimeRes.json();
 
+      if (Array.isArray(binData) && Array.isArray(uptimeDataJson)) {
+        // update live bins
+        setLiveBins((prev) =>
+          prev.map((b) => {
+            const update = binData.find((x) => x.id === b.id);
+            return update ? { ...b, ...update } : b;
+          })
+        );
+
+        // merge uptime data for chart
+        const merged = binManager.bins.map((b) => {
+          const match = uptimeDataJson.find((u: any) => u.id === b.id);
+          return {
+            name: b.binMaterial.name,
+            uptime: match ? match.uptime : 0,
+          };
+        });
+
+        setUptimeData(merged);
+      }
+    } catch (err) {
+      console.error("⚠️ Auto-refresh or uptime fetch error:", err);
+    }
+  };
+
+  fetchData();
+  const interval = setInterval(fetchData, 5000);
+  return () => clearInterval(interval);
+}, [binManager.id, selectedRange]);
+
+  // ---- UI ----
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* 🧾 Quick Summary Row */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-4 bg-white rounded-xl shadow text-center">
-          <h3 className="text-sm font-semibold text-gray-500">Overall Health Score</h3>
-          <p
-            className={`text-3xl font-bold ${
-              healthScore > 90
-                ? "text-green-600"
-                : healthScore > 70
-                ? "text-yellow-500"
-                : "text-red-500"
-            }`}
-          >
+          <h3 className="text-sm font-semibold text-gray-500">Overall Health</h3>
+          <p className={`text-3xl font-bold ${healthScore >= 80 ? "text-green-600" : "text-red-500"}`}>
             {healthScore}%
           </p>
         </div>
-
         <div className="p-4 bg-white rounded-xl shadow text-center">
           <h3 className="text-sm font-semibold text-gray-500">Total Bins</h3>
-          <p className="text-3xl font-bold">{binManager.bins.length}</p>
+          <p className="text-3xl font-bold">{liveBins.length}</p>
         </div>
-
         <div className="p-4 bg-white rounded-xl shadow text-center">
           <h3 className="text-sm font-semibold text-gray-500">Active Year</h3>
           <p className="text-3xl font-bold text-blue-600">{selectedYear}</p>
         </div>
       </div>
 
-      {/* 🩺 Bin Heartbeat Cards */}
+      {/* Bin Cards */}
       <section>
         <h2 className="text-lg font-bold mb-4">Bin Status Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {binManager.bins.map((bin) => {
-            const status = getHeartbeatStatus(bin.lastHeartBeat);
+          {liveBins.map((bin) => {
+            const status = getStatus(bin.lastHeartBeat);
             return (
               <HeartbeatBinCard
                 key={bin.id}
@@ -162,33 +164,25 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
                 percentage={bin.currentCapacity}
                 status={status}
                 lastActive={bin.lastHeartBeat}
-                color={
-                  status === "online"
-                    ? "ring-green-400"
-                    : status === "warning"
-                    ? "ring-yellow-400"
-                    : "ring-red-400"
-                }
+                color={status === "online" ? "ring-green-400" : "ring-red-400"}
               />
             );
           })}
         </div>
       </section>
 
-      {/* 📈 Disposal Trends */}
+      {/* Disposal Trends */}
       <section className="border rounded-xl p-6 bg-white shadow-sm">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">Disposals by Month throughout {selectedYear}</h2>
-          <div className="flex items-center gap-2">
+          <h2 className="text-lg font-bold">Disposals by Month ({selectedYear})</h2>
+          <div className="flex gap-2">
             <select
               className="border px-3 py-1 rounded text-sm"
               value={selectedMaterial}
               onChange={(e) => setSelectedMaterial(e.target.value)}
             >
               <option value="All">All Materials</option>
-              {Array.from(
-                new Set(binManager.bins.map((b) => b.binMaterial.name))
-              ).map((mat) => (
+              {Array.from(new Set(liveBins.map((b) => b.binMaterial.name))).map((mat) => (
                 <option key={mat} value={mat}>
                   {mat}
                 </option>
@@ -201,12 +195,8 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
             >
               {Array.from(
                 new Set(
-                  binManager.bins
-                    .flatMap((b) =>
-                      b.disposals.map((d) =>
-                        new Date(d.createdAt).getFullYear()
-                      )
-                    )
+                  liveBins
+                    .flatMap((b) => b.disposals.map((d) => new Date(d.createdAt).getFullYear()))
                     .sort((a, b) => b - a)
                 )
               ).map((year) => (
@@ -217,7 +207,6 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
             </select>
           </div>
         </div>
-
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={monthData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -229,16 +218,28 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
         </ResponsiveContainer>
       </section>
 
-      {/* ⏱️ Uptime Trend */}
+      {/* Uptime Trend */}
       <section className="border rounded-xl p-6 bg-white shadow-sm">
-        <h2 className="text-lg font-bold mb-4">Uptime Trend by Bin</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={uptimeTrend}>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-bold">Uptime Trend by Bin</h2>
+          <select
+            className="border px-3 py-1 rounded text-sm"
+            value={selectedRange}
+            onChange={(e) => setSelectedRange(e.target.value)}
+          >
+            <option value="hour">Past Hour</option>
+            <option value="month">Past Month</option>
+            <option value="year">Past Year</option>
+          </select>
+        </div>
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={uptimeData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis domain={[0, 100]} />
             <Tooltip />
-            <Line type="monotone" dataKey="uptime" stroke="#0284c7" />
+            <Legend />
+            <Line type="monotone" dataKey="uptime" stroke="#10b981" name="Uptime %" />
           </LineChart>
         </ResponsiveContainer>
       </section>

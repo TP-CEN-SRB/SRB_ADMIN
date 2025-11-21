@@ -239,7 +239,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
   }
   try {
     await signIn("credentials", {
-      redirectTo: "/",
+      redirectTo: "/admin",
       email,
       password,
     });

@@ -4,14 +4,8 @@ import { getToken } from "next-auth/jwt";
 import { Role } from "@prisma/client";
 
 export const { auth } = NextAuth(authConfig);
-/**
- * Routes that are only available to users with ADMIN role
- */
-const adminRoutes = ["/admin"];
 
-/**
- * Routes that are only available to users with BIN role
- */
+const adminRoutes = ["/admin"];
 const apiAuthRoutes = "/api/auth";
 
 export default auth(async (req) => {
@@ -21,33 +15,28 @@ export default auth(async (req) => {
   const token = await getToken({
     req,
     secret: process.env.AUTH_SECRET,
-    secureCookie: process.env.NODE_ENV === "production", // disable during development
+    secureCookie: process.env.NODE_ENV === "production",
   });
+
   const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
+
   if (isApiAuthRoute) {
     return Response.redirect(new URL("/not-found", req.nextUrl));
   }
+
   if (!isLoggedIn && !token) {
-    // Redirect non-logged-in users to the login page for protected routes
+    // 🚫 Redirect unauthenticated users only if they're accessing /admin
     if (isAdminRoute) {
       return Response.redirect(new URL("/login", req.nextUrl));
     }
   } else {
+    // 🚫 Restrict access to admin routes by role
     if (isAdminRoute && token?.role !== Role.ADMIN) {
       return Response.redirect(new URL("/not-found", req.nextUrl));
-    }
-    if (path.includes("/login") || path.includes("/sign-up")) {
-      return Response.redirect(new URL("/", req.nextUrl));
     }
   }
 });
 
-// middleware is invoked all on paths
 export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest|mp3)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/admin/:path*", "/api/:path*"],
 };

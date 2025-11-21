@@ -13,7 +13,7 @@ model User {
   emailVerified     DateTime?
   password          String
   name              String
-  diploma           String?          
+  diploma           String?
   faculty           Faculty
   role              Role
   lat               Decimal?          @db.Decimal(10, 7)
@@ -36,7 +36,7 @@ model User {
   sentTransfers     TransferSession[] @relation("SentTransfers")
   user_quest        UserQuest[]
   user_event        UserEvent[]
-  user_feedback      UserFeedback[]
+  user_feedback     UserFeedback[]
 
   @@map("users")
 }
@@ -67,19 +67,20 @@ model PassswordResetToken {
 }
 
 model Bin {
-  id              String      @id @default(uuid())
-  status          BinStatus   @default(FUNCTIONAL)
-  currentCapacity Float       @default(0)
+  id              String         @id @default(uuid())
+  status          BinStatus      @default(FUNCTIONAL)
+  currentCapacity Float          @default(0)
   userId          String
-  emailSent       Boolean     @default(false)
-  clearCount      Int         @default(0)
+  emailSent       Boolean        @default(false)
+  clearCount      Int            @default(0)
   binMaterialId   String
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  lastHeartBeat   DateTime?    
-  binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
-  user            User        @relation(fields: [userId], references: [id])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  lastHeartBeat   DateTime?
+  binMaterial     BinMaterial    @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
+  user            User           @relation(fields: [userId], references: [id])
   disposals       Disposal[]
+  uptimeLogs      BinUptimeLog[] @relation("BinToUptimeLogs")
 
   @@unique([userId, binMaterialId, status])
   @@map("bins")
@@ -96,31 +97,32 @@ model BinMaterial {
 }
 
 model DisposalQueue {
-  id        String     @id @default(uuid())
+  id        String      @id @default(uuid())
   status    QueueStatus @default(OPEN)
   userId    String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt()
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt()
 
   disposals Disposal[]
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("disposal_queue")
 }
 
 model Disposal {
-  id            String   @id @default(uuid())
+  id            String         @id @default(uuid())
   weightInGrams Int
   binId         String
-  isRedeemed    Boolean  @default(false)
+  isRedeemed    Boolean        @default(false)
   pointsAwarded Int
   userId        String?
   queueId       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  carbonprint   Float    @default(0.0)      
-  bin           Bin      @relation(fields: [binId], references: [id], onDelete: Cascade)
-  user          User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  queue         DisposalQueue?  @relation(fields: [queueId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  carbonprint   Float          @default(0.0)
+  bin           Bin            @relation(fields: [binId], references: [id], onDelete: Cascade)
+  user          User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  queue         DisposalQueue? @relation(fields: [queueId], references: [id], onDelete: Cascade)
 
   @@map("disposals")
 }
@@ -193,7 +195,7 @@ model QuestDetails {
   title        String      @db.VarChar(255)
   description  String
   target       Int
-  materialType String      @db.VarChar(50) 
+  materialType String      @db.VarChar(50)
   startDate    DateTime?   @db.Timestamp(6)
   endDate      DateTime?   @db.Timestamp(6)
   rewardPoints Int         @default(1)
@@ -250,26 +252,26 @@ model Crashlog {
 }
 
 model QuestTemplate {
-  id            String      @id @default(cuid())
-  title         String
-  description   String
-  target        Int
-  rewardPoints  Int
-  materialType  String    
-  createdAt     DateTime    @default(now())
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  target       Int
+  rewardPoints Int
+  materialType String
+  createdAt    DateTime @default(now())
 
   @@map("quest_template")
 }
 
 model Event {
-  id           String     @id @default(uuid())
-  title        String
-  description  String
-  startDate    DateTime
-  endDate      DateTime
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  userEvent    UserEvent[]
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userEvent   UserEvent[]
 
   @@map("event")
 }
@@ -287,19 +289,27 @@ model UserEvent {
 }
 
 model UserFeedback {
-  id           String   @id @default(uuid())
-  userId       String?  // optional if feedback is anonymous
-  rating       Int?     // 1–5 stars or satisfaction score
-  category     FeedbackCategory @default(GENERAL)
-  message      String   // user’s written feedback
-  suggestion   String?  // optional improvement ideas
-  isResolved   Boolean  @default(false) // mark if addressed
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String           @id @default(uuid())
+  userId     String? // optional if feedback is anonymous
+  rating     Int? // 1–5 stars or satisfaction score
+  category   FeedbackCategory @default(GENERAL)
+  message    String // user’s written feedback
+  suggestion String? // optional improvement ideas
+  isResolved Boolean          @default(false) // mark if addressed
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
-  user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_feedback")
+}
+
+model BinUptimeLog {
+  id        String    @id @default(uuid())
+  binId     String
+  timestamp DateTime  @default(now())
+  status    BinStatus
+  bin       Bin       @relation("BinToUptimeLogs", fields: [binId], references: [id], onDelete: Cascade)
 }
 
 enum FeedbackCategory {
