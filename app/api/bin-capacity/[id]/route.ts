@@ -3,6 +3,7 @@ import prisma from "@/lib/db";
 import { sendBinWarningEmail } from "@/lib/mail";
 import jwt from "jsonwebtoken";
 import { Role } from "@prisma/client";
+import { BinStatus } from "@prisma/client"; 
 
 export const PUT = async (
   req: NextRequest,
@@ -57,7 +58,7 @@ export const PUT = async (
                   userId_binMaterialId_status: {
                     userId: id,
                     binMaterialId: binMaterial.id,
-                    status: "FUNCTIONAL",
+                    status: BinStatus.FUNCTIONAL,
                   },
                 },
                 include: { binMaterial: true, user: true },
@@ -155,7 +156,7 @@ export const GET = async (
     const bins = await prisma.bin.findMany({
       where: {
         userId: id,
-        status: "FUNCTIONAL",
+        status: BinStatus.FUNCTIONAL,
       },
       include: {
         binMaterial: true,
