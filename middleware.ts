@@ -5,20 +5,18 @@ import { Role } from "@prisma/client";
 
 export const { auth } = NextAuth(authConfig);
 
-// Admin-only protected routes
 const adminRoutes = ["/admin"];
 const apiAuthRoutes = "/api/auth";
 
 export default auth(async (req) => {
   const path = req.nextUrl.pathname;
 
-  // Skip middleware for cron jobs (CRITICAL FIX)
+  // ✅ 1. Allow all cron routes to bypass middleware
   if (path.startsWith("/api/cron")) {
-    return; // allow request to proceed normally
+    return;  // Skip all auth for cron jobs
   }
 
   const isLoggedIn = !!req.auth;
-
   const isApiAuthRoute = path.startsWith(apiAuthRoutes);
 
   const token = await getToken({
@@ -29,29 +27,28 @@ export default auth(async (req) => {
 
   const isAdminRoute = adminRoutes.some((route) => path.startsWith(route));
 
-  // Block access to /api/auth/* directly
+  // ❌ Block direct /api/auth access
   if (isApiAuthRoute) {
     return Response.redirect(new URL("/not-found", req.nextUrl));
   }
 
-  // Not logged in OR no token
+  // 🔐 If not logged in or no token
   if (!isLoggedIn && !token) {
     if (isAdminRoute) {
       return Response.redirect(new URL("/login", req.nextUrl));
     }
   } else {
-    // Logged in but NOT admin trying to access admin routes
+    // 🔐 Logged in but NOT admin accessing admin routes
     if (isAdminRoute && token?.role !== Role.ADMIN) {
       return Response.redirect(new URL("/not-found", req.nextUrl));
     }
   }
 });
 
-// Middleware matcher
+// ⭐ DO NOT USE negative matchers here
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/api/:path*",
-    "!/api/cron/:path*",  // ✅ EXCLUDE all cron routes
+    "/api/:path*",  // Middleware applies normally
   ],
 };
