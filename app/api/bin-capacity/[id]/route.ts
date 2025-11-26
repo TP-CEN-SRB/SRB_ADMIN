@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { sendBinWarningEmail } from "@/lib/mail";
 import jwt from "jsonwebtoken";
-import { Role } from "@prisma/client";
-import { BinStatus } from "@prisma/client"; 
+import { Role, BinStatus } from "@prisma/client";
 
+// ======================
+// PUT — Update bin capacity
+// ======================
 export const PUT = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -19,7 +21,8 @@ export const PUT = async (
     }
 
     const id = params.id;
-    const binManager = await prisma.user.findUnique({ where: { id: id } });
+    const binManager = await prisma.user.findUnique({ where: { id } });
+
     if (!binManager) {
       return NextResponse.json(
         { message: "Bin manager not found!" },
@@ -71,6 +74,7 @@ export const PUT = async (
                 data: { currentCapacity: parseFloat(binCapacity.toFixed(2)) },
               });
 
+              // Send warning email if >85% for first time
               if (binCapacity > 85 && !bin.emailSent) {
                 const subscriptions = await transaction.subscription.findMany({
                   where: { userId: bin.userId },
@@ -91,6 +95,7 @@ export const PUT = async (
                 }
               }
 
+              // Reset email flag after cleared
               if (binCapacity < 85 && bin.emailSent) {
                 await transaction.bin.update({
                   where: { id: bin.id },
@@ -128,7 +133,9 @@ export const PUT = async (
   }
 };
 
-// GET method to fetch bin capacity for IdleVideo
+// ======================
+// GET — Fetch bin capacities with EFFECTIVE STATUS LOGIC
+// ======================
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -151,27 +158,48 @@ export const GET = async (
       );
     }
 
-    const id = params.id;
+    const userId = params.id;
 
+    // Fetch ALL bins regardless of DB status
     const bins = await prisma.bin.findMany({
-      where: {
-        userId: id,
-        status: BinStatus.FUNCTIONAL,
-      },
+      where: { userId },
       include: {
         binMaterial: true,
       },
-      orderBy: {
-        updatedAt: "desc",
-      },
+      orderBy: { updatedAt: "desc" },
     });
 
-    const result = bins.map((bin) => ({
+    const now = Date.now();
+
+    // Apply EFFECTIVE STATUS logic locally (no need to rely on admin dashboard)
+    const validBins = bins.filter((bin) => {
+      const lastHB = bin.lastHeartBeat
+        ? new Date(bin.lastHeartBeat).getTime()
+        : 0;
+
+      const isOnline = lastHB && now - lastHB < 10 * 60 * 1000; // heartbeat alive within 10 mins
+
+      let effectiveStatus: "FUNCTIONAL" | "UNDER_MAINTENANCE" =
+        bin.status === "FUNCTIONAL" ? "FUNCTIONAL" : "UNDER_MAINTENANCE";
+
+      // Correct for heartbeat conditions
+      if (bin.status === "FUNCTIONAL" && !isOnline) {
+        effectiveStatus = "UNDER_MAINTENANCE";
+      }
+      if (bin.status === "UNDER_MAINTENANCE" && isOnline) {
+        effectiveStatus = "FUNCTIONAL";
+      }
+
+      return effectiveStatus === "FUNCTIONAL";
+    });
+
+    const result = validBins.map((bin) => ({
       material: bin.binMaterial.name,
       percentage: bin.currentCapacity,
     }));
 
     return NextResponse.json(result, { status: 200 });
+
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
