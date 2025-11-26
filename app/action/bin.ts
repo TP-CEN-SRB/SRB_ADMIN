@@ -866,35 +866,44 @@ export const getSmartAlerts = async () => {
 
   const now = new Date();
 
-  // 🧠 Use a Map to ensure each bin ID is unique
+  // Final list of alerts (unique)
   const alertsMap = new Map<string, any>();
 
   for (const bin of bins) {
+
+    // ⭐ REAL-TIME HEARTBEAT STATUS (primary source of truth)
+    const lastHB = bin.lastHeartBeat
+      ? new Date(bin.lastHeartBeat).getTime()
+      : 0;
+
     const isOnline =
-      bin.lastHeartBeat &&
-      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10;
+      lastHB && now.getTime() - lastHB < 10 * 60 * 1000; // within 10 minutes
 
+    // ⭐ Capacity status
     const isFull = bin.currentCapacity >= 75;
-    const isOffline = !isOnline;
-    const isUnderMaintenance = bin.status === "UNDER_MAINTENANCE";
 
-    let alertLevel = "online";
-    if (isUnderMaintenance) alertLevel = "offline";
-    else if (isOffline) alertLevel = "offline";
-    else if (isFull) alertLevel = "critical";
+    // ⭐ Real-time alert decision (DB status NO longer overrides heartbeat)
+    let alertLevel: "online" | "offline" | "critical" = "online";
 
-    // ✅ Convert Prisma Decimal → Number safely
+    if (!isOnline) {
+      alertLevel = "offline";
+    } else if (isFull) {
+      alertLevel = "critical";
+    }
+
+    // ⭐ Convert decimals
     const lat =
       typeof bin.user?.lat === "object"
         ? Number(bin.user.lat)
         : bin.user?.lat;
+
     const long =
       typeof bin.user?.long === "object"
         ? Number(bin.user.long)
         : bin.user?.long;
 
+    // Only show bins with issues
     if (alertLevel !== "online") {
-      // ✅ Use the bin ID as the unique key to prevent duplicates
       alertsMap.set(bin.id, {
         id: bin.id,
         location: bin.user?.location || "Unknown",
@@ -908,11 +917,9 @@ export const getSmartAlerts = async () => {
     }
   }
 
-  const uniqueAlerts = Array.from(alertsMap.values());
-
-  console.log("✅ Smart Alerts Count (unique):", uniqueAlerts.length);
-  return uniqueAlerts;
+  return Array.from(alertsMap.values());
 };
+
 
 
 
