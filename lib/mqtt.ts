@@ -1,72 +1,76 @@
 import mqtt, { MqttClient } from "mqtt";
 
 let client: MqttClient | null = null;
+let isConnecting = false;
+let subscribed = false;
 
 const connectMqtt = (): Promise<MqttClient> => {
   if (client && client.connected) {
     return Promise.resolve(client);
   }
-
-  if (!client) {
-    client = mqtt.connect(process.env.NEXT_PUBLIC_BROKER_URL!, {
-      username: process.env.NEXT_PUBLIC_BROKER_USERNAME!,
-      password: process.env.NEXT_PUBLIC_BROKER_PASSWORD!,
-      keepalive: 30,
-      connectTimeout: 10 * 1000, // 10 seconds
-    });
-
-    client.on("connect", () => console.log("Connected to broker"));
-    client.on("error", (error) => {
-      console.error("MQTT connection error:", error);
-      client?.end();
-      client = null;
-    });
-    client.on("close", () => {
-      console.log("MQTT connection closed");
-      client = null;
+  
+  if (isConnecting) {
+    return new Promise((resolve) => {
+      const timer = setInterval(() => {
+        if (client?.connected) {
+          clearInterval(timer);
+          resolve(client);
+        }
+      }, 200);
     });
   }
-  return new Promise((resolve, reject) => {
-    if (client?.connected) {
-      resolve(client);
-    } else {
-      const onConnect = () => {
-        client?.off("connect", onConnect);
-        client?.off("error", onError);
-        resolve(client!);
-      };
 
-      const onError = (err: Error) => {
-        client?.off("error", onError);
-        client?.off("connect", onConnect);
-        reject(err);
-      };
+  isConnecting = true;
 
-      client?.once("connect", onConnect);
-      client?.once("error", onError);
+  client = mqtt.connect(process.env.NEXT_PUBLIC_BROKER_URL!, {
+    username: process.env.NEXT_PUBLIC_BROKER_USERNAME!,
+    password: process.env.NEXT_PUBLIC_BROKER_PASSWORD!,
+    keepalive: 30,
+    reconnectPeriod: 5000, // 🔁 auto reconnect every 5 seconds
+    connectTimeout: 10_000,
+  });
+
+  client.on("connect", () => {
+    console.log("MQTT connected");
+
+    // Make sure we only subscribe ONCE
+    if (!subscribed) {
+      client!.subscribe("srb/heartbeat/#", { qos: 0 });
+      subscribed = true;
+      console.log("Subscribed to heartbeat topic");
     }
+
+    isConnecting = false;
+  });
+
+  client.on("error", (err) => {
+    console.error("MQTT Error:", err);
+    isConnecting = false;
+  });
+
+  client.on("close", () => {
+    console.warn("MQTT disconnected — retrying...");
+    isConnecting = false;
+    subscribed = false;
+  });
+
+  return new Promise((resolve) => {
+    client!.once("connect", () => resolve(client!));
   });
 };
 
-const publishMqtt = async (
+export const publishMqtt = async (
   topic: string,
   message: string
 ): Promise<boolean> => {
-  try {
-    const mqttClient = await connectMqtt();
-    return new Promise((resolve, reject) => {
-      mqttClient.publish(topic, message, { qos: 0 }, (err) => {
-        if (err) {
-          reject(false);
-        } else {
-          resolve(true);
-        }
-      });
+  const mqttClient = await connectMqtt();
+
+  return new Promise((resolve, reject) => {
+    mqttClient.publish(topic, message, { qos: 0 }, (err) => {
+      if (err) return reject(false);
+      resolve(true);
     });
-  } catch (error) {
-    console.error("Failed to connect and publish message:", error);
-    return false;
-  }
+  });
 };
 
-export { connectMqtt, publishMqtt };
+export { connectMqtt };

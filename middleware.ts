@@ -11,9 +11,9 @@ const apiAuthRoutes = "/api/auth";
 export default auth(async (req) => {
   const path = req.nextUrl.pathname;
 
-  // ✅ 1. Allow all cron routes to bypass middleware
+  // ✅ 1. Skip ALL cron routes — absolutely no auth for them
   if (path.startsWith("/api/cron")) {
-    return;  // Skip all auth for cron jobs
+    return;  // allow cron job to run with no middleware
   }
 
   const isLoggedIn = !!req.auth;
@@ -32,23 +32,23 @@ export default auth(async (req) => {
     return Response.redirect(new URL("/not-found", req.nextUrl));
   }
 
-  // 🔐 If not logged in or no token
+  // 🔐 User not logged in
   if (!isLoggedIn && !token) {
     if (isAdminRoute) {
       return Response.redirect(new URL("/login", req.nextUrl));
     }
   } else {
-    // 🔐 Logged in but NOT admin accessing admin routes
+    // 🔐 User logged in but NOT admin — block admin dashboard
     if (isAdminRoute && token?.role !== Role.ADMIN) {
       return Response.redirect(new URL("/not-found", req.nextUrl));
     }
   }
 });
 
-// ⭐ DO NOT USE negative matchers here
+// ⭐ Correct matcher — bypasses /api/cron entirely
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/api/:path*",  // Middleware applies normally
+    "/admin/:path*",         // Admin pages protected
+    "/api/(?!cron).*",       // Apply middleware to API except /api/cron/**
   ],
 };

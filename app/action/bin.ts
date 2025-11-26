@@ -864,61 +864,56 @@ export const getSmartAlerts = async () => {
     },
   });
 
-  const now = new Date();
+  const now = Date.now();
 
-  // Final list of alerts (unique)
   const alertsMap = new Map<string, any>();
 
   for (const bin of bins) {
+    // 🔍 Compute real-time online/offline
+    const last = bin.lastHeartBeat ? new Date(bin.lastHeartBeat).getTime() : 0;
+    const isOnline = last && now - last < 10 * 60 * 1000; // 10 minutes timeout
 
-    // ⭐ REAL-TIME HEARTBEAT STATUS (primary source of truth)
-    const lastHB = bin.lastHeartBeat
-      ? new Date(bin.lastHeartBeat).getTime()
-      : 0;
+    // 🔍 Capacity critical threshold
+    const isCritical = bin.currentCapacity >= 75;
 
-    const isOnline =
-      lastHB && now.getTime() - lastHB < 10 * 60 * 1000; // within 10 minutes
-
-    // ⭐ Capacity status
-    const isFull = bin.currentCapacity >= 75;
-
-    // ⭐ Real-time alert decision (DB status NO longer overrides heartbeat)
-    let alertLevel: "online" | "offline" | "critical" = "online";
+    // 🎯 Real-time alert priority
+    // (Higher priority replaces lower ones)
+    let level: "online" | "offline" | "critical" = "online";
 
     if (!isOnline) {
-      alertLevel = "offline";
-    } else if (isFull) {
-      alertLevel = "critical";
+      level = "offline";
+    } else if (isCritical) {
+      level = "critical";
     }
 
-    // ⭐ Convert decimals
+    // Ignore healthy bins
+    if (level === "online") continue;
+
+    // Convert decimal lat/long if Prisma returns Decimal objects
     const lat =
-      typeof bin.user?.lat === "object"
-        ? Number(bin.user.lat)
-        : bin.user?.lat;
+      typeof bin.user?.lat === "object" ? Number(bin.user.lat) : bin.user?.lat;
 
     const long =
       typeof bin.user?.long === "object"
         ? Number(bin.user.long)
         : bin.user?.long;
 
-    // Only show bins with issues
-    if (alertLevel !== "online") {
-      alertsMap.set(bin.id, {
-        id: bin.id,
-        location: bin.user?.location || "Unknown",
-        material: bin.binMaterial?.name || "Unknown",
-        capacity: bin.currentCapacity || 0,
-        lastHeartBeat: bin.lastHeartBeat,
-        lat,
-        long,
-        alertLevel,
-      });
-    }
+    alertsMap.set(bin.id, {
+      id: bin.id,
+      location: bin.user?.location ?? "Unknown",
+      material: bin.binMaterial?.name ?? "Unknown",
+      capacity: bin.currentCapacity,
+      lastHeartBeat: bin.lastHeartBeat,
+      lat,
+      long,
+      alertLevel: level,
+    });
   }
 
   return Array.from(alertsMap.values());
 };
+
+
 
 
 
