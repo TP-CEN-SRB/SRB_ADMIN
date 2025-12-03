@@ -33,7 +33,7 @@ export async function GET() {
 
       return {
         binId: bin.id,
-        timestamp: bucket,
+        timestamp: new Date(bucket.toISOString()),
         status,
       };
     });
@@ -46,7 +46,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      timestamp: bucket,
+      timestamp: new Date(bucket.toISOString()),
       logged: bins.length,
     });
   } catch (err) {

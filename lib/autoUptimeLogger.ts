@@ -44,7 +44,7 @@ export const initAutoUptimeLogger = () => {
 
         return {
           binId: bin.id,
-          timestamp: bucket,   // ⬅️ FIXED BUCKET TIME
+          timestamp: new Date(bucket.toISOString()),
           status,
         };
       });
