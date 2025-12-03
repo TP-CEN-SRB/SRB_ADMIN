@@ -457,7 +457,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
               {selectedBin.uptimeTimeline.map((entry, idx) => {
                 const { uptime } = entry;
 
-                let colorClass =
+                const colorClass =
                   uptime === 100
                     ? "bg-green-500"
                     : uptime === 0
