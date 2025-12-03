@@ -15,6 +15,20 @@ import {
   Legend,
 } from "recharts";
 
+// Convert UTC → Singapore Time (SGT/UTC+8)
+const toSGT = (timestamp: string) => {
+  const date = new Date(timestamp);
+  return date.toLocaleString("en-SG", {
+    timeZone: "Asia/Singapore",
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 // ---------------------------------------
 // TYPES
 // ---------------------------------------
@@ -34,12 +48,20 @@ interface Bin {
   disposals: Disposal[];
 }
 
+interface UptimeTimelineEntry {
+  timestampUTC: string;   // ISO timestamp (backend bucket)
+  timestampSGT: string;   // Formatted for display
+  label: string;          // Clean chart label ("03:25", "12", "04", etc.)
+  uptime: number;         // 0–100%
+}
+
 interface UptimeEntry {
   id: string;
   name: string;
   uptimePercent: number;
-  uptimeTimeline: { timestamp: string; uptime: number }[];
+  uptimeTimeline: UptimeTimelineEntry[];
 }
+
 
 interface BinManager {
   id: string;
@@ -166,7 +188,38 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
               id: u.id,
               name: u.name,
               uptimePercent: u.uptimePercent,
-              uptimeTimeline: u.uptimeTimeline || [],
+              uptimeTimeline: (u.uptimeTimeline || []).map((entry: any) => {
+                const ts = entry.timestamp;
+
+                // Convert to UTC date
+                const date = new Date(ts);
+
+                // Format SGT local time
+                const timestampSGT = date.toLocaleString("en-SG", {
+                  timeZone: "Asia/Singapore",
+                  hour12: false,
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+
+                // Create short label for timeline (used on UI)
+                const label = date.toLocaleTimeString("en-SG", {
+                  timeZone: "Asia/Singapore",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                });
+
+                return {
+                  timestampUTC: ts,
+                  timestampSGT,
+                  label,
+                  uptime: entry.uptime,
+                };
+              }),
             }))
           );
         }
@@ -338,10 +391,10 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
 
       {/* ============================
           5. DETAILED TIMELINE (PER BIN)
-      ============================ */}
+      ============================= */}
       <section className="border p-6 rounded-xl bg-white shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold">Detailed Timeline</h2>
+          <h2 className="text-lg font-bold">Uptime Timeline</h2>
 
           <div className="flex gap-3">
             {/* BIN SELECT */}
@@ -371,30 +424,81 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
           </div>
         </div>
 
+        {/* EMPTY STATE (NO LOGS) */}
+        {(!selectedBin || selectedBin.uptimeTimeline.length === 0) && (
+          <div className="p-6 text-center text-gray-500">
+            <p className="font-medium">No uptime data available for this range.</p>
+            <p className="text-sm">(This bin may have been newly added or inactive.)</p>
+          </div>
+        )}
+
         {/* TIMELINE GRAPH */}
-        {selectedBin && (
+        {selectedBin && selectedBin.uptimeTimeline.length > 0 && (
           <div className="overflow-x-auto">
-            <div className="min-w-[600px] flex gap-[2px]">
+
+            {/* LEGEND */}
+            <div className="flex gap-6 mb-3 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 bg-green-500 rounded-sm"></span> Online (100%)
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 bg-yellow-500 rounded-sm"></span> Partial / Mixed
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 bg-red-500 rounded-sm"></span> Offline (0%)
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3 w-3 bg-gray-300 rounded-sm"></span> No Data
+              </div>
+            </div>
+
+            {/* Bars with adaptive smoothing */}
+            <div className="flex gap-[2px] pb-3 border-b min-w-full">
               {selectedBin.uptimeTimeline.map((entry, idx) => {
-                const color =
-                  entry.uptime === 100
+                const { uptime } = entry;
+
+                let colorClass =
+                  uptime === 100
                     ? "bg-green-500"
-                    : entry.uptime === 0
+                    : uptime === 0
                     ? "bg-red-500"
+                    : uptime === -1
+                    ? "bg-gray-300" // special "no data" representation
                     : "bg-yellow-500";
 
                 return (
                   <div
                     key={idx}
-                    className={`h-10 w-2 rounded ${color}`}
-                    title={`${entry.timestamp} — ${entry.uptime}%`}
+                    className={`h-10 w-2 rounded-sm ${colorClass} hover:scale-105 hover:opacity-80 transition`}
+                    title={`${entry.timestampSGT}\nUptime: ${
+                      uptime === -1 ? "No data" : uptime + "%"
+                    }`}
                   />
+                );
+              })}
+            </div>
+
+            {/* Smart X-Axis Tick Labels */}
+            <div className="flex gap-[2px] mt-2 select-none">
+              {selectedBin.uptimeTimeline.map((entry, idx) => {
+                // Spread 10 labels evenly
+                const interval =
+                  Math.floor(selectedBin.uptimeTimeline.length / 10) || 1;
+
+                return (
+                  <div
+                    key={idx}
+                    className="w-2 text-[9px] text-gray-500 text-center rotate-60 origin-left"
+                  >
+                    {idx % interval === 0 ? entry.label : ""}
+                  </div>
                 );
               })}
             </div>
           </div>
         )}
       </section>
+
     </div>
   );
 };

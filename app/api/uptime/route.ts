@@ -3,32 +3,76 @@ import prisma from "@/lib/db";
 import { BinStatus } from "@prisma/client";
 
 // ---------------------
-// BUCKET FORMATTERS
+// FORMATTERS
 // ---------------------
-const bucket5 = (d: Date) =>
-  `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:${Math.floor(
-    d.getMinutes() / 5
-  ) * 5}`;
+const toSGT = (ts: Date) =>
+  new Date(ts).toLocaleString("en-SG", {
+    timeZone: "Asia/Singapore",
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-const bucketHour = (d: Date) =>
-  `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()} ${d.getHours()}:00`;
+// Label formatter (cleaner for UI)
+const labelForRange = (range: string, ts: Date) => {
+  const sgt = new Date(
+    ts.toLocaleString("en-US", { timeZone: "Asia/Singapore" })
+  );
 
-const bucketDay = (d: Date) =>
-  `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  if (range === "hour" || range === "day") {
+    return `${sgt.getHours().toString().padStart(2, "0")}:${sgt
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`; // 13:05
+  }
 
+  if (range === "month") {
+    return `${sgt.getDate()}`; // 1–31
+  }
+
+  if (range === "year") {
+    return `${sgt.getMonth() + 1}`; // 1–12
+  }
+
+  return "";
+};
+
+const bucket5 = (d: Date) => {
+  const ts = new Date(d);
+  ts.setSeconds(0);
+  ts.setMilliseconds(0);
+  ts.setMinutes(Math.floor(ts.getMinutes() / 5) * 5);
+  return ts;
+};
+
+const bucketHour = (d: Date) => {
+  const ts = new Date(d);
+  ts.setMinutes(0, 0, 0);
+  return ts;
+};
+
+const bucketDay = (d: Date) => {
+  const ts = new Date(d);
+  ts.setHours(0, 0, 0, 0);
+  return ts;
+};
+
+// ---------------------
+// MAIN HANDLER
+// ---------------------
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-
     const managerId = searchParams.get("managerId");
     const range = searchParams.get("range") || "hour";
 
     if (!managerId)
       return NextResponse.json({ error: "Missing managerId" }, { status: 400 });
 
-    // ---------------------
-    // TIME RANGE SELECTOR
-    //----------------------
+    // Time window
     const now = new Date();
     const since = new Date(now);
 
@@ -37,9 +81,6 @@ export async function GET(req: NextRequest) {
     else if (range === "month") since.setDate(now.getDate() - 30);
     else if (range === "year") since.setFullYear(now.getFullYear() - 1);
 
-    // ---------------------
-    // GET BINS FOR MANAGER
-    // ---------------------
     const bins = await prisma.bin.findMany({
       where: { userId: managerId },
       select: { id: true, binMaterial: { select: { name: true } } },
@@ -50,7 +91,6 @@ export async function GET(req: NextRequest) {
     // ---------------------
     const results = await Promise.all(
       bins.map(async (bin) => {
-        // Fetch raw uptime logs
         const logs = await prisma.binUptimeLog.findMany({
           where: { binId: bin.id, timestamp: { gte: since } },
           orderBy: { timestamp: "asc" },
@@ -65,35 +105,40 @@ export async function GET(req: NextRequest) {
           };
         }
 
-        // ----------------------------------------------------
-        // BUCKETING RULES BASED ON RANGE
-        // ----------------------------------------------------
-        const buckets: Record<string, number[]> = {};
+        // Bucket maps: key = bucket timestamp string
+        const buckets: Record<string, { ts: Date; values: number[] }> = {};
 
         logs.forEach((log) => {
           const ts = new Date(log.timestamp);
 
-          let bucketKey = "";
-          if (range === "hour" || range === "day") bucketKey = bucket5(ts); // 5-min buckets
-          else if (range === "month") bucketKey = bucketHour(ts); // 1-hour bucket
-          else bucketKey = bucketDay(ts); // 1-day bucket
+          let bucketTS: Date;
+          if (range === "hour" || range === "day") bucketTS = bucket5(ts);
+          else if (range === "month") bucketTS = bucketHour(ts);
+          else bucketTS = bucketDay(ts);
 
-          if (!buckets[bucketKey]) buckets[bucketKey] = [];
-          buckets[bucketKey].push(log.status === BinStatus.FUNCTIONAL ? 1 : 0);
+          const key = bucketTS.toISOString();
+
+          if (!buckets[key]) buckets[key] = { ts: bucketTS, values: [] };
+
+          buckets[key].values.push(
+            log.status === BinStatus.FUNCTIONAL ? 1 : 0
+          );
         });
 
-        // Convert raw buckets → uptime %
-        const timeline = Object.entries(buckets).map(([timestamp, arr]) => {
-          const sum = arr.reduce<number>((a, b) => a + b, 0); // FIXED HERE
+        const timeline = Object.values(buckets).map((b) => {
+          const sum = b.values.reduce((a, c) => a + c, 0);
           return {
-            timestamp,
-            uptime: Math.round((sum / arr.length) * 100),
+            timestampUTC: b.ts.toISOString(),
+            timestampSGT: toSGT(b.ts),
+            label: labelForRange(range, b.ts),
+            uptime: Math.round((sum / b.values.length) * 100),
           };
         });
 
-        // Compute total uptime %
         const total = logs.length;
-        const online = logs.filter((l) => l.status === BinStatus.FUNCTIONAL).length;
+        const online = logs.filter(
+          (l) => l.status === BinStatus.FUNCTIONAL
+        ).length;
         const uptimePercent = Math.round((online / total) * 100);
 
         return {
