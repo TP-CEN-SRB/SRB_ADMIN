@@ -342,7 +342,17 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
           4. OVERALL UPTIME (%)
       ============================ */}
       <section className="border p-6 rounded-xl bg-white shadow-sm">
-        <h2 className="text-lg font-bold mb-4">Uptime Overview (%)</h2>
+        <h2 className="text-lg font-bold mb-4">
+          Uptime Overview (Aggregated Over Past {
+            selectedRange === "hour"
+              ? "Hour"
+              : selectedRange === "day"
+              ? "Day"
+              : selectedRange === "month"
+              ? "Month"
+              : "Year"
+          })
+        </h2>
 
         <div className="flex flex-col gap-3">
           {uptimeData.map((bin) => (
@@ -428,51 +438,49 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
               </div>
             </div>
 
-            {/* Bars with adaptive smoothing */}
-            <div className="flex gap-[2px] pb-3 border-b min-w-full">
+            {/* Bars */}
+            <div className="flex gap-[4px] pb-3 border-b min-w-full">
               {selectedBin.uptimeTimeline.map((entry, idx) => {
                 const { uptime } = entry;
-
                 const colorClass =
                   uptime === 100
                     ? "bg-green-500"
                     : uptime === 0
                     ? "bg-red-500"
                     : uptime === -1
-                    ? "bg-gray-300" // special "no data" representation
+                    ? "bg-gray-300"
                     : "bg-yellow-500";
 
                 return (
                   <div
                     key={idx}
-                    className={`h-10 w-2 rounded-sm ${colorClass} hover:scale-105 hover:opacity-80 transition`}
-                    title={`${entry.timestampSGT}\nUptime: ${
-                      uptime === -1 ? "No data" : uptime + "%"
-                    }`}
+                    className={`h-14 w-3 rounded-sm ${colorClass} hover:scale-105 transition`}
+                    title={`${entry.timestampSGT} — ${uptime}%`}
                   />
                 );
               })}
             </div>
 
-            {/* Smart X-Axis Tick Labels */}
-            <div className="flex gap-[2px] mt-2 select-none">
+            {/* Smarter X-axis labels (only 6 evenly spaced labels) */}
+            <div className="flex mt-2 text-[10px] text-gray-500 select-none">
               {selectedBin.uptimeTimeline.map((entry, idx) => {
-                // Spread 10 labels evenly
-                const interval =
-                  Math.floor(selectedBin.uptimeTimeline.length / 10) || 1;
+                const total = selectedBin.uptimeTimeline.length;
+                const interval = Math.floor(total / 6) || 1;
+                const show = idx % interval === 0;
 
                 return (
                   <div
                     key={idx}
-                    className="w-2 text-[9px] text-gray-500 text-center rotate-60 origin-left"
+                    className="w-3 text-center rotate-45 origin-left"
                   >
-                    {idx % interval === 0 ? entry.label : ""}
+                    {show ? entry.label : ""}
                   </div>
                 );
               })}
             </div>
           </div>
         )}
+
       </section>
 
     </div>
