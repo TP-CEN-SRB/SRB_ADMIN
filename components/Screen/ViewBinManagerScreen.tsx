@@ -189,35 +189,11 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
               name: u.name,
               uptimePercent: u.uptimePercent,
               uptimeTimeline: (u.uptimeTimeline || []).map((entry: any) => {
-                const ts = entry.timestamp;
-
-                // Convert to UTC date
-                const date = new Date(ts);
-
-                // Format SGT local time
-                const timestampSGT = date.toLocaleString("en-SG", {
-                  timeZone: "Asia/Singapore",
-                  hour12: false,
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                });
-
-                // Create short label for timeline (used on UI)
-                const label = date.toLocaleTimeString("en-SG", {
-                  timeZone: "Asia/Singapore",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,
-                });
-
                 return {
-                  timestampUTC: ts,
-                  timestampSGT,
-                  label,
-                  uptime: entry.uptime,
+                    timestampUTC: entry.timestampUTC,   // from backend
+                    timestampSGT: entry.timestampSGT,   // already formatted
+                    label: entry.label,                 // already generated
+                    uptime: entry.uptime, 
                 };
               }),
             }))

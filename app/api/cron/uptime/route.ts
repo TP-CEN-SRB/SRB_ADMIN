@@ -1,25 +1,36 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { BinStatus } from "@prisma/client";
+import { redis } from "@/lib/redis"; // ← NEW
 
 export async function GET() {
   try {
-    const HEARTBEAT_TIMEOUT = 10 * 60 * 1000;
+    const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 minutes
     const now = new Date();
 
-    // Align timestamp to nearest 5-min bucket (SAME AS LOCAL LOGGER)
+    // ------------------------------------------
+    // ALIGN TO EXACT 5-MIN UTC BUCKET
+    // ------------------------------------------
     const bucket = new Date(now);
     bucket.setSeconds(0);
     bucket.setMilliseconds(0);
     bucket.setMinutes(Math.floor(bucket.getMinutes() / 5) * 5);
 
-    // Fetch bins
+    const bucketISO = bucket.toISOString(); // Store in UTC always
+
+    // ------------------------------------------
+    // FETCH ALL BINS (same as before)
+    // ------------------------------------------
     const bins = await prisma.bin.findMany({
       select: { id: true, lastHeartBeat: true },
     });
 
-    // Create logs
-    const logs = bins.map((bin) => {
+    // ------------------------------------------
+    // BUILD REDIS PAYLOAD
+    // ------------------------------------------
+    const pipeline = redis.pipeline();
+
+    bins.forEach((bin) => {
       const last = bin.lastHeartBeat
         ? new Date(bin.lastHeartBeat).getTime()
         : 0;
@@ -28,29 +39,26 @@ export async function GET() {
 
       const status =
         diff <= HEARTBEAT_TIMEOUT
-          ? BinStatus.FUNCTIONAL
-          : BinStatus.UNDER_MAINTENANCE;
+          ? 1 // online
+          : 0; // offline
 
-      return {
-        binId: bin.id,
-        timestamp: new Date(bucket.toISOString()),
-        status,
-      };
+      // Each snapshot stored as:
+      // uptime:<binId>:<ISO timestamp> = 1 or 0
+      const redisKey = `uptime:${bin.id}:${bucketISO}`;
+
+      pipeline.set(redisKey, status);
     });
 
-    // Remove duplicates + insert fresh bucket
-    await prisma.$transaction([
-      prisma.binUptimeLog.deleteMany({ where: { timestamp: bucket } }),
-      prisma.binUptimeLog.createMany({ data: logs }),
-    ]);
+    await pipeline.exec();
 
     return NextResponse.json({
       success: true,
-      timestamp: new Date(bucket.toISOString()),
+      timestamp: bucketISO,
       logged: bins.length,
     });
+
   } catch (err) {
-    console.error("❌ Cron Uptime error:", err);
+    console.error("❌ Redis Cron Uptime Error:", err);
     return NextResponse.json(
       { error: "Cron failed" },
       { status: 500 }

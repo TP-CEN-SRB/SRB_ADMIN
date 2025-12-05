@@ -5,14 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import "react-image-crop/dist/ReactCrop.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import ReactQueryProvider from "./providers/reactqueryprovider";
-import { initAutoUptimeLogger } from "@/lib/autoUptimeLogger";
-
-
-
-// ✅ Only run MQTT sync on the server, not client or build
-if (typeof window === "undefined") {
-  initAutoUptimeLogger();
-}
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
