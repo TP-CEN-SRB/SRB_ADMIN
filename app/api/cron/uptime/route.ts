@@ -3,6 +3,10 @@ import prisma from "@/lib/db";
 import { BinStatus } from "@prisma/client";
 import { redis } from "@/lib/redis"; // ← NEW
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+
 export async function GET() {
   try {
     const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 minutes

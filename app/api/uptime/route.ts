@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import prisma from "@/lib/db"; // only used to get bin list
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // ---------------------
 // FORMATTERS
 // ---------------------
