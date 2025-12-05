@@ -1,17 +1,14 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { BinStatus } from "@prisma/client";
-import { redis } from "@/lib/redis"; // ← NEW
+import { redis } from "@/lib/redis";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-
-
 export async function GET() {
   try {
-    const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+    const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 min
     const now = new Date();
 
     // ------------------------------------------
@@ -22,52 +19,40 @@ export async function GET() {
     bucket.setMilliseconds(0);
     bucket.setMinutes(Math.floor(bucket.getMinutes() / 5) * 5);
 
-    const bucketISO = bucket.toISOString(); // Store in UTC always
+    const bucketISO = bucket.toISOString(); // Always store in UTC
 
     // ------------------------------------------
-    // FETCH ALL BINS (same as before)
+    // FETCH ALL BINS
     // ------------------------------------------
     const bins = await prisma.bin.findMany({
       select: { id: true, lastHeartBeat: true },
     });
 
     // ------------------------------------------
-    // BUILD REDIS PAYLOAD
+    // WRITE SNAPSHOTS TO REDIS (NO PIPELINE)
     // ------------------------------------------
-    const pipeline = redis.pipeline();
+    await Promise.all(
+      bins.map((bin) => {
+        const last = bin.lastHeartBeat
+          ? new Date(bin.lastHeartBeat).getTime()
+          : 0;
 
-    bins.forEach((bin) => {
-      const last = bin.lastHeartBeat
-        ? new Date(bin.lastHeartBeat).getTime()
-        : 0;
+        const diff = now.getTime() - last;
+        const status = diff <= HEARTBEAT_TIMEOUT ? 1 : 0; // 1 = online, 0 = offline
 
-      const diff = now.getTime() - last;
+        const redisKey = `uptime:${bin.id}:${bucketISO}`;
 
-      const status =
-        diff <= HEARTBEAT_TIMEOUT
-          ? 1 // online
-          : 0; // offline
-
-      // Each snapshot stored as:
-      // uptime:<binId>:<ISO timestamp> = 1 or 0
-      const redisKey = `uptime:${bin.id}:${bucketISO}`;
-
-      pipeline.set(redisKey, status);
-    });
-
-    await pipeline.exec();
+        return redis.set(redisKey, status);
+      })
+    );
 
     return NextResponse.json({
       success: true,
       timestamp: bucketISO,
       logged: bins.length,
     });
-
   } catch (err) {
     console.error("❌ Redis Cron Uptime Error:", err);
-    return NextResponse.json(
-      { error: "Cron failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Cron failed" }, { status: 500 });
   }
 }
