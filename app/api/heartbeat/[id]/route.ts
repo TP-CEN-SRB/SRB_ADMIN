@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { BinStatus } from "@prisma/client";
+import { redis } from "@/lib/redis";
 
 export const PUT = async (
   req: NextRequest,
@@ -34,7 +35,7 @@ export const PUT = async (
 
     const now = new Date();
 
-    // update bin
+    // Update bin status + heartbeat timestamp
     await prisma.bin.update({
       where: { id: bin.id },
       data: {
@@ -43,30 +44,13 @@ export const PUT = async (
       },
     });
 
-    // create uptime log if no recent duplicate within 30 seconds
-    const recentLog = await prisma.binUptimeLog.findFirst({
-      where: {
-        binId: bin.id,
-        timestamp: {
-          gte: new Date(Date.now() - 30 * 1000), // last 30s
-        },
-      },
-    });
+    // NEW: Mirror heartbeat to Redis (optional)
+    await redis.set(`heartbeat:${bin.id}`, now.toISOString());
 
-    if (!recentLog) {
-      await prisma.binUptimeLog.create({
-        data: {
-          binId: bin.id,
-          timestamp: now,
-          status: BinStatus.FUNCTIONAL,
-        },
-      });
-      console.log(`📡 Heartbeat logged for ${bin.id} (${material})`);
-    } else {
-      console.log(`⏱️ Skipped duplicate heartbeat log for ${bin.id}`);
-    }
-
-    return NextResponse.json({ message: "Heartbeat logged successfully." }, { status: 200 });
+    return NextResponse.json(
+      { message: "Heartbeat logged successfully." },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("❌ Heartbeat API error:", error);
     return NextResponse.json(
