@@ -67,18 +67,18 @@ model PassswordResetToken {
 }
 
 model Bin {
-  id              String         @id @default(uuid())
-  status          BinStatus      @default(FUNCTIONAL)
-  currentCapacity Float          @default(0)
+  id              String      @id @default(uuid())
+  status          BinStatus   @default(FUNCTIONAL)
+  currentCapacity Float       @default(0)
   userId          String
-  emailSent       Boolean        @default(false)
-  clearCount      Int            @default(0)
+  emailSent       Boolean     @default(false)
+  clearCount      Int         @default(0)
   binMaterialId   String
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
   lastHeartBeat   DateTime?
-  binMaterial     BinMaterial    @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
-  user            User           @relation(fields: [userId], references: [id])
+  binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
+  user            User        @relation(fields: [userId], references: [id])
   disposals       Disposal[]
   uptimeLogs      BinUptimeLog[] @relation("BinToUptimeLogs")
 
@@ -252,13 +252,15 @@ model Crashlog {
 }
 
 model QuestTemplate {
-  id           String   @id @default(cuid())
+  id           String   @id @default(uuid())
   title        String
   description  String
   target       Int
   rewardPoints Int
   materialType String
+  duration     Int      @default(7)
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@map("quest_template")
 }

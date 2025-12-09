@@ -1,10 +1,13 @@
 import React, { ReactNode } from "react";
+
 interface CardProps {
-  children: ReactNode;
-  fullWidth?: boolean;
-  rounded?: boolean;
   isAdmin?: boolean;
+  rounded?: boolean;
+  fullWidth?: boolean;
+  className?: string;      // ✅ allow custom classes
+  children: React.ReactNode;
 }
+
 const Card = ({
   children,
   fullWidth = false,

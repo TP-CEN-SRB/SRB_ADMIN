@@ -139,6 +139,18 @@ export type MaterialType = (typeof MaterialEnum)[number];
     .default(0),
 });
 
+export const QuestTemplateSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  target: z.coerce.number().min(1, "Target must be 1 or more"),
+  materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
+  rewardPoints: z.coerce
+    .number({ invalid_type_error: "Reward points must be a number" })
+    .min(0, "Must be 0 or more")
+    .default(0),
+  duration: z.coerce.number().min(1, "Duration must be 1 or more"),
+});
+
 const StoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),
     email: z.string().email("Invalid email"),

@@ -11,6 +11,7 @@ import {
   getFilteredRowModel,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+
 import {
   Table,
   TableBody,
@@ -19,26 +20,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FaEdit, FaTrashRestore } from "react-icons/fa";
+
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { FaEdit, FaTrashRestore } from "react-icons/fa";
 import Link from "next/link";
+
+import Card from "@/components/Card/Card";
+import FormHeader from "@/components/Form/FormHeader";
 import ConfirmDeleteQuestDialog from "@/components/Dialog/ConfirmDeleteQuestDialog";
 
 interface Quest {
@@ -55,24 +61,30 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <div>
+    <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
+          <Button
+            variant="ghost"
+            className="hover:bg-slate-200 h-8 w-8 p-0 rounded-md"
+          >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
           <Link href={`/admin/quest/update/${quest.id}`} passHref>
             <DropdownMenuItem>
               <FaEdit className="mr-2" /> Edit Quest
             </DropdownMenuItem>
           </Link>
+
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <FaTrashRestore className="mr-2" /> Delete Quest
           </DropdownMenuItem>
+
           <Link href={`/admin/quest/${quest.id}/users`} passHref>
             <DropdownMenuItem>
               <FaTrashRestore className="mr-2" /> View Users
@@ -80,25 +92,20 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
           </Link>
         </DropdownMenuContent>
       </DropdownMenu>
+
       <ConfirmDeleteQuestDialog
         questId={quest.id}
         isOpen={isDialogOpen}
         handleDialogOpen={() => setDialogOpen((prev) => !prev)}
       />
-    </div>
+    </>
   );
 };
 
-const QuestDataTable = ({ data }: QuestDataTableProps) => {
+export default function QuestDataTable({ data }: QuestDataTableProps) {
   const columns: ColumnDef<Quest>[] = [
-    {
-      accessorKey: "name",
-      header: "Quest Name",
-    },
-    {
-      accessorKey: "material",
-      header: "Material",
-    },
+    { accessorKey: "name", header: "Quest Name" },
+    { accessorKey: "material", header: "Material" },
     {
       id: "actions",
       header: "Actions",
@@ -106,6 +113,7 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
     },
   ];
 
+  // State
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -113,6 +121,7 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  // Table Instance
   const table = useReactTable({
     data,
     columns,
@@ -121,12 +130,10 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
     getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
-    state: {
-      pagination,
-      columnFilters,
-    },
+    state: { pagination, columnFilters },
   });
 
+  // Search Filter
   const [filterValue, setFilterValue] = useState(
     (table.getColumn("material")?.getFilterValue() as string) ?? ""
   );
@@ -138,25 +145,30 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
   };
 
   return (
-    <div className="px-4">
-      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
-        <div className="max-w-xs">
-          <Input
-            placeholder="Filter by material..."
-            type="search"
-            value={filterValue}
-            onChange={handleInputChange}
-          />
-        </div>
+    <Card isAdmin rounded fullWidth className="p-6">
+      <FormHeader>All Quests</FormHeader>
+
+      {/* Filter Bar */}
+      <div className="flex justify-end pb-4">
+        <Input
+          placeholder="Filter by material..."
+          value={filterValue}
+          onChange={handleInputChange}
+          className="max-w-xs"
+        />
       </div>
 
-      <div className="rounded-md border"> 
+      {/* Table */}
+      <div className="rounded-lg border shadow-sm bg-white">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+          <TableHeader className="bg-slate-50">
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="font-bold text-slate-700"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -168,6 +180,7 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
@@ -184,7 +197,10 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-slate-500"
+                >
                   No quests found.
                 </TableCell>
               </TableRow>
@@ -193,35 +209,37 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-8 py-4">
+      {/* Pagination */}
+      <div className="flex items-center justify-between pt-4">
+
+        {/* Rows Per Page */}
         <div className="flex items-center space-x-2">
-          <span className="whitespace-nowrap">Rows per page</span>
+          <span className="text-sm font-medium text-slate-700">Rows per page</span>
           <Select
             value={String(table.getState().pagination.pageSize)}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select page size" />
+            <SelectTrigger className="w-20">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={String(pageSize)}>
-                  <span className="pr-4">{pageSize}</span>
+              {[10, 20, 30, 40, 50].map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex items-center gap-1">
-          <div>Page</div>
-          <span>
-            {table.getState().pagination.pageIndex + 1} of{" "}
-            {Math.max(1, table.getPageCount())}
-          </span>
+        {/* Page indicator */}
+        <div className="text-sm text-slate-700">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {Math.max(1, table.getPageCount())}
         </div>
 
-        <div className="flex items-center justify-end space-x-2">
+        {/* Page buttons */}
+        <div className="flex space-x-2">
           <Button
             variant="outline"
             size="sm"
@@ -256,8 +274,6 @@ const QuestDataTable = ({ data }: QuestDataTableProps) => {
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
-};
-
-export default QuestDataTable;
+}

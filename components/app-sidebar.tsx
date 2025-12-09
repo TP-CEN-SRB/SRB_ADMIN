@@ -18,146 +18,88 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
-import { FaTrash, FaUser, FaChevronRight, FaEye, FaPlus, FaCogs, FaClock, FaBug, FaExclamationTriangle, FaHeart } from "react-icons/fa";
+import {
+  FaTrash,
+  FaUser,
+  FaChevronRight,
+  FaEye,
+  FaPlus,
+  FaCogs,
+  FaClock,
+  FaBug,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { GiPresent } from "react-icons/gi";
+import { FaHeartPulse } from "react-icons/fa6";
 import Image from "next/image";
 import Link from "next/link";
+
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+
 import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";
-import { FaHeartPulse} from "react-icons/fa6";
-
-
-//         /\/\,\,\ ,
-//                 /        ` \'\,
-//                /               '/|_
-//               /                   /
-//              /                   /
-//             /                   ;
-//             ;-""-.  ____       ,
-//            /      )'    `.     '
-//           (    o |        )   ;
-//            ),'"""\    o   ;  :
-//            ;\___  `._____/ ,-:
-//           ;                 @ )
-//          /                `;-'
-//       ,. `-.______________,|
-//  ,(`._||         \__\__\__)|
-// ,`.`-   \        '.        |
-//  `._  ) :          )______,;\_
-//     \    \_   _,--/       ,   `.
-//      \     `--\   :      /      `.
-//       \        \  ;     |         \
-//        `-._____ ;|      |       _,'
-//    -hrr-       \/'      `-.----' \
-//                 /          \      \
 
 export const collaspeItems = [
   {
     title: "Bin Managers",
     icon: CgProfile,
     child: [
-      {
-        title: "Map",
-        icon: FaMapMarkedAlt,
-        url: "/admin/bin/manager/map",
-      },
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/bin/manager",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/bin/manager/create",
-      },
+      { title: "Map", icon: FaMapMarkedAlt, url: "/admin/bin/manager/map" },
+      { title: "View", icon: FaEye, url: "/admin/bin/manager" },
+      { title: "Create", icon: FaPlus, url: "/admin/bin/manager/create" },
     ],
   },
   {
     title: "Bins",
     icon: FaTrash,
     child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/bin",
-      },
-      {
-      title: "Test",
-      icon: FaCogs,
-      url: "/admin/bin/test",
-      },
-      {
-      title: "Alive System",
-      icon: FaHeartPulse,
-      url: "/admin/bin/heartbeat",
-      },
+      { title: "View", icon: FaEye, url: "/admin/bin" },
+      { title: "Test", icon: FaCogs, url: "/admin/bin/test" },
+      { title: "Alive System", icon: FaHeartPulse, url: "/admin/bin/heartbeat" },
     ],
   },
   {
     title: "Students",
     icon: PiStudentFill,
     child: [
-      {
-        title: "Dashboard",
-        icon: PiRankingBold,
-        url: "/admin/student/dashboard",
-      },
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/student",
-      },
+      { title: "Dashboard", icon: PiRankingBold, url: "/admin/student/dashboard" },
+      { title: "View", icon: FaEye, url: "/admin/student" },
     ],
   },
   {
     title: "Rewards",
     icon: GiPresent,
     child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/reward",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/reward/create",
-      },
+      { title: "View", icon: FaEye, url: "/admin/reward" },
+      { title: "Create", icon: FaPlus, url: "/admin/reward/create" },
     ],
   },
   {
     title: "Materials",
     icon: RiRecycleFill,
     child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/bin/material",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/bin/material/create",
-      },
+      { title: "View", icon: FaEye, url: "/admin/bin/material" },
+      { title: "Create", icon: FaPlus, url: "/admin/bin/material/create" },
     ],
   },
-{
+
+  // ⭐⭐⭐ UPDATED ACTIVITY SECTION
+  {
     title: "Activity",
     icon: BsFillBarChartFill,
     child: [
       {
-        title: "View Quests",
+        title: "View Active Quests",
         icon: FaEye,
         url: "/admin/quest",
       },
@@ -166,11 +108,26 @@ export const collaspeItems = [
         icon: FaEye,
         url: "/admin/event",
       },
+
+      // ⭐ NEW: Quest Template System
       {
-        title: "Create Quests",
-        icon: FaPlus,
-        url: "/admin/quest/create",
+        title: "Quest Templates",
+        icon: FaEye,
+        url: "/admin/quest-template",
       },
+      {
+        title: "Create Quest Template",
+        icon: FaPlus,
+        url: "/admin/quest-template/create",
+      },
+
+      // ❌ Removed from UI: old Create Quests
+      // {
+      //   title: "Create Quests",
+      //   icon: FaPlus,
+      //   url: "/admin/quest/create",
+      // },
+
       {
         title: "Create Events",
         icon: FaPlus,
@@ -178,57 +135,32 @@ export const collaspeItems = [
       },
     ],
   },
+
   {
     title: "Store",
     icon: GiPresent,
     child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/store",
-      },
-      {
-        title: "Create",
-        icon: FaPlus,
-        url: "/admin/store/create",
-      },
+      { title: "View", icon: FaEye, url: "/admin/store" },
+      { title: "Create", icon: FaPlus, url: "/admin/store/create" },
     ],
   },
   {
-  title: "Live Stream",
-  icon: FaEye,
-  child: [
-      {
-        title: "View",
-        icon: FaEye,
-        url: "/admin/video",
-      },
-      {
-        title: "Recordings",
-        icon: FaClock,
-        url: "/admin/recordings",
-      },
+    title: "Live Stream",
+    icon: FaEye,
+    child: [
+      { title: "View", icon: FaEye, url: "/admin/video" },
+      { title: "Recordings", icon: FaClock, url: "/admin/recordings" },
     ],
   },
   {
-  title: "Crash Log",
-  icon: FaBug,
-  child: [
-      {
-        title: "Messages",
-        icon: FaExclamationTriangle,
-        url: "/admin/crashlog",
-      },
-    ],
-  }
+    title: "Crash Log",
+    icon: FaBug,
+    child: [{ title: "Messages", icon: FaExclamationTriangle, url: "/admin/crashlog" }],
+  },
 ];
 
 export const dropdownItems = [
-  {
-    title: "Profile",
-    icon: FaUser,
-    url: "/admin/profile",
-  },
+  { title: "Profile", icon: FaUser, url: "/admin/profile" },
 ];
 
 export function AppSidebar({ email }: { email: string | null | undefined }) {
@@ -240,12 +172,14 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
   };
+
   return (
     <>
       <SignOutDialog
         isOpen={isSignOutDialogOpen}
         handleDialogOpen={() => setSignOutDialogOpen(!isSignOutDialogOpen)}
       />
+
       <Sidebar className="overflow-y-auto">
         <SidebarHeader>
           <SidebarMenu className="p-4">
@@ -258,6 +192,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
             />
           </SidebarMenu>
         </SidebarHeader>
+
         <SidebarContent>
           <SidebarMenu>
             <SidebarMenuItem className="mx-4">
@@ -268,6 +203,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+
             {collaspeItems.map((item, index) => (
               <Collapsible
                 key={index}
@@ -282,15 +218,18 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                       <span>{item.title}</span>
                       <FaChevronRight
                         className={`ml-auto duration-100 ease ${
-                          openIndexes.includes(index) ? "rotate-90" : "rotate-0"
-                        }  `}
+                          openIndexes.includes(index)
+                            ? "rotate-90"
+                            : "rotate-0"
+                        }`}
                       />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
+
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {item.child.map((child, subIndex) => (
-                        <Link key={subIndex} href={child.url}>
+                      {item.child.map((child, subIdx) => (
+                        <Link key={subIdx} href={child.url}>
                           <SidebarMenuSubItem className="pl-2 ml-2 rounded-lg">
                             <SidebarMenuButton>
                               <child.icon />
@@ -306,6 +245,7 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
             ))}
           </SidebarMenu>
         </SidebarContent>
+
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
@@ -316,21 +256,20 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
                     <FaChevronRight className="ml-auto" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent side="right" align="start" sideOffset={10}>
                   <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {dropdownItems.map((item, index) => (
-                    <DropdownMenuItem
-                      key={index}
-                      asChild
-                      className="cursor-pointer"
-                    >
+
+                  {dropdownItems.map((item, idx) => (
+                    <DropdownMenuItem key={idx} asChild className="cursor-pointer">
                       <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
                       </Link>
                     </DropdownMenuItem>
                   ))}
+
                   <DropdownMenuItem
                     className="flex items-center gap-x-2 cursor-pointer"
                     onClick={() => setSignOutDialogOpen(true)}
@@ -347,4 +286,3 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
     </>
   );
 }
-
