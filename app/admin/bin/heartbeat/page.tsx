@@ -148,7 +148,7 @@ export default function SmartBinDashboard() {
               </div>
               <Tooltip id={`tooltip-${bin.id}`} />
 
-              <div className="text-lg mt-2">{bin.material}</div>
+              <div className="text-lg mt-2">{bin.binMaterial.name}</div>
               <div className={`text-sm mt-1 ${statusColor}`}>{statusText}</div>
 
               {bin.lastHeartBeat && (

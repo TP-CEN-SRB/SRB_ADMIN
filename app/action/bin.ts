@@ -777,6 +777,19 @@ export const getFaultyBins = async (
   }));
 };
 
+export const evaluateHardwareStatus = (diag: any) => {
+  const failed: string[] = [];
+
+  if (diag.scannerOK === false) failed.push("Scanner");
+  if (diag.lidOK === false) failed.push("Lid Motor");
+  if (diag.loadcellOK === false) failed.push("Load Cell");
+
+  return {
+    isCriticalFailure: failed.length > 0,
+    failedComponents: failed,
+  };
+};
+
 export const getHeartbeat = async () => {
   const bins = await prisma.bin.findMany({
     select: {
@@ -792,45 +805,71 @@ export const getHeartbeat = async () => {
 
   const now = new Date();
 
-  // 🧩 Determine live status
-  const heartbeatData = bins.map((bin) => {
+  // STEP 1 — Find newest diagnostic timestamp per bin
+  const diagnostics = await prisma.binDiagnosticLog.groupBy({
+    by: ["binId"],
+    _max: { timestamp: true },
+  });
+
+  const latestTimestamps = new Map(
+    diagnostics.map((d) => [d.binId, d._max.timestamp])
+  );
+
+  const timestamps = Array.from(latestTimestamps.values()).filter(
+    (t): t is Date => t !== null
+  );
+
+  const latestLogs = await prisma.binDiagnosticLog.findMany({
+    where: {
+      timestamp: { in: timestamps },
+    },
+  });
+
+  const logsByBin = new Map<string, typeof latestLogs[number]>();
+  latestLogs.forEach((log) => logsByBin.set(log.binId, log));
+
+  // STEP 2 — Evaluate each bin
+  const evaluated = bins.map((bin) => {
     const isOnline =
       bin.lastHeartBeat &&
-      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10; // 10 min timeout
+      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10;
 
-    let effectiveStatus: "FUNCTIONAL" | "UNDER_MAINTENANCE" = bin.status;
+    let effectiveStatus: BinStatus = BinStatus.FUNCTIONAL;
 
-    if (bin.status === "FUNCTIONAL" && !isOnline) {
-      effectiveStatus = "UNDER_MAINTENANCE";
-    } else if (bin.status === "UNDER_MAINTENANCE" && isOnline) {
-      effectiveStatus = "FUNCTIONAL";
+    if (!isOnline) {
+      effectiveStatus = BinStatus.UNDER_MAINTENANCE;
+    } else {
+      const diag = logsByBin.get(bin.id);
+      if (diag) {
+        const failed = [];
+
+        if (!diag.scannerOK) failed.push("scanner");
+        if (!diag.lidOK) failed.push("lid motor");
+        if (!diag.loadcellOK) failed.push("loadcell");
+
+        if (failed.length > 0) {
+          effectiveStatus = BinStatus.UNDER_MAINTENANCE;
+        }
+      }
     }
 
     return { ...bin, isOnline, effectiveStatus };
   });
 
-  // 🟢 Optional: Sync back to database if status changed
+  // STEP 3 — Sync DB statuses only if changed
   await Promise.all(
-    heartbeatData.map(async (bin) => {
+    evaluated.map((bin) => {
       if (bin.status !== bin.effectiveStatus) {
-        await prisma.bin.update({
+        return prisma.bin.update({
           where: { id: bin.id },
           data: { status: bin.effectiveStatus },
         });
       }
+      return null;
     })
   );
 
-  return heartbeatData.map((bin) => ({
-    id: bin.id,
-    material: bin.binMaterial.name,
-    isOnline: bin.isOnline,
-    effectiveStatus: bin.effectiveStatus,
-    userId: bin.userId,
-    user: { name: bin.user.name },
-    lastHeartBeat: bin.lastHeartBeat,
-    currentCapacity: bin.currentCapacity,
-  }));
+  return evaluated;
 };
 
 export const updateBinStatus = async (id: string, status: BinStatus) => {
@@ -858,60 +897,196 @@ export const getSmartAlerts = async () => {
           long: true,
         },
       },
-      binMaterial: {
-        select: { name: true },
-      },
+      binMaterial: { select: { name: true } },
     },
   });
 
   const now = Date.now();
 
-  const alertsMap = new Map<string, any>();
+  // STEP 1 — Fetch latest diagnostic timestamps
+  const diagnostics = await prisma.binDiagnosticLog.groupBy({
+    by: ["binId"],
+    _max: { timestamp: true },
+  });
+
+  const latestTimestamps = new Map(
+    diagnostics.map((d) => [d.binId, d._max.timestamp])
+  );
+
+  const timestamps = Array.from(latestTimestamps.values()).filter(
+    (t): t is Date => t !== null
+  );
+
+  // STEP 2 — Fetch actual latest logs
+  const latestLogs = await prisma.binDiagnosticLog.findMany({
+    where: { timestamp: { in: timestamps } },
+  });
+
+  const logsByBin = new Map<string, typeof latestLogs[number]>();
+  latestLogs.forEach((log) => logsByBin.set(log.binId, log));
+
+  const alerts: any[] = [];
 
   for (const bin of bins) {
-    // 🔍 Compute real-time online/offline
     const last = bin.lastHeartBeat ? new Date(bin.lastHeartBeat).getTime() : 0;
-    const isOnline = last && now - last < 10 * 60 * 1000; // 10 minutes timeout
+    const isOnline = last && now - last < 10 * 60 * 1000;
+    const isFull = bin.currentCapacity >= 75;
 
-    // 🔍 Capacity critical threshold
-    const isCritical = bin.currentCapacity >= 75;
+    // --- Extract hardware failures if diagnostic exists ---
+    const diag = logsByBin.get(bin.id);
 
-    // 🎯 Real-time alert priority
-    // (Higher priority replaces lower ones)
-    let level: "online" | "offline" | "critical" = "online";
+    let failedComponents: { id: string; name: string }[] = [];
+    let hardwareFailed = false;
+    let components: any[] = [];
 
-    if (!isOnline) {
-      level = "offline";
-    } else if (isCritical) {
-      level = "critical";
+    if (
+      diag?.details &&
+      typeof diag.details === "object" &&
+      !Array.isArray(diag.details)
+    ) {
+      const d = diag.details as any;
+
+      if (Array.isArray(d.failedComponents)) {
+        failedComponents = d.failedComponents;
+        hardwareFailed = failedComponents.length > 0;
+      }
+
+      // ⭐ IMPORTANT: extract full component report for UI modal
+      if (Array.isArray(d.allComponents)) {
+        components = d.allComponents;
+      }
     }
 
-    // Ignore healthy bins
+    // PRIORITY ORDER: hardware > offline > critical capacity
+    let level: "online" | "hardware" | "offline" | "critical" = "online";
+
+    if (hardwareFailed) level = "hardware";
+    else if (!isOnline) level = "offline";
+    else if (isFull) level = "critical";
+
     if (level === "online") continue;
 
-    // Convert decimal lat/long if Prisma returns Decimal objects
-    const lat =
-      typeof bin.user?.lat === "object" ? Number(bin.user.lat) : bin.user?.lat;
-
-    const long =
-      typeof bin.user?.long === "object"
-        ? Number(bin.user.long)
-        : bin.user?.long;
-
-    alertsMap.set(bin.id, {
+    alerts.push({
       id: bin.id,
       location: bin.user?.location ?? "Unknown",
-      material: bin.binMaterial?.name ?? "Unknown",
+      material: bin.binMaterial?.name,
       capacity: bin.currentCapacity,
       lastHeartBeat: bin.lastHeartBeat,
-      lat,
-      long,
       alertLevel: level,
+      lat: bin.user.lat ? Number(bin.user.lat) : null,
+      long: bin.user.long ? Number(bin.user.long) : null,
+
+      // detailed hardware data
+      hardwareFailed,
+      failedComponents,
+      components, // ⭐ FULL ESP32 COMPONENT LIST for the modal
+
+      lastDiagnosticAt: diag?.timestamp ?? null,
     });
   }
 
-  return Array.from(alertsMap.values());
+  return alerts;
 };
+
+export const handleBinDiagnostic = async (binId: string, payload: any) => {
+  try {
+    const { timestamp, results } = payload;
+
+    if (!Array.isArray(results)) {
+      console.error("❌ Diagnostic payload missing results[] array");
+      return { error: "Invalid diagnostic payload" };
+    }
+
+    // ---------------------------------------------------------
+    // 1️⃣ Extract component-level diagnostic results
+    // ---------------------------------------------------------
+    const failedComponents = results
+      .filter((r: any) => r.status === "failed")
+      .map((r: any) => ({
+        id: r.componentId,
+        name: r.componentName,
+      }));
+
+    const anyFailed = failedComponents.length > 0;
+
+    // ---------------------------------------------------------
+    // 2️⃣ Simple category booleans for quick bin status
+    // ---------------------------------------------------------
+    const scannerOK = !results.some(
+      (r: any) => r.componentId?.includes("scanner") && r.status === "failed"
+    );
+
+    const lidOK = !results.some(
+      (r: any) =>
+        (r.componentId?.includes("motor") ||
+          r.componentId?.includes("lid") ||
+          r.componentId?.includes("ultrasonic") ||
+          r.componentId?.includes("lid_njk")) &&
+        r.status === "failed"
+    );
+
+    const loadcellOK = !results.some(
+      (r: any) => r.componentId?.includes("loadcell") && r.status === "failed"
+    );
+
+    // ---------------------------------------------------------
+    // 3️⃣ Compute final bin-wide status
+    // ---------------------------------------------------------
+    const overallStatus = anyFailed
+      ? BinStatus.UNDER_MAINTENANCE
+      : BinStatus.FUNCTIONAL;
+
+    // ---------------------------------------------------------
+    // 4️⃣ Prepare full detail block for JSON column
+    // ---------------------------------------------------------
+    const details = {
+      failedComponents,
+      allComponents: results, // FULL ESP32 report for your UI
+    };
+
+    // ---------------------------------------------------------
+    // 5️⃣ Save diagnostic log to DB
+    // ---------------------------------------------------------
+    await prisma.binDiagnosticLog.create({
+      data: {
+        binId,
+        timestamp: new Date(timestamp),
+        scannerOK,
+        lidOK,
+        loadcellOK,
+        overallStatus,
+        details,
+      },
+    });
+
+    // ---------------------------------------------------------
+    // 6️⃣ Update bin status
+    // ---------------------------------------------------------
+    await prisma.bin.update({
+      where: { id: binId },
+      data: { status: overallStatus },
+    });
+
+    // ---------------------------------------------------------
+    // 7️⃣ Return structured alert (only if failed)
+    // ---------------------------------------------------------
+    if (anyFailed) {
+      return {
+        alert: {
+          binId,
+          failedComponents,
+          timestamp,
+        },
+      };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("❌ handleBinDiagnostic error:", error);
+    return { error: "Failed to process diagnostic" };
+  }
+};
+
 
 
 

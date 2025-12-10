@@ -179,7 +179,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                 lastHeartBeat: string | null;
                 lat: number | null;
                 long: number | null;
-                alertLevel: "online" | "offline" | "warning" | "critical";
+                alertLevel: "online" | "offline" | "hardware" | "critical";
               }[] = await res.json();
 
               console.log("📡 Received Alerts:", data.length, data);
@@ -195,7 +195,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                 (b) =>
                   b.alertLevel === "offline" ||
                   b.alertLevel === "critical" ||
-                  b.alertLevel === "warning"
+                  b.alertLevel === "hardware"
               );
 
               setAlertCount(issues.length);
@@ -232,7 +232,11 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                   setAlertData(prev => {
                     const updated = prev.map((bin) =>
                       bin.id === data.binId
-                        ? { ...bin, lastHeartBeat: data.timestamp, alertLevel: "online" }
+                        ? { 
+                            ...bin, 
+                            lastHeartBeat: data.timestamp, 
+                            alertLevel: bin.alertLevel === "hardware" ? "hardware" : "online"
+                          }
                         : bin
                     );
 
@@ -240,7 +244,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                       (b) =>
                         b.alertLevel === "offline" ||
                         b.alertLevel === "critical" ||
-                        b.alertLevel === "warning"
+                        b.alertLevel === "hardware"
                     ).length;
 
                     setAlertCount(stillIssues);
@@ -490,21 +494,68 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                         </TableCell>
                                         <TableCell className="text-center font-bold">
                                           <div className="flex flex-col items-center gap-1">
+                                            {bin.alertLevel === "hardware" && (
+                                              <div className="text-red-600 text-sm font-semibold flex flex-col items-center">
+                                                <span>Hardware Failure</span>
+
+                                                {/* List failed components */}
+                                                {bin.failedComponents?.length > 0 && (
+                                                  <ul className="text-xs text-red-500 mt-1 space-y-1">
+                                                    {bin.failedComponents.map((fc: any, idx: number) => (
+                                                      <li key={idx}>• {fc.name}</li>
+                                                    ))}
+                                                  </ul>
+                                                )}
+                                                {/* “View Full Diagnostics” button */}
+                                                {bin.components && (
+                                                  <Dialog>
+                                                    <DialogTrigger asChild>
+                                                      <button className="text-xs text-blue-500 underline mt-2">
+                                                        View Details
+                                                      </button>
+                                                    </DialogTrigger>
+
+                                                    <DialogContent className="max-w-md p-4">
+                                                      <DialogHeader>
+                                                        <DialogTitle>Hardware Diagnostic Details</DialogTitle>
+                                                      </DialogHeader>
+
+                                                      <div className="mt-3 space-y-2">
+                                                        {bin.components?.map((c: any, idx: number) => (
+                                                          <div key={idx} className="flex justify-between text-sm">
+                                                            <span>{c.componentName}</span>
+                                                            <span
+                                                              className={
+                                                                c.status === "failed"
+                                                                  ? "text-red-600 font-semibold"
+                                                                  : c.status === "warning"
+                                                                  ? "text-yellow-600 font-semibold"
+                                                                  : "text-green-600"
+                                                              }
+                                                            >
+                                                              {c.status}
+                                                            </span>
+                                                          </div>
+                                                        ))}
+                                                      </div>
+                                                    </DialogContent>
+                                                  </Dialog>
+                                                )}
+                                              </div>
+                                            )}
+
                                             {bin.alertLevel === "offline" && (
                                               <span className="text-red-600 text-sm font-semibold">Offline</span>
                                             )}
-                                            {bin.alertLevel === "online" && (
-                                              <span className="text-green-600 text-sm font-semibold">Online</span>
-                                            )}
+
                                             {bin.capacity >= 75 && bin.capacity < 100 && (
                                               <span className="text-orange-500 text-sm font-semibold">
                                                 Almost Full ({bin.capacity}%)
                                               </span>
                                             )}
+
                                             {bin.capacity === 100 && (
-                                              <span className="text-red-700 text-sm font-semibold">
-                                                Full (100%)
-                                              </span>
+                                              <span className="text-red-700 text-sm font-semibold">Full (100%)</span>
                                             )}
                                           </div>
 

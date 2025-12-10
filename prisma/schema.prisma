@@ -67,20 +67,20 @@ model PassswordResetToken {
 }
 
 model Bin {
-  id              String      @id @default(uuid())
-  status          BinStatus   @default(FUNCTIONAL)
-  currentCapacity Float       @default(0)
-  userId          String
-  emailSent       Boolean     @default(false)
-  clearCount      Int         @default(0)
-  binMaterialId   String
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  lastHeartBeat   DateTime?
-  binMaterial     BinMaterial @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
-  user            User        @relation(fields: [userId], references: [id])
-  disposals       Disposal[]
-  uptimeLogs      BinUptimeLog[] @relation("BinToUptimeLogs")
+  id               String             @id @default(uuid())
+  status           BinStatus          @default(FUNCTIONAL)
+  currentCapacity  Float              @default(0)
+  userId           String
+  emailSent        Boolean            @default(false)
+  clearCount       Int                @default(0)
+  binMaterialId    String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  lastHeartBeat    DateTime?
+  binMaterial      BinMaterial        @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
+  user             User               @relation(fields: [userId], references: [id])
+  disposals        Disposal[]
+  BinDiagnosticLog BinDiagnosticLog[]
 
   @@unique([userId, binMaterialId, status])
   @@map("bins")
@@ -306,12 +306,19 @@ model UserFeedback {
   @@map("user_feedback")
 }
 
-model BinUptimeLog {
-  id        String    @id @default(uuid())
+model BinDiagnosticLog {
+  id        String   @id @default(uuid())
   binId     String
-  timestamp DateTime  @default(now())
-  status    BinStatus
-  bin       Bin       @relation("BinToUptimeLogs", fields: [binId], references: [id], onDelete: Cascade)
+  timestamp DateTime @default(now())
+
+  scannerOK  Boolean
+  lidOK      Boolean
+  loadcellOK Boolean
+
+  overallStatus BinStatus
+  details       Json?
+
+  bin Bin @relation(fields: [binId], references: [id])
 }
 
 enum FeedbackCategory {

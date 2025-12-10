@@ -44,9 +44,6 @@ export const PUT = async (
       },
     });
 
-    // NEW: Mirror heartbeat to Redis (optional)
-    await redis.set(`heartbeat:${bin.id}`, now.toISOString());
-
     return NextResponse.json(
       { message: "Heartbeat logged successfully." },
       { status: 200 }
