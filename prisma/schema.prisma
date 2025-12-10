@@ -8,35 +8,36 @@ datasource db {
 }
 
 model User {
-  id                String            @id @default(uuid())
-  email             String            @unique
-  emailVerified     DateTime?
-  password          String
-  name              String
-  diploma           String?
-  faculty           Faculty
-  role              Role
-  lat               Decimal?          @db.Decimal(10, 7)
-  long              Decimal?          @db.Decimal(10, 7)
-  location          String?           @unique
-  commandUpdatedAt  DateTime?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  treesaved         Int               @default(0)
-  treeprogress      Float             @default(0.0)
-  carbonprint       Float             @default(0.0)
-  bins              Bin[]
-  disposals         Disposal[]
-  disposal_queue    DisposalQueue[]
-  point             Point?
-  redemptions       Redemption[]
-  subscriptions     Subscription[]
-  transactions      Transaction[]
-  receivedTransfers TransferSession[] @relation("ReceivedTransfers")
-  sentTransfers     TransferSession[] @relation("SentTransfers")
-  user_quest        UserQuest[]
-  user_event        UserEvent[]
-  user_feedback     UserFeedback[]
+  id                   String                 @id @default(uuid())
+  email                String                 @unique
+  emailVerified        DateTime?
+  password             String
+  name                 String
+  diploma              String?
+  faculty              Faculty
+  role                 Role
+  lat                  Decimal?               @db.Decimal(10, 7)
+  long                 Decimal?               @db.Decimal(10, 7)
+  location             String?                @unique
+  commandUpdatedAt     DateTime?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  treesaved            Int                    @default(0)
+  treeprogress         Float                  @default(0.0)
+  carbonprint          Float                  @default(0.0)
+  bins                 Bin[]
+  disposals            Disposal[]
+  disposal_queue       DisposalQueue[]
+  point                Point?
+  redemptions          Redemption[]
+  subscriptions        Subscription[]
+  transactions         Transaction[]
+  receivedTransfers    TransferSession[]      @relation("ReceivedTransfers")
+  sentTransfers        TransferSession[]      @relation("SentTransfers")
+  user_quest           UserQuest[]
+  user_event           UserEvent[]
+  user_feedback        UserFeedback[]
+  ScannerDiagnosticLog ScannerDiagnosticLog[]
 
   @@map("users")
 }
@@ -319,6 +320,18 @@ model BinDiagnosticLog {
   details       Json?
 
   bin Bin @relation(fields: [binId], references: [id])
+}
+
+model ScannerDiagnosticLog {
+  id        String   @id @default(uuid())
+  userId    String
+  timestamp DateTime @default(now())
+
+  scannerOK     Boolean
+  overallStatus BinStatus
+  details       Json?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum FeedbackCategory {

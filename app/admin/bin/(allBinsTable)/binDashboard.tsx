@@ -169,43 +169,49 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         useEffect(() => {
           const fetchAlerts = async () => {
             try {
-              const res = await fetch("/api/alerts", { cache: "no-store" });
-              if (!res.ok) throw new Error("Failed to fetch alerts");
-              const data: {
-                id: string;
-                location: string;
-                material: string;
-                capacity: number;
-                lastHeartBeat: string | null;
-                lat: number | null;
-                long: number | null;
-                alertLevel: "online" | "offline" | "hardware" | "critical";
-              }[] = await res.json();
+              // =========================================
+              // 1️⃣ FETCH BIN ALERTS
+              // =========================================
+              const resBins = await fetch("/api/alerts", { cache: "no-store" });
+              if (!resBins.ok) throw new Error("Failed to fetch bin alerts");
 
-              console.log("📡 Received Alerts:", data.length, data);
-              // 🔹 filter duplicates locally (client-side)
-              const uniqueAlerts = data.filter(
+              const binData: any[] = await resBins.json();
+
+              console.log("📡 BIN Alerts Received:", binData.length, binData);
+
+              // Deduplicate bins by ID
+              const uniqueBins = binData.filter(
                 (item, index, self) =>
                   index === self.findIndex((t) => t.id === item.id)
               );
-              setAlertData(uniqueAlerts);
 
-              // ✅ Explicitly typed filter
-              const issues = data.filter(
+              setAlertData(uniqueBins);
+
+              // Count how many bins have issues
+              const binIssues = uniqueBins.filter(
                 (b) =>
                   b.alertLevel === "offline" ||
                   b.alertLevel === "critical" ||
                   b.alertLevel === "hardware"
               );
 
-              setAlertCount(issues.length);
+              // Count BOTH bin + scanner alerts
+              const totalIssues = uniqueBins.filter(
+                (item) =>
+                  item.alertLevel === "offline" ||
+                  item.alertLevel === "critical" ||
+                  item.alertLevel === "hardware"
+              ).length;
+
+              setAlertCount(totalIssues);
+
             } catch (error) {
               console.error("❌ Error fetching alerts:", error);
             }
           };
 
-          fetchAlerts(); // initial fetch
-          const interval = setInterval(fetchAlerts, 30000); // refresh every 30s
+          fetchAlerts(); // Initial load
+          const interval = setInterval(fetchAlerts, 30000); // Refresh every 30 seconds
           return () => clearInterval(interval);
         }, []);
 
@@ -458,9 +464,12 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                   {[...alertData]
                                     .sort((a, b) => {
                                       if (sortField === "capacity") {
+                                        const aCap = a.capacity ?? -1;
+                                        const bCap = b.capacity ?? -1;
+
                                         return sortOrder === "asc"
-                                          ? a.capacity - b.capacity
-                                          : b.capacity - a.capacity;
+                                          ? aCap - bCap
+                                          : bCap - aCap;
                                       } else if (sortField === "lastSeen") {
                                         const aTime = a.lastHeartBeat ? new Date(a.lastHeartBeat).getTime() : 0;
                                         const bTime = b.lastHeartBeat ? new Date(b.lastHeartBeat).getTime() : 0;
@@ -469,111 +478,201 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                       return 0;
                                     })
                                     .filter((bin, index, self) => self.findIndex(b => b.id === bin.id) === index)
-                                    .map((bin, i) => (
+                                    .map((item, i) => (
                                       <TableRow key={i}>
+                                        {/* LOCATION */}
                                         <TableCell className="text-center">
                                           <TooltipProvider>
                                             <Tooltip>
                                               <TooltipTrigger asChild>
                                                 <span className="truncate max-w-[120px] inline-block align-middle">
-                                                  {bin.location || "-"}
+                                                  {item.location || (item.type === "scanner" ? "Scanner Hub" : "-")}
                                                 </span>
                                               </TooltipTrigger>
                                               <TooltipContent>
-                                                {bin.location || "No location available"}
+                                                {item.location || "No location available"}
                                               </TooltipContent>
                                             </Tooltip>
                                           </TooltipProvider>
                                         </TableCell>
-                                        <TableCell className="text-center">{bin.material}</TableCell>
-                                        <TableCell className="text-center">{bin.capacity}%</TableCell>
-                                        <TableCell className="text-center text-sm text-gray-600">
-                                          {bin.lastHeartBeat
-                                            ? `${formatDistanceToNow(new Date(bin.lastHeartBeat))} ago`
-                                            : "No signal yet"}
+
+                                        {/* MATERIAL or SCANNER LABEL */}
+                                        <TableCell className="text-center">
+                                          {item.type === "scanner" ? (
+                                            <span className="text-blue-600 font-semibold">Scanner Unit</span>
+                                          ) : (
+                                            item.material
+                                          )}
                                         </TableCell>
+
+                                        {/* CAPACITY (Bins only) */}
+                                        <TableCell className="text-center">
+                                          {item.type === "scanner" ? (
+                                            <span className="text-gray-400 italic">N/A</span>
+                                          ) : (
+                                            `${item.capacity}%`
+                                          )}
+                                        </TableCell>
+
+                                        {/* LAST SEEN */}
+                                        <TableCell className="text-center text-sm text-gray-600">
+                                          {(() => {
+                                            const lastSeen =
+                                              item.lastDiagnosticAt ?? // scanner diagnostic timestamp
+                                              item.lastHeartBeat ??    // bin heartbeat
+                                              null;
+
+                                            return lastSeen
+                                              ? `${formatDistanceToNow(new Date(lastSeen))} ago`
+                                              : "No signal yet";
+                                          })()}
+                                        </TableCell>
+                                        {/* STATUS COLUMN */}
                                         <TableCell className="text-center font-bold">
-                                          <div className="flex flex-col items-center gap-1">
-                                            {bin.alertLevel === "hardware" && (
-                                              <div className="text-red-600 text-sm font-semibold flex flex-col items-center">
-                                                <span>Hardware Failure</span>
+                                          {/* SCANNER ISSUE BLOCK */}
+                                          {item.type === "scanner" && (
+                                            <div className="text-red-600 text-sm font-semibold flex flex-col items-center">
+                                              <span>Scanner Issue</span>
 
-                                                {/* List failed components */}
-                                                {bin.failedComponents?.length > 0 && (
-                                                  <ul className="text-xs text-red-500 mt-1 space-y-1">
-                                                    {bin.failedComponents.map((fc: any, idx: number) => (
-                                                      <li key={idx}>• {fc.name}</li>
-                                                    ))}
-                                                  </ul>
-                                                )}
-                                                {/* “View Full Diagnostics” button */}
-                                                {bin.components && (
-                                                  <Dialog>
-                                                    <DialogTrigger asChild>
-                                                      <button className="text-xs text-blue-500 underline mt-2">
-                                                        View Details
-                                                      </button>
-                                                    </DialogTrigger>
+                                              {/* Failed components list */}
+                                              {item.failedComponents?.length > 0 && (
+                                                <ul className="text-xs text-red-500 mt-1 space-y-1">
+                                                  {item.failedComponents.map((fc: any, idx: number) => (
+                                                    <li key={idx}>• {fc.name}</li>
+                                                  ))}
+                                                </ul>
+                                              )}
 
-                                                    <DialogContent className="max-w-md p-4">
-                                                      <DialogHeader>
-                                                        <DialogTitle>Hardware Diagnostic Details</DialogTitle>
-                                                      </DialogHeader>
+                                              {/* View scanner diagnostic details */}
+                                              {item.components && (
+                                                <Dialog>
+                                                  <DialogTrigger asChild>
+                                                    <button className="text-xs text-blue-500 underline mt-2">
+                                                      View Details
+                                                    </button>
+                                                  </DialogTrigger>
 
-                                                      <div className="mt-3 space-y-2">
-                                                        {bin.components?.map((c: any, idx: number) => (
-                                                          <div key={idx} className="flex justify-between text-sm">
-                                                            <span>{c.componentName}</span>
-                                                            <span
-                                                              className={
-                                                                c.status === "failed"
-                                                                  ? "text-red-600 font-semibold"
-                                                                  : c.status === "warning"
-                                                                  ? "text-yellow-600 font-semibold"
-                                                                  : "text-green-600"
-                                                              }
-                                                            >
-                                                              {c.status}
-                                                            </span>
-                                                          </div>
-                                                        ))}
-                                                      </div>
-                                                    </DialogContent>
-                                                  </Dialog>
-                                                )}
-                                              </div>
-                                            )}
+                                                  <DialogContent className="max-w-md p-4">
+                                                    <DialogHeader>
+                                                      <DialogTitle>Scanner Diagnostic Details</DialogTitle>
+                                                    </DialogHeader>
 
-                                            {bin.alertLevel === "offline" && (
-                                              <span className="text-red-600 text-sm font-semibold">Offline</span>
-                                            )}
+                                                    <div className="mt-3 space-y-2">
+                                                      {item.components.map((c: any, idx: number) => (
+                                                        <div key={idx} className="flex justify-between text-sm">
+                                                          <span>{c.componentName}</span>
+                                                          <span
+                                                            className={
+                                                              c.status === "failed"
+                                                                ? "text-red-600"
+                                                                : c.status === "warning"
+                                                                ? "text-yellow-600"
+                                                                : "text-green-600"
+                                                            }
+                                                          >
+                                                            {c.status}
+                                                          </span>
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  </DialogContent>
+                                                </Dialog>
+                                              )}
+                                            </div>
+                                          )}
 
-                                            {bin.capacity >= 75 && bin.capacity < 100 && (
-                                              <span className="text-orange-500 text-sm font-semibold">
-                                                Almost Full ({bin.capacity}%)
-                                              </span>
-                                            )}
+                                          {/* BIN ISSUE BLOCK */}
+                                          {item.type !== "scanner" && (
+                                            <div className="flex flex-col items-center gap-1">
+                                              {item.alertLevel === "hardware" && (
+                                                <div className="text-red-600 text-sm font-semibold flex flex-col items-center">
+                                                  <span>Hardware Failure</span>
 
-                                            {bin.capacity === 100 && (
-                                              <span className="text-red-700 text-sm font-semibold">Full (100%)</span>
-                                            )}
-                                          </div>
+                                                  {item.failedComponents?.length > 0 && (
+                                                    <ul className="text-xs text-red-500 mt-1 space-y-1">
+                                                      {item.failedComponents.map((fc: any, idx: number) => (
+                                                        <li key={idx}>• {fc.name}</li>
+                                                      ))}
+                                                    </ul>
+                                                  )}
 
-                                          <div className="mt-2">
-                                            {bin.lat && bin.long ? (
-                                              <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                  router.push(`/admin/bin/manager/map?lat=${bin.lat}&long=${bin.long}`)
-                                                }
-                                              >
-                                                View Location
-                                              </Button>
-                                            ) : (
-                                              <span className="text-gray-400 text-xs">No location</span>
-                                            )}
-                                          </div>
+                                                  {item.components && (
+                                                    <Dialog>
+                                                      <DialogTrigger asChild>
+                                                        <button className="text-xs text-blue-500 underline mt-2">
+                                                          View Details
+                                                        </button>
+                                                      </DialogTrigger>
+
+                                                      <DialogContent className="max-w-md p-4">
+                                                        <DialogHeader>
+                                                          <DialogTitle>Hardware Diagnostic Details</DialogTitle>
+                                                        </DialogHeader>
+
+                                                        <div className="mt-3 space-y-2">
+                                                          {item.components?.map((c: any, idx: number) => (
+                                                            <div key={idx} className="flex justify-between text-sm">
+                                                              <span>{c.componentName}</span>
+                                                              <span
+                                                                className={
+                                                                  c.status === "failed"
+                                                                    ? "text-red-600 font-semibold"
+                                                                    : c.status === "warning"
+                                                                    ? "text-yellow-600 font-semibold"
+                                                                    : "text-green-600"
+                                                                }
+                                                              >
+                                                                {c.status}
+                                                              </span>
+                                                            </div>
+                                                          ))}
+                                                        </div>
+                                                      </DialogContent>
+                                                    </Dialog>
+                                                  )}
+                                                </div>
+                                              )}
+
+                                              {item.alertLevel === "offline" && (
+                                                <span className="text-red-600 text-sm font-semibold">
+                                                  Offline
+                                                </span>
+                                              )}
+
+                                              {item.capacity >= 75 && item.capacity < 100 && (
+                                                <span className="text-orange-500 text-sm font-semibold">
+                                                  Almost Full ({item.capacity}%)
+                                                </span>
+                                              )}
+
+                                              {item.capacity === 100 && (
+                                                <span className="text-red-700 text-sm font-semibold">
+                                                  Full (100%)
+                                                </span>
+                                              )}
+                                            </div>
+                                          )}
+
+                                          {/* LOCATION BUTTON */}
+                                          {item.type !== "scanner" && (
+                                            <div className="mt-2">
+                                              {item.lat && item.long ? (
+                                                <Button
+                                                  variant="outline"
+                                                  size="sm"
+                                                  onClick={() =>
+                                                    router.push(
+                                                      `/admin/bin/manager/map?lat=${item.lat}&long=${item.long}`
+                                                    )
+                                                  }
+                                                >
+                                                  View Location
+                                                </Button>
+                                              ) : (
+                                                <span className="text-gray-400 text-xs">No location</span>
+                                              )}
+                                            </div>
+                                          )}
                                         </TableCell>
                                       </TableRow>
                                     ))}

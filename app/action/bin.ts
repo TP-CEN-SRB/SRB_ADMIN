@@ -990,16 +990,20 @@ export const getSmartAlerts = async () => {
 
 export const handleBinDiagnostic = async (binId: string, payload: any) => {
   try {
-    const { timestamp, results } = payload;
+    const { timestamp, results, deviceType } = payload;
 
     if (!Array.isArray(results)) {
       console.error("❌ Diagnostic payload missing results[] array");
       return { error: "Invalid diagnostic payload" };
     }
 
-    // ---------------------------------------------------------
-    // 1️⃣ Extract component-level diagnostic results
-    // ---------------------------------------------------------
+    // Ignore scanner diagnostics — they belong to ScannerDiagnosticLog
+    if (deviceType === "scanner_unit_esp32") {
+      console.warn("⚠️ Ignored scanner_unit_esp32 diagnostic for bin:", binId);
+      return { ignored: true };
+    }
+
+    // Extract failed components
     const failedComponents = results
       .filter((r: any) => r.status === "failed")
       .map((r: any) => ({
@@ -1009,19 +1013,12 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
 
     const anyFailed = failedComponents.length > 0;
 
-    // ---------------------------------------------------------
-    // 2️⃣ Simple category booleans for quick bin status
-    // ---------------------------------------------------------
-    const scannerOK =
-      payload.deviceType !== "scanner_unit_esp32" ||
-      !results.some((r: any) => r.status === "failed");
-
+    // Component OK checks (only bin components)
     const lidOK = !results.some(
       (r: any) =>
         (r.componentId?.includes("motor") ||
           r.componentId?.includes("lid") ||
-          r.componentId?.includes("ultrasonic") ||
-          r.componentId?.includes("lid_njk")) &&
+          r.componentId?.includes("ultrasonic")) &&
         r.status === "failed"
     );
 
@@ -1029,50 +1026,33 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
       (r: any) => r.componentId?.includes("loadcell") && r.status === "failed"
     );
 
-    // ---------------------------------------------------------
-    // 3️⃣ Compute final bin-wide status
-    // ---------------------------------------------------------
+    // Final bin status
     const overallStatus = anyFailed
       ? BinStatus.UNDER_MAINTENANCE
       : BinStatus.FUNCTIONAL;
 
-    // ---------------------------------------------------------
-    // 4️⃣ Prepare full detail block for JSON column
-    // ---------------------------------------------------------
-    const details = {
-      failedComponents,
-      allComponents: results, // FULL ESP32 report for your UI
-    };
-
-    // ---------------------------------------------------------
-    // 5️⃣ Save diagnostic log to DB
-    // ---------------------------------------------------------
+    // Save log entry
     await prisma.binDiagnosticLog.create({
       data: {
         binId,
-        timestamp:
-          typeof timestamp === "number"
-            ? new Date()
-            : new Date(timestamp),
-        scannerOK,
+        timestamp: typeof timestamp === "number" ? new Date() : new Date(timestamp),
+        scannerOK: true, // always true (bins do not track scanner kiosk)
         lidOK,
         loadcellOK,
         overallStatus,
-        details,
+        details: {
+          failedComponents,
+          allComponents: results,
+        },
       },
     });
 
-    // ---------------------------------------------------------
-    // 6️⃣ Update bin status
-    // ---------------------------------------------------------
+    // Update bin status
     await prisma.bin.update({
       where: { id: binId },
       data: { status: overallStatus },
     });
 
-    // ---------------------------------------------------------
-    // 7️⃣ Return structured alert (only if failed)
-    // ---------------------------------------------------------
     if (anyFailed) {
       return {
         alert: {
