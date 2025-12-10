@@ -1012,9 +1012,9 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
     // ---------------------------------------------------------
     // 2️⃣ Simple category booleans for quick bin status
     // ---------------------------------------------------------
-    const scannerOK = !results.some(
-      (r: any) => r.componentId?.includes("scanner") && r.status === "failed"
-    );
+    const scannerOK =
+      payload.deviceType !== "scanner_unit_esp32" ||
+      !results.some((r: any) => r.status === "failed");
 
     const lidOK = !results.some(
       (r: any) =>
@@ -1050,7 +1050,10 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
     await prisma.binDiagnosticLog.create({
       data: {
         binId,
-        timestamp: new Date(timestamp),
+        timestamp:
+          typeof timestamp === "number"
+            ? new Date()
+            : new Date(timestamp),
         scannerOK,
         lidOK,
         loadcellOK,
