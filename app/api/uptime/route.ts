@@ -92,8 +92,8 @@ export async function GET(req: NextRequest) {
 
         // 1️⃣ SAFE SCAN — replaces KEYS
         let cursor: string = "0";
-        let keys: string[] = [];
-
+        const keys: string[] = [];
+        
         do {
           const [newCursor, batch] = await redis.scan(cursor, {
             match: pattern,
