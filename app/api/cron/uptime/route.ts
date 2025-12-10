@@ -9,28 +9,30 @@ export const fetchCache = "force-no-store";
 export async function GET() {
   try {
     const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 min
+    const LOG_TTL = 60 * 60 * 24 * 7; // KEEP LOGS FOR 7 DAYS
     const now = new Date();
 
-    // ------------------------------------------
-    // ALIGN TO EXACT 5-MIN UTC BUCKET
-    // ------------------------------------------
+    // ------------------------------
+    // ALIGN TO 5-MINUTE BUCKET (UTC)
+    // ------------------------------
     const bucket = new Date(now);
     bucket.setSeconds(0);
     bucket.setMilliseconds(0);
     bucket.setMinutes(Math.floor(bucket.getMinutes() / 5) * 5);
 
-    const bucketISO = bucket.toISOString(); // Always store in UTC
+    const bucketISO = bucket.toISOString(); // Safe key format
 
-    // ------------------------------------------
-    // FETCH ALL BINS
-    // ------------------------------------------
+    // ------------------------------
+    // GET ALL BINS
+    // ------------------------------
     const bins = await prisma.bin.findMany({
       select: { id: true, lastHeartBeat: true },
     });
 
-    // ------------------------------------------
-    // WRITE SNAPSHOTS TO REDIS (NO PIPELINE)
-    // ------------------------------------------
+    // ------------------------------
+    // WRITE UPTIME SNAPSHOT TO REDIS
+    // WITH TTL TO AVOID KEY OVERLOAD
+    // ------------------------------
     await Promise.all(
       bins.map((bin) => {
         const last = bin.lastHeartBeat
@@ -38,11 +40,11 @@ export async function GET() {
           : 0;
 
         const diff = now.getTime() - last;
-        const status = diff <= HEARTBEAT_TIMEOUT ? 1 : 0; // 1 = online, 0 = offline
+        const status = diff <= HEARTBEAT_TIMEOUT ? 1 : 0;
 
         const redisKey = `uptime:${bin.id}:${bucketISO}`;
 
-        return redis.set(redisKey, status);
+        return redis.set(redisKey, status, { ex: LOG_TTL });
       })
     );
 

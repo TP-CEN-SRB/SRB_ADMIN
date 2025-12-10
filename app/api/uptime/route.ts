@@ -79,19 +79,32 @@ export async function GET(req: NextRequest) {
     else if (range === "month") since.setDate(now.getDate() - 30);
     else if (range === "year") since.setFullYear(now.getFullYear() - 1);
 
-    // Get bin list from Neon
+    // Fetch bins
     const bins = await prisma.bin.findMany({
       where: { userId: managerId },
       select: { id: true, binMaterial: { select: { name: true } } },
     });
 
+    // Main bin processing
     const results = await Promise.all(
       bins.map(async (bin) => {
-        // 1️⃣ Find all Redis uptime logs for this bin
         const pattern = `uptime:${bin.id}:*`;
-        const keys = await redis.keys(pattern);
 
-        if (!keys.length) {
+        // 1️⃣ SAFE SCAN — replaces KEYS
+        let cursor: string = "0";
+        let keys: string[] = [];
+
+        do {
+          const [newCursor, batch] = await redis.scan(cursor, {
+            match: pattern,
+            count: 200,
+          });
+
+          cursor = newCursor;
+          keys.push(...batch);
+        } while (cursor !== "0");
+
+        if (keys.length === 0) {
           return {
             id: bin.id,
             name: bin.binMaterial.name,
@@ -100,11 +113,11 @@ export async function GET(req: NextRequest) {
           };
         }
 
-        // 2️⃣ Fetch all values efficiently
-        const values = await redis.mget(keys);
+        // 2️⃣ Fetch values
+        const values = await redis.mget(...keys);
 
-        // 3️⃣ Construct logs array
-        const logs = [];
+        // 3️⃣ Combine keys + values → logs[]
+        const logs: { ts: Date; value: number }[] = [];
 
         for (let i = 0; i < keys.length; i++) {
           const key = keys[i];
@@ -112,9 +125,9 @@ export async function GET(req: NextRequest) {
 
           if (value == null) continue;
 
-          // Extract timestamp safely
+          // Extract timestamp from key
           const [_p, _id, ...rest] = key.split(":");
-          const tsISO = rest.join(":"); // reconstruct everything after 2nd :
+          const tsISO = rest.join(":");
           const ts = new Date(tsISO);
 
           if (ts >= since) logs.push({ ts, value: Number(value) });
@@ -132,7 +145,7 @@ export async function GET(req: NextRequest) {
         // 4️⃣ BUCKETING
         const bucketMap: Record<string, { ts: Date; values: number[] }> = {};
 
-        logs.forEach((log) => {
+        for (const log of logs) {
           let bucketTS;
 
           if (range === "hour" || range === "day") bucketTS = bucket5(log.ts);
@@ -143,12 +156,13 @@ export async function GET(req: NextRequest) {
 
           if (!bucketMap[key]) bucketMap[key] = { ts: bucketTS, values: [] };
           bucketMap[key].values.push(log.value);
-        });
+        }
 
         const uptimeTimeline = Object.values(bucketMap).map((b) => {
-          const avg = Math.round(
-            (b.values.reduce((a, v) => a + v, 0) / b.values.length) * 100
-          );
+          const avg =
+            Math.round(
+              (b.values.reduce((a, v) => a + v, 0) / b.values.length) * 100
+            );
 
           return {
             timestampUTC: b.ts.toISOString(),
@@ -158,7 +172,7 @@ export async function GET(req: NextRequest) {
           };
         });
 
-        // 5️⃣ OVERALL %
+        // 5️⃣ Overall uptime %
         const total = logs.length;
         const online = logs.filter((l) => l.value === 1).length;
         const uptimePercent = Math.round((online / total) * 100);
@@ -178,3 +192,4 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch uptime" }, { status: 500 });
   }
 }
+
