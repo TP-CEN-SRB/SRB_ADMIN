@@ -21,9 +21,14 @@ export async function POST() {
         lastHeartBeat: true,
         status: true,
         binMaterial: { select: { name: true } },
-        userId: true,
+        user: {
+          select: {
+            location: true,
+          },
+        },
       },
     });
+
 
     await Promise.all(
       bins.map(async (bin) => {
@@ -70,9 +75,9 @@ export async function POST() {
 
           if (newStatus === BinStatus.UNDER_MAINTENANCE) {
             message = `
-🚨 *BIN ALERT*
+🚨 *BIN DOWN*
 🗑 Bin: ${bin.binMaterial.name}
-📍 Manager ID: ${bin.userId}
+📍 Location: ${bin.user?.location ?? "Unknown"}
 ❌ Status: UNDER MAINTENANCE
 ⏱ ${time}
 `;
@@ -82,7 +87,7 @@ export async function POST() {
             message = `
 ✅ *BIN RECOVERED*
 🗑 Bin: ${bin.binMaterial.name}
-📍 Manager ID: ${bin.userId}
+📍 Location: ${bin.user?.location ?? "Unknown"}
 ✔ Status: FUNCTIONAL
 ⏱ ${time}
 `;
