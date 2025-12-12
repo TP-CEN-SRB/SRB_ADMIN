@@ -7,6 +7,20 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
+
+const toSGT = (date = new Date()) =>
+  date.toLocaleString("en-SG", {
+    timeZone: "Asia/Singapore",
+    hour12: false,
+    weekday: undefined,
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }) + " SGT";
+
 export async function POST() {
   try {
     const TIMEOUT = 10 * 60 * 1000; // 10 minutes
@@ -70,7 +84,7 @@ export async function POST() {
           });
 
           // 2️⃣ Build Telegram message
-          const time = new Date().toLocaleString("en-SG");
+          const time = toSGT();
           let message: string | null = null;
 
           if (newStatus === BinStatus.UNDER_MAINTENANCE) {
