@@ -1,36 +1,76 @@
 import { NextResponse } from "next/server";
-import { getSmartAlerts } from "@/app/action/bin";
 import prisma from "@/lib/db";
+import { getSmartAlerts } from "@/app/action/bin";
+import { BinStatus } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
     // ------------------------------------------------------
-    // 1) BIN ALERTS (existing)
+    // 1) BIN ALERTS
     // ------------------------------------------------------
     const binAlerts = await getSmartAlerts();
 
     // ------------------------------------------------------
-    // 2) SCANNER ALERTS
+    // 2) SCANNER ALERTS (latest-per-scanner, only if FAILED + recent)
     // ------------------------------------------------------
-    const scannerDiagnostics = await prisma.scannerDiagnosticLog.findMany({
+    const SCANNER_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+    const now = Date.now();
+
+    // Group: latest timestamp per scanner userId
+    const grouped = await prisma.scannerDiagnosticLog.groupBy({
+      by: ["userId"],
+      _max: { timestamp: true },
+    });
+
+    // ✅ strict Date[] (remove nulls)
+    const latestDates: Date[] = grouped
+      .map((g) => g._max.timestamp)
+      .filter((t): t is Date => t !== null);
+
+    // No logs at all
+    if (latestDates.length === 0) {
+      return NextResponse.json(binAlerts, {
+        headers: { "Cache-Control": "no-store, must-revalidate" },
+      });
+    }
+
+    // Fetch those latest rows
+    const latestScannerLogs = await prisma.scannerDiagnosticLog.findMany({
+      where: { timestamp: { in: latestDates } },
       orderBy: { timestamp: "desc" },
-      include: {
-        user: {
-          select: {
-            id: true,
-            location: true,
-            lat: true,
-            long: true,
-          },
-        },
+      select: {
+        id: true,
+        userId: true,
+        timestamp: true,
+        scannerOK: true,
+        overallStatus: true,
+        details: true,
       },
     });
 
-    const scannerAlerts = scannerDiagnostics
-      .filter((d) => d.overallStatus === "UNDER_MAINTENANCE")
+    // Fetch user info for those scanner userIds (relation exists, but avoids TS "user not exist")
+    const userIds = Array.from(new Set(latestScannerLogs.map((l) => l.userId)));
+
+    const users = await prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, location: true, lat: true, long: true },
+    });
+
+    const userById = new Map(users.map((u) => [u.id, u]));
+
+    const scannerAlerts = latestScannerLogs
+      .filter((diag) => {
+        const age = now - diag.timestamp.getTime();
+        const isRecent = age < SCANNER_TIMEOUT;
+
+        // Only show if failed AND recent
+        return diag.overallStatus === BinStatus.UNDER_MAINTENANCE && isRecent;
+      })
       .map((diag) => {
+        const u = userById.get(diag.userId);
+
         const det = (diag.details ?? {}) as any;
 
         const failedComponents = Array.isArray(det.failedComponents)
@@ -43,17 +83,17 @@ export async function GET() {
 
         return {
           id: `scanner-${diag.userId}`,
-          type: "scanner", // ⭐ REQUIRED FOR FRONTEND
-          
-          location: diag.user?.location ?? "Unknown Scanner",
+          type: "scanner",
+
+          location: u?.location ?? "Unknown Scanner",
           material: "Scanner Unit",
           capacity: null,
 
-          lastHeartBeat: diag.timestamp, // Scanner's last diagnostic timestamp
+          lastHeartBeat: diag.timestamp,
           lastDiagnosticAt: diag.timestamp,
 
-          lat: diag.user?.lat ? Number(diag.user.lat) : null,
-          long: diag.user?.long ? Number(diag.user.long) : null,
+          lat: u?.lat != null ? Number(u.lat) : null,
+          long: u?.long != null ? Number(u.long) : null,
 
           alertLevel: "hardware",
           hardwareFailed: true,
@@ -66,22 +106,16 @@ export async function GET() {
       });
 
     // ------------------------------------------------------
-    // 3) MERGE + DEDUPLICATE
+    // 3) MERGE + DEDUP
     // ------------------------------------------------------
     const combined = [...binAlerts, ...scannerAlerts];
     const unique = Array.from(new Map(combined.map((a) => [a.id, a])).values());
 
     return NextResponse.json(unique, {
-      headers: {
-        "Cache-Control": "no-store, must-revalidate",
-      },
+      headers: { "Cache-Control": "no-store, must-revalidate" },
     });
-
   } catch (error) {
     console.error("❌ Failed to fetch alerts API:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch alerts" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch alerts" }, { status: 500 });
   }
 }

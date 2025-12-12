@@ -903,68 +903,98 @@ export const getSmartAlerts = async () => {
 
   const now = Date.now();
 
-  // STEP 1 — Fetch latest diagnostic timestamps
-  const diagnostics = await prisma.binDiagnosticLog.groupBy({
+  // ============================
+  // BIN DIAGNOSTICS
+  // ============================
+  const binDiags = await prisma.binDiagnosticLog.groupBy({
     by: ["binId"],
     _max: { timestamp: true },
   });
 
-  const latestTimestamps = new Map(
-    diagnostics.map((d) => [d.binId, d._max.timestamp])
-  );
-
-  const timestamps = Array.from(latestTimestamps.values()).filter(
-    (t): t is Date => t !== null
-  );
-
-  // STEP 2 — Fetch actual latest logs
-  const latestLogs = await prisma.binDiagnosticLog.findMany({
-    where: { timestamp: { in: timestamps } },
+  const latestBinLogs = await prisma.binDiagnosticLog.findMany({
+    where: {
+      timestamp: {
+        in: binDiags
+          .map((d) => d._max.timestamp)
+          .filter((t): t is Date => t !== null),
+      },
+    },
   });
 
-  const logsByBin = new Map<string, typeof latestLogs[number]>();
-  latestLogs.forEach((log) => logsByBin.set(log.binId, log));
+  const binLogsByBin = new Map<string, typeof latestBinLogs[number]>();
+  latestBinLogs.forEach((log) => binLogsByBin.set(log.binId, log));
 
+  // ============================
+  // SCANNER DIAGNOSTICS
+  // ============================
+  const scannerDiags = await prisma.scannerDiagnosticLog.groupBy({
+    by: ["userId"],
+    _max: { timestamp: true },
+  });
+
+  const latestScannerLogs = await prisma.scannerDiagnosticLog.findMany({
+    where: {
+      timestamp: {
+        in: scannerDiags
+          .map((d) => d._max.timestamp)
+          .filter((t): t is Date => t !== null),
+      },
+    },
+  });
+
+  const scannerLogsByUser = new Map<
+    string,
+    typeof latestScannerLogs[number]
+  >();
+  latestScannerLogs.forEach((log) =>
+    scannerLogsByUser.set(log.userId, log)
+  );
+
+  // ============================
+  // ALERT EVALUATION
+  // ============================
   const alerts: any[] = [];
 
   for (const bin of bins) {
-    const last = bin.lastHeartBeat ? new Date(bin.lastHeartBeat).getTime() : 0;
+    const last = bin.lastHeartBeat
+      ? new Date(bin.lastHeartBeat).getTime()
+      : 0;
+
     const isOnline = last && now - last < 10 * 60 * 1000;
     const isFull = bin.currentCapacity >= 75;
 
-    // --- Extract hardware failures if diagnostic exists ---
-    const diag = logsByBin.get(bin.id);
+    // ----------------------------
+    // BIN HARDWARE CHECK
+    // ----------------------------
+    const binDiag = binLogsByBin.get(bin.id);
 
+    let binHardwareFailed = false;
     let failedComponents: { id: string; name: string }[] = [];
-    let hardwareFailed = false;
     let components: any[] = [];
 
-    if (
-      diag?.details &&
-      typeof diag.details === "object" &&
-      !Array.isArray(diag.details)
-    ) {
-      const d = diag.details as any;
+    if (binDiag?.details && typeof binDiag.details === "object") {
+      const d = binDiag.details as any;
 
-      if (Array.isArray(d.failedComponents)) {
+      if (Array.isArray(d.failedComponents) && d.failedComponents.length > 0) {
+        binHardwareFailed = true;
         failedComponents = d.failedComponents;
-        hardwareFailed = failedComponents.length > 0;
       }
 
-      // ⭐ IMPORTANT: extract full component report for UI modal
       if (Array.isArray(d.allComponents)) {
         components = d.allComponents;
       }
     }
 
-    // PRIORITY ORDER: hardware > offline > critical capacity
-    let level: "online" | "hardware" | "offline" | "critical" = "online";
+    // ----------------------------
+    // PRIORITY (BIN ONLY)
+    // ----------------------------
+    let level: "hardware" | "offline" | "critical" | null = null;
 
-    if (hardwareFailed) level = "hardware";
+    if (binHardwareFailed) level = "hardware";
     else if (!isOnline) level = "offline";
     else if (isFull) level = "critical";
 
-    if (level === "online") continue;
+    if (!level) continue;
 
     alerts.push({
       id: bin.id,
@@ -973,20 +1003,20 @@ export const getSmartAlerts = async () => {
       capacity: bin.currentCapacity,
       lastHeartBeat: bin.lastHeartBeat,
       alertLevel: level,
+
       lat: bin.user.lat ? Number(bin.user.lat) : null,
       long: bin.user.long ? Number(bin.user.long) : null,
 
-      // detailed hardware data
-      hardwareFailed,
+      hardwareFailed: binHardwareFailed,
       failedComponents,
-      components, // ⭐ FULL ESP32 COMPONENT LIST for the modal
-
-      lastDiagnosticAt: diag?.timestamp ?? null,
+      components,
+      lastDiagnosticAt: binDiag?.timestamp ?? null,
     });
   }
 
   return alerts;
 };
+
 
 export const handleBinDiagnostic = async (binId: string, payload: any) => {
   try {

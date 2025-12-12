@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
-import prisma from "@/lib/db"; // only used to get bin list
+import prisma from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -23,15 +23,10 @@ const toSGT = (ts: Date) =>
 const uiLabel = (range: string, ts: Date) => {
   const sgt = new Date(ts.toLocaleString("en-US", { timeZone: "Asia/Singapore" }));
 
-  if (range === "hour" || range === "day") {
-    return `${sgt.getHours().toString().padStart(2, "0")}:${sgt
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}`;
-  }
+  if (range === "hour") return `${sgt.getHours().toString().padStart(2, "0")}:${sgt.getMinutes().toString().padStart(2, "0")}`;
+  if (range === "day") return `${sgt.getHours()}:00`;
   if (range === "month") return `${sgt.getDate()}`;
   if (range === "year") return `${sgt.getMonth() + 1}`;
-
   return "";
 };
 
@@ -57,6 +52,43 @@ const bucketDay = (d: Date) => {
   return ts;
 };
 
+const bucketMonth = (d: Date) => {
+  const ts = new Date(d);
+  ts.setDate(1);
+  ts.setHours(0, 0, 0, 0);
+  return ts;
+};
+
+// ---------------------
+// BUCKET GENERATOR
+// ---------------------
+const generateBuckets = (range: string, since: Date, now: Date) => {
+  const buckets: Date[] = [];
+  const cursor = new Date(since);
+
+  while (cursor <= now) {
+    let ts: Date;
+
+    if (range === "hour") {
+      ts = bucket5(cursor);
+      cursor.setMinutes(cursor.getMinutes() + 5);
+    } else if (range === "day") {
+      ts = bucketHour(cursor);
+      cursor.setHours(cursor.getHours() + 1);
+    } else if (range === "month") {
+      ts = bucketDay(cursor);
+      cursor.setDate(cursor.getDate() + 1);
+    } else {
+      ts = bucketMonth(cursor);
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    buckets.push(new Date(ts));
+  }
+
+  return Array.from(new Map(buckets.map(b => [b.toISOString(), b])).values());
+};
+
 // ---------------------
 // MAIN HANDLER
 // ---------------------
@@ -70,117 +102,79 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Missing managerId" }, { status: 400 });
     }
 
-    // TIME WINDOW
     const now = new Date();
     const since = new Date(now);
 
     if (range === "hour") since.setHours(now.getHours() - 1);
     else if (range === "day") since.setDate(now.getDate() - 1);
     else if (range === "month") since.setDate(now.getDate() - 30);
-    else if (range === "year") since.setFullYear(now.getFullYear() - 1);
+    else since.setFullYear(now.getFullYear() - 1);
 
-    // Fetch bins
     const bins = await prisma.bin.findMany({
       where: { userId: managerId },
       select: { id: true, binMaterial: { select: { name: true } } },
     });
 
-    // Main bin processing
     const results = await Promise.all(
       bins.map(async (bin) => {
         const pattern = `uptime:${bin.id}:*`;
-
-        // 1️⃣ SAFE SCAN — replaces KEYS
-        let cursor: string = "0";
+        let cursor = "0";
         const keys: string[] = [];
-        
-        do {
-          const [newCursor, batch] = await redis.scan(cursor, {
-            match: pattern,
-            count: 200,
-          });
 
-          cursor = newCursor;
+        do {
+          const [next, batch] = await redis.scan(cursor, { match: pattern, count: 200 });
+          cursor = next;
           keys.push(...batch);
         } while (cursor !== "0");
 
-        if (keys.length === 0) {
-          return {
-            id: bin.id,
-            name: bin.binMaterial.name,
-            uptimePercent: 0,
-            uptimeTimeline: [],
-          };
-        }
+        const values = keys.length ? await redis.mget(...keys) : [];
 
-        // 2️⃣ Fetch values
-        const values = await redis.mget(...keys);
-
-        // 3️⃣ Combine keys + values → logs[]
         const logs: { ts: Date; value: number }[] = [];
 
         for (let i = 0; i < keys.length; i++) {
-          const key = keys[i];
-          const value = values[i];
-
-          if (value == null) continue;
-
-          // Extract timestamp from key
-          const [_p, _id, ...rest] = key.split(":");
-          const tsISO = rest.join(":");
-          const ts = new Date(tsISO);
-
-          if (ts >= since) logs.push({ ts, value: Number(value) });
+          if (values[i] == null) continue;
+          const [, , ...rest] = keys[i].split(":");
+          const ts = new Date(rest.join(":"));
+          if (ts >= since) logs.push({ ts, value: Number(values[i]) });
         }
 
-        if (!logs.length) {
-          return {
-            id: bin.id,
-            name: bin.binMaterial.name,
-            uptimePercent: 0,
-            uptimeTimeline: [],
-          };
-        }
-
-        // 4️⃣ BUCKETING
-        const bucketMap: Record<string, { ts: Date; values: number[] }> = {};
+        const allBuckets = generateBuckets(range, since, now);
+        const bucketMap: Record<string, number[]> = {};
+        allBuckets.forEach(b => (bucketMap[b.toISOString()] = []));
 
         for (const log of logs) {
-          let bucketTS;
+          let ts;
+          if (range === "hour") ts = bucket5(log.ts);
+          else if (range === "day") ts = bucketHour(log.ts);
+          else if (range === "month") ts = bucketDay(log.ts);
+          else ts = bucketMonth(log.ts);
 
-          if (range === "hour" || range === "day") bucketTS = bucket5(log.ts);
-          else if (range === "month") bucketTS = bucketHour(log.ts);
-          else bucketTS = bucketDay(log.ts);
-
-          const key = bucketTS.toISOString();
-
-          if (!bucketMap[key]) bucketMap[key] = { ts: bucketTS, values: [] };
-          bucketMap[key].values.push(log.value);
+          const key = ts.toISOString();
+          if (bucketMap[key]) bucketMap[key].push(log.value);
         }
 
-        const uptimeTimeline = Object.values(bucketMap).map((b) => {
-          const avg =
-            Math.round(
-              (b.values.reduce((a, v) => a + v, 0) / b.values.length) * 100
-            );
+        const uptimeTimeline = allBuckets.map(b => {
+          const vals = bucketMap[b.toISOString()];
+          const uptime =
+            vals.length === 0
+              ? -1
+              : Math.round((vals.reduce((a, v) => a + v, 0) / vals.length) * 100);
 
           return {
-            timestampUTC: b.ts.toISOString(),
-            timestampSGT: toSGT(b.ts),
-            label: uiLabel(range, b.ts),
-            uptime: avg,
+            timestampUTC: b.toISOString(),
+            timestampSGT: toSGT(b),
+            label: uiLabel(range, b),
+            uptime,
           };
         });
 
-        // 5️⃣ Overall uptime %
         const total = logs.length;
-        const online = logs.filter((l) => l.value === 1).length;
-        const uptimePercent = Math.round((online / total) * 100);
+        const online = logs.filter(l => l.value === 1).length;
 
         return {
           id: bin.id,
           name: bin.binMaterial.name,
-          uptimePercent,
+          uptimePercent: total ? Math.round((online / total) * 100) : 0,
           uptimeTimeline,
         };
       })
@@ -192,4 +186,3 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Failed to fetch uptime" }, { status: 500 });
   }
 }
-

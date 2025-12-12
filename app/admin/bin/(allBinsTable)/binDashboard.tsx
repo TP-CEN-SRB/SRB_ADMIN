@@ -534,24 +534,30 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                             <div className="text-red-600 text-sm font-semibold flex flex-col items-center">
                                               <span>Scanner Issue</span>
 
-                                              {/* Failed components list */}
-                                              {item.failedComponents?.length > 0 && (
-                                                <ul className="text-xs text-red-500 mt-1 space-y-1">
-                                                  {item.failedComponents.map((fc: any, idx: number) => (
-                                                    <li key={idx}>• {fc.name}</li>
-                                                  ))}
-                                                </ul>
-                                              )}
-
+                                              
                                               {/* View scanner diagnostic details */}
                                               {item.components && (
                                                 <Dialog>
                                                   <DialogTrigger asChild>
-                                                    <button className="text-xs text-blue-500 underline mt-2">
+                                                    <Button variant="outline" size="sm" className="mt-2">
                                                       View Details
-                                                    </button>
+                                                    </Button>
                                                   </DialogTrigger>
-
+                                                  {item.lat && item.long && (
+                                                    <div className="mt-2">
+                                                      <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() =>
+                                                          router.push(
+                                                            `/admin/bin/manager/map?lat=${item.lat}&long=${item.long}`
+                                                          )
+                                                        }
+                                                      >
+                                                        View Location
+                                                      </Button>
+                                                    </div>
+                                                  )}
                                                   <DialogContent className="max-w-md p-4">
                                                     <DialogHeader>
                                                       <DialogTitle>Scanner Diagnostic Details</DialogTitle>
@@ -587,23 +593,13 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                                               {item.alertLevel === "hardware" && (
                                                 <div className="text-red-600 text-sm font-semibold flex flex-col items-center">
                                                   <span>Hardware Failure</span>
-
-                                                  {item.failedComponents?.length > 0 && (
-                                                    <ul className="text-xs text-red-500 mt-1 space-y-1">
-                                                      {item.failedComponents.map((fc: any, idx: number) => (
-                                                        <li key={idx}>• {fc.name}</li>
-                                                      ))}
-                                                    </ul>
-                                                  )}
-
                                                   {item.components && (
                                                     <Dialog>
                                                       <DialogTrigger asChild>
-                                                        <button className="text-xs text-blue-500 underline mt-2">
+                                                        <Button variant="outline" size="sm" className="mt-2">
                                                           View Details
-                                                        </button>
+                                                        </Button>
                                                       </DialogTrigger>
-
                                                       <DialogContent className="max-w-md p-4">
                                                         <DialogHeader>
                                                           <DialogTitle>Hardware Diagnostic Details</DialogTitle>

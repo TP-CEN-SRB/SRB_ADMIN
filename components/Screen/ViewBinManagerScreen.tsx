@@ -68,8 +68,9 @@ interface BinManager {
   name: string;
   email: string;
   faculty: Faculty;
-  lat?: number;     // ⬅️ FIX
-  long?: number;    // ⬅️ FIX
+  location?: string;   // ✅ optional, safe
+  lat?: number;
+  long?: number;
   bins: Bin[];
 }
 
@@ -224,6 +225,29 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   return (
     <div className="flex flex-col gap-6 p-6">
 
+      {/* ============================
+              MANAGER INFO HEADER
+          ============================ */}
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col gap-1">
+            <h1 className="text-2xl font-bold text-gray-800">
+              {binManager.name}
+            </h1>
+
+            <div className="text-sm text-gray-600 flex items-center gap-2">
+              <span>📍</span>
+              <span>
+                {binManager.location
+                  ? binManager.location
+                  : binManager.lat && binManager.long
+                  ? `${binManager.lat.toFixed(5)}, ${binManager.long.toFixed(5)}`
+                  : "Location not available"}
+              </span>
+            </div>
+
+            <div className="text-sm text-gray-500">
+              {binManager.email}
+            </div>
+          </div>
       {/* ============================
           1. STAT CARDS
       ============================ */}
@@ -443,19 +467,23 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
               {selectedBin.uptimeTimeline.map((entry, idx) => {
                 const { uptime } = entry;
                 const colorClass =
-                  uptime === 100
-                    ? "bg-green-500"
+                  uptime === null
+                    ? "bg-gray-300"          // No Data
+                    : uptime === 100
+                    ? "bg-green-500"         // Online
                     : uptime === 0
-                    ? "bg-red-500"
-                    : uptime === -1
-                    ? "bg-gray-300"
-                    : "bg-yellow-500";
+                    ? "bg-red-500"           // Offline
+                    : "bg-yellow-500";       // Partial / Mixed
 
                 return (
                   <div
                     key={idx}
                     className={`h-14 w-3 rounded-sm ${colorClass} hover:scale-105 transition`}
-                    title={`${entry.timestampSGT} — ${uptime}%`}
+                    title={
+                        uptime === null
+                          ? `${entry.timestampSGT} — No Data`
+                          : `${entry.timestampSGT} — ${uptime}%`
+                      }
                   />
                 );
               })}
