@@ -37,6 +37,7 @@ model User {
   user_quest           UserQuest[]
   user_event           UserEvent[]
   user_feedback        UserFeedback[]
+  scannerAlertActive   Boolean                @default(false)
   ScannerDiagnosticLog ScannerDiagnosticLog[]
 
   @@map("users")
@@ -80,6 +81,7 @@ model Bin {
   lastHeartBeat    DateTime?
   binMaterial      BinMaterial        @relation(fields: [binMaterialId], references: [id], onDelete: Cascade)
   user             User               @relation(fields: [userId], references: [id])
+  alertLevel       String? // "hardware" | "offline" | "critical" | "full" | null
   disposals        Disposal[]
   BinDiagnosticLog BinDiagnosticLog[]
 
