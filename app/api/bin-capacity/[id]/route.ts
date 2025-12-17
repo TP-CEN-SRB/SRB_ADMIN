@@ -134,13 +134,16 @@ export const PUT = async (
 };
 
 // ======================
-// GET — Fetch bin capacities with EFFECTIVE STATUS LOGIC
+// GET — Fetch bin capacities (DB is source of truth)
 // ======================
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
+    // ----------------------
+    // AUTH (JWT)
+    // ----------------------
     const token = req.headers.get("Authorization")?.split(" ")[1];
 
     if (!token) {
@@ -150,8 +153,12 @@ export const GET = async (
       );
     }
 
-    const decodedToken = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    if (typeof decodedToken === "string") {
+    const decoded = jwt.verify(
+      token,
+      process.env.NEXT_JWT_SECRET_KEY!
+    );
+
+    if (typeof decoded === "string") {
       return NextResponse.json(
         { message: "Unauthorized access!" },
         { status: 401 }
@@ -160,40 +167,26 @@ export const GET = async (
 
     const userId = params.id;
 
-    // Fetch ALL bins regardless of DB status
+    // ----------------------
+    // FETCH BINS (NO LOGIC HERE)
+    // ----------------------
     const bins = await prisma.bin.findMany({
-      where: { userId },
+      where: {
+        userId,
+        status: BinStatus.FUNCTIONAL, // ✅ TRUST CRON
+      },
       include: {
         binMaterial: true,
       },
-      orderBy: { updatedAt: "desc" },
+      orderBy: {
+        binMaterial: { name: "asc" },
+      },
     });
 
-    const now = Date.now();
-
-    // Apply EFFECTIVE STATUS logic locally (no need to rely on admin dashboard)
-    const validBins = bins.filter((bin) => {
-      const lastHB = bin.lastHeartBeat
-        ? new Date(bin.lastHeartBeat).getTime()
-        : 0;
-
-      const isOnline = lastHB && now - lastHB < 10 * 60 * 1000; // heartbeat alive within 10 mins
-
-      let effectiveStatus: "FUNCTIONAL" | "UNDER_MAINTENANCE" =
-        bin.status === "FUNCTIONAL" ? "FUNCTIONAL" : "UNDER_MAINTENANCE";
-
-      // Correct for heartbeat conditions
-      if (bin.status === "FUNCTIONAL" && !isOnline) {
-        effectiveStatus = "UNDER_MAINTENANCE";
-      }
-      if (bin.status === "UNDER_MAINTENANCE" && isOnline) {
-        effectiveStatus = "FUNCTIONAL";
-      }
-
-      return effectiveStatus === "FUNCTIONAL";
-    });
-
-    const result = validBins.map((bin) => ({
+    // ----------------------
+    // RESPONSE FORMAT (SRB LOCAL)
+    // ----------------------
+    const result = bins.map((bin) => ({
       material: bin.binMaterial.name,
       percentage: bin.currentCapacity,
     }));
@@ -201,14 +194,32 @@ export const GET = async (
     return NextResponse.json(result, { status: 200 });
 
   } catch (error) {
+    // ----------------------
+    // JWT ERRORS
+    // ----------------------
     if (error instanceof jwt.TokenExpiredError) {
-      return NextResponse.json({ message: "Token has expired!" }, { status: 401 });
-    } else if (error instanceof jwt.JsonWebTokenError) {
-      return NextResponse.json({ message: "Token is invalid!" }, { status: 401 });
-    } else if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
+      return NextResponse.json(
+        { message: "Token has expired!" },
+        { status: 401 }
+      );
     }
 
-    return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 });
+    if (error instanceof jwt.JsonWebTokenError) {
+      return NextResponse.json(
+        { message: "Token is invalid!" },
+        { status: 401 }
+      );
+    }
+
+    // ----------------------
+    // FALLBACK
+    // ----------------------
+    console.error("❌ bin-capacity GET error:", error);
+
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
   }
 };
+
