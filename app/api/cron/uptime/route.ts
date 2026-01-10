@@ -8,8 +8,8 @@ export const fetchCache = "force-no-store";
 
 export async function GET() {
   try {
-    const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 min
-    const LOG_TTL = 60 * 60 * 24 * 7; // KEEP LOGS FOR 7 DAYS
+    const HEARTBEAT_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+    const LOG_TTL = 60 * 60 * 24 * 7; // Keep logs for 7 days
     const now = new Date();
 
     // ------------------------------
@@ -20,7 +20,7 @@ export async function GET() {
     bucket.setMilliseconds(0);
     bucket.setMinutes(Math.floor(bucket.getMinutes() / 5) * 5);
 
-    const bucketISO = bucket.toISOString(); // Safe key format
+    const bucketISO = bucket.toISOString();
 
     // ------------------------------
     // GET ALL BINS
@@ -31,30 +31,36 @@ export async function GET() {
 
     // ------------------------------
     // WRITE UPTIME SNAPSHOT TO REDIS
-    // WITH TTL TO AVOID KEY OVERLOAD
+    // (SKIP BINS WITH NO HEARTBEAT)
     // ------------------------------
-    await Promise.all(
-      bins.map((bin) => {
-        const last = bin.lastHeartBeat
-          ? new Date(bin.lastHeartBeat).getTime()
-          : 0;
+    const writes = bins.map(bin => {
+      // 🛑 Never reported → No Data (do not write)
+      if (!bin.lastHeartBeat) return null;
 
-        const diff = now.getTime() - last;
-        const status = diff <= HEARTBEAT_TIMEOUT ? 1 : 0;
+      const last = new Date(bin.lastHeartBeat).getTime();
+      const diff = now.getTime() - last;
 
-        const redisKey = `uptime:${bin.id}:${bucketISO}`;
+      // Online if within timeout, else offline
+      const status = diff <= HEARTBEAT_TIMEOUT ? 1 : 0;
 
-        return redis.set(redisKey, status, { ex: LOG_TTL });
-      })
-    );
+      const redisKey = `uptime:${bin.id}:${bucketISO}`;
+
+      return redis.set(redisKey, status, { ex: LOG_TTL });
+    });
+
+    await Promise.all(writes.filter(Boolean));
 
     return NextResponse.json({
       success: true,
       timestamp: bucketISO,
-      logged: bins.length,
+      binsProcessed: bins.length,
+      binsLogged: writes.filter(Boolean).length,
     });
   } catch (err) {
     console.error("❌ Redis Cron Uptime Error:", err);
-    return NextResponse.json({ error: "Cron failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Cron failed" },
+      { status: 500 }
+    );
   }
 }

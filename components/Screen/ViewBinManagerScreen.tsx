@@ -15,6 +15,7 @@ import {
   Legend,
 } from "recharts";
 
+
 // Convert UTC → Singapore Time (SGT/UTC+8)
 const toSGT = (timestamp: string) => {
   const date = new Date(timestamp);
@@ -28,6 +29,38 @@ const toSGT = (timestamp: string) => {
     minute: "2-digit",
   });
 };
+
+const formatUptimeLabel = (timestamp: string, range: string) => {
+  const date = new Date(timestamp);
+
+  if (range === "year") {
+    // Jan, Feb, Mar
+    return date.toLocaleString("en-SG", { month: "short" });
+  }
+
+  if (range === "month") {
+    // 5 Jan
+    return date.toLocaleString("en-SG", {
+      day: "numeric",
+      month: "short",
+    });
+  }
+
+  if (range === "day") {
+    // 14:00
+    return date.toLocaleString("en-SG", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  // hour → 14:35
+  return date.toLocaleString("en-SG", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 
 // ---------------------------------------
 // TYPES
@@ -99,6 +132,22 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
     binManager.bins[0]?.id
   );
 
+  const availableYears = useMemo(() => {
+  const yearsFromData = new Set<number>();
+
+  liveBins.forEach((b) => {
+    b.disposals.forEach((d) => {
+      yearsFromData.add(new Date(d.createdAt).getFullYear());
+    });
+  });
+
+  const currentYear = new Date().getFullYear();
+  yearsFromData.add(currentYear); // 👈 ensure current year is always selectable
+
+  return Array.from(yearsFromData).sort((a, b) => b - a);
+}, [liveBins]);
+
+
   // Find selected bin uptime timeline
   const selectedBin = uptimeData.find((b) => b.id === selectedBinId);
 
@@ -140,21 +189,24 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   // -----------------------------------------------------
   // GROUP DISPOSALS BY MONTH (for Disposal Trends graph)
   // -----------------------------------------------------
-  const monthData = useMemo(() => {
-    const grouped: Record<string, { month: string; count: number }> = {};
+ const monthData = useMemo(() => {
+  // Initialize all 12 months with 0
+  const months = Array.from({ length: 12 }, (_, i) => ({
+    month: (i + 1).toString(),
+    count: 0,
+  }));
 
-    disposals.forEach((d) => {
-      const date = new Date(d.createdAt);
-      if (date.getFullYear() !== selectedYear) return;
+  disposals.forEach((d) => {
+    const date = new Date(d.createdAt);
+    if (date.getFullYear() !== selectedYear) return;
 
-      const month = (date.getMonth() + 1).toString();
+    const monthIndex = date.getMonth(); // 0–11
+    months[monthIndex].count++;
+  });
 
-      if (!grouped[month]) grouped[month] = { month, count: 0 };
-      grouped[month].count++;
-    });
+  return months;
+}, [disposals, selectedYear]);
 
-    return Object.values(grouped);
-  }, [disposals, selectedYear]);
 
   // -----------------------------------------------------
   // AUTO-REFRESH: BIN STATUS + REAL UPTIME DATA
@@ -332,17 +384,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
             >
-              {Array.from(
-                new Set(
-                  liveBins
-                    .flatMap((b) =>
-                      b.disposals.map((d) =>
-                        new Date(d.createdAt).getFullYear()
-                      )
-                    )
-                    .sort((a, b) => b - a)
-                )
-              ).map((year) => (
+              {availableYears.map((year) => (
                 <option key={year} value={year}>
                   {year}
                 </option>
@@ -493,15 +535,28 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
             <div className="flex mt-2 text-[10px] text-gray-500 select-none">
               {selectedBin.uptimeTimeline.map((entry, idx) => {
                 const total = selectedBin.uptimeTimeline.length;
-                const interval = Math.floor(total / 6) || 1;
+
+                const MAX_LABELS =
+                  selectedRange === "hour" ? 4 :
+                  selectedRange === "day" ? 6 :
+                  selectedRange === "month" ? 6 :
+                  12;
+
+                const interval = Math.ceil(total / MAX_LABELS);
                 const show = idx % interval === 0;
 
                 return (
                   <div
                     key={idx}
-                    className="w-3 text-center rotate-45 origin-left"
+                    className={`w-6 text-center ${
+                      selectedRange === "year" || selectedRange === "month"
+                        ? "rotate-45 origin-left"
+                        : ""
+                    }`}
                   >
-                    {show ? entry.label : ""}
+                    {show
+                      ? formatUptimeLabel(entry.timestampSGT, selectedRange)
+                      : ""}
                   </div>
                 );
               })}

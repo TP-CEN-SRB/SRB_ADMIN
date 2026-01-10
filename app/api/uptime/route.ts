@@ -20,10 +20,25 @@ const toSGT = (ts: Date) =>
     minute: "2-digit",
   });
 
-const uiLabel = (range: string, ts: Date) => {
-  const sgt = new Date(ts.toLocaleString("en-US", { timeZone: "Asia/Singapore" }));
 
-  if (range === "hour") return `${sgt.getHours().toString().padStart(2, "0")}:${sgt.getMinutes().toString().padStart(2, "0")}`;
+const alignTo5Min = (d: Date) => {
+  const t = new Date(d);
+  t.setSeconds(0, 0);
+  t.setMinutes(Math.floor(t.getMinutes() / 5) * 5);
+  return t;
+};
+
+
+const uiLabel = (range: string, ts: Date) => {
+  const sgt = new Date(
+    ts.toLocaleString("en-US", { timeZone: "Asia/Singapore" })
+  );
+
+  if (range === "hour")
+    return `${sgt.getHours().toString().padStart(2, "0")}:${sgt
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}`;
   if (range === "day") return `${sgt.getHours()}:00`;
   if (range === "month") return `${sgt.getDate()}`;
   if (range === "year") return `${sgt.getMonth() + 1}`;
@@ -86,7 +101,9 @@ const generateBuckets = (range: string, since: Date, now: Date) => {
     buckets.push(new Date(ts));
   }
 
-  return Array.from(new Map(buckets.map(b => [b.toISOString(), b])).values());
+  return Array.from(
+    new Map(buckets.map(b => [b.toISOString(), b])).values()
+  );
 };
 
 // ---------------------
@@ -99,30 +116,48 @@ export async function GET(req: NextRequest) {
     const range = searchParams.get("range") || "hour";
 
     if (!managerId) {
-      return NextResponse.json({ error: "Missing managerId" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing managerId" },
+        { status: 400 }
+      );
     }
 
-    const now = new Date();
-    const since = new Date(now);
+    // Align to last completed bucket
+    const end = alignTo5Min(new Date());
+    const since = new Date(end);
 
-    if (range === "hour") since.setHours(now.getHours() - 1);
-    else if (range === "day") since.setDate(now.getDate() - 1);
-    else if (range === "month") since.setDate(now.getDate() - 30);
-    else since.setFullYear(now.getFullYear() - 1);
+    if (range === "hour") {
+      since.setTime(end.getTime() - 60 * 60 * 1000);
+    } else if (range === "day") {
+      since.setTime(end.getTime() - 24 * 60 * 60 * 1000);
+    } else if (range === "month") {
+      since.setDate(end.getDate() - 30);
+    } else {
+      since.setFullYear(end.getFullYear() - 1);
+    }
+
 
     const bins = await prisma.bin.findMany({
       where: { userId: managerId },
-      select: { id: true, binMaterial: { select: { name: true } } },
+      select: {
+        id: true,
+        binMaterial: { select: { name: true } },
+      },
     });
 
+    const allBuckets = generateBuckets(range, since, end);
+
     const results = await Promise.all(
-      bins.map(async (bin) => {
+      bins.map(async bin => {
         const pattern = `uptime:${bin.id}:*`;
         let cursor = "0";
         const keys: string[] = [];
 
         do {
-          const [next, batch] = await redis.scan(cursor, { match: pattern, count: 200 });
+          const [next, batch] = await redis.scan(cursor, {
+            match: pattern,
+            count: 200,
+          });
           cursor = next;
           keys.push(...batch);
         } while (cursor !== "0");
@@ -135,10 +170,11 @@ export async function GET(req: NextRequest) {
           if (values[i] == null) continue;
           const [, , ...rest] = keys[i].split(":");
           const ts = new Date(rest.join(":"));
-          if (ts >= since) logs.push({ ts, value: Number(values[i]) });
+          if (ts >= since) {
+            logs.push({ ts, value: Number(values[i]) });
+          }
         }
 
-        const allBuckets = generateBuckets(range, since, now);
         const bucketMap: Record<string, number[]> = {};
         allBuckets.forEach(b => (bucketMap[b.toISOString()] = []));
 
@@ -150,15 +186,19 @@ export async function GET(req: NextRequest) {
           else ts = bucketMonth(log.ts);
 
           const key = ts.toISOString();
-          if (bucketMap[key]) bucketMap[key].push(log.value);
+          if (bucketMap[key]) {
+            bucketMap[key].push(log.value);
+          }
         }
 
         const uptimeTimeline = allBuckets.map(b => {
           const vals = bucketMap[b.toISOString()];
           const uptime =
             vals.length === 0
-              ? -1
-              : Math.round((vals.reduce((a, v) => a + v, 0) / vals.length) * 100);
+              ? null
+              : Math.round(
+                  (vals.reduce((a, v) => a + v, 0) / vals.length) * 100
+                );
 
           return {
             timestampUTC: b.toISOString(),
@@ -174,7 +214,8 @@ export async function GET(req: NextRequest) {
         return {
           id: bin.id,
           name: bin.binMaterial.name,
-          uptimePercent: total ? Math.round((online / total) * 100) : 0,
+          uptimePercent:
+            total === 0 ? null : Math.round((online / total) * 100),
           uptimeTimeline,
         };
       })
@@ -183,6 +224,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(results);
   } catch (err) {
     console.error("❌ Redis Uptime API error:", err);
-    return NextResponse.json({ error: "Failed to fetch uptime" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch uptime" },
+      { status: 500 }
+    );
   }
 }

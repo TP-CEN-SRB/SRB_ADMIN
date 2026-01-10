@@ -36,9 +36,9 @@ model User {
   sentTransfers        TransferSession[]      @relation("SentTransfers")
   user_quest           UserQuest[]
   user_event           UserEvent[]
-  user_feedback        UserFeedback[]
   scannerAlertActive   Boolean                @default(false)
   ScannerDiagnosticLog ScannerDiagnosticLog[]
+  Feedback             Feedback[]
 
   @@map("users")
 }
@@ -293,20 +293,20 @@ model UserEvent {
   @@map("user_event")
 }
 
-model UserFeedback {
-  id         String           @id @default(uuid())
-  userId     String? // optional if feedback is anonymous
-  rating     Int? // 1–5 stars or satisfaction score
-  category   FeedbackCategory @default(GENERAL)
-  message    String // user’s written feedback
-  suggestion String? // optional improvement ideas
-  isResolved Boolean          @default(false) // mark if addressed
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+model Feedback {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  rating     Int
+  category   String
+  message    String?
+  faculty    String?
+  binId      String?  @map("bin_id")
+  appVersion String?  @map("app_version")
+  createdAt  DateTime @default(now()) @map("created_at")
 
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("user_feedback")
+  @@map("feedback")
 }
 
 model BinDiagnosticLog {
@@ -334,15 +334,6 @@ model ScannerDiagnosticLog {
   details       Json?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum FeedbackCategory {
-  GENERAL
-  BUG_REPORT
-  FEATURE_REQUEST
-  PERFORMANCE
-  UI_UX
-  OTHER
 }
 
 enum Faculty {

@@ -21,6 +21,14 @@ const BinSchema = z.object({
     .nonempty("At least one material must be selected"),
 });
 
+const FeedbackSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  category: z.string().min(1),
+  message: z.string().min(1).max(1000),
+  faculty: z.string().optional(),
+  binId: z.string().optional(),
+});
+
 const DisposalSchema = z.object({
   weightInGrams: z.coerce.number().min(1, "Minimum weight must be 1"),
   material: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
@@ -205,4 +213,5 @@ export {
   UpdateStoreSchema,
   UpdateEventSchema,
   EventSchema,
+  FeedbackSchema
 };
