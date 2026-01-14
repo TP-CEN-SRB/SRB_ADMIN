@@ -1,24 +1,21 @@
 import prisma from "@/lib/db";
-const MINIMUM_RESEND_INTERNVAL_MS = 1 * 60 * 1000; // 1 minutes
+
+const MINIMUM_RESEND_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
 
 export const getVerificationTokenByEmail = async (email: string) => {
-  const verficationToken = await prisma.verificationToken.findFirst({
-    where: {
-      email: email,
-    },
+  const verificationToken = await prisma.verificationToken.findFirst({
+    where: { email },
   });
-  if (!verficationToken) return null;
-  return verficationToken;
+
+  return verificationToken ?? null;
 };
 
 export const getVerificationTokenByToken = async (token: string) => {
-  const verficationToken = await prisma.verificationToken.findUnique({
-    where: {
-      token: token,
-    },
+  const verificationToken = await prisma.verificationToken.findUnique({
+    where: { token },
   });
-  if (!verficationToken) return null;
-  return verficationToken;
+
+  return verificationToken ?? null;
 };
 
 export const ableToGenerateNewVerificationToken = async (email: string) => {
@@ -32,5 +29,5 @@ export const ableToGenerateNewVerificationToken = async (email: string) => {
   const timeSinceLastEmail =
     Date.now() - new Date(existingToken.createdAt).getTime();
 
-  return timeSinceLastEmail >= MINIMUM_RESEND_INTERNVAL_MS;
+  return timeSinceLastEmail >= MINIMUM_RESEND_INTERVAL_MS;
 };
