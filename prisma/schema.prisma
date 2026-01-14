@@ -294,17 +294,13 @@ model UserEvent {
 }
 
 model Feedback {
-  id         String   @id @default(uuid())
-  userId     String   @map("user_id")
-  rating     Int
-  category   String
-  message    String?
-  faculty    String?
-  binId      String?  @map("bin_id")
-  appVersion String?  @map("app_version")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int
+  category  String
+  message   String?
+  createdAt DateTime @default(now())
 
   @@map("feedback")
 }

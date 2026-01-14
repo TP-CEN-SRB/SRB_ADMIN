@@ -146,7 +146,7 @@ export default function QuestDataTable({ data }: QuestDataTableProps) {
 
   return (
     <Card isAdmin rounded fullWidth className="p-6">
-      <FormHeader>All Quests</FormHeader>
+      <FormHeader>Current Active Quests Rotation</FormHeader>
 
       {/* Filter Bar */}
       <div className="flex justify-end pb-4">

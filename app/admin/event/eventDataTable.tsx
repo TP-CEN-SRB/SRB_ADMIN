@@ -11,6 +11,7 @@ import {
   getFilteredRowModel,
   ColumnFiltersState,
 } from "@tanstack/react-table";
+
 import {
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,9 +38,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { FaEdit, FaTrashRestore, FaUsers } from "react-icons/fa";
 import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
+
+import Card from "@/components/Card/Card";
+import FormHeader from "@/components/Form/FormHeader";
 import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog";
 
 interface Event {
@@ -49,28 +56,37 @@ interface EventDataTableProps {
   data: Event[];
 }
 
+/* ---------------------------------------------
+   ACTIONS MENU (styled same as Quest page)
+--------------------------------------------- */
 const EventActions = ({ event }: { event: Event }) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <div>
+    <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="hover:bg-gray-300 h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
+          <Button
+            variant="ghost"
+            className="hover:bg-slate-200 h-8 w-8 p-0 rounded-md"
+          >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
+
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
           <Link href={`/admin/event/update/${event.id}`} passHref>
             <DropdownMenuItem>
               <FaEdit className="mr-2" /> Edit Event
             </DropdownMenuItem>
           </Link>
+
           <DropdownMenuItem onClick={() => setDialogOpen(true)}>
             <FaTrashRestore className="mr-2" /> Delete Event
           </DropdownMenuItem>
+
           <Link href={`/admin/event/${event.id}/users`} passHref>
             <DropdownMenuItem>
               <FaUsers className="mr-2" /> View Users
@@ -78,21 +94,19 @@ const EventActions = ({ event }: { event: Event }) => {
           </Link>
         </DropdownMenuContent>
       </DropdownMenu>
+
       <ConfirmDeleteEventDialog
         eventId={event.id}
         isOpen={isDialogOpen}
         handleDialogOpen={() => setDialogOpen((prev) => !prev)}
       />
-    </div>
+    </>
   );
 };
 
-const EventDataTable = ({ data }: EventDataTableProps) => {
+export default function EventDataTable({ data }: EventDataTableProps) {
   const columns: ColumnDef<Event>[] = [
-    {
-      accessorKey: "name",
-      header: "Event Name",
-    },
+    { accessorKey: "name", header: "Event Name" },
     {
       id: "actions",
       header: "Actions",
@@ -115,10 +129,7 @@ const EventDataTable = ({ data }: EventDataTableProps) => {
     getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
-    state: {
-      pagination,
-      columnFilters,
-    },
+    state: { pagination, columnFilters },
   });
 
   const [filterValue, setFilterValue] = useState(
@@ -132,25 +143,30 @@ const EventDataTable = ({ data }: EventDataTableProps) => {
   };
 
   return (
-    <div className="px-4">
-      <div className="flex flex-wrap justify-end items-center gap-3 py-3">
-        <div className="max-w-xs">
-          <Input
-            placeholder="Filter by event name..."
-            type="search"
-            value={filterValue}
-            onChange={handleInputChange}
-          />
-        </div>
+    <Card isAdmin rounded fullWidth className="p-6">
+      <FormHeader>Current Active Events</FormHeader>
+
+      {/* Filter Bar */}
+      <div className="flex justify-end pb-4">
+        <Input
+          placeholder="Filter by event name..."
+          value={filterValue}
+          onChange={handleInputChange}
+          className="max-w-xs"
+        />
       </div>
 
-      <div className="rounded-md border">
+      {/* Table */}
+      <div className="rounded-lg border shadow-sm bg-white">
         <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+          <TableHeader className="bg-slate-50">
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="font-bold text-slate-700"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -162,6 +178,7 @@ const EventDataTable = ({ data }: EventDataTableProps) => {
               </TableRow>
             ))}
           </TableHeader>
+
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
@@ -178,7 +195,10 @@ const EventDataTable = ({ data }: EventDataTableProps) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-slate-500"
+                >
                   No events found.
                 </TableCell>
               </TableRow>
@@ -187,35 +207,35 @@ const EventDataTable = ({ data }: EventDataTableProps) => {
         </Table>
       </div>
 
-      <div className="flex items-center justify-end space-x-8 py-4">
+      {/* Pagination */}
+      <div className="flex items-center justify-between pt-4">
         <div className="flex items-center space-x-2">
-          <span className="whitespace-nowrap">Rows per page</span>
+          <span className="text-sm font-medium text-slate-700">
+            Rows per page
+          </span>
           <Select
             value={String(table.getState().pagination.pageSize)}
             onValueChange={(value) => table.setPageSize(Number(value))}
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Select page size" />
+            <SelectTrigger className="w-20">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={String(pageSize)}>
-                  <span className="pr-4">{pageSize}</span>
+              {[10, 20, 30, 40, 50].map((size) => (
+                <SelectItem key={size} value={String(size)}>
+                  {size}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex items-center gap-1">
-          <div>Page</div>
-          <span>
-            {table.getState().pagination.pageIndex + 1} of{" "}
-            {Math.max(1, table.getPageCount())}
-          </span>
+        <div className="text-sm text-slate-700">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {Math.max(1, table.getPageCount())}
         </div>
 
-        <div className="flex items-center justify-end space-x-2">
+        <div className="flex space-x-2">
           <Button
             variant="outline"
             size="sm"
@@ -250,8 +270,6 @@ const EventDataTable = ({ data }: EventDataTableProps) => {
           </Button>
         </div>
       </div>
-    </div>
+    </Card>
   );
-};
-
-export default EventDataTable;
+}
