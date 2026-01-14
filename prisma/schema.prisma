@@ -296,7 +296,7 @@ model UserEvent {
 model Feedback {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   rating    Int
   category  String
   message   String?

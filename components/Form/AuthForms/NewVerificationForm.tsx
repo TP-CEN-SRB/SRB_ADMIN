@@ -1,44 +1,58 @@
 "use client";
+
 import { IoRocket } from "react-icons/io5";
 import { useState, useTransition, useEffect } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Card from "@/components/Card/Card";
-import { MdVerified } from "react-icons/md";
-import { MdError } from "react-icons/md";
+import { MdVerified, MdError } from "react-icons/md";
 import CardHeader from "@/components/Card/CardHeader";
 
 interface VerificationFormProps {
   token: string;
 }
 
+const REDIRECT_URL = "https://tp-cen-srb.github.io/RecycleTP/";
+const REDIRECT_SECONDS = 3;
+
 const NewVerificationForm = ({ token }: VerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
+  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
   const [isPending, startTransition] = useTransition();
 
-  // 🔍 Log token once on mount
-  useEffect(() => {
-    console.log("[NewVerificationForm] Received token:", token);
-  }, [token]);
-
+  // Verify token
   const handleSubmit = () => {
     startTransition(async () => {
-      setError(""); // clear old error
-      console.log("[NewVerificationForm] Calling verifyToken() with token:", token);
-
+      setError(undefined);
       const data = await verifyToken(token);
-
-      console.log("[NewVerificationForm] verifyToken response:", data);
-
       setError(data?.error as string);
       setSuccess(data?.success as string);
     });
   };
 
+  // ⏱ Countdown + redirect after success
+  useEffect(() => {
+    if (!success) return;
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      window.location.href = REDIRECT_URL;
+    }, REDIRECT_SECONDS * 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [success]);
+
   return (
     <Card fullWidth rounded>
+      {/* INITIAL STATE */}
       {!success && !error && (
         <div className="flex flex-col items-center text-center">
           <IoRocket size={100} className="text-slate-500" />
@@ -50,26 +64,41 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
             onClick={handleSubmit}
             disabled={isPending}
             className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-gray-50"
-            type="submit"
           >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Verify my email"}
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending ? "Verifying..." : "Verify my email"}
           </Button>
         </div>
       )}
+
+      {/* ERROR STATE */}
       {error && (
         <div className="flex flex-col items-center text-center">
           <MdError size={100} className="text-red-500" />
-          <h1 className="text-4xl text-slate-800">Verification Fail</h1>
+          <h1 className="text-4xl text-slate-800">Verification Failed</h1>
           <p className="text-slate-600 mt-2">{error}</p>
-          <p className="text-slate-600 mt-2">Please try again</p>
+          <p className="text-slate-600 mt-2">Please try again.</p>
         </div>
       )}
+
+      {/* SUCCESS + REDIRECT */}
       {success && (
         <div className="flex flex-col items-center text-center">
           <MdVerified size={100} className="text-green-500" />
-          <h1 className="text-4xl text-slate-800">Verification Success</h1>
+          <h1 className="text-4xl text-slate-800">Email Verified 🎉</h1>
           <p className="text-slate-600 mt-2">{success}</p>
+
+          <div className="flex items-center gap-2 mt-4 text-slate-600">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>
+              Redirecting to the app in{" "}
+              <strong>{countdown}</strong>s…
+            </span>
+          </div>
+
+          <p className="text-xs text-slate-400 mt-2">
+            If nothing happens, you may close this page.
+          </p>
         </div>
       )}
     </Card>
