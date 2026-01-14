@@ -32,6 +32,21 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
     });
   };
 
+  const handleResend = async () => {
+  try {
+    await fetch("/api/resend-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+
+    setError(undefined);
+    setSuccess("A new verification email has been sent. Please check your inbox.");
+  } catch {
+    setError("Failed to resend verification email. Please try again later.");
+  }
+};
+
   // ⏱ Countdown + redirect after success
   useEffect(() => {
     if (!success) return;
@@ -77,7 +92,19 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
           <MdError size={100} className="text-red-500" />
           <h1 className="text-4xl text-slate-800">Verification Failed</h1>
           <p className="text-slate-600 mt-2">{error}</p>
-          <p className="text-slate-600 mt-2">Please try again.</p>
+
+          {/* 🔁 Resend button */}
+          <Button
+            onClick={handleResend}
+            variant="outline"
+            className="mt-4"
+          >
+            Resend verification email
+          </Button>
+
+          <p className="text-xs text-slate-400 mt-3">
+            A new link will be sent if your account is not yet verified.
+          </p>
         </div>
       )}
 
@@ -91,10 +118,17 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
           <div className="flex items-center gap-2 mt-4 text-slate-600">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span>
-              Redirecting to the app in{" "}
-              <strong>{countdown}</strong>s…
+              Redirecting to the app in <strong>{countdown}</strong>s…
             </span>
           </div>
+
+          {/* 🔗 Manual fallback link */}
+          <a
+            href={REDIRECT_URL}
+            className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 underline"
+          >
+            Open the app now
+          </a>
 
           <p className="text-xs text-slate-400 mt-2">
             If nothing happens, you may close this page.
