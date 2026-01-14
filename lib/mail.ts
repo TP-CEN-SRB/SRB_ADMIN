@@ -132,7 +132,10 @@ export const sendVerificationEmail = async (
   email: string,
   token: string
 ): Promise<void> => {
-  const confirmLink = `${process.env.BASE_URL}/new-verification?token=${token}`;
+  const confirmLink =
+    `${process.env.BASE_URL}/new-verification` +
+    `?token=${encodeURIComponent(token)}` +
+    `&email=${encodeURIComponent(email)}`;
 
   try {
     await resend.emails.send({
