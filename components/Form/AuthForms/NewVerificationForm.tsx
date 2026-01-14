@@ -11,48 +11,85 @@ import CardHeader from "@/components/Card/CardHeader";
 
 interface VerificationFormProps {
   token: string;
+  email: string;
 }
 
 const REDIRECT_URL = "https://tp-cen-srb.github.io/RecycleTP/";
-const REDIRECT_SECONDS = 3;
+const REDIRECT_SECONDS = 3; //seconds
+const RESEND_COOLDOWN = 30; //seconds
 
-const NewVerificationForm = ({ token }: VerificationFormProps) => {
+
+const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
-  const [success, setSuccess] = useState<string | undefined>();
+  const [verified, setVerified] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | undefined>();
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
   const [isPending, startTransition] = useTransition();
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
-  // Verify token
+  // ✅ Verify token (ONLY this sets verified)
   const handleSubmit = () => {
     startTransition(async () => {
       setError(undefined);
+      setResendMessage(undefined);
+
       const data = await verifyToken(token);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
+
+      if (data?.success) {
+        setVerified(true);
+      } else {
+        setError(data?.error || "Invalid or expired verification link.");
+      }
     });
   };
 
+  // 🔁 Resend verification email
   const handleResend = async () => {
-  try {
-    await fetch("/api/resend-verification", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
+    try {
+      const res = await fetch("/api/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    setError(undefined);
-    setSuccess("A new verification email has been sent. Please check your inbox.");
-  } catch {
-    setError("Failed to resend verification email. Please try again later.");
-  }
-};
+      const data = await res.json();
 
-  // ⏱ Countdown + redirect after success
+      if (!res.ok) {
+        if (data.cooldown) {
+          setError("Please wait before requesting another email.");
+          return;
+        }
+        throw new Error();
+      }
+
+      setResendMessage(
+        "A new verification email has been sent. Please check your inbox."
+      );
+
+      setResendCooldown(RESEND_COOLDOWN);
+      setError(undefined);
+    } catch {
+      setError("Failed to resend verification email. Please try again later.");
+    }
+  };
+
   useEffect(() => {
-    if (!success) return;
+  if (resendCooldown <= 0) return;
+
+  const timer = setInterval(() => {
+    setResendCooldown((c) => c - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [resendCooldown]);
+
+  // ⏱ Redirect ONLY after successful verification
+  useEffect(() => {
+    if (!verified) return;
 
     const interval = setInterval(() => {
-      setCountdown((prev) => prev - 1);
+      setCountdown((c) => c - 1);
     }, 1000);
 
     const timeout = setTimeout(() => {
@@ -63,12 +100,12 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [success]);
+  }, [verified]);
 
   return (
     <Card fullWidth rounded>
       {/* INITIAL STATE */}
-      {!success && !error && (
+      {!verified && !error && !resendMessage && (
         <div className="flex flex-col items-center text-center">
           <IoRocket size={100} className="text-slate-500" />
           <CardHeader>Almost there</CardHeader>
@@ -87,20 +124,26 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
       )}
 
       {/* ERROR STATE */}
-      {error && (
+      {error && !verified && (
         <div className="flex flex-col items-center text-center">
           <MdError size={100} className="text-red-500" />
           <h1 className="text-4xl text-slate-800">Verification Failed</h1>
           <p className="text-slate-600 mt-2">{error}</p>
 
-          {/* 🔁 Resend button */}
           <Button
             onClick={handleResend}
             variant="outline"
             className="mt-4"
+            disabled={resendCooldown > 0}
           >
-            Resend verification email
+            {resendCooldown > 0
+              ? `Resend available in ${resendCooldown}s`
+              : "Resend verification email"}
           </Button>
+
+          {resendMessage && (
+            <p className="text-green-600 text-sm mt-3">{resendMessage}</p>
+          )}
 
           <p className="text-xs text-slate-400 mt-3">
             A new link will be sent if your account is not yet verified.
@@ -109,11 +152,13 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
       )}
 
       {/* SUCCESS + REDIRECT */}
-      {success && (
+      {verified && (
         <div className="flex flex-col items-center text-center">
           <MdVerified size={100} className="text-green-500" />
           <h1 className="text-4xl text-slate-800">Email Verified 🎉</h1>
-          <p className="text-slate-600 mt-2">{success}</p>
+          <p className="text-slate-600 mt-2">
+            Your account has been successfully activated.
+          </p>
 
           <div className="flex items-center gap-2 mt-4 text-slate-600">
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -122,7 +167,6 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
             </span>
           </div>
 
-          {/* 🔗 Manual fallback link */}
           <a
             href={REDIRECT_URL}
             className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 underline"

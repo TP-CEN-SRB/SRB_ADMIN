@@ -1,59 +1,53 @@
-import { getVerificationTokenByEmail } from "@/utils/verificationToken";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "./db";
 import { getPasswordResetTokenByEmail } from "@/utils/passwordResetToken";
+
+/**
+ * Generate (or regenerate) an email verification token
+ */
 export const generateVerificationToken = async (
   email: string,
   oldEmail?: string
 ) => {
   const token = uuidv4();
-  const expirationTimeInSeconds = 3600;
-  const expires = new Date(
-    new Date().getTime() + expirationTimeInSeconds * 1000
-  );
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  const existingToken = await getVerificationTokenByEmail(email);
-  if (existingToken) {
-    await prisma.verificationToken.delete({
-      where: {
-        id: existingToken.id,
-      },
-    });
-  }
+  // 🔥 ALWAYS remove all old tokens for this email
+  await prisma.verificationToken.deleteMany({
+    where: { email },
+  });
 
-  const verficationToken = await prisma.verificationToken.create({
+  const verificationToken = await prisma.verificationToken.create({
     data: {
-      email: email,
-      oldEmail: oldEmail,
-      token: token,
-      expires: expires,
+      email,
+      oldEmail,
+      token,
+      expires,
     },
   });
-  return verficationToken;
+
+  return verificationToken;
 };
 
+/**
+ * Generate (or regenerate) a password reset token
+ */
 export const generatePasswordResetToken = async (email: string) => {
   const token = uuidv4();
-  const expirationTimeInSeconds = 3600;
-  const expires = new Date(
-    new Date().getTime() + expirationTimeInSeconds * 1000
-  );
+  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  const existingToken = await getPasswordResetTokenByEmail(email);
-  if (existingToken) {
-    await prisma.passswordResetToken.delete({
-      where: {
-        id: existingToken.id,
-      },
-    });
-  }
+  // 🔥 Clear old reset tokens
+  await prisma.passswordResetToken.deleteMany({
+    where: { email },
+  });
 
-  const passswordResetToken = await prisma.passswordResetToken.create({
+  const passwordResetToken = await prisma.passswordResetToken.create({
     data: {
-      email: email,
-      token: token,
-      expires: expires,
+      email,
+      token,
+      expires,
     },
   });
-  return passswordResetToken;
+
+  return passwordResetToken;
 };

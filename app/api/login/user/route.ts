@@ -57,11 +57,15 @@ export const POST = async (req: NextRequest) => {
         const verificationToken = await generateVerificationToken(existingUser.email);
         await sendVerificationEmail(verificationToken.email, verificationToken.token);
         return NextResponse.json(
-          { message: "Confirmation email sent!" },
+          {
+            message: "Email not verified",
+            requiresVerification: true,
+            email: existingUser.email,
+          },
           { status: 403 }
         );
       }
-      const ableToResendEmail = await ableToGenerateNewVerificationToken(existingToken.token);
+      const ableToResendEmail = await ableToGenerateNewVerificationToken(existingUser.email)
       if (!ableToResendEmail) {
         return NextResponse.json(
           {

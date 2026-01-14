@@ -220,7 +220,7 @@ const login = async (values: z.infer<typeof LoginSchema>) => {
       return { success: "Confirmation email sent!" };
     }
     const ableToResendEmail = await ableToGenerateNewVerificationToken(
-      existingToken.token
+      existingUser.email
     );
     if (!ableToResendEmail) {
       return {
@@ -429,7 +429,7 @@ const updateAdminEmail = async (
     return { success: "Confirmation email sent!" };
   }
   const ableToResendEmail = await ableToGenerateNewVerificationToken(
-    existingToken.token
+    email
   );
   if (!ableToResendEmail) {
     return {
