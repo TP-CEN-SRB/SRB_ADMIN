@@ -23,13 +23,26 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 import Card from "@/components/Card/Card";
 import FormHeader from "@/components/Form/FormHeader";
-import { Star } from "lucide-react";
+import { Star, Trash2, Eye } from "lucide-react";
 
-// ⭐ Star component
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// ⭐ Star Rating
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex gap-1">
     {Array.from({ length: 5 }).map((_, i) => (
@@ -59,6 +72,9 @@ export default function FeedbackPage() {
   const [data, setData] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Feedback | null>(null);
+
   // Pagination & filters
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -67,12 +83,31 @@ export default function FeedbackPage() {
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  useEffect(() => {
+  const fetchFeedbacks = () => {
+    setLoading(true);
     fetch("/api/admin/feedback")
       .then((res) => res.json())
       .then(setData)
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(fetchFeedbacks, []);
+
+const handleDelete = async () => {
+  if (!deleteTarget) return;
+
+  const res = await fetch(`/api/admin/feedback/${deleteTarget.id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    alert("Failed to delete feedback");
+    return;
+  }
+
+  setDeleteTarget(null);
+  fetchFeedbacks();
+};
 
   const columns: ColumnDef<Feedback>[] = [
     {
@@ -85,7 +120,6 @@ export default function FeedbackPage() {
       ),
     },
     {
-      accessorKey: "rating",
       header: "Rating",
       cell: ({ row }) => <StarRating rating={row.original.rating} />,
     },
@@ -99,19 +133,41 @@ export default function FeedbackPage() {
       ),
     },
     {
-      accessorKey: "message",
       header: "Message",
       cell: ({ row }) => (
-        <p className="max-w-md text-sm text-slate-700 whitespace-pre-wrap">
-          {row.original.message || "—"}
-        </p>
+        <div className="flex items-center gap-2">
+          <span className="truncate max-w-[200px] text-sm">
+            {row.original.message || "—"}
+          </span>
+          {row.original.message && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedMessage(row.original.message!)}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       ),
     },
     {
-      accessorKey: "createdAt",
       header: "Date",
       cell: ({ row }) =>
         new Date(row.original.createdAt).toLocaleDateString(),
+    },
+    {
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-red-600 hover:bg-red-50"
+          onClick={() => setDeleteTarget(row.original)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      ),
     },
   ];
 
@@ -134,7 +190,9 @@ export default function FeedbackPage() {
       <div className="flex justify-end pb-4">
         <Input
           placeholder="Filter by category..."
-          value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
+          value={
+            (table.getColumn("category")?.getFilterValue() as string) ?? ""
+          }
           onChange={(e) =>
             table.getColumn("category")?.setFilterValue(e.target.value)
           }
@@ -169,10 +227,13 @@ export default function FeedbackPage() {
               </TableRow>
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.original.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -218,14 +279,56 @@ export default function FeedbackPage() {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
             {"<"}
           </Button>
-          <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
             {">"}
           </Button>
         </div>
       </div>
+
+      {/* Message Modal */}
+      <Dialog open={!!selectedMessage} onOpenChange={() => setSelectedMessage(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Feedback Message</DialogTitle>
+          </DialogHeader>
+          <p className="whitespace-pre-wrap text-sm text-slate-700">
+            {selectedMessage}
+          </p>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Feedback</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-slate-600">
+            Are you sure you want to delete this feedback?
+          </p>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

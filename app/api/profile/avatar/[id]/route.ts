@@ -11,6 +11,61 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+export const GET = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    // 1️⃣ JWT (same logic as POST & feedback)
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json({ message: "Missing token" }, { status: 401 });
+    }
+
+    const decoded: any = jwt.verify(
+      token,
+      process.env.NEXT_JWT_SECRET_KEY!
+    );
+
+    if (typeof decoded === "string" || decoded.userId !== params.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2️⃣ Fetch profile info from DB
+    const user = await prisma.user.findUnique({
+      where: { id: params.id },
+      select: {
+        id: true,
+        name: true,
+        profileImageUrl: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    // 3️⃣ Return profile data
+    return NextResponse.json(
+      {
+        profile_image_url: user.profileImageUrl,
+        name: user.name,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("GET PROFILE ERROR:", error);
+
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+};
+
 export const POST = async (
   req: NextRequest,
   { params }: { params: { id: string } }
