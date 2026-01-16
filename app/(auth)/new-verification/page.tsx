@@ -7,11 +7,18 @@ const NewVerificationPage = ({
   searchParams: { [key: string]: string | undefined };
 }) => {
   const token = searchParams?.token ?? "";
-  const email = searchParams?.email ?? "";
+
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-center">
+        Invalid verification link.
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <NewVerificationForm token={token} email={email} />
+      <NewVerificationForm token={token} />
     </div>
   );
 };

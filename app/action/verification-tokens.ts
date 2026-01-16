@@ -2,36 +2,21 @@
 
 import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
-import { decodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
-const verifyToken = async (token: string, email?: string) => {
+const verifyToken = async (token: string) => {
   if (!token) {
     return { error: "Invalid or missing verification link." };
   }
 
-  const normalizedEmail = email ? String(email).toLowerCase().trim() : undefined;
+  // 🔒 NO decoding. NO guessing.
+  const existingToken = await getVerificationTokenByToken(token);
 
-  // ✅ Decode ONLY if token looks encoded (UUIDs contain "-")
-  const finalToken = token.includes("-") ? token : decodeBase64UrlSafe(token);
-
-  if (!finalToken) {
-    return { error: "Invalid verification link." };
-  }
-
-  const existingToken = await getVerificationTokenByToken(finalToken);
-
-  // ✅ If token not found, only say “already verified” IF THIS EMAIL is verified
   if (!existingToken) {
-    if (normalizedEmail) {
-      const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-      if (user?.emailVerified) {
-        return { success: "Your email is already verified." };
-      }
-    }
-    return { error: "This verification link is invalid or has already been used." };
+    return {
+      error: "This verification link is invalid or has already been used.",
+    };
   }
 
-  // ✅ Expired
   if (new Date(existingToken.expires) < new Date()) {
     return { error: "This verification link has expired." };
   }
@@ -44,18 +29,19 @@ const verifyToken = async (token: string, email?: string) => {
         data: { email: existingToken.email.toLowerCase().trim() },
       });
 
-      await prisma.verificationToken.delete({ where: { id: existingToken.id } });
+      await prisma.verificationToken.delete({
+        where: { id: existingToken.id },
+      });
+
       return { success: "Your email has been updated!" };
     } catch {
       return { error: "Failed to update email." };
     }
   }
 
-  // ✅ Normal verification flow
-  const tokenEmail = existingToken.email.toLowerCase().trim();
-
+  // ✅ Normal verification
   const user = await prisma.user.findUnique({
-    where: { email: tokenEmail },
+    where: { email: existingToken.email.toLowerCase().trim() },
   });
 
   if (!user) {
@@ -67,39 +53,10 @@ const verifyToken = async (token: string, email?: string) => {
     data: { emailVerified: new Date() },
   });
 
-  // ✅ Delete token after successful verify
+  // 🔥 Delete token immediately
   await prisma.verificationToken.delete({
     where: { id: existingToken.id },
   });
-
-  // Optional extras (quests / events)
-  try {
-    const quests = await prisma.questDetails.findMany();
-    if (quests.length) {
-      await prisma.userQuest.createMany({
-        data: quests.map((q) => ({
-          userId: user.id,
-          questId: q.id,
-          progress: 0,
-          isCompleted: false,
-        })),
-        skipDuplicates: true,
-      });
-    }
-  } catch {}
-
-  try {
-    const now = new Date();
-    const event = await prisma.event.findFirst({
-      where: { startDate: { lte: now }, endDate: { gte: now } },
-    });
-
-    if (event) {
-      await prisma.userEvent
-        .create({ data: { userId: user.id, eventId: event.id, points: 0 } })
-        .catch(() => {});
-    }
-  } catch {}
 
   return { success: "Your email has been verified successfully." };
 };
