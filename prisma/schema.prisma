@@ -39,6 +39,7 @@ model User {
   scannerAlertActive   Boolean                @default(false)
   ScannerDiagnosticLog ScannerDiagnosticLog[]
   Feedback             Feedback[]
+  FaultReport          FaultReport[]
 
   @@map("users")
 }
@@ -303,6 +304,20 @@ model Feedback {
   createdAt DateTime @default(now())
 
   @@map("feedback")
+}
+
+model FaultReport {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location      String
+  category      String
+  type          String
+  faultimageUrl String?
+  description   String?
+  createdAt     DateTime @default(now())
+
+  @@map("faultreport")
 }
 
 model BinDiagnosticLog {

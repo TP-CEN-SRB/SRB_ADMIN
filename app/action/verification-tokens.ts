@@ -27,10 +27,9 @@ export const verifyToken = async (token: string) => {
       data: { email: existingToken.email.toLowerCase().trim() },
     });
 
-    await prisma.verificationToken.delete({
-      where: { id: existingToken.id },
+    await prisma.verificationToken.deleteMany({
+      where: { email: existingToken.email },
     });
-
     return { success: "Your email has been updated!" };
   }
 
@@ -48,8 +47,8 @@ export const verifyToken = async (token: string) => {
     data: { emailVerified: new Date() },
   });
 
-  await prisma.verificationToken.delete({
-    where: { id: existingToken.id },
+  await prisma.verificationToken.deleteMany({
+    where: { email: existingToken.email },
   });
 
   return { success: "Your email has been verified successfully." };

@@ -21,6 +21,14 @@ const BinSchema = z.object({
     .nonempty("At least one material must be selected"),
 });
 
+const FaultReportSchema = z.object({
+  location: z.string().min(1),
+  category: z.string().min(1),
+  type: z.string().min(1),
+  faultimageUrl: z.string().optional(),
+  description: z.string().max(1000).optional(),
+});
+
 const FeedbackSchema = z.object({
   rating: z.number().int().min(1).max(5),
   category: z.string().min(1),
@@ -213,5 +221,6 @@ export {
   UpdateStoreSchema,
   UpdateEventSchema,
   EventSchema,
-  FeedbackSchema
+  FeedbackSchema,
+  FaultReportSchema
 };
