@@ -16,7 +16,7 @@ export const GET = async (
   { params }: { params: { id: string } }
 ) => {
   try {
-    // 1️⃣ JWT (same logic as POST & feedback)
+    // 1️⃣ JWT validation
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "Missing token" }, { status: 401 });
@@ -31,34 +31,23 @@ export const GET = async (
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Fetch profile info from DB
+    // 2️⃣ Fetch profile image URL from NeonDB
     const user = await prisma.user.findUnique({
       where: { id: params.id },
       select: {
-        id: true,
-        name: true,
         profileImageUrl: true,
       },
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    // 3️⃣ Return profile data
+    // 3️⃣ Return URL (even if null)
     return NextResponse.json(
       {
-        profile_image_url: user.profileImageUrl,
-        name: user.name,
+        profile_image_url: user?.profileImageUrl ?? null,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error("GET PROFILE ERROR:", error);
-
+    console.error("GET PROFILE AVATAR ERROR:", error);
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }
