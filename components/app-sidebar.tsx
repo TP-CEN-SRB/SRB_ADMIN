@@ -32,6 +32,7 @@ import {
   FaClock,
   FaBug,
   FaExclamationTriangle,
+  FaCommentDots,
 } from "react-icons/fa";
 import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
 import { FaMapMarkedAlt } from "react-icons/fa";
@@ -73,6 +74,7 @@ export const collaspeItems = [
     icon: PiStudentFill,
     child: [
       { title: "Dashboard", icon: PiRankingBold, url: "/admin/student/dashboard" },
+      { title: "View Feedbacks", icon: FaCommentDots, url: "/admin/feedback" },
       { title: "View", icon: FaEye, url: "/admin/student" },
     ],
   },
