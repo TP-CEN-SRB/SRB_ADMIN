@@ -25,7 +25,6 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
   const [resendMessage, setResendMessage] = useState<string | undefined>();
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
   const [isPending, startTransition] = useTransition();
-  const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // ✅ Verify token (ONLY this sets verified)
@@ -56,8 +55,8 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.cooldown) {
-          setError("Please wait before requesting another email.");
+        if (res.status === 429) {
+          setError("Please wait before requesting another verification email.");
           return;
         }
         throw new Error();
@@ -124,7 +123,7 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
       )}
 
       {/* ERROR STATE */}
-      {error && !verified && (
+      {!verified && (error || resendMessage) && (
         <div className="flex flex-col items-center text-center">
           <MdError size={100} className="text-red-500" />
           <h1 className="text-4xl text-slate-800">Verification Failed</h1>

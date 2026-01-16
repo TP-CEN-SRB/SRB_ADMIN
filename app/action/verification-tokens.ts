@@ -4,26 +4,33 @@ import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 import { decodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
-const verifyToken = async (token: string) => {
-  if (!token) {
+const verifyToken = async (rawToken: string) => {
+  if (!rawToken) {
     return { error: "Invalid or missing verification link." };
   }
 
-  // ✅ Decode ONLY if token is encoded (UUIDs contain "-")
-  const finalToken = token.includes("-")
-    ? token
-    : decodeBase64UrlSafe(token);
+  // ✅ ALWAYS attempt decode, fallback safely
+  const decoded = decodeBase64UrlSafe(rawToken);
+  const token = decoded || rawToken;
 
-  if (!finalToken) {
-    return { error: "Invalid verification link." };
-  }
+  const existingToken = await getVerificationTokenByToken(token);
 
-  const existingToken = await getVerificationTokenByToken(finalToken);
-
+  // 🔍 If token not found, check if user already verified
   if (!existingToken) {
-    return { error: "This verification link is invalid or has already been used." };
+    const user = await prisma.user.findFirst({
+      where: { emailVerified: { not: null } },
+    });
+
+    if (user) {
+      return { success: "Your email is already verified." };
+    }
+
+    return {
+      error: "This verification link is invalid or has already been used.",
+    };
   }
 
+  // ⏰ Expired
   if (new Date(existingToken.expires) < new Date()) {
     return { error: "This verification link has expired." };
   }
@@ -46,7 +53,7 @@ const verifyToken = async (token: string) => {
     }
   }
 
-  // ✅ Normal verification flow
+  // ✅ Normal verification
   const user = await prisma.user.findUnique({
     where: { email: existingToken.email.toLowerCase() },
   });
@@ -55,18 +62,27 @@ const verifyToken = async (token: string) => {
     return { error: "User not found." };
   }
 
-  // 🔥 VERIFY USER
+  // Already verified guard
+  if (user.emailVerified) {
+    await prisma.verificationToken.delete({
+      where: { id: existingToken.id },
+    });
+
+    return { success: "Your email is already verified." };
+  }
+
+  // 🔥 Verify user
   await prisma.user.update({
     where: { id: user.id },
     data: { emailVerified: new Date() },
   });
 
-  // 🔥 DELETE TOKEN IMMEDIATELY (prevents resend bugs)
+  // 🔥 Delete token (single-use)
   await prisma.verificationToken.delete({
     where: { id: existingToken.id },
   });
 
-  // Optional extras (quests / events)
+  // Optional extras (safe)
   try {
     const quests = await prisma.questDetails.findMany();
     if (quests.length) {
@@ -89,9 +105,11 @@ const verifyToken = async (token: string) => {
     });
 
     if (event) {
-      await prisma.userEvent.create({
-        data: { userId: user.id, eventId: event.id, points: 0 },
-      }).catch(() => {});
+      await prisma.userEvent
+        .create({
+          data: { userId: user.id, eventId: event.id, points: 0 },
+        })
+        .catch(() => {});
     }
   } catch {}
 

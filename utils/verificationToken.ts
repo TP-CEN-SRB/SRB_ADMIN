@@ -3,12 +3,12 @@ import prisma from "@/lib/db";
 const MINIMUM_RESEND_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
 
 export const getVerificationTokenByEmail = async (email: string) => {
-  const verificationToken = await prisma.verificationToken.findFirst({
+  return prisma.verificationToken.findFirst({
     where: { email },
+    orderBy: { createdAt: "desc" },
   });
-
-  return verificationToken ?? null;
 };
+
 
 export const getVerificationTokenByToken = async (token: string) => {
   const verificationToken = await prisma.verificationToken.findUnique({
@@ -19,15 +19,20 @@ export const getVerificationTokenByToken = async (token: string) => {
 };
 
 export const ableToGenerateNewVerificationToken = async (email: string) => {
-  const existingToken = await prisma.verificationToken.findFirst({
+  const latestToken = await prisma.verificationToken.findFirst({
     where: { email },
     orderBy: { createdAt: "desc" },
   });
 
-  if (!existingToken) return true;
+  if (!latestToken) return true;
+
+  // ✅ If token already expired, allow resend immediately
+  if (new Date(latestToken.expires) < new Date()) {
+    return true;
+  }
 
   const timeSinceLastEmail =
-    Date.now() - new Date(existingToken.createdAt).getTime();
+    Date.now() - new Date(latestToken.createdAt).getTime();
 
   return timeSinceLastEmail >= MINIMUM_RESEND_INTERVAL_MS;
 };

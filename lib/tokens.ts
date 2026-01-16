@@ -12,9 +12,12 @@ export const generateVerificationToken = async (
   const token = uuidv4();
   const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  // 🔥 ALWAYS remove all old tokens for this email
+  // ✅ ONLY delete EXPIRED tokens
   await prisma.verificationToken.deleteMany({
-    where: { email },
+    where: {
+      email,
+      expires: { lt: new Date() },
+    },
   });
 
   const verificationToken = await prisma.verificationToken.create({
