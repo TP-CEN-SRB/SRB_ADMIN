@@ -26,6 +26,7 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
   const [isPending, startTransition] = useTransition();
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
 
   // ✅ Verify token (ONLY this sets verified)
   const handleSubmit = () => {
@@ -45,14 +46,17 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
 
   // 🔁 Resend verification email
   const handleResend = async () => {
+    if (isResending || resendCooldown > 0) return;
+
     try {
+      setIsResending(true);
+      setError(undefined);
+
       const res = await fetch("/api/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
-      const data = await res.json();
 
       if (!res.ok) {
         if (res.status === 429) {
@@ -67,11 +71,13 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
       );
 
       setResendCooldown(RESEND_COOLDOWN);
-      setError(undefined);
     } catch {
       setError("Failed to resend verification email. Please try again later.");
+    } finally {
+      setIsResending(false);
     }
   };
+
 
   useEffect(() => {
   if (resendCooldown <= 0) return;
@@ -133,9 +139,11 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
             onClick={handleResend}
             variant="outline"
             className="mt-4"
-            disabled={resendCooldown > 0}
+            disabled={isResending || resendCooldown > 0}
           >
-            {resendCooldown > 0
+            {isResending
+              ? "Sending..."
+              : resendCooldown > 0
               ? `Resend available in ${resendCooldown}s`
               : "Resend verification email"}
           </Button>
