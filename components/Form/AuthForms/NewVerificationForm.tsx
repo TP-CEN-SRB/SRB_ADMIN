@@ -11,6 +11,7 @@ import CardHeader from "@/components/Card/CardHeader";
 
 interface VerificationFormProps {
   token: string;
+  email: string;
 }
 
 const REDIRECT_URL = "https://tp-cen-srb.github.io/RecycleTP/";
@@ -18,7 +19,7 @@ const REDIRECT_SECONDS = 3; //seconds
 const RESEND_COOLDOWN = 30; //seconds
 
 
-const NewVerificationForm = ({ token }: VerificationFormProps) => {
+const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [verified, setVerified] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | undefined>();
@@ -48,7 +49,7 @@ const NewVerificationForm = ({ token }: VerificationFormProps) => {
       const res = await fetch("/api/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ email }),
       });
 
       const data = await res.json();
