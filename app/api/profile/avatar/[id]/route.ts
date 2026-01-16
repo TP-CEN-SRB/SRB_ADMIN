@@ -1,22 +1,15 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { createClient } from "@supabase/supabase-js";
 
-export const runtime = "nodejs"; // REQUIRED for file upload
-
-// Supabase client (server-side only)
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
+/* =======================
+   GET profile info
+   ======================= */
 export const GET = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
-    // 1️⃣ JWT (same logic as POST & feedback)
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "Missing token" }, { status: 401 });
@@ -27,15 +20,13 @@ export const GET = async (
       process.env.NEXT_JWT_SECRET_KEY!
     );
 
-    if (typeof decoded === "string" || decoded.userId !== params.id) {
+    if (decoded.userId !== params.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Fetch profile info from DB
     const user = await prisma.user.findUnique({
       where: { id: params.id },
       select: {
-        id: true,
         name: true,
         profileImageUrl: true,
       },
@@ -48,17 +39,15 @@ export const GET = async (
       );
     }
 
-    // 3️⃣ Return profile data
     return NextResponse.json(
       {
-        profile_image_url: user.profileImageUrl,
         name: user.name,
+        profile_image_url: user.profileImageUrl,
       },
       { status: 200 }
     );
   } catch (error) {
     console.error("GET PROFILE ERROR:", error);
-
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }
@@ -66,12 +55,14 @@ export const GET = async (
   }
 };
 
+/* =======================
+   POST profile image URL
+   ======================= */
 export const POST = async (
   req: NextRequest,
   { params }: { params: { id: string } }
 ) => {
   try {
-    // 1️⃣ JWT (COPIED from feedback)
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "Missing token" }, { status: 401 });
@@ -82,66 +73,33 @@ export const POST = async (
       process.env.NEXT_JWT_SECRET_KEY!
     );
 
-    if (typeof decoded === "string" || decoded.userId !== params.id) {
+    if (decoded.userId !== params.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Read multipart form data
-    const formData = await req.formData();
-    const file = formData.get("avatar") as File | null;
+    // ✅ JSON payload (same pattern as feedback)
+    const { profileImageUrl } = await req.json();
 
-    if (!file) {
+    if (!profileImageUrl) {
       return NextResponse.json(
-        { message: "No avatar file provided" },
+        { message: "profileImageUrl is required" },
         { status: 400 }
       );
     }
 
-    // 3️⃣ Convert File → Buffer
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const fileExt = file.name.split(".").pop() ?? "jpg";
-    const filePath = `${params.id}.${fileExt}`;
-
-    // 4️⃣ Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("Avatars")
-      .upload(filePath, buffer, {
-        contentType: file.type,
-        upsert: true,
-      });
-
-    if (uploadError) {
-      console.error("Supabase upload error:", uploadError);
-      return NextResponse.json(
-        { message: "Image upload failed" },
-        { status: 500 }
-      );
-    }
-
-    // 5️⃣ Get public URL
-    const { data } = supabase.storage
-      .from("Avatars")
-      .getPublicUrl(filePath);
-
-    const publicUrl = data.publicUrl;
-
-    // 6️⃣ Update user profileImageUrl in Neon DB
     await prisma.user.update({
       where: { id: params.id },
       data: {
-        profileImageUrl: publicUrl,
+        profileImageUrl,
       },
     });
 
     return NextResponse.json(
-      { profile_image_url: publicUrl },
+      { message: "Profile image updated successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("PROFILE AVATAR API ERROR:", error);
-
+    console.error("UPDATE PROFILE IMAGE ERROR:", error);
     return NextResponse.json(
       { message: "Something went wrong" },
       { status: 500 }
