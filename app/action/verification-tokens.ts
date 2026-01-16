@@ -4,33 +4,34 @@ import prisma from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 import { decodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
-const verifyToken = async (rawToken: string) => {
-  if (!rawToken) {
+const verifyToken = async (token: string, email?: string) => {
+  if (!token) {
     return { error: "Invalid or missing verification link." };
   }
 
-  // ✅ ALWAYS attempt decode, fallback safely
-  const decoded = decodeBase64UrlSafe(rawToken);
-  const token = decoded || rawToken;
+  const normalizedEmail = email ? String(email).toLowerCase().trim() : undefined;
 
-  const existingToken = await getVerificationTokenByToken(token);
+  // ✅ Decode ONLY if token looks encoded (UUIDs contain "-")
+  const finalToken = token.includes("-") ? token : decodeBase64UrlSafe(token);
 
-  // 🔍 If token not found, check if user already verified
-  if (!existingToken) {
-    const user = await prisma.user.findFirst({
-      where: { emailVerified: { not: null } },
-    });
-
-    if (user) {
-      return { success: "Your email is already verified." };
-    }
-
-    return {
-      error: "This verification link is invalid or has already been used.",
-    };
+  if (!finalToken) {
+    return { error: "Invalid verification link." };
   }
 
-  // ⏰ Expired
+  const existingToken = await getVerificationTokenByToken(finalToken);
+
+  // ✅ If token not found, only say “already verified” IF THIS EMAIL is verified
+  if (!existingToken) {
+    if (normalizedEmail) {
+      const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+      if (user?.emailVerified) {
+        return { success: "Your email is already verified." };
+      }
+    }
+    return { error: "This verification link is invalid or has already been used." };
+  }
+
+  // ✅ Expired
   if (new Date(existingToken.expires) < new Date()) {
     return { error: "This verification link has expired." };
   }
@@ -39,50 +40,39 @@ const verifyToken = async (rawToken: string) => {
   if (existingToken.oldEmail) {
     try {
       await prisma.user.update({
-        where: { email: existingToken.oldEmail.toLowerCase() },
-        data: { email: existingToken.email.toLowerCase() },
+        where: { email: existingToken.oldEmail.toLowerCase().trim() },
+        data: { email: existingToken.email.toLowerCase().trim() },
       });
 
-      await prisma.verificationToken.delete({
-        where: { id: existingToken.id },
-      });
-
+      await prisma.verificationToken.delete({ where: { id: existingToken.id } });
       return { success: "Your email has been updated!" };
     } catch {
       return { error: "Failed to update email." };
     }
   }
 
-  // ✅ Normal verification
+  // ✅ Normal verification flow
+  const tokenEmail = existingToken.email.toLowerCase().trim();
+
   const user = await prisma.user.findUnique({
-    where: { email: existingToken.email.toLowerCase() },
+    where: { email: tokenEmail },
   });
 
   if (!user) {
     return { error: "User not found." };
   }
 
-  // Already verified guard
-  if (user.emailVerified) {
-    await prisma.verificationToken.delete({
-      where: { id: existingToken.id },
-    });
-
-    return { success: "Your email is already verified." };
-  }
-
-  // 🔥 Verify user
   await prisma.user.update({
     where: { id: user.id },
     data: { emailVerified: new Date() },
   });
 
-  // 🔥 Delete token (single-use)
+  // ✅ Delete token after successful verify
   await prisma.verificationToken.delete({
     where: { id: existingToken.id },
   });
 
-  // Optional extras (safe)
+  // Optional extras (quests / events)
   try {
     const quests = await prisma.questDetails.findMany();
     if (quests.length) {
@@ -106,16 +96,12 @@ const verifyToken = async (rawToken: string) => {
 
     if (event) {
       await prisma.userEvent
-        .create({
-          data: { userId: user.id, eventId: event.id, points: 0 },
-        })
+        .create({ data: { userId: user.id, eventId: event.id, points: 0 } })
         .catch(() => {});
     }
   } catch {}
 
-  return {
-    success: "Your email has been verified successfully.",
-  };
+  return { success: "Your email has been verified successfully." };
 };
 
 export { verifyToken };
