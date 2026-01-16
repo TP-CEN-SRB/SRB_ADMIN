@@ -6,7 +6,6 @@ import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 import { Faculty, Role } from "@prisma/client";
 import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
-import { encodeBase64UrlSafe } from "@/lib/tokenEncoding";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -78,8 +77,10 @@ export const POST = async (req: NextRequest) => {
 
     // Send verification email using normalized email
     const verificationToken = await generateVerificationToken(email);
-    const safeToken = encodeBase64UrlSafe(verificationToken.token);
-    await sendVerificationEmail(verificationToken.email, safeToken);
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token // 🔥 send RAW token
+    );
 
     return NextResponse.json(
       { message: "Confirmation email sent!" },
