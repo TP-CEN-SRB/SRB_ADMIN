@@ -40,6 +40,9 @@ const NewVerificationForm = ({
   const [isPending, startTransition] = useTransition();
   const [isResending, setIsResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const CLOCK_PAGE_COOLDOWN = 5; // seconds
+  const [clockCooldown, setClockCooldown] = useState(0);
+
 
   /* -------------------------------- VERIFY -------------------------------- */
 
@@ -62,7 +65,7 @@ const NewVerificationForm = ({
   /* -------------------------------- RESEND -------------------------------- */
 
   const handleResend = async () => {
-    if (isResending || resendCooldown > 0) return;
+    if (isResending || resendCooldown > 0 || clockCooldown > 0) return;
 
     setIsResending(true);
     setError(undefined);
@@ -83,6 +86,7 @@ const NewVerificationForm = ({
             "A verification email was already sent recently. Please check your inbox or wait before requesting another one."
           );
           setView("cooldown");
+          setClockCooldown(CLOCK_PAGE_COOLDOWN);
           return;
         }
 
@@ -116,6 +120,18 @@ const NewVerificationForm = ({
 
     return () => clearInterval(timer);
   }, [resendCooldown]);
+
+
+  useEffect(() => {
+  if (clockCooldown <= 0) return;
+
+  const timer = setInterval(() => {
+    setClockCooldown((c) => c - 1);
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [clockCooldown]);
+
 
   /* ------------------------------ REDIRECT TIMER ------------------------------ */
 
@@ -226,10 +242,14 @@ const NewVerificationForm = ({
           <Button
             onClick={handleResend}
             variant="outline"
-            disabled={isResending || resendCooldown > 0}
+            disabled={isResending || resendCooldown > 0 || clockCooldown > 0}
           >
-            {resendCooldown > 0
+            {isResending
+              ? "Checking..."
+              : resendCooldown > 0
               ? `Resend available in ${resendCooldown}s`
+              : clockCooldown > 0
+              ? `Please wait ${clockCooldown}s`
               : "Resend verification email"}
           </Button>
 
@@ -238,7 +258,7 @@ const NewVerificationForm = ({
           </p>
         </div>
       )}
-      
+
       {/* SUCCESS */}
       {view === "success" && (
         <div className="flex flex-col items-center text-center space-y-3">

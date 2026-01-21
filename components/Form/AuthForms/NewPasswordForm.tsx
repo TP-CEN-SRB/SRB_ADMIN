@@ -33,9 +33,12 @@ interface NewPasswordFormProps {
   redirect?: string;
 }
 
+type ViewState = "form" | "error" | "info" | "success";
+
 const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
 const RESEND_COOLDOWN_SECONDS = 30;
+const CLOCK_PAGE_COOLDOWN = 5;
 
 const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
   const redirectUrl = redirect || DEFAULT_REDIRECT;
@@ -45,15 +48,16 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
     defaultValues: { password: "" },
   });
 
+  const [view, setView] = useState<ViewState>("form");
+  const [error, setError] = useState<string>();
+  const [info, setInfo] = useState<string>();
+
   const [isPending, startTransition] = useTransition();
   const [isResending, setIsResending] = useState(false);
 
-  const [error, setError] = useState<string>();
-  const [success, setSuccess] = useState<string>();
-  const [info, setInfo] = useState<string>();
-
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [clockCooldown, setClockCooldown] = useState(0);
 
   /* --------------------------- SUBMIT NEW PASSWORD --------------------------- */
 
@@ -65,9 +69,10 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
       const res = await newPassword(values, token);
 
       if (res?.success) {
-        setSuccess(res.success);
+        setView("success");
       } else {
         setError(res?.error || "Reset link is invalid or expired.");
+        setView("error");
       }
     });
   };
@@ -75,7 +80,12 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
   /* ------------------------------ RESEND EMAIL ------------------------------ */
 
   const handleResend = async () => {
-    if (isResending || resendCooldown > 0) return;
+    if (
+      isResending ||
+      resendCooldown > 0 ||
+      clockCooldown > 0
+    )
+      return;
 
     setIsResending(true);
     setError(undefined);
@@ -91,23 +101,34 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        if (res.status === 429) {
+          setInfo(
+            "A reset email was already sent recently. Please check your inbox or wait before requesting another one."
+          );
+          setClockCooldown(CLOCK_PAGE_COOLDOWN);
+          setView("info");
+          return;
+        }
+
         setError(data?.error || "Failed to resend reset email.");
+        setView("error");
         return;
       }
 
-      // ✅ Always start cooldown on success
-      setResendCooldown(RESEND_COOLDOWN_SECONDS);
       setInfo(
         "If the account exists, a new reset email has been sent. Please check your inbox."
       );
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      setView("info");
     } catch {
       setError("Failed to resend reset email. Please try again later.");
+      setView("error");
     } finally {
       setIsResending(false);
     }
   };
 
-  /* ---------------------------- COOLDOWN TIMER ---------------------------- */
+  /* ---------------------------- COOLDOWN TIMERS ---------------------------- */
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -120,10 +141,21 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
+  useEffect(() => {
+    if (clockCooldown <= 0) return;
+
+    const timer = setInterval(
+      () => setClockCooldown((c) => c - 1),
+      1000
+    );
+
+    return () => clearInterval(timer);
+  }, [clockCooldown]);
+
   /* ----------------------------- REDIRECT TIMER ----------------------------- */
 
   useEffect(() => {
-    if (!success) return;
+    if (view !== "success") return;
 
     setCountdown(REDIRECT_SECONDS);
 
@@ -140,22 +172,25 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [success, redirectUrl]);
+  }, [view, redirectUrl]);
 
   /* ---------------------------------- UI ---------------------------------- */
 
   return (
     <Card fullWidth rounded>
-      {success && <Confetti numberOfPieces={200} recycle={false} />}
+      {view === "success" && <Confetti numberOfPieces={200} recycle={false} />}
 
       {/* FORM */}
-      {!success && !error && !info && (
+      {view === "form" && (
         <div className="flex flex-col items-center space-y-3">
           <MdLockReset size={96} className="text-slate-500" />
           <CardHeader>Reset password</CardHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-4 w-full"
+            >
               <FormField
                 control={form.control}
                 name="password"
@@ -195,37 +230,68 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
         </div>
       )}
 
-      {/* ERROR / INFO */}
-      {!success && (error || info) && (
+      {/* ERROR */}
+      {view === "error" && (
         <div className="flex flex-col items-center text-center space-y-3">
-          {error ? (
-            <MdError size={96} className="text-red-500" />
-          ) : (
-            <MdVerified size={96} className="text-emerald-500" />
-          )}
-
+          <MdError size={96} className="text-red-500" />
           <h2 className="text-2xl font-semibold text-slate-800">
-            {error ? "Reset Failed" : "Email Sent"}
+            Reset Failed
           </h2>
-
-          <p className="text-slate-600 max-w-sm">{error || info}</p>
+          <p className="text-slate-600 max-w-sm">{error}</p>
 
           <Button
             onClick={handleResend}
             variant="outline"
-            disabled={isResending || resendCooldown > 0}
+            disabled={
+              isResending ||
+              resendCooldown > 0 ||
+              clockCooldown > 0
+            }
           >
             {isResending
-              ? "Sending..."
+              ? "Checking..."
               : resendCooldown > 0
               ? `Resend available in ${resendCooldown}s`
+              : clockCooldown > 0
+              ? `Please wait ${clockCooldown}s`
               : "Resend reset email"}
           </Button>
         </div>
       )}
 
+      {/* INFO (CLOCK PAGE) */}
+      {view === "info" && (
+        <div className="flex flex-col items-center text-center space-y-3">
+          <MdVerified size={96} className="text-amber-500" />
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Check Your Email
+          </h2>
+          <p className="text-slate-600 max-w-sm">{info}</p>
+
+          <Button
+            onClick={handleResend}
+            variant="outline"
+            disabled={
+              isResending ||
+              resendCooldown > 0 ||
+              clockCooldown > 0
+            }
+          >
+            {resendCooldown > 0
+              ? `Resend available in ${resendCooldown}s`
+              : clockCooldown > 0
+              ? `Please wait ${clockCooldown}s`
+              : "Resend reset email"}
+          </Button>
+
+          <p className="text-xs text-slate-400">
+            Tip: check spam or promotions folder
+          </p>
+        </div>
+      )}
+
       {/* SUCCESS */}
-      {success && (
+      {view === "success" && (
         <div className="flex flex-col items-center text-center space-y-3">
           <MdVerified size={96} className="text-emerald-500" />
           <h2 className="text-2xl font-semibold text-slate-800">
@@ -239,7 +305,10 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
             </span>
           </div>
 
-          <a href={redirectUrl} className="text-sm text-emerald-600 underline">
+          <a
+            href={redirectUrl}
+            className="text-sm text-emerald-600 underline"
+          >
             Go now
           </a>
         </div>
