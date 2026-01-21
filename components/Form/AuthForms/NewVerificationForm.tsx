@@ -63,6 +63,8 @@ const NewVerificationForm = ({
     if (isResending || resendCooldown > 0) return;
 
     setIsResending(true);
+    setError(undefined);
+    setInfo(undefined);
 
     try {
       const res = await fetch("/api/resend-verification", {
@@ -74,6 +76,14 @@ const NewVerificationForm = ({
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        if (res.status === 429) {
+          setInfo(
+            "A verification email was already sent recently. Please check your inbox or wait before requesting another one."
+          );
+          setView("info");
+          return;
+        }
+
         setError(data?.error || "Failed to resend verification email.");
         setView("error");
         return;
@@ -158,11 +168,9 @@ const NewVerificationForm = ({
       {view === "error" && (
         <div className="flex flex-col items-center text-center space-y-3">
           <MdError size={96} className="text-red-500" />
-
           <h2 className="text-2xl font-semibold text-slate-800">
             Verification Failed
           </h2>
-
           <p className="text-slate-600 max-w-sm">{error}</p>
 
           <Button
@@ -176,10 +184,6 @@ const NewVerificationForm = ({
               ? `Resend available in ${resendCooldown}s`
               : "Resend verification email"}
           </Button>
-
-          <p className="text-xs text-slate-400">
-            A new link will be sent if your account is not yet verified.
-          </p>
         </div>
       )}
 
@@ -187,11 +191,7 @@ const NewVerificationForm = ({
       {view === "info" && (
         <div className="flex flex-col items-center text-center space-y-3">
           <MdVerified size={96} className="text-emerald-500" />
-
-          <h2 className="text-2xl font-semibold text-slate-800">
-            Email Sent
-          </h2>
-
+          <h2 className="text-2xl font-semibold text-slate-800">Email Sent</h2>
           <p className="text-slate-600 max-w-sm">{info}</p>
 
           <Button
@@ -205,7 +205,7 @@ const NewVerificationForm = ({
           </Button>
 
           <p className="text-xs text-slate-400">
-            A new link will be sent if your account is not yet verified.
+            Tip: check your spam or promotions folder
           </p>
         </div>
       )}
@@ -214,7 +214,6 @@ const NewVerificationForm = ({
       {view === "success" && (
         <div className="flex flex-col items-center text-center space-y-3">
           <MdVerified size={96} className="text-emerald-500" />
-
           <h2 className="text-2xl font-semibold text-slate-800">
             Email Verified 🎉
           </h2>
