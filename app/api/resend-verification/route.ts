@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
     const email = body?.email;
+    const redirect = body?.redirect; // ✅ optional
 
     // 🔐 Always return success for invalid input
     if (!email) {
@@ -25,7 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // ⏳ Cooldown check (single source of truth)
+    // ⏳ Cooldown check
     const canResend = await ableToGenerateNewVerificationToken(normalizedEmail);
     if (!canResend) {
       return NextResponse.json(
@@ -34,10 +35,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ Generate fresh token (auto-clears old tokens)
+    // ✅ Generate fresh token
     const token = await generateVerificationToken(normalizedEmail);
 
-    await sendVerificationEmail(token.email, token.token);
+    await sendVerificationEmail(token.email, token.token, redirect);
 
     console.log(`[resend-verification] Sent new token to ${normalizedEmail}`);
 

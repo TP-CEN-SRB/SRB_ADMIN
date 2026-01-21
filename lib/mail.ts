@@ -130,12 +130,18 @@ const warningEmailTemplate = (
 
 export const sendVerificationEmail = async (
   email: string,
-  token: string
+  token: string,
+  redirect?: string
 ): Promise<void> => {
+  const redirectParam = redirect
+    ? `&redirect=${encodeURIComponent(redirect)}`
+    : "";
+
   const confirmLink =
     `${process.env.BASE_URL}/new-verification` +
     `?token=${encodeURIComponent(token)}` +
-    `&email=${encodeURIComponent(email)}`;
+    `&email=${encodeURIComponent(email)}` +
+    redirectParam;
 
   try {
     await resend.emails.send({
@@ -153,9 +159,17 @@ export const sendVerificationEmail = async (
 
 export const sendPasswordResetEmail = async (
   email: string,
-  token: string
+  token: string,
+  redirect?: string
 ): Promise<void> => {
-  const resetLink = `${process.env.BASE_URL}/new-password?token=${token}`;
+  const redirectParam = redirect
+    ? `&redirect=${encodeURIComponent(redirect)}`
+    : "";
+
+  const resetLink =
+    `${process.env.BASE_URL}/new-password` +
+    `?token=${encodeURIComponent(token)}` +
+    redirectParam;
 
   try {
     await resend.emails.send({

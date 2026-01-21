@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import prisma from "./db";
-import { getPasswordResetTokenByEmail } from "@/utils/passwordResetToken";
 
 /**
  * Generate (or regenerate) an email verification token
@@ -12,15 +11,12 @@ export const generateVerificationToken = async (
   const token = uuidv4();
   const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  // ✅ ONLY delete EXPIRED tokens
+  // 🔥 Clear ALL old verification tokens for this email
   await prisma.verificationToken.deleteMany({
-    where: {
-      email,
-      expires: { lt: new Date() },
-    },
+    where: { email },
   });
 
-  const verificationToken = await prisma.verificationToken.create({
+  return prisma.verificationToken.create({
     data: {
       email,
       oldEmail,
@@ -28,8 +24,6 @@ export const generateVerificationToken = async (
       expires,
     },
   });
-
-  return verificationToken;
 };
 
 /**
@@ -39,18 +33,16 @@ export const generatePasswordResetToken = async (email: string) => {
   const token = uuidv4();
   const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-  // 🔥 Clear old reset tokens
+  // 🔥 Clear ALL old reset tokens for this email
   await prisma.passswordResetToken.deleteMany({
     where: { email },
   });
 
-  const passwordResetToken = await prisma.passswordResetToken.create({
+  return prisma.passswordResetToken.create({
     data: {
       email,
       token,
       expires,
     },
   });
-
-  return passwordResetToken;
 };

@@ -12,14 +12,20 @@ import CardHeader from "@/components/Card/CardHeader";
 interface VerificationFormProps {
   token: string;
   email: string;
+  redirect?: string;
 }
 
-const REDIRECT_URL = "https://tp-cen-srb.github.io/RecycleTP/";
-const REDIRECT_SECONDS = 3; //seconds
-const RESEND_COOLDOWN = 30; //seconds
+const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
+const REDIRECT_SECONDS = 3;
+const RESEND_COOLDOWN = 30;
 
+const NewVerificationForm = ({
+  token,
+  email,
+  redirect,
+}: VerificationFormProps) => {
+  const redirectUrl = redirect || DEFAULT_REDIRECT;
 
-const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
   const [error, setError] = useState<string | undefined>();
   const [verified, setVerified] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | undefined>();
@@ -28,7 +34,7 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
 
-  // ✅ Verify token (ONLY this sets verified)
+  // ✅ Verify token
   const handleSubmit = () => {
     startTransition(async () => {
       setError(undefined);
@@ -69,7 +75,6 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
       setResendMessage(
         "A new verification email has been sent. Please check your inbox."
       );
-
       setResendCooldown(RESEND_COOLDOWN);
     } catch {
       setError("Failed to resend verification email. Please try again later.");
@@ -78,18 +83,18 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
     }
   };
 
-
+  // ⏳ Resend cooldown timer
   useEffect(() => {
-  if (resendCooldown <= 0) return;
+    if (resendCooldown <= 0) return;
 
-  const timer = setInterval(() => {
-    setResendCooldown((c) => c - 1);
-  }, 1000);
+    const timer = setInterval(() => {
+      setResendCooldown((c) => c - 1);
+    }, 1000);
 
-  return () => clearInterval(timer);
-}, [resendCooldown]);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
 
-  // ⏱ Redirect ONLY after successful verification
+  // ⏱ Redirect after successful verification
   useEffect(() => {
     if (!verified) return;
 
@@ -98,18 +103,18 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
     }, 1000);
 
     const timeout = setTimeout(() => {
-      window.location.href = REDIRECT_URL;
+      window.location.href = redirectUrl;
     }, REDIRECT_SECONDS * 1000);
 
     return () => {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [verified]);
+  }, [verified, redirectUrl]);
 
   return (
     <Card fullWidth rounded>
-      {/* INITIAL STATE */}
+      {/* INITIAL */}
       {!verified && !error && !resendMessage && (
         <div className="flex flex-col items-center text-center">
           <IoRocket size={100} className="text-slate-500" />
@@ -128,7 +133,7 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
         </div>
       )}
 
-      {/* ERROR STATE */}
+      {/* ERROR */}
       {!verified && (error || resendMessage) && (
         <div className="flex flex-col items-center text-center">
           <MdError size={100} className="text-red-500" />
@@ -151,14 +156,10 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
           {resendMessage && (
             <p className="text-green-600 text-sm mt-3">{resendMessage}</p>
           )}
-
-          <p className="text-xs text-slate-400 mt-3">
-            A new link will be sent if your account is not yet verified.
-          </p>
         </div>
       )}
 
-      {/* SUCCESS + REDIRECT */}
+      {/* SUCCESS */}
       {verified && (
         <div className="flex flex-col items-center text-center">
           <MdVerified size={100} className="text-green-500" />
@@ -170,20 +171,16 @@ const NewVerificationForm = ({ token, email }: VerificationFormProps) => {
           <div className="flex items-center gap-2 mt-4 text-slate-600">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span>
-              Redirecting to the app in <strong>{countdown}</strong>s…
+              Redirecting in <strong>{countdown}</strong>s…
             </span>
           </div>
 
           <a
-            href={REDIRECT_URL}
-            className="mt-3 text-sm text-emerald-600 hover:text-emerald-700 underline"
+            href={redirectUrl}
+            className="mt-3 text-sm text-emerald-600 underline"
           >
-            Open the app now
+            Go now
           </a>
-
-          <p className="text-xs text-slate-400 mt-2">
-            If nothing happens, you may close this page.
-          </p>
         </div>
       )}
     </Card>

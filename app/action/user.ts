@@ -293,7 +293,7 @@ const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
     return { success: "Confirmation email sent!" };
   }
   const ableToResendEmail = await ableToGenerateNewPasswordResetToken(
-    existingToken.token
+    existingUser.email
   );
   if (!ableToResendEmail) {
     return {
