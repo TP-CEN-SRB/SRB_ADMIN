@@ -155,6 +155,12 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
     return () => clearInterval(timer);
   }, [clockCooldown]);
 
+  useEffect(() => {
+  if (view === "clock" && clockCooldown === 0) {
+    setView("sent"); // or "error" if you prefer
+  }
+}, [clockCooldown, view]);
+
   /* ----------------------------- REDIRECT TIMER ----------------------------- */
 
   useEffect(() => {
