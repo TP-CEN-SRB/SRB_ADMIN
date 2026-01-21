@@ -5,6 +5,8 @@ import { IoRocket } from "react-icons/io5";
 import { MdVerified, MdError } from "react-icons/md";
 import { Loader2 } from "lucide-react";
 import Confetti from "react-confetti";
+import { MdAccessTime } from "react-icons/md";
+
 
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Button } from "@/components/ui/button";
@@ -17,7 +19,7 @@ interface VerificationFormProps {
   redirect?: string;
 }
 
-type ViewState = "initial" | "error" | "info" | "success";
+type ViewState = "initial" | "error" | "info" | "cooldown" | "success";
 
 const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
@@ -80,7 +82,7 @@ const NewVerificationForm = ({
           setInfo(
             "A verification email was already sent recently. Please check your inbox or wait before requesting another one."
           );
-          setView("info");
+          setView("cooldown");
           return;
         }
 
@@ -210,6 +212,33 @@ const NewVerificationForm = ({
         </div>
       )}
 
+      {/* COOLDOWN (email already sent, waiting) */}
+      {view === "cooldown" && (
+        <div className="flex flex-col items-center text-center space-y-3">
+          <MdAccessTime size={96} className="text-slate-500" />
+
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Check Your Inbox
+          </h2>
+
+          <p className="text-slate-600 max-w-sm">{info}</p>
+
+          <Button
+            onClick={handleResend}
+            variant="outline"
+            disabled={isResending || resendCooldown > 0}
+          >
+            {resendCooldown > 0
+              ? `Resend available in ${resendCooldown}s`
+              : "Resend verification email"}
+          </Button>
+
+          <p className="text-xs text-slate-400">
+            Tip: check your spam or promotions folder
+          </p>
+        </div>
+      )}
+      
       {/* SUCCESS */}
       {view === "success" && (
         <div className="flex flex-col items-center text-center space-y-3">
