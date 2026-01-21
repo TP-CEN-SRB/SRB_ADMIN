@@ -1,7 +1,7 @@
 "use client";
 
 import { IoRocket } from "react-icons/io5";
-import { useState, useTransition, useEffect } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import { verifyToken } from "@/app/action/verification-tokens";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,14 @@ const RESEND_COOLDOWN = 30;
 const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) => {
   const redirectUrl = redirect || DEFAULT_REDIRECT;
 
-  const [error, setError] = useState<string | undefined>();
-  const [info, setInfo] = useState<string | undefined>(); // ✅ NEW
+  const [error, setError] = useState<string>();
+  const [info, setInfo] = useState<string>();
   const [verified, setVerified] = useState(false);
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
+
   const [isPending, startTransition] = useTransition();
-  const [resendCooldown, setResendCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // ✅ Verify token
   const handleSubmit = () => {
@@ -46,42 +47,37 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
     });
   };
 
-  // 🔁 Resend verification email
+  // 🔁 Resend verification email (FIXED)
   const handleResend = async () => {
     if (isResending || resendCooldown > 0) return;
 
-    try {
-      setIsResending(true);
-      setInfo(undefined); // ✅ clear info
-      // ❗DON'T clear error here -> prevents rocket flash
+    setIsResending(true);
+    setError(undefined);
+    setInfo(undefined);
 
+    try {
       const res = await fetch("/api/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, redirect: redirectUrl }), // ✅ include redirect
+        body: JSON.stringify({ email, redirect: redirectUrl }),
       });
 
-      const data = await res.json().catch(() => ({} as any));
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
         if (res.status === 429) {
           setError(data?.error || "Please wait before requesting another verification email.");
-          return;
+        } else {
+          setError(data?.error || "Failed to resend verification email.");
         }
-        setError(data?.error || "Failed to resend verification email. Please try again later.");
         return;
       }
 
-      // ✅ Now we can clear error (no flash anymore because we will set info immediately)
-      setError(undefined);
-
-      if (data?.sent) {
-        setInfo("A new verification email has been sent. Please check your inbox.");
-      } else {
-        setInfo("If your account is not yet verified, a new email will be sent. Please check your inbox.");
-      }
-
+      // ✅ SUCCESS → always start cooldown
       setResendCooldown(RESEND_COOLDOWN);
+      setInfo(
+        "If your account is not yet verified, a new verification email has been sent. Please check your inbox."
+      );
     } catch {
       setError("Failed to resend verification email. Please try again later.");
     } finally {
@@ -89,16 +85,18 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
     }
   };
 
-  // ⏳ Resend cooldown timer
+  // ⏳ Cooldown timer
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const timer = setInterval(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // ⏱ Redirect after successful verification
+  // ⏱ Redirect after verification
   useEffect(() => {
     if (!verified) return;
+
+    setCountdown(REDIRECT_SECONDS);
 
     const interval = setInterval(() => setCountdown((c) => c - 1), 1000);
     const timeout = setTimeout(() => {
@@ -121,10 +119,11 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
           <p className="text-slate-600 mt-2">
             Just click the button below to activate your account.
           </p>
+
           <Button
             onClick={handleSubmit}
             disabled={isPending}
-            className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-gray-50"
+            className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isPending ? "Verifying..." : "Verify my email"}
@@ -141,7 +140,7 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
             <MdVerified size={100} className="text-green-500" />
           )}
 
-          <h1 className="text-4xl text-slate-800">
+          <h1 className="text-3xl text-slate-800">
             {error ? "Verification Failed" : "Email Sent"}
           </h1>
 
@@ -159,10 +158,6 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
               ? `Resend available in ${resendCooldown}s`
               : "Resend verification email"}
           </Button>
-
-          <p className="text-xs text-slate-400 mt-3">
-            A new link will be sent if your account is not yet verified.
-          </p>
         </div>
       )}
 
@@ -170,10 +165,7 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
       {verified && (
         <div className="flex flex-col items-center text-center">
           <MdVerified size={100} className="text-green-500" />
-          <h1 className="text-4xl text-slate-800">Email Verified 🎉</h1>
-          <p className="text-slate-600 mt-2">
-            Your account has been successfully activated.
-          </p>
+          <h1 className="text-3xl text-slate-800">Email Verified 🎉</h1>
 
           <div className="flex items-center gap-2 mt-4 text-slate-600">
             <Loader2 className="h-5 w-5 animate-spin" />
