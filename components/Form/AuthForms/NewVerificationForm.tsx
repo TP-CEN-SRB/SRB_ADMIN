@@ -65,12 +65,21 @@ const NewVerificationForm = ({
       });
 
       if (!res.ok) {
+        const data = await res.json();
+
         if (res.status === 429) {
           setError("Please wait before requesting another verification email.");
           return;
         }
+
+        if (data?.error) {
+          setError(data.error);
+          return;
+        }
+
         throw new Error();
       }
+
 
       setResendMessage(
         "A new verification email has been sent. Please check your inbox."

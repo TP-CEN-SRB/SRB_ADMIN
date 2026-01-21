@@ -22,8 +22,15 @@ export async function POST(req: NextRequest) {
     });
 
     // 🔐 Do not reveal user existence or verification state
-    if (!user || user.emailVerified) {
+    if (!user) {
       return NextResponse.json({ success: true });
+    }
+
+    if (user.emailVerified) {
+      return NextResponse.json(
+        { error: "Your account is already verified." },
+        { status: 400 }
+      );
     }
 
     // ⏳ Cooldown check
