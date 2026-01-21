@@ -17,16 +17,22 @@ interface VerificationFormProps {
   redirect?: string;
 }
 
+type ViewState = "initial" | "error" | "info" | "success";
+
 const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
 const RESEND_COOLDOWN = 30;
 
-const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) => {
+const NewVerificationForm = ({
+  token,
+  email,
+  redirect,
+}: VerificationFormProps) => {
   const redirectUrl = redirect || DEFAULT_REDIRECT;
 
+  const [view, setView] = useState<ViewState>("initial");
   const [error, setError] = useState<string>();
   const [info, setInfo] = useState<string>();
-  const [verified, setVerified] = useState(false);
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
 
   const [isPending, startTransition] = useTransition();
@@ -43,9 +49,10 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
       const res = await verifyToken(token);
 
       if (res?.success) {
-        setVerified(true);
+        setView("success");
       } else {
         setError(res?.error || "Invalid or expired verification link.");
+        setView("error");
       }
     });
   };
@@ -56,8 +63,6 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
     if (isResending || resendCooldown > 0) return;
 
     setIsResending(true);
-    setError(undefined);
-    setInfo(undefined);
 
     try {
       const res = await fetch("/api/resend-verification", {
@@ -70,16 +75,18 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
 
       if (!res.ok) {
         setError(data?.error || "Failed to resend verification email.");
+        setView("error");
         return;
       }
 
-      // ✅ Always start cooldown on success
-      setResendCooldown(RESEND_COOLDOWN);
       setInfo(
         "If your account is not yet verified, a new verification email has been sent. Please check your inbox."
       );
+      setResendCooldown(RESEND_COOLDOWN);
+      setView("info");
     } catch {
       setError("Failed to resend verification email. Please try again later.");
+      setView("error");
     } finally {
       setIsResending(false);
     }
@@ -101,7 +108,7 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
   /* ------------------------------ REDIRECT TIMER ------------------------------ */
 
   useEffect(() => {
-    if (!verified) return;
+    if (view !== "success") return;
 
     setCountdown(REDIRECT_SECONDS);
 
@@ -118,17 +125,17 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [verified, redirectUrl]);
+  }, [view, redirectUrl]);
 
   /* ---------------------------------- UI ---------------------------------- */
 
   return (
     <Card fullWidth rounded>
       {/* 🎉 CONFETTI */}
-      {verified && <Confetti numberOfPieces={250} recycle={false} />}
+      {view === "success" && <Confetti numberOfPieces={250} recycle={false} />}
 
       {/* INITIAL */}
-      {!verified && !error && !info && (
+      {view === "initial" && (
         <div className="flex flex-col items-center text-center space-y-3">
           <IoRocket size={96} className="text-slate-500" />
           <CardHeader>Almost there</CardHeader>
@@ -147,25 +154,20 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
         </div>
       )}
 
-      {/* ERROR / INFO */}
-      {!verified && (error || info) && (
+      {/* ERROR */}
+      {view === "error" && (
         <div className="flex flex-col items-center text-center space-y-3">
-          {error ? (
-            <MdError size={96} className="text-red-500" />
-          ) : (
-            <MdVerified size={96} className="text-emerald-500" />
-          )}
+          <MdError size={96} className="text-red-500" />
 
           <h2 className="text-2xl font-semibold text-slate-800">
-            {error ? "Verification Failed" : "Email Sent"}
+            Verification Failed
           </h2>
 
-          <p className="text-slate-600 max-w-sm">{error || info}</p>
+          <p className="text-slate-600 max-w-sm">{error}</p>
 
           <Button
             onClick={handleResend}
             variant="outline"
-            className="mt-2"
             disabled={isResending || resendCooldown > 0}
           >
             {isResending
@@ -181,10 +183,38 @@ const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) 
         </div>
       )}
 
-      {/* SUCCESS */}
-      {verified && (
+      {/* INFO */}
+      {view === "info" && (
         <div className="flex flex-col items-center text-center space-y-3">
           <MdVerified size={96} className="text-emerald-500" />
+
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Email Sent
+          </h2>
+
+          <p className="text-slate-600 max-w-sm">{info}</p>
+
+          <Button
+            onClick={handleResend}
+            variant="outline"
+            disabled={isResending || resendCooldown > 0}
+          >
+            {resendCooldown > 0
+              ? `Resend available in ${resendCooldown}s`
+              : "Resend verification email"}
+          </Button>
+
+          <p className="text-xs text-slate-400">
+            A new link will be sent if your account is not yet verified.
+          </p>
+        </div>
+      )}
+
+      {/* SUCCESS */}
+      {view === "success" && (
+        <div className="flex flex-col items-center text-center space-y-3">
+          <MdVerified size={96} className="text-emerald-500" />
+
           <h2 className="text-2xl font-semibold text-slate-800">
             Email Verified 🎉
           </h2>

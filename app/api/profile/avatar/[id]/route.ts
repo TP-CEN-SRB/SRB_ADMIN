@@ -90,8 +90,7 @@ export const POST = async (
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const fileExt = file.name.split(".").pop() ?? "jpg";
-    const filePath = `${params.id}.${fileExt}`;
+    const filePath = `${params.id}.jpg`;
 
     // 4️⃣ Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
