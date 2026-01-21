@@ -24,8 +24,10 @@ import { Button } from "@/components/ui/button";
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 
+
 import { Loader2 } from "lucide-react";
-import { MdLockReset, MdError, MdVerified } from "react-icons/md";
+import { MdLockReset, MdError, MdVerified, MdAccessTime } from "react-icons/md";
+
 
 interface NewPasswordFormProps {
   token: string;
@@ -33,7 +35,7 @@ interface NewPasswordFormProps {
   redirect?: string;
 }
 
-type ViewState = "form" | "error" | "info" | "success";
+type ViewState = "form" | "error" | "sent" | "clock" | "success";
 
 const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
@@ -106,7 +108,7 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
             "A reset email was already sent recently. Please check your inbox or wait before requesting another one."
           );
           setClockCooldown(CLOCK_PAGE_COOLDOWN);
-          setView("info");
+          setView("clock");
           return;
         }
 
@@ -115,11 +117,12 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
         return;
       }
 
+      // ✅ successful resend
       setInfo(
         "If the account exists, a new reset email has been sent. Please check your inbox."
       );
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
-      setView("info");
+      setView("sent");
     } catch {
       setError("Failed to resend reset email. Please try again later.");
       setView("error");
@@ -259,28 +262,48 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
         </div>
       )}
 
-      {/* INFO (CLOCK PAGE) */}
-      {view === "info" && (
+      {view === "clock" && (
         <div className="flex flex-col items-center text-center space-y-3">
-          <MdVerified size={96} className="text-amber-500" />
+          <MdAccessTime size={96} className="text-amber-500" />
+
           <h2 className="text-2xl font-semibold text-slate-800">
-            Check Your Email
+            Please Wait
           </h2>
+
           <p className="text-slate-600 max-w-sm">{info}</p>
 
           <Button
             onClick={handleResend}
             variant="outline"
-            disabled={
-              isResending ||
-              resendCooldown > 0 ||
-              clockCooldown > 0
-            }
+            disabled={true}
+          >
+            Try again in {clockCooldown}s
+          </Button>
+
+          <p className="text-xs text-slate-400">
+            Tip: check spam or promotions folder
+          </p>
+        </div>
+      )}
+
+
+      {view === "sent" && (
+        <div className="flex flex-col items-center text-center space-y-3">
+          <MdVerified size={96} className="text-amber-500" />
+
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Email Sent
+          </h2>
+
+          <p className="text-slate-600 max-w-sm">{info}</p>
+
+          <Button
+            onClick={handleResend}
+            variant="outline"
+            disabled={resendCooldown > 0 || isResending}
           >
             {resendCooldown > 0
               ? `Resend available in ${resendCooldown}s`
-              : clockCooldown > 0
-              ? `Please wait ${clockCooldown}s`
               : "Resend reset email"}
           </Button>
 
@@ -295,7 +318,7 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
         <div className="flex flex-col items-center text-center space-y-3">
           <MdVerified size={96} className="text-emerald-500" />
           <h2 className="text-2xl font-semibold text-slate-800">
-            Password Reset 🎉
+            Password Has Been Reset! 🎉
           </h2>
 
           <div className="flex items-center gap-2 text-slate-600">
@@ -309,7 +332,7 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
             href={redirectUrl}
             className="text-sm text-emerald-600 underline"
           >
-            Go now
+            Head Back To Login!
           </a>
         </div>
       )}

@@ -278,7 +278,7 @@ const NewVerificationForm = ({
             href={redirectUrl}
             className="text-sm text-emerald-600 underline"
           >
-            Go now
+            Head Back To Login!
           </a>
         </div>
       )}
