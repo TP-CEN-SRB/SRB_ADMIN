@@ -4,6 +4,7 @@ import React, { useTransition, useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Confetti from "react-confetti";
 
 import { NewAdminPasswordSchema } from "@/schemas/auth";
 import { newPassword } from "@/app/action/user";
@@ -36,64 +37,69 @@ const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
 const RESEND_COOLDOWN_SECONDS = 30;
 
-const NewPasswordForm = ({ token, email,redirect }: NewPasswordFormProps) => {
+const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
+  const redirectUrl = redirect || DEFAULT_REDIRECT;
+
   const form = useForm<z.infer<typeof NewAdminPasswordSchema>>({
     resolver: zodResolver(NewAdminPasswordSchema),
     defaultValues: { password: "" },
   });
 
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>();
-  const [success, setSuccess] = useState<string | undefined>();
-  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [resendMessage, setResendMessage] = useState<string | undefined>();
   const [isResending, setIsResending] = useState(false);
 
-  const redirectUrl = redirect || DEFAULT_REDIRECT;
+  const [error, setError] = useState<string>();
+  const [success, setSuccess] = useState<string>();
+  const [info, setInfo] = useState<string>();
 
-  // 🔐 Submit new password
+  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  /* --------------------------- SUBMIT NEW PASSWORD --------------------------- */
+
   const onSubmit = (values: z.infer<typeof NewAdminPasswordSchema>) => {
     startTransition(async () => {
       setError(undefined);
-      setSuccess(undefined);
+      setInfo(undefined);
 
-      const data = await newPassword(values, token);
+      const res = await newPassword(values, token);
 
-      if (data?.success) {
-        setSuccess(data.success);
+      if (res?.success) {
+        setSuccess(res.success);
       } else {
-        setError(data?.error || "Reset link is invalid or expired.");
+        setError(res?.error || "Reset link is invalid or expired.");
       }
     });
   };
 
-  // 🔁 Resend reset email
+  /* ------------------------------ RESEND EMAIL ------------------------------ */
+
   const handleResend = async () => {
     if (isResending || resendCooldown > 0) return;
 
-    try {
-      setIsResending(true);
-      setError(undefined);
+    setIsResending(true);
+    setError(undefined);
+    setInfo(undefined);
 
+    try {
       const res = await fetch("/api/resend-password-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
 
+      const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
-        if (res.status === 429) {
-          setError("Please wait before requesting another reset email.");
-          return;
-        }
-        throw new Error();
+        setError(data?.error || "Failed to resend reset email.");
+        return;
       }
 
-      setResendMessage(
-        "A new reset password email has been sent. Please check your inbox."
-      );
+      // ✅ Always start cooldown on success
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      setInfo(
+        "If the account exists, a new reset email has been sent. Please check your inbox."
+      );
     } catch {
       setError("Failed to resend reset email. Please try again later.");
     } finally {
@@ -101,26 +107,30 @@ const NewPasswordForm = ({ token, email,redirect }: NewPasswordFormProps) => {
     }
   };
 
+  /* ---------------------------- COOLDOWN TIMER ---------------------------- */
 
-
-  // ⏳ Resend cooldown timer
   useEffect(() => {
     if (resendCooldown <= 0) return;
 
-    const timer = setInterval(() => {
-      setResendCooldown((c) => c - 1);
-    }, 1000);
+    const timer = setInterval(
+      () => setResendCooldown((c) => c - 1),
+      1000
+    );
 
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // ⏱ Redirect after success
+  /* ----------------------------- REDIRECT TIMER ----------------------------- */
+
   useEffect(() => {
     if (!success) return;
 
-    const interval = setInterval(() => {
-      setCountdown((c) => c - 1);
-    }, 1000);
+    setCountdown(REDIRECT_SECONDS);
+
+    const interval = setInterval(
+      () => setCountdown((c) => c - 1),
+      1000
+    );
 
     const timeout = setTimeout(() => {
       window.location.href = redirectUrl;
@@ -132,18 +142,20 @@ const NewPasswordForm = ({ token, email,redirect }: NewPasswordFormProps) => {
     };
   }, [success, redirectUrl]);
 
+  /* ---------------------------------- UI ---------------------------------- */
+
   return (
     <Card fullWidth rounded>
+      {success && <Confetti numberOfPieces={200} recycle={false} />}
+
       {/* FORM */}
-      {!error && !success && (
-        <div>
-          <div className="flex flex-col items-center mb-3">
-            <MdLockReset size={100} className="text-slate-500" />
-            <CardHeader>Reset password</CardHeader>
-          </div>
+      {!success && !error && !info && (
+        <div className="flex flex-col items-center space-y-3">
+          <MdLockReset size={96} className="text-slate-500" />
+          <CardHeader>Reset password</CardHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 w-full">
               <FormField
                 control={form.control}
                 name="password"
@@ -170,7 +182,7 @@ const NewPasswordForm = ({ token, email,redirect }: NewPasswordFormProps) => {
 
               <Button
                 disabled={isPending}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-gray-50"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
                 type="submit"
               >
                 {isPending && (
@@ -183,17 +195,24 @@ const NewPasswordForm = ({ token, email,redirect }: NewPasswordFormProps) => {
         </div>
       )}
 
-      {/* ERROR */}
-      {error && !success && (
-        <div className="flex flex-col items-center text-center">
-          <MdError size={100} className="text-red-500" />
-          <h1 className="text-3xl text-slate-800">Reset Failed</h1>
-          <p className="text-slate-600 mt-2">{error}</p>
+      {/* ERROR / INFO */}
+      {!success && (error || info) && (
+        <div className="flex flex-col items-center text-center space-y-3">
+          {error ? (
+            <MdError size={96} className="text-red-500" />
+          ) : (
+            <MdVerified size={96} className="text-emerald-500" />
+          )}
+
+          <h2 className="text-2xl font-semibold text-slate-800">
+            {error ? "Reset Failed" : "Email Sent"}
+          </h2>
+
+          <p className="text-slate-600 max-w-sm">{error || info}</p>
 
           <Button
             onClick={handleResend}
             variant="outline"
-            className="mt-4"
             disabled={isResending || resendCooldown > 0}
           >
             {isResending
@@ -202,31 +221,25 @@ const NewPasswordForm = ({ token, email,redirect }: NewPasswordFormProps) => {
               ? `Resend available in ${resendCooldown}s`
               : "Resend reset email"}
           </Button>
-
-          {resendMessage && (
-            <p className="text-green-600 text-sm mt-3">{resendMessage}</p>
-          )}
         </div>
       )}
 
       {/* SUCCESS */}
       {success && (
-        <div className="flex flex-col items-center text-center">
-          <MdVerified size={100} className="text-green-500" />
-          <h1 className="text-3xl text-slate-800">Password Reset 🎉</h1>
-          <p className="text-slate-600 mt-2">{success}</p>
+        <div className="flex flex-col items-center text-center space-y-3">
+          <MdVerified size={96} className="text-emerald-500" />
+          <h2 className="text-2xl font-semibold text-slate-800">
+            Password Reset 🎉
+          </h2>
 
-          <div className="flex items-center gap-2 mt-4 text-slate-600">
+          <div className="flex items-center gap-2 text-slate-600">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span>
               Redirecting in <strong>{countdown}</strong>s…
             </span>
           </div>
 
-          <a
-            href={redirectUrl}
-            className="mt-3 text-sm text-emerald-600 underline"
-          >
+          <a href={redirectUrl} className="text-sm text-emerald-600 underline">
             Go now
           </a>
         </div>

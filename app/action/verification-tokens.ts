@@ -20,20 +20,21 @@ export const verifyToken = async (token: string) => {
     return { error: "This verification link has expired." };
   }
 
-  // Email update flow
+  // 🔁 Email update flow
   if (existingToken.oldEmail) {
     await prisma.user.update({
       where: { email: existingToken.oldEmail.toLowerCase().trim() },
       data: { email: existingToken.email.toLowerCase().trim() },
     });
 
-    await prisma.verificationToken.deleteMany({
-      where: { email: existingToken.email },
+    await prisma.verificationToken.delete({
+      where: { id: existingToken.id },
     });
+
     return { success: "Your email has been updated!" };
   }
 
-  // Normal verification
+  // ✅ Normal verification flow
   const user = await prisma.user.findUnique({
     where: { email: existingToken.email.toLowerCase().trim() },
   });
@@ -47,8 +48,8 @@ export const verifyToken = async (token: string) => {
     data: { emailVerified: new Date() },
   });
 
-  await prisma.verificationToken.deleteMany({
-    where: { email: existingToken.email },
+  await prisma.verificationToken.delete({
+    where: { id: existingToken.id },
   });
 
   return { success: "Your email has been verified successfully." };

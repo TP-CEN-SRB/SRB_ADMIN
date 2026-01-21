@@ -9,10 +9,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => null);
     const email = body?.email;
+    const redirect = body?.redirect; // ✅ optional, future-proof
 
-    // 🔐 Always return success for invalid input
+    // 🔐 Always return generic success for invalid input
     if (!email) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, sent: false });
     }
 
     const normalizedEmail = String(email).toLowerCase().trim();
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     // 🔐 Do not reveal user existence
     if (!user) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, sent: false });
     }
 
     // ⏳ Cooldown check
@@ -37,13 +38,18 @@ export async function POST(req: NextRequest) {
 
     // ✅ Generate fresh token (clears old ones)
     const token = await generatePasswordResetToken(normalizedEmail);
-    await sendPasswordResetEmail(token.email, token.token);
 
-    return NextResponse.json({ success: true });
+    // ❗ IMPORTANT: this must throw if email fails
+    await sendPasswordResetEmail(token.email, token.token, redirect);
+
+    return NextResponse.json({
+      success: true,
+      sent: true,
+    });
   } catch (err) {
-    console.error("[resend-password-reset]", err);
+    console.error("[resend-password-reset] Email send failed:", err);
     return NextResponse.json(
-      { error: "Unable to resend reset email" },
+      { error: "Failed to send password reset email." },
       { status: 500 }
     );
   }

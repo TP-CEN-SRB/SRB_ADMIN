@@ -133,9 +133,7 @@ export const sendVerificationEmail = async (
   token: string,
   redirect?: string
 ): Promise<void> => {
-  const redirectParam = redirect
-    ? `&redirect=${encodeURIComponent(redirect)}`
-    : "";
+  const redirectParam = redirect ? `&redirect=${encodeURIComponent(redirect)}` : "";
 
   const confirmLink =
     `${process.env.BASE_URL}/new-verification` +
@@ -143,18 +141,13 @@ export const sendVerificationEmail = async (
     `&email=${encodeURIComponent(email)}` +
     redirectParam;
 
-  try {
-    await resend.emails.send({
-      from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
-      to: email,
-      subject: "[Smart Bin System] Account Verification",
-      html: emailTemplate(confirmLink, "VERIFY"),
-    });
-
-    console.log(`📧 Verification email SENT → ${email}`);
-  } catch (err: any) {
-    console.error("❌ Verification email failed:", err.message);
-  }
+  // IMPORTANT: if this fails, throw so API can return 500
+  await resend.emails.send({
+    from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
+    to: email,
+    subject: "[Smart Bin System] Account Verification",
+    html: emailTemplate(confirmLink, "VERIFY"),
+  });
 };
 
 export const sendPasswordResetEmail = async (
@@ -162,27 +155,20 @@ export const sendPasswordResetEmail = async (
   token: string,
   redirect?: string
 ): Promise<void> => {
-  const redirectParam = redirect
-    ? `&redirect=${encodeURIComponent(redirect)}`
-    : "";
+  const redirectParam = redirect ? `&redirect=${encodeURIComponent(redirect)}` : "";
 
   const resetLink =
     `${process.env.BASE_URL}/new-password` +
     `?token=${encodeURIComponent(token)}` +
+    `&email=${encodeURIComponent(email)}` +
     redirectParam;
 
-  try {
-    await resend.emails.send({
-      from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
-      to: email,
-      subject: "[Smart Bin System] Reset Password",
-      html: emailTemplate(resetLink, "RESET"),
-    });
-
-    console.log(`📧 Password reset email SENT → ${email}`);
-  } catch (err: any) {
-    console.error("❌ Password reset email failed:", err.message);
-  }
+  await resend.emails.send({
+    from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
+    to: email,
+    subject: "[Smart Bin System] Reset Password",
+    html: emailTemplate(resetLink, "RESET"),
+  });
 };
 
 export const sendBinWarningEmail = async (
