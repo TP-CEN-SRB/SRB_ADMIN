@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
     // 🔐 Always return success for invalid input
     if (!email) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, sent: false });
     }
 
     const normalizedEmail = String(email).toLowerCase().trim();
@@ -23,8 +23,9 @@ export async function POST(req: NextRequest) {
 
     // 🔐 Do not reveal user existence or verification state
     if (!user) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, sent: false });
     }
+
 
     if (user.emailVerified) {
       return NextResponse.json(
@@ -49,7 +50,11 @@ export async function POST(req: NextRequest) {
 
     console.log(`[resend-verification] Sent new token to ${normalizedEmail}`);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      sent: true,
+    });
+
   } catch (err) {
     console.error("[resend-verification] Unexpected error:", err);
     return NextResponse.json(

@@ -19,16 +19,12 @@ const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
 const RESEND_COOLDOWN = 30;
 
-const NewVerificationForm = ({
-  token,
-  email,
-  redirect,
-}: VerificationFormProps) => {
+const NewVerificationForm = ({ token, email, redirect }: VerificationFormProps) => {
   const redirectUrl = redirect || DEFAULT_REDIRECT;
 
   const [error, setError] = useState<string | undefined>();
+  const [info, setInfo] = useState<string | undefined>(); // ✅ NEW
   const [verified, setVerified] = useState(false);
-  const [resendMessage, setResendMessage] = useState<string | undefined>();
   const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
   const [isPending, startTransition] = useTransition();
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -38,7 +34,7 @@ const NewVerificationForm = ({
   const handleSubmit = () => {
     startTransition(async () => {
       setError(undefined);
-      setResendMessage(undefined);
+      setInfo(undefined);
 
       const data = await verifyToken(token);
 
@@ -56,34 +52,35 @@ const NewVerificationForm = ({
 
     try {
       setIsResending(true);
-      setError(undefined);
+      setInfo(undefined); // ✅ clear info
+      // ❗DON'T clear error here -> prevents rocket flash
 
       const res = await fetch("/api/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, redirect: redirectUrl }), // ✅ include redirect
       });
 
+      const data = await res.json().catch(() => ({} as any));
+
       if (!res.ok) {
-        const data = await res.json();
-
         if (res.status === 429) {
-          setError("Please wait before requesting another verification email.");
+          setError(data?.error || "Please wait before requesting another verification email.");
           return;
         }
-
-        if (data?.error) {
-          setError(data.error);
-          return;
-        }
-
-        throw new Error();
+        setError(data?.error || "Failed to resend verification email. Please try again later.");
+        return;
       }
 
+      // ✅ Now we can clear error (no flash anymore because we will set info immediately)
+      setError(undefined);
 
-      setResendMessage(
-        "A new verification email has been sent. Please check your inbox."
-      );
+      if (data?.sent) {
+        setInfo("A new verification email has been sent. Please check your inbox.");
+      } else {
+        setInfo("If your account is not yet verified, a new email will be sent. Please check your inbox.");
+      }
+
       setResendCooldown(RESEND_COOLDOWN);
     } catch {
       setError("Failed to resend verification email. Please try again later.");
@@ -95,11 +92,7 @@ const NewVerificationForm = ({
   // ⏳ Resend cooldown timer
   useEffect(() => {
     if (resendCooldown <= 0) return;
-
-    const timer = setInterval(() => {
-      setResendCooldown((c) => c - 1);
-    }, 1000);
-
+    const timer = setInterval(() => setResendCooldown((c) => c - 1), 1000);
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
@@ -107,10 +100,7 @@ const NewVerificationForm = ({
   useEffect(() => {
     if (!verified) return;
 
-    const interval = setInterval(() => {
-      setCountdown((c) => c - 1);
-    }, 1000);
-
+    const interval = setInterval(() => setCountdown((c) => c - 1), 1000);
     const timeout = setTimeout(() => {
       window.location.href = redirectUrl;
     }, REDIRECT_SECONDS * 1000);
@@ -124,7 +114,7 @@ const NewVerificationForm = ({
   return (
     <Card fullWidth rounded>
       {/* INITIAL */}
-      {!verified && !error && !resendMessage && (
+      {!verified && !error && !info && (
         <div className="flex flex-col items-center text-center">
           <IoRocket size={100} className="text-slate-500" />
           <CardHeader>Almost there</CardHeader>
@@ -142,12 +132,20 @@ const NewVerificationForm = ({
         </div>
       )}
 
-      {/* ERROR */}
-      {!verified && (error || resendMessage) && (
+      {/* ERROR / INFO */}
+      {!verified && (error || info) && (
         <div className="flex flex-col items-center text-center">
-          <MdError size={100} className="text-red-500" />
-          <h1 className="text-4xl text-slate-800">Verification Failed</h1>
-          <p className="text-slate-600 mt-2">{error}</p>
+          {error ? (
+            <MdError size={100} className="text-red-500" />
+          ) : (
+            <MdVerified size={100} className="text-green-500" />
+          )}
+
+          <h1 className="text-4xl text-slate-800">
+            {error ? "Verification Failed" : "Email Sent"}
+          </h1>
+
+          <p className="text-slate-600 mt-2">{error || info}</p>
 
           <Button
             onClick={handleResend}
@@ -162,9 +160,9 @@ const NewVerificationForm = ({
               : "Resend verification email"}
           </Button>
 
-          {resendMessage && (
-            <p className="text-green-600 text-sm mt-3">{resendMessage}</p>
-          )}
+          <p className="text-xs text-slate-400 mt-3">
+            A new link will be sent if your account is not yet verified.
+          </p>
         </div>
       )}
 
@@ -184,10 +182,7 @@ const NewVerificationForm = ({
             </span>
           </div>
 
-          <a
-            href={redirectUrl}
-            className="mt-3 text-sm text-emerald-600 underline"
-          >
+          <a href={redirectUrl} className="mt-3 text-sm text-emerald-600 underline">
             Go now
           </a>
         </div>

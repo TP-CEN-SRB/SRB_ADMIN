@@ -20,13 +20,9 @@ const NewVerificationPage = ({
 
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <NewVerificationForm
-        token={token}
-        email={email}
-        redirect={redirect} // ✅ PASS THROUGH
-      />
+      <NewVerificationForm token={token} email={email} redirect={redirect} />
     </div>
   );
 };
 
-export default NewVerificationPage
+export default NewVerificationPage;
