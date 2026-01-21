@@ -35,7 +35,8 @@ interface NewPasswordFormProps {
   redirect?: string;
 }
 
-type ViewState = "form" | "error" | "sent" | "clock" | "success";
+type ViewState = "form" | "error" | "clock" | "sent" | "success";
+
 
 const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
 const REDIRECT_SECONDS = 3;
@@ -108,7 +109,7 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
             "A reset email was already sent recently. Please check your inbox or wait before requesting another one."
           );
           setClockCooldown(CLOCK_PAGE_COOLDOWN);
-          setView("clock");
+          setView("clock"); // ⏳ STAY HERE
           return;
         }
 
@@ -117,12 +118,13 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
         return;
       }
 
-      // ✅ successful resend
+      // ✅ SUCCESSFUL resend
       setInfo(
         "If the account exists, a new reset email has been sent. Please check your inbox."
       );
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
-      setView("sent");
+      setView("sent"); // 🟠 ONLY HERE
+
     } catch {
       setError("Failed to resend reset email. Please try again later.");
       setView("error");
@@ -154,12 +156,6 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
 
     return () => clearInterval(timer);
   }, [clockCooldown]);
-
-  useEffect(() => {
-  if (view === "clock" && clockCooldown === 0) {
-    setView("sent"); // or "error" if you prefer
-  }
-}, [clockCooldown, view]);
 
   /* ----------------------------- REDIRECT TIMER ----------------------------- */
 
@@ -281,9 +277,11 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
           <Button
             onClick={handleResend}
             variant="outline"
-            disabled={true}
+            disabled={clockCooldown > 0}
           >
-            Try again in {clockCooldown}s
+            {clockCooldown > 0
+              ? `Try again in ${clockCooldown}s`
+              : "Resend reset email"}
           </Button>
 
           <p className="text-xs text-slate-400">
@@ -291,7 +289,6 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
           </p>
         </div>
       )}
-
 
       {view === "sent" && (
         <div className="flex flex-col items-center text-center space-y-3">
@@ -306,18 +303,15 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
           <Button
             onClick={handleResend}
             variant="outline"
-            disabled={resendCooldown > 0 || isResending}
+            disabled={resendCooldown > 0}
           >
             {resendCooldown > 0
               ? `Resend available in ${resendCooldown}s`
               : "Resend reset email"}
           </Button>
-
-          <p className="text-xs text-slate-400">
-            Tip: check spam or promotions folder
-          </p>
         </div>
       )}
+
 
       {/* SUCCESS */}
       {view === "success" && (
