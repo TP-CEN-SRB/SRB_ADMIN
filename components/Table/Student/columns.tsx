@@ -5,12 +5,16 @@ import { MdVerified } from "react-icons/md";
 import { MdGppBad } from "react-icons/md";
 import Actions from "./actions";
 import { Faculty } from "@prisma/client";
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { getNameInitials } from "@/utils/getNameInitials";
+
 export type Student = {
   id: string;
   email: string;
   emailVerified: Date | null;
   faculty: Faculty | null;
   name: string | null;
+  profileImageUrl?: string | null;
   point: {
     balance: number;
     updatedAt: Date;
@@ -28,15 +32,33 @@ export const columns: ColumnDef<Student>[] = [
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
-      const isVerified = row.original.emailVerified != null;
+      const student = row.original;
+      const isVerified = student.emailVerified != null;
+
       return (
-        <div className="flex items-center gap-1">
-          {isVerified ? (
-            <MdVerified className="text-green-500" />
-          ) : (
-            <MdGppBad className="text-red-600" />
-          )}
-          {row.original.name}
+        <div className="flex items-center gap-3">
+          <Avatar className="h-9 w-9">
+            {student.profileImageUrl ? (
+              <AvatarImage
+                src={student.profileImageUrl}
+                alt={student.name ?? "Student"}
+                className="object-cover"
+              />
+            ) : (
+              <AvatarFallback>
+                {getNameInitials(student.name ?? "")}
+              </AvatarFallback>
+            )}
+          </Avatar>
+
+          <div className="flex items-center gap-1">
+            {isVerified ? (
+              <MdVerified className="text-green-500" />
+            ) : (
+              <MdGppBad className="text-red-600" />
+            )}
+            <span className="font-medium">{student.name}</span>
+          </div>
         </div>
       );
     },

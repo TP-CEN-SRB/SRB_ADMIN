@@ -40,20 +40,23 @@ type FilterPeriod = "week" | "month" | "year";
 type User = {
   username: string | undefined;
   userId: string | undefined;
+  profileImageUrl?: string | null; // ✅ ADD THIS
   balance: number;
   disposalCount: number;
-  redemptionCount: number | { _count: { id: number } };
+  redemptionCount: number;
   mostFrequentMaterial: string | undefined;
 };
 
 interface LeaderboardData {
   username: string | undefined;
   userId: string | undefined;
+  profileImageUrl?: string | null; // ✅ ADD THIS
   balance: number;
   disposalCount: number;
-  redemptionCount: number | { _count: { id: number } };
+  redemptionCount: number;
   mostFrequentMaterial: string | undefined;
 }
+
 
 const UsersLeaderboard = ({
   leaderBoardData,
@@ -89,8 +92,45 @@ const UsersLeaderboard = ({
   }, [getDateRange]);
 
 const columns: ColumnDef<User>[] = useMemo(() => [
-    { id: "username", header: "Username", accessorKey: "username" },
-    { id: "balance", header: "Points", accessorKey: "balance" },
+    {
+      id: "username",
+      header: "User",
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <div className="flex items-center gap-3 justify-center">
+            <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center">
+              {user.profileImageUrl ? (
+                <Image
+                  src={user.profileImageUrl}
+                  alt={user.username ?? "User"}
+                  width={32}
+                  height={32}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <span className="text-xs font-semibold">
+                  {getNameInitials(user.username ?? "")}
+                </span>
+              )}
+            </div>
+            <span className="font-medium truncate max-w-[120px]">
+              {user.username}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: "balance",
+      header: "Points",
+      accessorKey: "balance",
+      cell: ({ getValue }) => (
+        <span className="font-bold text-emerald-600">
+          {getValue<number>()}
+        </span>
+      ),
+    },
     {
       id: "disposalCount",
       header: "Disposal Count",
@@ -206,10 +246,10 @@ const columns: ColumnDef<User>[] = useMemo(() => [
               <TableBody>
                 {table.getRowModel().rows?.length ? (
                   table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
+                      <TableRow
+                        key={row.id}
+                        className="hover:bg-slate-50 transition-colors"
+                      >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
@@ -266,10 +306,20 @@ const TopUserCard = ({
         />
       </div>
       <div className="absolute top-20 md:top-24 left-4 md:left-8">
-        <div className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-full shadow-md flex justify-center items-center text-center">
-          <span className="text-2xl md:text-4xl font-bold">
-            {getNameInitials(user.username as string)}
-          </span>
+        <div className="w-20 h-20 md:w-28 md:h-28 bg-white rounded-full shadow-md overflow-hidden flex justify-center items-center">
+          {user.profileImageUrl ? (
+            <Image
+              src={user.profileImageUrl}
+              alt={user.username ?? "User profile"}
+              width={112}
+              height={112}
+              className="object-cover w-full h-full"
+            />
+          ) : (
+            <span className="text-2xl md:text-4xl font-bold">
+              {getNameInitials(user.username as string)}
+            </span>
+          )}
         </div>
       </div>
       <div className="ml-4 md:ml-8 mt-2 mb-4 h-16 md:h-20 flex justify-start items-end">

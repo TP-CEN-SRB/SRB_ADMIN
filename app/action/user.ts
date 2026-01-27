@@ -594,6 +594,7 @@ const getAllStudentUsers = async (
         email: true,
         emailVerified: true,
         faculty: true,
+        profileImageUrl: true,
         point: { select: { balance: true, updatedAt: true } },
         _count: { select: { disposals: true, redemptions: true } },
         createdAt: true,
@@ -655,13 +656,13 @@ const updateStudent = async (
   return { success: `Student ${updatedUser.id} updated successfully ` };
 };
 
-const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
-  // Get top users by points
-  const data = await prisma.disposal.groupBy({
+export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
+  // 1️⃣ Aggregate top users by points
+  const aggregated = await prisma.disposal.groupBy({
     by: ["userId"],
     where: {
       user: {
-        role: "STUDENT" as Role,
+        role: Role.STUDENT,
       },
       isRedeemed: true,
       createdAt: {
@@ -678,9 +679,9 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
     take: 10,
   });
 
-  const userIds = data
-    .map((user) => user.userId)
-    .filter((id): id is string => id !== null);
+const userIds = aggregated
+  .map((user) => user.userId)
+  .filter((id): id is string => id !== null);
 
   if (userIds.length === 0) {
     return [];
@@ -746,8 +747,10 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
         select: {
           name: true,
           email: true,
+          profileImageUrl: true, // ✅ ADD THIS
         },
       });
+
 
       const userTestData = allTestData.filter((t) => t.user?.id === userId);
       const materialCounts = userTestData.reduce((acc, item) => {
@@ -767,7 +770,9 @@ const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       return {
         username: user?.name,
         userId,
-        balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
+        profileImageUrl: user?.profileImageUrl ?? null, // ✅ ADD THIS
+        balance:
+          aggregated.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
         disposalCount: disposal._count.id,
         redemptionCount:
           userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
@@ -815,6 +820,5 @@ export {
   getAllStudentUsers,
   deleteStudent,
   updateStudent,
-  getTopTenUsers,
   listOfBinManagersUsed,
 };

@@ -73,7 +73,7 @@ export const collaspeItems = [
     title: "Students",
     icon: PiStudentFill,
     child: [
-      { title: "Dashboard", icon: PiRankingBold, url: "/admin/student/dashboard" },
+      { title: "Leaderboard", icon: PiRankingBold, url: "/admin/student/dashboard" },
       { title: "View Feedbacks", icon: FaCommentDots, url: "/admin/feedback" },
       { title: "View", icon: FaEye, url: "/admin/student" },
     ],
