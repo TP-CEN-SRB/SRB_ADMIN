@@ -118,6 +118,7 @@ export const GET = async (req: NextRequest) => {
             email: true,
             diploma: true,
             faculty: true,
+            profileImageUrl: true,
           },
         })
 
@@ -139,6 +140,7 @@ export const GET = async (req: NextRequest) => {
         return {
           username: user?.name,
           userId,
+          profileImageUrl: user?.profileImageUrl || null,
           // email: user?.email,
           balance: data.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
           disposalCount: disposal._count.id,
