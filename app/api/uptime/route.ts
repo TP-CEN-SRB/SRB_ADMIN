@@ -168,10 +168,12 @@ export async function GET(req: NextRequest) {
 
         for (let i = 0; i < keys.length; i++) {
           if (values[i] == null) continue;
-          const [, , ...rest] = keys[i].split(":");
-          const tsString = keys[i].slice(keys[i].lastIndexOf(":") + 1);
-          const ts = new Date(tsString)
-          if (ts >= since) {
+
+          // uptime:<binId>:<ISO timestamp...>
+          const tsString = keys[i].split(":").slice(2).join(":");
+          const ts = new Date(tsString);
+
+          if (!Number.isNaN(ts.getTime()) && ts >= since) {
             logs.push({ ts, value: Number(values[i]) });
           }
         }
