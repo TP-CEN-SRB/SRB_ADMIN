@@ -76,11 +76,17 @@ export const POST = async (
     // 2️⃣ Read multipart form data
     const formData = await req.formData();
 
+    formData.forEach((value, key) => {
+      console.log("FormData entry:", key, value);
+    });
+
     const location = formData.get("location") as string;
     const category = formData.get("category") as string;
     const type = formData.get("type") as string;
     const description = formData.get("description") as string | null;
     const file = formData.get("faultImage") as File | null;
+
+    console.log("File object:", file);
 
     if (!location || !category || !type) {
       return NextResponse.json(
@@ -95,6 +101,7 @@ export const POST = async (
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
 
+      const ext = file.name.split('.').pop();
       const filePath = `fault-reports/${params.id}-${Date.now()}`;
 
       const { error: uploadError } = await supabase.storage
@@ -111,11 +118,31 @@ export const POST = async (
         );
       }
 
-      const { data } = supabase.storage
-        .from("FaultImages")
-        .getPublicUrl(filePath);
+      // const { data } = supabase.storage
+      //   .from("FaultImages")
+      //   .getPublicUrl(filePath);
 
-      faultimageUrl = data.publicUrl;
+      const { data, error } = await supabase.storage
+        .from("FaultImages")
+        .upload(filePath, buffer, {
+          contentType: file.type,
+        });
+
+      console.log("Upload data:", data);
+      console.log("Upload error:", error);
+
+      if (error) {
+        return NextResponse.json(
+          { message: error.message },
+          { status: 500 }
+        );
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("FaultImages")
+        .getPublicUrl(data.path);
+
+      faultimageUrl = publicUrlData.publicUrl;
     }
 
     // 4️⃣ Save to NeonDB
@@ -132,7 +159,7 @@ export const POST = async (
 
     return NextResponse.json(
       { message: "Fault report submitted successfully" },
-      { status: 201 }
+      { status: 200 }
     );
   } catch (error) {
     console.error("FAULT REPORT API ERROR:", error);
@@ -142,3 +169,4 @@ export const POST = async (
     );
   }
 };
+
