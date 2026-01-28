@@ -5,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs"; // REQUIRED for file upload
 
-// Supabase client (server-side only)
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -33,9 +32,7 @@ export const GET = async (
 
     // 2️⃣ Fetch fault reports for this user
     const reports = await prisma.faultReport.findMany({
-      where: {
-        userId: params.id,
-      },
+      where: {userId: params.id,},
       orderBy: {
         createdAt: "desc",
       },
@@ -61,18 +58,29 @@ export const POST = async (
   { params }: { params: { id: string } }
 ) => {
   try {
-
+    // 1️⃣ JWT validation (same as avatar)
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
-      return NextResponse.json({ message: "Missing token" },{ status: 401 });
+      return NextResponse.json({ message: "Missing token" }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!) as { userId: string };
+    const decoded = jwt.verify(
+      token,
+      process.env.NEXT_JWT_SECRET_KEY!
+    ) as { userId: string };
+
     if (!decoded || decoded.userId !== params.id) {
-      return NextResponse.json({ message: "Unauthorized" },{ status: 401 });
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { location, category, type, description, faultimageUrl } = await req.json();
+    // 2️⃣ Read multipart form data
+    const formData = await req.formData();
+
+    const location = formData.get("location") as string;
+    const category = formData.get("category") as string;
+    const type = formData.get("type") as string;
+    const description = formData.get("description") as string | null;
+    const file = formData.get("faultImage") as File | null;
 
     if (!location || !category || !type) {
       return NextResponse.json(
@@ -81,18 +89,47 @@ export const POST = async (
       );
     }
 
+    let faultimageUrl: string | null = null;
+
+    // 3️⃣ Upload image if provided
+    if (file) {
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      const filePath = `fault-reports/${params.id}-${Date.now()}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("FaultImages")
+        .upload(filePath, buffer, {
+          contentType: file.type,
+        });
+
+      if (uploadError) {
+        console.error("Supabase upload error:", uploadError);
+        return NextResponse.json(
+          { message: "Image upload failed" },
+          { status: 500 }
+        );
+      }
+
+      const { data } = supabase.storage
+        .from("FaultImages")
+        .getPublicUrl(filePath);
+
+      faultimageUrl = data.publicUrl;
+    }
+
+    // 4️⃣ Save to NeonDB
     await prisma.faultReport.create({
       data: {
         userId: params.id,
         location,
         category,
         type,
-        faultimageUrl,
         description,
+        faultimageUrl,
       },
     });
 
-    // 5️⃣ Success response
     return NextResponse.json(
       { message: "Fault report submitted successfully" },
       { status: 201 }
