@@ -2,6 +2,51 @@ import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
+export const GET = async (
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) => {
+  try {
+    // 1️⃣ JWT validation (same pattern as avatar)
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json({ message: "Missing token" }, { status: 401 });
+    }
+
+    const decoded: any = jwt.verify(
+      token,
+      process.env.NEXT_JWT_SECRET_KEY!
+    );
+
+    if (typeof decoded === "string" || decoded.userId !== params.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // 2️⃣ Fetch fault reports for this user
+    const reports = await prisma.faultReport.findMany({
+      where: {
+        userId: params.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    // 3️⃣ Return list (can be empty)
+    return NextResponse.json(
+      { faultReports: reports },
+      { status: 200 }
+    );
+
+  } catch (error) {
+    console.error("GET FAULT REPORT ERROR:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+};
+
 export const POST = async (
   req: NextRequest,
   { params }: { params: { id: string } }
