@@ -1,6 +1,15 @@
 import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
+import { createClient } from "@supabase/supabase-js";
+
+export const runtime = "nodejs"; // REQUIRED for file upload
+
+// Supabase client (server-side only)
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export const GET = async (
   req: NextRequest,
