@@ -30,16 +30,14 @@ const toSGT = (timestamp: string) => {
   });
 };
 
-const formatUptimeLabel = (timestamp: string, range: string) => {
-  const date = new Date(timestamp);
+const formatUptimeLabel = (timestampUTC: string, range: string) => {
+  const date = new Date(timestampUTC);
 
   if (range === "year") {
-    // Jan, Feb, Mar
     return date.toLocaleString("en-SG", { month: "short" });
   }
 
   if (range === "month") {
-    // 5 Jan
     return date.toLocaleString("en-SG", {
       day: "numeric",
       month: "short",
@@ -47,20 +45,17 @@ const formatUptimeLabel = (timestamp: string, range: string) => {
   }
 
   if (range === "day") {
-    // 14:00
     return date.toLocaleString("en-SG", {
       hour: "2-digit",
       minute: "2-digit",
     });
   }
 
-  // hour → 14:35
   return date.toLocaleString("en-SG", {
     hour: "2-digit",
     minute: "2-digit",
   });
 };
-
 
 // ---------------------------------------
 // TYPES
@@ -555,7 +550,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
                     }`}
                   >
                     {show
-                      ? formatUptimeLabel(entry.timestampSGT, selectedRange)
+                      ? formatUptimeLabel(entry.timestampUTC, selectedRange)
                       : ""}
                   </div>
                 );
