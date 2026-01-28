@@ -75,84 +75,48 @@ export const POST = async (
 
     // 2️⃣ Read multipart form data
     const formData = await req.formData();
-
-    formData.forEach((value, key) => {
-      console.log("FormData entry:", key, value);
-    });
-
     const location = formData.get("location") as string;
     const category = formData.get("category") as string;
     const type = formData.get("type") as string;
     const description = formData.get("description") as string | null;
     const file = formData.get("faultImage") as File | null;
 
-    console.log("File object:", file);
-
-    if (!location || !category || !type) {
-      return NextResponse.json(
-        { message: "Invalid fault report data" },
-        { status: 400 }
-      );
-    }
-
     let faultimageUrl: string | null = null;
 
-    // 3️⃣ Upload image if provided
+    // 3️⃣ image upload
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
+      const ext = file.name.split(".").pop();
+      const filePath = `fault-reports/${params.id}-${Date.now()}.${ext}`;
 
-      const ext = file.name.split('.').pop();
-      const filePath = `fault-reports/${params.id}-${Date.now()}`;
-
-      const { error: uploadError } = await supabase.storage
+      const { error } = await supabase.storage
         .from("FaultImages")
         .upload(filePath, buffer, {
-          contentType: file.type,
+          contentType: file.type || "image/jpeg",
         });
 
-      if (uploadError) {
-        console.error("Supabase upload error:", uploadError);
+      if (error) {
         return NextResponse.json(
           { message: "Image upload failed" },
           { status: 500 }
         );
       }
 
-      // const { data } = supabase.storage
-      //   .from("FaultImages")
-      //   .getPublicUrl(filePath);
-
-      const { data, error } = await supabase.storage
+      const { data } = supabase.storage
         .from("FaultImages")
-        .upload(filePath, buffer, {
-          contentType: file.type,
-        });
+        .getPublicUrl(filePath);
 
-      console.log("Upload data:", data);
-      console.log("Upload error:", error);
+      faultimageUrl = data.publicUrl;
+    } // ✅ closes if(file)
 
-      if (error) {
-        return NextResponse.json(
-          { message: error.message },
-          { status: 500 }
-        );
-      }
-
-      const { data: publicUrlData } = supabase.storage
-        .from("FaultImages")
-        .getPublicUrl(data.path);
-
-      faultimageUrl = publicUrlData.publicUrl;
-    }
-
-    // 4️⃣ Save to NeonDB
+    // ✅ NOW prisma is legal
     await prisma.faultReport.create({
       data: {
         userId: params.id,
         location,
         category,
         type,
-        description,
+        description: description || null,
         faultimageUrl,
       },
     });
