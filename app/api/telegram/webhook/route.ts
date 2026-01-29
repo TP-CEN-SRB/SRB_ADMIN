@@ -3,70 +3,87 @@ import prisma from "@/lib/db";
 import {
   editTelegramMessage,
   deleteTelegramMessage,
+  answerTelegramCallback,
 } from "@/lib/telegram";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-
   const callback = body.callback_query;
+
+  // Telegram may send non-callback updates
   if (!callback) return NextResponse.json({ ok: true });
 
+  const callbackId = callback.id;
   const messageId = callback.message.message_id;
   const data = callback.data; // fault:take:<id>
 
-  const [_, action, faultId] = data.split(":");
+  // 🔑 IMPORTANT: ACK TELEGRAM IMMEDIATELY
+  await answerTelegramCallback(callbackId);
 
-  const report = await prisma.faultReport.findUnique({
-    where: { id: faultId },
-  });
+  const [, action, faultId] = data.split(":");
 
-  if (!report) {
-    await deleteTelegramMessage(messageId);
-    return NextResponse.json({ ok: true });
-  }
+  // Respond early (prevents retries)
+  const response = NextResponse.json({ ok: true });
 
   // --------------------
-  // ACTION HANDLING
+  // BACKGROUND LOGIC
   // --------------------
-
-  if (action === "take" && report.status === "OPEN") {
-    await prisma.faultReport.update({
+  (async () => {
+    const report = await prisma.faultReport.findUnique({
       where: { id: faultId },
-      data: { status: "IN_PROGRESS" },
     });
 
-    await editTelegramMessage(
-      messageId,
-      `🛠 *REPAIR IN PROGRESS*\n📍 ${report.location}\n📂 ${report.category}`,
-      [
+    if (!report) {
+      void deleteTelegramMessage(messageId);
+      return;
+    }
+
+    // TAKE JOB
+    if (action === "take" && report.status === "OPEN") {
+      await prisma.faultReport.update({
+        where: { id: faultId },
+        data: { status: "IN_PROGRESS" },
+      });
+
+      void editTelegramMessage(
+        messageId,
+        `🛠 *REPAIR IN PROGRESS*
+📍 ${report.location}
+📂 ${report.category}`,
         [
-          { text: "✅ Resolved", callback_data: `fault:resolve:${faultId}` },
-          { text: "🗑 Delete", callback_data: `fault:delete:${faultId}` },
-        ],
-      ]
-    );
-  }
+          [
+            { text: "✅ Resolved", callback_data: `fault:resolve:${faultId}` },
+            { text: "🗑 Delete", callback_data: `fault:delete:${faultId}` },
+          ],
+        ]
+      );
+    }
 
-  if (action === "resolve" && report.status === "IN_PROGRESS") {
-    await prisma.faultReport.update({
-      where: { id: faultId },
-      data: { status: "RESOLVED" },
-    });
+    // RESOLVE
+    if (action === "resolve" && report.status === "IN_PROGRESS") {
+      await prisma.faultReport.update({
+        where: { id: faultId },
+        data: { status: "RESOLVED" },
+      });
 
-    await editTelegramMessage(
-      messageId,
-      `✅ *FAULT RESOLVED*\n📍 ${report.location}\n📂 ${report.category}`,
-      [] // remove buttons
-    );
-  }
+      void editTelegramMessage(
+        messageId,
+        `✅ *FAULT RESOLVED*
+📍 ${report.location}
+📂 ${report.category}`,
+        [] // remove buttons
+      );
+    }
 
-  if (action === "delete") {
-    await prisma.faultReport.delete({
-      where: { id: faultId },
-    });
+    // DELETE
+    if (action === "delete") {
+      await prisma.faultReport.delete({
+        where: { id: faultId },
+      });
 
-    await deleteTelegramMessage(messageId);
-  }
+      void deleteTelegramMessage(messageId);
+    }
+  })().catch(console.error);
 
-  return NextResponse.json({ ok: true });
+  return response;
 }

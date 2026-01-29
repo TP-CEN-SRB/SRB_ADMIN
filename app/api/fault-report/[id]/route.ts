@@ -139,7 +139,9 @@ export const POST = async (
 
     const msg = 
 `🚨 *NEW FAULT REPORT*
+
 🆔 Report ID: ${report.id}
+
 👤 User: ${report.user?.name ?? "Unknown"} (${report.user?.email ?? "—"})
 📍 Location: ${report.location}
 📂 Category: ${report.category}
@@ -163,19 +165,22 @@ export const POST = async (
     ],
   ];
 
-    try {
-      if (report.faultimageUrl) {
-        await sendTelegramPhotoWithButtons(
+// 🔔 TELEGRAM (NON-BLOCKING)
+void (async () => {
+  try {
+    if (report.faultimageUrl) {
+      await sendTelegramPhotoWithButtons(
         report.faultimageUrl,
         msg,
         buttons
       );
-      } else {
-        await sendTelegramWithButtons(msg, buttons);
-      }
-    } catch (err) {
-      console.error("⚠️ Telegram notification failed:", err);
+    } else {
+      await sendTelegramWithButtons(msg, buttons);
     }
+  } catch (err) {
+    console.error("⚠️ Telegram notification failed:", err);
+  }
+})();
 
     return NextResponse.json(
       { message: "Fault report submitted successfully" },

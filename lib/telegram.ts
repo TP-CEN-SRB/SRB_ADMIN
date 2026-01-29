@@ -1,73 +1,70 @@
 const BASE_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
 
+// --------------------
+// BASIC TEXT MESSAGE
+// --------------------
 export async function sendTelegramAlert(message: string) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!BASE_URL || !CHAT_ID) return;
 
-  if (!token || !chatId) {
-    console.warn("⚠️ Telegram not configured");
-    return;
+  try {
+    await fetch(`${BASE_URL}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: message,
+        parse_mode: "Markdown",
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram sendMessage failed", err);
   }
-
-  const url = `https://api.telegram.org/bot${token}/sendMessage`;
-
-  await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: message,
-      parse_mode: "Markdown",
-    }),
-  });
 }
 
-// ✅ ADD THIS
+// --------------------
+// PHOTO MESSAGE
+// --------------------
 export async function sendTelegramPhoto(photoUrl: string, caption: string) {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!BASE_URL || !CHAT_ID) return;
 
-  if (!token || !chatId) {
-    console.warn("⚠️ Telegram not configured");
-    return;
-  }
-
-  const url = `https://api.telegram.org/bot${token}/sendPhoto`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      photo: photoUrl,
-      caption,
-      parse_mode: "Markdown",
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("❌ Telegram photo failed:", err);
+  try {
+    await fetch(`${BASE_URL}/sendPhoto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        photo: photoUrl,
+        caption,
+        parse_mode: "Markdown",
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram sendPhoto failed", err);
   }
 }
 
+// --------------------
+// MESSAGE + BUTTONS
+// --------------------
 export async function sendTelegramWithButtons(
   text: string,
   buttons: any[],
 ) {
-  await fetch(`${BASE_URL}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      text,
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: buttons,
-      },
-    }),
-  });
+  try {
+    await fetch(`${BASE_URL}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text,
+        parse_mode: "Markdown",
+        reply_markup: { inline_keyboard: buttons },
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram buttons send failed", err);
+  }
 }
 
 export async function sendTelegramPhotoWithButtons(
@@ -75,49 +72,79 @@ export async function sendTelegramPhotoWithButtons(
   caption: string,
   buttons: any[],
 ) {
-  await fetch(`${BASE_URL}/sendPhoto`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      photo: photoUrl,
-      caption,
-      parse_mode: "Markdown",
-      reply_markup: {
-        inline_keyboard: buttons,
-      },
-    }),
-  });
+  try {
+    await fetch(`${BASE_URL}/sendPhoto`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        photo: photoUrl,
+        caption,
+        parse_mode: "Markdown",
+        reply_markup: { inline_keyboard: buttons },
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram photo+buttons failed", err);
+  }
 }
 
+// --------------------
+// EDIT MESSAGE
+// --------------------
 export async function editTelegramMessage(
   messageId: number,
   newText: string,
   buttons?: any[]
 ) {
-  await fetch(`${BASE_URL}/editMessageText`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      message_id: messageId,
-      text: newText,
-      parse_mode: "Markdown",
-      reply_markup: buttons
-        ? { inline_keyboard: buttons }
-        : undefined,
-    }),
-  });
+  try {
+    await fetch(`${BASE_URL}/editMessageText`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        message_id: messageId,
+        text: newText,
+        parse_mode: "Markdown",
+        reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram edit failed", err);
+  }
 }
 
+// --------------------
+// DELETE MESSAGE
+// --------------------
 export async function deleteTelegramMessage(messageId: number) {
-  await fetch(`${BASE_URL}/deleteMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      message_id: messageId,
-    }),
-  });
+  try {
+    await fetch(`${BASE_URL}/deleteMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        message_id: messageId,
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram delete failed", err);
+  }
 }
 
+// --------------------
+// CALLBACK ACK (VERY IMPORTANT)
+// --------------------
+export async function answerTelegramCallback(callbackQueryId: string) {
+  try {
+    await fetch(`${BASE_URL}/answerCallbackQuery`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        callback_query_id: callbackQueryId,
+      }),
+    });
+  } catch (err) {
+    console.error("Callback ack failed", err);
+  }
+}
