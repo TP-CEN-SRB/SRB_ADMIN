@@ -14,6 +14,9 @@ export default auth(async (req) => {
   // ⭐ Allow ALL cron routes to bypass
   if (path.startsWith("/api/cron")) return;
 
+  // ⭐⭐ CRITICAL: Allow Telegram webhook to bypass auth
+  if (path === "/api/telegram/webhook") return;
+
   const isLoggedIn = !!req.auth;
   const isApiAuthRoute = path.startsWith(apiAuthRoutes);
 
@@ -47,6 +50,8 @@ export default auth(async (req) => {
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/api/:path*",  // no regex, fully valid for Vercel
+    "/api/auth/:path*",
+    "/api/cron/:path*",
+    "/api/telegram/webhook",
   ],
 };
