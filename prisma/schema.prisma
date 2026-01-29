@@ -307,16 +307,23 @@ model Feedback {
   @@map("feedback")
 }
 
+enum FaultStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
 model FaultReport {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   location      String
   category      String
   type          String
   faultimageUrl String?
   description   String?
-  createdAt     DateTime @default(now())
+  status        FaultStatus @default(OPEN)
+  createdAt     DateTime    @default(now())
 
   @@map("faultreport")
 }

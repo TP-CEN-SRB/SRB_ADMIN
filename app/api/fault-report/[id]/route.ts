@@ -2,6 +2,8 @@ import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { createClient } from "@supabase/supabase-js";
+import { sendTelegramAlert, sendTelegramPhoto, sendTelegramPhotoWithButtons, sendTelegramWithButtons } from "@/lib/telegram";
+
 
 export const runtime = "nodejs"; // REQUIRED for file upload
 
@@ -109,8 +111,7 @@ export const POST = async (
       faultimageUrl = data.publicUrl;
     } // ✅ closes if(file)
 
-    // ✅ NOW prisma is legal
-    await prisma.faultReport.create({
+    const report = await prisma.faultReport.create({
       data: {
         userId: params.id,
         location,
@@ -118,8 +119,63 @@ export const POST = async (
         type,
         description: description || null,
         faultimageUrl,
+        status: "OPEN", // ✅ if your prisma enum is OPEN/IN_PROGRESS/RESOLVED
+      },
+      include: {
+        user: { select: { name: true, email: true } }, // optional but nice
       },
     });
+
+    const timeSGT =
+      new Date().toLocaleString("en-SG", {
+        timeZone: "Asia/Singapore",
+        hour12: false,
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " SGT";
+
+    const msg = 
+`🚨 *NEW FAULT REPORT*
+🆔 Report ID: ${report.id}
+👤 User: ${report.user?.name ?? "Unknown"} (${report.user?.email ?? "—"})
+📍 Location: ${report.location}
+📂 Category: ${report.category}
+🛠 Type: ${report.type}
+🧾 Status: ${report.status.replace("_", " ")}
+🕒 ${timeSGT}
+
+📝 ${report.description ?? "No description"}
+`;
+
+    const buttons = [
+    [
+      {
+        text: "🛠 Take Repair Job",
+        callback_data: `fault:take:${report.id}`,
+      },
+      {
+        text: "🗑 Delete",
+        callback_data: `fault:delete:${report.id}`,
+      },
+    ],
+  ];
+
+    try {
+      if (report.faultimageUrl) {
+        await sendTelegramPhotoWithButtons(
+        report.faultimageUrl,
+        msg,
+        buttons
+      );
+      } else {
+        await sendTelegramWithButtons(msg, buttons);
+      }
+    } catch (err) {
+      console.error("⚠️ Telegram notification failed:", err);
+    }
 
     return NextResponse.json(
       { message: "Fault report submitted successfully" },

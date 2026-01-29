@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { MdReportProblem } from "react-icons/md";
 import { BsFillBarChartFill } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
 import { RiRecycleFill } from "react-icons/ri";
@@ -74,18 +75,19 @@ export const collaspeItems = [
     icon: PiStudentFill,
     child: [
       { title: "Leaderboard", icon: PiRankingBold, url: "/admin/student/dashboard" },
-      { title: "View Feedbacks", icon: FaCommentDots, url: "/admin/feedback" },
-      { title: "View", icon: FaEye, url: "/admin/student" },
+      { title: "Feedbacks", icon: FaCommentDots, url: "/admin/feedback" },
+      { title: "Fault Reports", icon: MdReportProblem, url: "/admin/fault-reports" },
+      { title: "View Students", icon: FaEye, url: "/admin/student" },
     ],
   },
-  {
+/*   {
     title: "Rewards",
     icon: GiPresent,
     child: [
       { title: "View", icon: FaEye, url: "/admin/reward" },
       { title: "Create", icon: FaPlus, url: "/admin/reward/create" },
     ],
-  },
+  }, */
   {
     title: "Materials",
     icon: RiRecycleFill,
@@ -146,14 +148,14 @@ export const collaspeItems = [
       { title: "Create", icon: FaPlus, url: "/admin/store/create" },
     ],
   },
-  {
+/*   {
     title: "Live Stream",
     icon: FaEye,
     child: [
       { title: "View", icon: FaEye, url: "/admin/video" },
       { title: "Recordings", icon: FaClock, url: "/admin/recordings" },
     ],
-  },
+  }, */
   {
     title: "Crash Log",
     icon: FaBug,
