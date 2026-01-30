@@ -137,16 +137,16 @@ export const POST = async (
         minute: "2-digit",
       }) + " SGT";
 
-    const msg = 
-`🚨 *NEW FAULT REPORT*
+const msg = `
+🚨 NEW FAULT REPORT
 
 🆔 Report ID: ${report.id}
 
-👤 User: ${report.user?.name ?? "Unknown"} (${report.user?.email ?? "—"})
+👤 User: ${report.user?.name ?? "Unknown"}
 📍 Location: ${report.location}
 📂 Category: ${report.category}
 🛠 Type: ${report.type}
-🧾 Status: ${report.status.replace("_", " ")}
+🧾 Status: ${report.status}
 🕒 ${timeSGT}
 
 📝 ${report.description ?? "No description"}
