@@ -8,7 +8,21 @@ export async function GET() {
   try {
     const reports = await prisma.faultReport.findMany({
       orderBy: { createdAt: "desc" },
-      include: {
+      select: {
+        id: true,
+        location: true,
+        category: true,
+        type: true,
+        description: true,
+        faultimageUrl: true,
+        status: true,
+        createdAt: true,
+
+        // ✅ show these in dashboard if you want
+        takenByTelegramName: true,
+        resolvedByTelegramName: true,
+
+        // ✅ only safe nested fields
         user: {
           select: {
             id: true,
