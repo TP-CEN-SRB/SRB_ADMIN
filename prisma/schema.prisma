@@ -325,6 +325,11 @@ model FaultReport {
   status        FaultStatus @default(OPEN)
   createdAt     DateTime    @default(now())
 
+  takenByTelegramId      BigInt?
+  takenByTelegramName    String?
+  resolvedByTelegramId   BigInt?
+  resolvedByTelegramName String?
+
   @@map("faultreport")
 }
 

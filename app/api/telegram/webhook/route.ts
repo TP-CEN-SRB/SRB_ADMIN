@@ -7,6 +7,13 @@ import {
   answerTelegramCallback,
 } from "@/lib/telegram";
 
+function formatTelegramUser(from: any) {
+  if (from.username) {
+    return `@${from.username}`;
+  }
+  return `${from.first_name}${from.last_name ? " " + from.last_name : ""}`;
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const callback = body.callback_query;
@@ -17,6 +24,18 @@ export async function POST(req: NextRequest) {
   const message = callback.message;
   const messageId = message.message_id;
   const data = callback.data;
+  const from = callback.from;
+
+      const timeSGT =
+      new Date().toLocaleString("en-SG", {
+        timeZone: "Asia/Singapore",
+        hour12: false,
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " SGT";
 
   const [, action, faultId] = data.split(":");
 
@@ -28,6 +47,8 @@ export async function POST(req: NextRequest) {
 
   // Determine message type
   const isPhotoMessage = Array.isArray(message.photo);
+  const actorName = formatTelegramUser(from);
+  const actorId = BigInt(from.id);
 
   // Helper to update message safely
   const updateMessage = (
@@ -64,13 +85,25 @@ export async function POST(req: NextRequest) {
 
       await prisma.faultReport.update({
         where: { id: faultId },
-        data: { status: "IN_PROGRESS" },
+        data: {
+          status: "IN_PROGRESS",
+          takenByTelegramId: actorId,
+          takenByTelegramName: actorName,
+        },
       });
 
-      updateMessage(
-        `🛠 *REPAIR IN PROGRESS*
-📍 ${report.location}
-📂 ${report.category}`,
+    updateMessage(
+`🛠 REPAIR IN PROGRESS
+🆔 Report ID: ${report.id}
+
+📍 Location: ${report.location}
+📂 Category: ${report.category}
+🛠 Type: ${report.type}
+🕒 ${timeSGT}
+
+📝 Description: ${report.description ?? "No description"}
+
+👷 Taken by: ${actorName}`,
         [
           [
             { text: "✅ Resolved", callback_data: `fault:resolve:${faultId}` },
@@ -91,13 +124,24 @@ export async function POST(req: NextRequest) {
 
       await prisma.faultReport.update({
         where: { id: faultId },
-        data: { status: "RESOLVED" },
+        data: {
+          status: "RESOLVED",
+          resolvedByTelegramId: actorId,
+          resolvedByTelegramName: actorName,
+        },
       });
 
       updateMessage(
-        `✅ *FAULT RESOLVED*
-📍 ${report.location}
-📂 ${report.category}`,
+`✅ *FAULT RESOLVED*
+🆔 Report ID: ${report.id}
+
+📍 Location: ${report.location}
+📂 Category: ${report.category}
+🛠 Type: ${report.type}
+🕒 ${timeSGT}
+📝 Description: ${report.description ?? "No description"}
+
+👷 Resolved by: ${actorName}`,
         []
       );
 

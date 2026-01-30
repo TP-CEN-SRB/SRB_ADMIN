@@ -149,7 +149,7 @@ const msg = `
 🧾 Status: ${report.status}
 🕒 ${timeSGT}
 
-📝 ${report.description ?? "No description"}
+📝 Description: ${report.description ?? "No description"}
 `;
 
     const buttons = [
