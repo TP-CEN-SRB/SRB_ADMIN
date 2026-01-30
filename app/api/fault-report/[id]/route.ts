@@ -155,7 +155,7 @@ const msg = `
     const buttons = [
     [
       {
-        text: "🛠 Take Repair Job",
+        text: "🛠 Take Repair",
         callback_data: `fault:take:${report.id}`,
       },
       {
