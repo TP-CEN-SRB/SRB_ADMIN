@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import {
   editTelegramMessage,
+  editTelegramPhotoCaption,
   deleteTelegramMessage,
   answerTelegramCallback,
 } from "@/lib/telegram";
@@ -13,18 +14,36 @@ export async function POST(req: NextRequest) {
   if (!callback) return NextResponse.json({ ok: true });
 
   const callbackId = callback.id;
-  const messageId = callback.message.message_id;
+  const message = callback.message;
+  const messageId = message.message_id;
   const data = callback.data;
 
   const [, action, faultId] = data.split(":");
 
-  // ✅ ACK IMMEDIATELY (stop spinner, prevent retries)
+  // 🔑 ACK IMMEDIATELY — stops spinner, prevents retries
   await answerTelegramCallback(callbackId);
 
   // ✅ Respond immediately to Telegram
   const response = NextResponse.json({ ok: true });
 
-  // 🔄 Background processing
+  // Determine message type
+  const isPhotoMessage = Array.isArray(message.photo);
+
+  // Helper to update message safely
+  const updateMessage = (
+    text: string,
+    buttons?: any[]
+  ) => {
+    if (isPhotoMessage) {
+      void editTelegramPhotoCaption(messageId, text, buttons);
+    } else {
+      void editTelegramMessage(messageId, text, buttons);
+    }
+  };
+
+  // --------------------
+  // BACKGROUND LOGIC
+  // --------------------
   (async () => {
     const report = await prisma.faultReport.findUnique({
       where: { id: faultId },
@@ -37,10 +56,19 @@ export async function POST(req: NextRequest) {
 
     // 🛠 TAKE JOB
     if (action === "take" && report.status === "OPEN") {
-      // instant UI update
-      void editTelegramMessage(
-        messageId,
-`🛠 *REPAIR IN PROGRESS*
+      // 🔥 INSTANT UI FEEDBACK
+      updateMessage(
+        "⏳ *Taking repair job…*",
+        []
+      );
+
+      await prisma.faultReport.update({
+        where: { id: faultId },
+        data: { status: "IN_PROGRESS" },
+      });
+
+      updateMessage(
+        `🛠 *REPAIR IN PROGRESS*
 📍 ${report.location}
 📂 ${report.category}`,
         [
@@ -51,21 +79,13 @@ export async function POST(req: NextRequest) {
         ]
       );
 
-      await prisma.faultReport.update({
-        where: { id: faultId },
-        data: { status: "IN_PROGRESS" },
-      });
-
       return;
     }
 
     // ✅ RESOLVE
     if (action === "resolve" && report.status === "IN_PROGRESS") {
-      void editTelegramMessage(
-        messageId,
-`✅ *FAULT RESOLVED*
-📍 ${report.location}
-📂 ${report.category}`,
+      updateMessage(
+        "⏳ *Resolving fault…*",
         []
       );
 
@@ -74,14 +94,20 @@ export async function POST(req: NextRequest) {
         data: { status: "RESOLVED" },
       });
 
+      updateMessage(
+        `✅ *FAULT RESOLVED*
+📍 ${report.location}
+📂 ${report.category}`,
+        []
+      );
+
       return;
     }
 
     // 🗑 DELETE
     if (action === "delete") {
-      // immediate visual feedback
-      void editTelegramMessage(
-        messageId,
+      // 🔥 IMMEDIATE FEEDBACK
+      updateMessage(
         "🗑 *Deleting fault report…*",
         []
       );

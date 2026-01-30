@@ -120,6 +120,28 @@ export async function editTelegramMessage(
   }
 }
 
+export async function editTelegramPhotoCaption(
+  messageId: number,
+  caption: string,
+  buttons?: any[]
+) {
+  try {
+    await fetch(`${BASE_URL}/editMessageCaption`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        message_id: messageId,
+        caption: escapeMarkdownV2(caption),
+        parse_mode: "MarkdownV2",
+        reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
+      }),
+    });
+  } catch (err) {
+    console.error("Telegram edit caption failed", err);
+  }
+}
+
 // --------------------
 // DELETE MESSAGE
 // --------------------
