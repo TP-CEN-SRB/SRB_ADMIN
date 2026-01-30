@@ -142,7 +142,7 @@ const msg = `
 
 🆔 Report ID: ${report.id}
 
-👤 User: ${report.user?.name ?? "Unknown"}
+👤 User: ${report.user?.name ?? "Unknown"} (${report.user?.email ?? ""})
 📍 Location: ${report.location}
 📂 Category: ${report.category}
 🛠 Type: ${report.type}
