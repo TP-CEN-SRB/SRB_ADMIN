@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import { editTelegramMessage } from "@/lib/telegram";
+import {
+  editTelegramMessage,
+  editTelegramPhotoCaption,
+} from "@/lib/telegram";
 
 export async function PATCH(
   req: NextRequest,
@@ -15,7 +18,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid status" }, { status: 400 });
     }
 
-    // 1️⃣ Ensure report exists
+    // 1️⃣ Fetch existing report
     const existing = await prisma.faultReport.findUnique({
       where: { id: params.id },
     });
@@ -28,7 +31,7 @@ export async function PATCH(
       return NextResponse.json({ success: true });
     }
 
-    // 2️⃣ Update DB FIRST (source of truth)
+    // 2️⃣ Update DB (source of truth)
     await prisma.faultReport.update({
       where: { id: params.id },
       data: {
@@ -42,7 +45,7 @@ export async function PATCH(
       },
     });
 
-    // 3️⃣ Fetch fresh data (THIS IS THE FIX)
+    // 3️⃣ Re-fetch (important)
     const report = await prisma.faultReport.findUnique({
       where: { id: params.id },
     });
@@ -51,6 +54,9 @@ export async function PATCH(
       console.log("ℹ️ No Telegram message to sync");
       return NextResponse.json({ success: true });
     }
+
+    const telegramMessageId = Number(report.telegramMessageId);
+    const isPhotoMessage = Boolean(report.faultimageUrl);
 
     const timeSGT =
       new Date().toLocaleString("en-SG", {
@@ -63,12 +69,28 @@ export async function PATCH(
         minute: "2-digit",
       }) + " SGT";
 
-    const telegramMessageId = Number(report.telegramMessageId);
+    const updateTelegram = (
+      text: string,
+      buttons?: any[]
+    ) => {
+      if (isPhotoMessage) {
+        void editTelegramPhotoCaption(
+          telegramMessageId,
+          text,
+          buttons
+        );
+      } else {
+        void editTelegramMessage(
+          telegramMessageId,
+          text,
+          buttons
+        );
+      }
+    };
 
-    // 4️⃣ Sync Telegram (best effort)
+    // 4️⃣ Sync Telegram
     if (status === "IN_PROGRESS") {
-      void editTelegramMessage(
-        telegramMessageId,
+      updateTelegram(
 `🛠 REPAIR IN PROGRESS
 🆔 Report ID: ${report.id}
 
@@ -90,8 +112,7 @@ export async function PATCH(
     }
 
     if (status === "RESOLVED") {
-      void editTelegramMessage(
-        telegramMessageId,
+      updateTelegram(
 `✅ FAULT RESOLVED
 🆔 Report ID: ${report.id}
 
