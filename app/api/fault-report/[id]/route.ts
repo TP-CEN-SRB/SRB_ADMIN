@@ -14,61 +14,12 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-/* =========================
-   GET – MOBILE APP
-   ========================= */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json({ message: "Missing token" }, { status: 401 });
-    }
-
-    const decoded: any = jwt.verify(
-      token,
-      process.env.NEXT_JWT_SECRET_KEY!
-    );
-
-    if (typeof decoded === "string" || decoded.userId !== params.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const reports = await prisma.faultReport.findMany({
-      where: { userId: params.id },
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        location: true,
-        category: true,
-        type: true,
-        description: true,
-        faultimageUrl: true,
-        status: true,
-        createdAt: true,
-      },
-    });
-
-    return NextResponse.json({ faultReports: reports });
-  } catch (error) {
-    console.error("GET FAULT REPORT ERROR:", error);
-    return NextResponse.json(
-      { message: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
-
-/* =========================
-   POST – CREATE FAULT
-   ========================= */
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    /* ---------- AUTH ---------- */
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "Missing token" }, { status: 401 });
@@ -83,6 +34,7 @@ export async function POST(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
+    /* ---------- FORM DATA ---------- */
     const formData = await req.formData();
     const location = formData.get("location") as string;
     const category = formData.get("category") as string;
@@ -104,10 +56,7 @@ export async function POST(
         });
 
       if (error) {
-        return NextResponse.json(
-          { message: "Image upload failed" },
-          { status: 500 }
-        );
+        throw new Error("Image upload failed");
       }
 
       faultimageUrl = supabase.storage
@@ -115,9 +64,7 @@ export async function POST(
         .getPublicUrl(filePath).data.publicUrl;
     }
 
-    // --------------------
-    // CREATE DB RECORD
-    // --------------------
+    /* ---------- CREATE DB RECORD ---------- */
     const report = await prisma.faultReport.create({
       data: {
         userId: params.id,
@@ -133,22 +80,19 @@ export async function POST(
       },
     });
 
-    // --------------------
-    // TELEGRAM (AWAITED)
-    // --------------------
-    try {
-      const timeSGT =
-        new Date().toLocaleString("en-SG", {
-          timeZone: "Asia/Singapore",
-          hour12: false,
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        }) + " SGT";
+    /* ---------- TELEGRAM (MUST BE AWAITED) ---------- */
+    const timeSGT =
+      new Date().toLocaleString("en-SG", {
+        timeZone: "Asia/Singapore",
+        hour12: false,
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " SGT";
 
-      const msg = `🚨 NEW FAULT REPORT
+    const msg = `🚨 NEW FAULT REPORT
 
 🆔 Report ID: ${report.id}
 
@@ -161,39 +105,35 @@ export async function POST(
 
 📝 Description: ${report.description ?? "No description"}`;
 
-      const buttons = [
-        [
-          { text: "🛠 Take Repair", callback_data: `fault:take:${report.id}` },
-          { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
-        ],
-      ];
+    const buttons = [
+      [
+        { text: "🛠 Take Repair", callback_data: `fault:take:${report.id}` },
+        { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
+      ],
+    ];
 
-      let tgRes: any = null;
+    let tgRes;
 
-      if (report.faultimageUrl) {
-        tgRes = await sendTelegramPhotoWithButtons(
-          report.faultimageUrl,
-          msg,
-          buttons
-        );
-      } else {
-        tgRes = await sendTelegramWithButtons(msg, buttons);
-      }
-
-      if (!tgRes || !tgRes.ok || !tgRes.result?.message_id) {
-        console.error("❌ Telegram response invalid:", tgRes);
-      } else {
-        await prisma.faultReport.update({
-          where: { id: report.id },
-          data: {
-            telegramMessageId: tgRes.result.message_id,
-          },
-        });
-      }
-    } catch (err) {
-      console.error("⚠️ Telegram notification failed:", err);
+    if (report.faultimageUrl) {
+      tgRes = await sendTelegramPhotoWithButtons(
+        report.faultimageUrl,
+        msg,
+        buttons
+      );
+    } else {
+      tgRes = await sendTelegramWithButtons(msg, buttons);
     }
 
+    const telegramMessageId = tgRes?.result?.message_id;
+
+    if (telegramMessageId) {
+      await prisma.faultReport.update({
+        where: { id: report.id },
+        data: { telegramMessageId },
+      });
+    }
+
+    /* ---------- RESPOND ---------- */
     return NextResponse.json(
       { message: "Fault report submitted successfully" },
       { status: 200 }
