@@ -2,22 +2,27 @@ import prisma from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { createClient } from "@supabase/supabase-js";
-import { sendTelegramAlert, sendTelegramPhoto, sendTelegramPhotoWithButtons, sendTelegramWithButtons } from "@/lib/telegram";
+import {
+  sendTelegramPhotoWithButtons,
+  sendTelegramWithButtons,
+  escapeMarkdownV2,
+} from "@/lib/telegram";
 
-
-export const runtime = "nodejs"; // REQUIRED for file upload
+export const runtime = "nodejs";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-export const GET = async (
+/* =========================
+   GET – MOBILE APP
+   ========================= */
+export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
-) => {
+) {
   try {
-    // 1️⃣ JWT validation (same pattern as avatar)
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "Missing token" }, { status: 401 });
@@ -32,20 +37,23 @@ export const GET = async (
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Fetch fault reports for this user
+    // ✅ BigInt-safe, minimal fields
     const reports = await prisma.faultReport.findMany({
-      where: {userId: params.id,},
-      orderBy: {
-        createdAt: "desc",
+      where: { userId: params.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        location: true,
+        category: true,
+        type: true,
+        description: true,
+        faultimageUrl: true,
+        status: true,
+        createdAt: true,
       },
     });
 
-    // 3️⃣ Return list (can be empty)
-    return NextResponse.json(
-      { faultReports: reports },
-      { status: 200 }
-    );
-
+    return NextResponse.json({ faultReports: reports }, { status: 200 });
   } catch (error) {
     console.error("GET FAULT REPORT ERROR:", error);
     return NextResponse.json(
@@ -53,14 +61,16 @@ export const GET = async (
       { status: 500 }
     );
   }
-};
+}
 
-export const POST = async (
+/* =========================
+   POST – CREATE FAULT
+   ========================= */
+export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
-) => {
+) {
   try {
-    // 1️⃣ JWT validation (same as avatar)
     const token = req.headers.get("Authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "Missing token" }, { status: 401 });
@@ -71,11 +81,10 @@ export const POST = async (
       process.env.NEXT_JWT_SECRET_KEY!
     ) as { userId: string };
 
-    if (!decoded || decoded.userId !== params.id) {
+    if (decoded.userId !== params.id) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // 2️⃣ Read multipart form data
     const formData = await req.formData();
     const location = formData.get("location") as string;
     const category = formData.get("category") as string;
@@ -85,7 +94,6 @@ export const POST = async (
 
     let faultimageUrl: string | null = null;
 
-    // 3️⃣ image upload
     if (file) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const ext = file.name.split(".").pop();
@@ -104,12 +112,10 @@ export const POST = async (
         );
       }
 
-      const { data } = supabase.storage
+      faultimageUrl = supabase.storage
         .from("FaultImages")
-        .getPublicUrl(filePath);
-
-      faultimageUrl = data.publicUrl;
-    } // ✅ closes if(file)
+        .getPublicUrl(filePath).data.publicUrl;
+    }
 
     const report = await prisma.faultReport.create({
       data: {
@@ -119,26 +125,29 @@ export const POST = async (
         type,
         description: description || null,
         faultimageUrl,
-        status: "OPEN", // ✅ if your prisma enum is OPEN/IN_PROGRESS/RESOLVED
+        status: "OPEN",
       },
       include: {
-        user: { select: { name: true, email: true } }, // optional but nice
+        user: { select: { name: true, email: true } },
       },
     });
 
-    const timeSGT =
-      new Date().toLocaleString("en-SG", {
-        timeZone: "Asia/Singapore",
-        hour12: false,
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }) + " SGT";
+    /* ---------- Telegram (NON-BLOCKING) ---------- */
+    void (async () => {
+      try {
+        const timeSGT =
+          new Date().toLocaleString("en-SG", {
+            timeZone: "Asia/Singapore",
+            hour12: false,
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          }) + " SGT";
 
-const msg = `
-🚨 NEW FAULT REPORT
+        const msg = escapeMarkdownV2(
+`🚨 NEW FAULT REPORT
 
 🆔 Report ID: ${report.id}
 
@@ -149,38 +158,29 @@ const msg = `
 🧾 Status: ${report.status}
 🕒 ${timeSGT}
 
-📝 Description: ${report.description ?? "No description"}
-`;
+📝 Description: ${report.description ?? "No description"}`
+        );
 
-    const buttons = [
-    [
-      {
-        text: "🛠 Take Repair",
-        callback_data: `fault:take:${report.id}`,
-      },
-      {
-        text: "🗑 Delete",
-        callback_data: `fault:delete:${report.id}`,
-      },
-    ],
-  ];
+        const buttons = [
+          [
+            { text: "🛠 Take Repair", callback_data: `fault:take:${report.id}` },
+            { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
+          ],
+        ];
 
-// 🔔 TELEGRAM (NON-BLOCKING)
-void (async () => {
-  try {
-    if (report.faultimageUrl) {
-      await sendTelegramPhotoWithButtons(
-        report.faultimageUrl,
-        msg,
-        buttons
-      );
-    } else {
-      await sendTelegramWithButtons(msg, buttons);
-    }
-  } catch (err) {
-    console.error("⚠️ Telegram notification failed:", err);
-  }
-})();
+        if (report.faultimageUrl) {
+          await sendTelegramPhotoWithButtons(
+            report.faultimageUrl,
+            msg,
+            buttons
+          );
+        } else {
+          await sendTelegramWithButtons(msg, buttons);
+        }
+      } catch (err) {
+        console.error("⚠️ Telegram notification failed:", err);
+      }
+    })();
 
     return NextResponse.json(
       { message: "Fault report submitted successfully" },
@@ -193,5 +193,4 @@ void (async () => {
       { status: 500 }
     );
   }
-};
-
+}

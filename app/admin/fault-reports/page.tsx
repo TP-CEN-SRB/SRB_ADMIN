@@ -51,6 +51,12 @@ interface FaultReport {
   faultimageUrl?: string | null;
   status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
   createdAt: string;
+
+  takenByTelegramName?: string | null;
+  resolvedByTelegramName?: string | null;
+  takenByAdminName?: string | null;
+  resolvedByAdminName?: string | null;
+
   user: {
     name: string;
     email: string;
@@ -90,22 +96,30 @@ export default function FaultReportsPage() {
       .finally(() => setLoading(false));
   };
 
-  const updateStatus = async (id: string, status: FaultReport["status"]) => {
+const updateStatus = async (id: string, status: FaultReport["status"]) => {
+  // 🔥 optimistic UI update
+  setData((prev) =>
+    prev.map((r) =>
+      r.id === id ? { ...r, status } : r
+    )
+  );
+
   const res = await fetch(
     `/api/admin/fault-reports/${id}/status`,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({
+        status,
+        adminName: "Admin Dashboard",
+      }),
     }
   );
 
   if (!res.ok) {
     alert("Failed to update status");
-    return;
+    fetchReports(); // rollback
   }
-
-  fetchReports(); // refresh data
 };
 
   useEffect(fetchReports, []);
@@ -210,6 +224,29 @@ export default function FaultReportsPage() {
       cell: ({ row }) =>
         new Date(row.original.createdAt).toLocaleString("en-SG"),
     },
+    {
+        header: "Handled By",
+        cell: ({ row }) => {
+            const r = row.original;
+
+            const taken =
+            r.takenByTelegramName ||
+            r.takenByAdminName ||
+            (r.status !== "OPEN" ? "Admin Dashboard" : null);
+
+            const resolved =
+            r.resolvedByTelegramName ||
+            r.resolvedByAdminName ||
+            (r.status === "RESOLVED" ? "Admin Dashboard" : null);
+
+            return (
+            <div className="text-xs text-slate-600">
+                {taken && <p>🛠 {taken}</p>}
+                {resolved && <p>✅ {resolved}</p>}
+            </div>
+            );
+        },
+    },
    {
     header: "Actions",
     cell: ({ row }) => {
@@ -235,15 +272,13 @@ export default function FaultReportsPage() {
             </SelectTrigger>
 
             <SelectContent>
-                <SelectItem value="OPEN">
-                <span className="text-red-600">Open</span>
-                </SelectItem>
-                <SelectItem value="IN_PROGRESS">
-                <span className="text-yellow-600">In Progress</span>
-                </SelectItem>
-                <SelectItem value="RESOLVED">
-                <span className="text-green-600">Resolved</span>
-                </SelectItem>
+                {report.status === "OPEN" && (
+                <SelectItem value="IN_PROGRESS"><span className="text-yellow-600">In Progress</span></SelectItem>
+                )}
+
+                {report.status !== "RESOLVED" && (
+                <SelectItem value="RESOLVED"><span className="text-green-600">Resolved</span></SelectItem>
+                )}
             </SelectContent>
             </Select>
 

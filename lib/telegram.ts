@@ -2,10 +2,10 @@ const BASE_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
 
 
-function escapeMarkdownV2(text: string) {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+export function escapeMarkdownV2(text: string) {
+  return text
+    .replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
 }
-
 
 // --------------------
 // BASIC TEXT MESSAGE
@@ -141,6 +141,7 @@ export async function editTelegramPhotoCaption(
     console.error("Telegram edit caption failed", err);
   }
 }
+
 
 // --------------------
 // DELETE MESSAGE

@@ -18,11 +18,10 @@ export async function GET() {
         status: true,
         createdAt: true,
 
-        // ✅ show these in dashboard if you want
+        // Dashboard display fields (SAFE)
         takenByTelegramName: true,
         resolvedByTelegramName: true,
 
-        // ✅ only safe nested fields
         user: {
           select: {
             id: true,
@@ -33,7 +32,7 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(reports);
+    return NextResponse.json(reports, { status: 200 });
   } catch (err) {
     console.error("❌ Failed to fetch fault reports:", err);
     return NextResponse.json(

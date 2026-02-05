@@ -325,10 +325,19 @@ model FaultReport {
   status        FaultStatus @default(OPEN)
   createdAt     DateTime    @default(now())
 
+  // Telegram attribution
   takenByTelegramId      BigInt?
   takenByTelegramName    String?
   resolvedByTelegramId   BigInt?
   resolvedByTelegramName String?
+
+  telegramMessageId Int?
+
+  // ✅ NEW: Admin attribution
+  takenByAdminId      String?
+  takenByAdminName    String?
+  resolvedByAdminId   String?
+  resolvedByAdminName String?
 
   @@map("faultreport")
 }

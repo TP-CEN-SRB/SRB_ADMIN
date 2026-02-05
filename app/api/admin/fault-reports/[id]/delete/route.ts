@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import { deleteTelegramMessage } from "@/lib/telegram";
 
 export async function DELETE(
   req: NextRequest,
@@ -15,7 +16,7 @@ export async function DELETE(
       );
     }
 
-    // Check if report exists
+    // Fetch once (need telegramMessageId)
     const existing = await prisma.faultReport.findUnique({
       where: { id },
     });
@@ -27,15 +28,24 @@ export async function DELETE(
       );
     }
 
-    // Delete report
+    // --------------------
+    // DELETE DB (SOURCE OF TRUTH)
+    // --------------------
     await prisma.faultReport.delete({
       where: { id },
     });
 
-    return NextResponse.json(
-      { success: true, message: "Fault report deleted successfully" },
-      { status: 200 }
-    );
+    // --------------------
+    // TELEGRAM CLEANUP (BEST EFFORT)
+    // --------------------
+    if (existing.telegramMessageId) {
+      void deleteTelegramMessage(existing.telegramMessageId);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Fault report deleted successfully",
+    });
   } catch (error) {
     console.error("❌ Delete Fault Report Error:", error);
     return NextResponse.json(
