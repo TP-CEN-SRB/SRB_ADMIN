@@ -102,11 +102,16 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
     prev.map((r) => (r.id === id ? { ...r, status } : r))
   );
 
-  const res = await fetch(`/api/admin/fault-reports/${id}/status`, {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`/api/admin/fault-reports/${id}/status`, {
     method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status }), // ✅ no adminName
-  });
+    headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status }),
+    });
 
   if (!res.ok) {
     alert("Failed to update status");
