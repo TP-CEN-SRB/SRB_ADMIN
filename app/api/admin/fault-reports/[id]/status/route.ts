@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 import { editTelegramMessage } from "@/lib/telegram";
-import { escapeMarkdownV2 } from "@/lib/telegram";
 
 export async function PATCH(
   req: NextRequest,
@@ -50,7 +49,7 @@ export async function PATCH(
     // TELEGRAM SYNC (BEST EFFORT)
     // --------------------
     if (report.telegramMessageId) {
-      const baseInfo = escapeMarkdownV2(
+      const baseInfo = (
         `🆔 Report ID: ${report.id}
 📍 Location: ${report.location}
 📂 Category: ${report.category}
@@ -60,7 +59,7 @@ export async function PATCH(
       if (status === "IN_PROGRESS") {
         void editTelegramMessage(
           report.telegramMessageId,
-          `🛠 *REPAIR IN PROGRESS*\n\n${baseInfo}\n\n👷 Taken by: ${escapeMarkdownV2(adminName)}`,
+          `🛠 *REPAIR IN PROGRESS*\n\n${baseInfo}\n\n👷 Taken by: ${(adminName)}`,
           [
             [
               {
@@ -79,7 +78,7 @@ export async function PATCH(
       if (status === "RESOLVED") {
         void editTelegramMessage(
           report.telegramMessageId,
-          `✅ *FAULT RESOLVED*\n\n${baseInfo}\n\n👷 Resolved by: ${escapeMarkdownV2(adminName)}`,
+          `✅ *FAULT RESOLVED*\n\n${baseInfo}\n\n👷 Resolved by: ${adminName}`,
           []
         );
       }

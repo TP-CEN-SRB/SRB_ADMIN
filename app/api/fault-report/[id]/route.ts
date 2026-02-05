@@ -5,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 import {
   sendTelegramPhotoWithButtons,
   sendTelegramWithButtons,
-  escapeMarkdownV2,
 } from "@/lib/telegram";
 
 export const runtime = "nodejs";
@@ -146,7 +145,7 @@ export async function POST(
             minute: "2-digit",
           }) + " SGT";
 
-        const msg = escapeMarkdownV2(
+        const msg = (
 `🚨 NEW FAULT REPORT
 
 🆔 Report ID: ${report.id}

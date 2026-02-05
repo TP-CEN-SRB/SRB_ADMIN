@@ -1,12 +1,6 @@
 const BASE_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
 
-
-export function escapeMarkdownV2(text: string) {
-  return text
-    .replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
-}
-
 // --------------------
 // BASIC TEXT MESSAGE
 // --------------------
@@ -19,8 +13,8 @@ export async function sendTelegramAlert(message: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: CHAT_ID,
-        text: escapeMarkdownV2(message),
-        parse_mode: "MarkdownV2",
+        text: message,
+        parse_mode: undefined,
       }),
     });
   } catch (err) {
@@ -41,8 +35,8 @@ export async function sendTelegramPhoto(photoUrl: string, caption: string) {
       body: JSON.stringify({
         chat_id: CHAT_ID,
         photo: photoUrl,
-        caption: escapeMarkdownV2(caption),
-        parse_mode: "MarkdownV2",
+        caption: caption,
+        parse_mode: undefined,
       }),
     });
   } catch (err) {
@@ -63,8 +57,8 @@ export async function sendTelegramWithButtons(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: CHAT_ID,
-        text: escapeMarkdownV2(text),
-        parse_mode: "MarkdownV2",
+        text: text,
+        parse_mode: undefined,
         reply_markup: { inline_keyboard: buttons },
       }),
     });
@@ -95,8 +89,8 @@ export async function sendTelegramPhotoWithButtons(
       body: JSON.stringify({
         chat_id: CHAT_ID,
         photo: photoUrl,
-        caption: escapeMarkdownV2(caption),
-        parse_mode: "MarkdownV2",
+        caption: caption,
+        parse_mode: undefined,
         reply_markup: { inline_keyboard: buttons },
       }),
     });
@@ -126,8 +120,8 @@ export async function editTelegramMessage(
       body: JSON.stringify({
         chat_id: CHAT_ID,
         message_id: messageId,
-        text: escapeMarkdownV2(newText),
-        parse_mode: "MarkdownV2",
+        text: newText,
+        parse_mode: undefined,
         reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
       }),
     });
@@ -148,8 +142,8 @@ export async function editTelegramPhotoCaption(
       body: JSON.stringify({
         chat_id: CHAT_ID,
         message_id: messageId,
-        caption: escapeMarkdownV2(caption),
-        parse_mode: "MarkdownV2",
+        caption: caption,
+        parse_mode: undefined,
         reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
       }),
     });
