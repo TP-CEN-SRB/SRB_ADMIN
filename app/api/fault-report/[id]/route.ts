@@ -36,7 +36,6 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    // ✅ BigInt-safe, minimal fields
     const reports = await prisma.faultReport.findMany({
       where: { userId: params.id },
       orderBy: { createdAt: "desc" },
@@ -52,7 +51,7 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ faultReports: reports }, { status: 200 });
+    return NextResponse.json({ faultReports: reports });
   } catch (error) {
     console.error("GET FAULT REPORT ERROR:", error);
     return NextResponse.json(
@@ -116,6 +115,9 @@ export async function POST(
         .getPublicUrl(filePath).data.publicUrl;
     }
 
+    // --------------------
+    // CREATE DB RECORD
+    // --------------------
     const report = await prisma.faultReport.create({
       data: {
         userId: params.id,
@@ -131,21 +133,22 @@ export async function POST(
       },
     });
 
-/* ---------- Telegram (NON-BLOCKING) ---------- */
-void (async () => {
-  try {
-    const timeSGT =
-      new Date().toLocaleString("en-SG", {
-        timeZone: "Asia/Singapore",
-        hour12: false,
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      }) + " SGT";
+    // --------------------
+    // TELEGRAM (AWAITED)
+    // --------------------
+    try {
+      const timeSGT =
+        new Date().toLocaleString("en-SG", {
+          timeZone: "Asia/Singapore",
+          hour12: false,
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        }) + " SGT";
 
-    const msg = `🚨 NEW FAULT REPORT
+      const msg = `🚨 NEW FAULT REPORT
 
 🆔 Report ID: ${report.id}
 
@@ -158,37 +161,38 @@ void (async () => {
 
 📝 Description: ${report.description ?? "No description"}`;
 
-    const buttons = [
-      [
-        { text: "🛠 Take Repair", callback_data: `fault:take:${report.id}` },
-        { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
-      ],
-    ];
+      const buttons = [
+        [
+          { text: "🛠 Take Repair", callback_data: `fault:take:${report.id}` },
+          { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
+        ],
+      ];
 
-    let tgRes;
+      let tgRes: any = null;
 
-    if (report.faultimageUrl) {
-      tgRes = await sendTelegramPhotoWithButtons(
-        report.faultimageUrl,
-        msg,
-        buttons
-      );
-    } else {
-      tgRes = await sendTelegramWithButtons(msg, buttons);
+      if (report.faultimageUrl) {
+        tgRes = await sendTelegramPhotoWithButtons(
+          report.faultimageUrl,
+          msg,
+          buttons
+        );
+      } else {
+        tgRes = await sendTelegramWithButtons(msg, buttons);
+      }
+
+      if (!tgRes || !tgRes.ok || !tgRes.result?.message_id) {
+        console.error("❌ Telegram response invalid:", tgRes);
+      } else {
+        await prisma.faultReport.update({
+          where: { id: report.id },
+          data: {
+            telegramMessageId: tgRes.result.message_id,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("⚠️ Telegram notification failed:", err);
     }
-
-    const telegramMessageId = tgRes?.result?.message_id;
-
-    if (telegramMessageId) {
-      await prisma.faultReport.update({
-        where: { id: report.id },
-        data: { telegramMessageId },
-      });
-    }
-  } catch (err) {
-    console.error("⚠️ Telegram notification failed:", err);
-  }
-})();
 
     return NextResponse.json(
       { message: "Fault report submitted successfully" },
