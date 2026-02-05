@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import jwt from "jsonwebtoken";
 import { editTelegramMessage } from "@/lib/telegram";
 
 export async function PATCH(
@@ -7,7 +8,45 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { status, adminName = "Admin Dashboard" } = await req.json();
+    /* ---------------- AUTH ---------------- */
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json({ error: "Missing token" }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.NEXT_JWT_SECRET_KEY!
+    ) as { userId: string };
+
+    const admin = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
+
+    if (!admin || admin.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    const adminName = admin.name || admin.email;
+
+    /* ---------------- BODY ---------------- */
+    const { status } = await req.json();
+
+    if (!["OPEN", "IN_PROGRESS", "RESOLVED"].includes(status)) {
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+    }
+
+    const report = await prisma.faultReport.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!report) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    if (report.status === status) {
+      return NextResponse.json({ success: true });
+    }
 
     const timeSGT =
       new Date().toLocaleString("en-SG", {
@@ -20,47 +59,29 @@ export async function PATCH(
         minute: "2-digit",
       }) + " SGT";
 
-    if (!["OPEN", "IN_PROGRESS", "RESOLVED"].includes(status)) {
-      return NextResponse.json(
-        { error: "Invalid status" },
-        { status: 400 }
-      );
-    }
-
-    const report = await prisma.faultReport.findUnique({
-      where: { id: params.id },
-    });
-
-    if (!report) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-
-    // ⛔ No-op if status unchanged
-    if (report.status === status) {
-      return NextResponse.json({ success: true });
-    }
-
-    // --------------------
-    // UPDATE DATABASE
-    // --------------------
+    /* ---------------- DB UPDATE ---------------- */
     await prisma.faultReport.update({
       where: { id: params.id },
       data: {
         status,
         ...(status === "IN_PROGRESS" && {
+          takenByAdminId: admin.id,
           takenByAdminName: adminName,
         }),
         ...(status === "RESOLVED" && {
+          resolvedByAdminId: admin.id,
           resolvedByAdminName: adminName,
         }),
       },
     });
 
-    // --------------------
-    // TELEGRAM SYNC (BEST EFFORT)
-    // --------------------
+    /* ---------------- TELEGRAM SYNC ---------------- */
     if (report.telegramMessageId) {
-      const baseInfo = (
+      const telegramMessageId = Number(report.telegramMessageId);
+
+      if (status === "IN_PROGRESS") {
+        void editTelegramMessage(
+          telegramMessageId,
 `🛠 REPAIR IN PROGRESS
 🆔 Report ID: ${report.id}
 
@@ -71,32 +92,20 @@ export async function PATCH(
 
 📝 Description: ${report.description ?? "No description"}
 
-👷 Taken by: ${adminName}`
-      );
-
-      if (status === "IN_PROGRESS") {
-        void editTelegramMessage(Number(
-          report.telegramMessageId),
-          `🛠 *REPAIR IN PROGRESS*\n\n${baseInfo}\n\n👷 Taken by: ${(adminName)}`,
+👷 Taken by: ${adminName}`,
           [
             [
-              {
-                text: "✅ Resolved",
-                callback_data: `fault:resolve:${report.id}`,
-              },
-              {
-                text: "🗑 Delete",
-                callback_data: `fault:delete:${report.id}`,
-              },
+              { text: "✅ Resolved", callback_data: `fault:resolve:${report.id}` },
+              { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
             ],
           ]
         );
       }
 
       if (status === "RESOLVED") {
-        void editTelegramMessage(Number(
-          report.telegramMessageId),
-`✅ *FAULT RESOLVED*
+        void editTelegramMessage(
+          telegramMessageId,
+`✅ FAULT RESOLVED
 🆔 Report ID: ${report.id}
 
 📍 Location: ${report.location}

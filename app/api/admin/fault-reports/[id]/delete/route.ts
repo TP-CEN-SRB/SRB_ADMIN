@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
+import jwt from "jsonwebtoken";
 import { deleteTelegramMessage } from "@/lib/telegram";
 
 export async function DELETE(
@@ -7,40 +8,48 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
-
-    if (!id) {
-      return NextResponse.json(
-        { error: "Fault report ID is required" },
-        { status: 400 }
-      );
+    /* ---------------- AUTH ---------------- */
+    const token = req.headers.get("Authorization")?.split(" ")[1];
+    if (!token) {
+      return NextResponse.json({ error: "Missing token" }, { status: 401 });
     }
 
-    // Fetch once (need telegramMessageId)
-    const existing = await prisma.faultReport.findUnique({
-      where: { id },
+    const decoded = jwt.verify(
+      token,
+      process.env.NEXT_JWT_SECRET_KEY!
+    ) as { userId: string };
+
+    const admin = await prisma.user.findUnique({
+      where: { id: decoded.userId },
     });
 
-    if (!existing) {
+    if (!admin || admin.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    /* ---------------- FETCH REPORT ---------------- */
+    const report = await prisma.faultReport.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!report) {
       return NextResponse.json(
         { error: "Fault report not found" },
         { status: 404 }
       );
     }
 
-    // --------------------
-    // DELETE DB (SOURCE OF TRUTH)
-    // --------------------
-    await prisma.faultReport.delete({
-      where: { id },
-    });
-
-    // --------------------
-    // TELEGRAM CLEANUP (BEST EFFORT)
-    // --------------------
-    if (existing.telegramMessageId) {
-      void deleteTelegramMessage(Number(existing.telegramMessageId));
+    /* ---------------- TELEGRAM CLEANUP (BEST EFFORT) ---------------- */
+    if (report.telegramMessageId) {
+      void deleteTelegramMessage(
+        Number(report.telegramMessageId) // BIGINT → number
+      );
     }
+
+    /* ---------------- DELETE DB ---------------- */
+    await prisma.faultReport.delete({
+      where: { id: params.id },
+    });
 
     return NextResponse.json({
       success: true,

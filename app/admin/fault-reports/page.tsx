@@ -97,24 +97,16 @@ export default function FaultReportsPage() {
   };
 
 const updateStatus = async (id: string, status: FaultReport["status"]) => {
-  // 🔥 optimistic UI update
+  // optimistic UI update
   setData((prev) =>
-    prev.map((r) =>
-      r.id === id ? { ...r, status } : r
-    )
+    prev.map((r) => (r.id === id ? { ...r, status } : r))
   );
 
-  const res = await fetch(
-    `/api/admin/fault-reports/${id}/status`,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        status,
-        adminName: "Admin Dashboard",
-      }),
-    }
-  );
+  const res = await fetch(`/api/admin/fault-reports/${id}/status`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }), // ✅ no adminName
+  });
 
   if (!res.ok) {
     alert("Failed to update status");
@@ -232,12 +224,12 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
             const taken =
             r.takenByTelegramName ||
             r.takenByAdminName ||
-            (r.status !== "OPEN" ? "Admin Dashboard" : null);
+            null;
 
             const resolved =
             r.resolvedByTelegramName ||
             r.resolvedByAdminName ||
-            (r.status === "RESOLVED" ? "Admin Dashboard" : null);
+            null;
 
             return (
             <div className="text-xs text-slate-600">
@@ -264,7 +256,7 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
             >
 
             <SelectTrigger
-                className={`h-8 px-3 text-xs font-medium rounded-full border-none ${STATUS_STYLES[report.status]}`}
+            className={`h-8 min-w-[120px] px-3 text-xs font-medium rounded-full border-none ${STATUS_STYLES[report.status]}`}
             >
                 <SelectValue>
                 {formatStatus(report.status)}
