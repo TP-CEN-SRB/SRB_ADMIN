@@ -55,10 +55,10 @@ export async function sendTelegramPhoto(photoUrl: string, caption: string) {
 // --------------------
 export async function sendTelegramWithButtons(
   text: string,
-  buttons: any[],
+  buttons: any[]
 ) {
   try {
-    await fetch(`${BASE_URL}/sendMessage`, {
+    const res = await fetch(`${BASE_URL}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -68,18 +68,28 @@ export async function sendTelegramWithButtons(
         reply_markup: { inline_keyboard: buttons },
       }),
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("❌ Telegram send failed:", data);
+    } else {
+      console.log("✅ Telegram sent:", data.result.message_id);
+    }
+
+    return data;
   } catch (err) {
-    console.error("Telegram buttons send failed", err);
+    console.error("❌ Telegram buttons send crashed", err);
   }
 }
 
 export async function sendTelegramPhotoWithButtons(
   photoUrl: string,
   caption: string,
-  buttons: any[],
+  buttons: any[]
 ) {
   try {
-    await fetch(`${BASE_URL}/sendPhoto`, {
+    const res = await fetch(`${BASE_URL}/sendPhoto`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -90,8 +100,14 @@ export async function sendTelegramPhotoWithButtons(
         reply_markup: { inline_keyboard: buttons },
       }),
     });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("❌ Telegram photo error:", data);
+    }
   } catch (err) {
-    console.error("Telegram photo+buttons failed", err);
+    console.error("❌ Telegram photo crashed:", err);
   }
 }
 
