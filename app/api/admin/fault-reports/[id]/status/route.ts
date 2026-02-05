@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import jwt from "jsonwebtoken";
 import { editTelegramMessage } from "@/lib/telegram";
 
 export async function PATCH(
@@ -8,28 +7,6 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    /* ---------------- AUTH ---------------- */
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json({ error: "Missing token" }, { status: 401 });
-    }
-
-    const decoded = jwt.verify(
-      token,
-      process.env.NEXT_JWT_SECRET_KEY!
-    ) as { userId: string };
-
-    const admin = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-    });
-
-    if (!admin || admin.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
-    const adminName = admin.name || admin.email;
-
-    /* ---------------- BODY ---------------- */
     const { status } = await req.json();
 
     if (!["OPEN", "IN_PROGRESS", "RESOLVED"].includes(status)) {
@@ -48,6 +25,8 @@ export async function PATCH(
       return NextResponse.json({ success: true });
     }
 
+    const adminName = "Admin Dashboard";
+
     const timeSGT =
       new Date().toLocaleString("en-SG", {
         timeZone: "Asia/Singapore",
@@ -59,23 +38,21 @@ export async function PATCH(
         minute: "2-digit",
       }) + " SGT";
 
-    /* ---------------- DB UPDATE ---------------- */
+    // ✅ Update DB
     await prisma.faultReport.update({
       where: { id: params.id },
       data: {
         status,
         ...(status === "IN_PROGRESS" && {
-          takenByAdminId: admin.id,
           takenByAdminName: adminName,
         }),
         ...(status === "RESOLVED" && {
-          resolvedByAdminId: admin.id,
           resolvedByAdminName: adminName,
         }),
       },
     });
 
-    /* ---------------- TELEGRAM SYNC ---------------- */
+    // ✅ Sync Telegram
     if (report.telegramMessageId) {
       const telegramMessageId = Number(report.telegramMessageId);
 

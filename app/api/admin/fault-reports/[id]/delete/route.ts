@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
-import jwt from "jsonwebtoken";
 import { deleteTelegramMessage } from "@/lib/telegram";
 
 export async function DELETE(
@@ -8,55 +7,46 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    /* ---------------- AUTH ---------------- */
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) {
-      return NextResponse.json({ error: "Missing token" }, { status: 401 });
+    console.log("---- DELETE /delete called ----");
+    console.log("Report ID:", params.id);
+
+    if (!params.id) {
+      return NextResponse.json(
+        { error: "Missing report id" },
+        { status: 400 }
+      );
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.NEXT_JWT_SECRET_KEY!
-    ) as { userId: string };
-
-    const admin = await prisma.user.findUnique({
-      where: { id: decoded.userId },
-    });
-
-    if (!admin || admin.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
-    /* ---------------- FETCH REPORT ---------------- */
+    // Fetch once (need telegramMessageId)
     const report = await prisma.faultReport.findUnique({
       where: { id: params.id },
+      select: { id: true, telegramMessageId: true },
     });
 
     if (!report) {
-      return NextResponse.json(
-        { error: "Fault report not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    /* ---------------- TELEGRAM CLEANUP (BEST EFFORT) ---------------- */
-    if (report.telegramMessageId) {
-      void deleteTelegramMessage(
-        Number(report.telegramMessageId) // BIGINT → number
-      );
-    }
-
-    /* ---------------- DELETE DB ---------------- */
+    // --------------------
+    // DELETE DB (SOURCE OF TRUTH)
+    // --------------------
     await prisma.faultReport.delete({
       where: { id: params.id },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: "Fault report deleted successfully",
-    });
-  } catch (error) {
-    console.error("❌ Delete Fault Report Error:", error);
+    console.log("✅ DB record deleted");
+
+    // --------------------
+    // TELEGRAM CLEANUP (BEST EFFORT)
+    // --------------------
+    if (report.telegramMessageId) {
+      void deleteTelegramMessage(Number(report.telegramMessageId));
+      console.log("✅ Telegram message deleted");
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    console.error("❌ Delete fault error:", err);
     return NextResponse.json(
       { error: "Failed to delete fault report" },
       { status: 500 }

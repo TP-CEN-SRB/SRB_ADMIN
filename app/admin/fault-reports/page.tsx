@@ -70,8 +70,7 @@ const STATUS_STYLES: Record<FaultReport["status"], string> = {
 };
 
 const formatStatus = (status: string) =>
-  status.replace("_", " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
-
+  status.replace("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 export default function FaultReportsPage() {
   const [data, setData] = useState<FaultReport[]>([]);
@@ -90,44 +89,42 @@ export default function FaultReportsPage() {
 
   const fetchReports = () => {
     setLoading(true);
-    fetch("/api/admin/fault-reports")
+    fetch("/api/admin/fault-reports", { credentials: "include" })
       .then((res) => res.json())
       .then(setData)
       .finally(() => setLoading(false));
   };
 
-const updateStatus = async (id: string, status: FaultReport["status"]) => {
-  // optimistic UI update
-  setData((prev) =>
-    prev.map((r) => (r.id === id ? { ...r, status } : r))
-  );
-
-    const token = localStorage.getItem("token");
+  const updateStatus = async (id: string, status: FaultReport["status"]) => {
+    // optimistic UI update
+    setData((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
 
     const res = await fetch(`/api/admin/fault-reports/${id}/status`, {
     method: "PATCH",
     headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ status }),
     });
 
-  if (!res.ok) {
-    alert("Failed to update status");
-    fetchReports(); // rollback
-  }
-};
+    if (!res.ok) {
+      alert("Failed to update status");
+      fetchReports(); // rollback
+    } else {
+      // refresh to pull handledBy names that backend sets
+      fetchReports();
+    }
+  };
 
   useEffect(fetchReports, []);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
-    const res = await fetch(
-      `/api/admin/fault-reports/${deleteTarget.id}/delete`,
-      { method: "DELETE" }
-    );
+    const res = await fetch(`/api/admin/fault-reports/${deleteTarget.id}/delete`, {
+      method: "DELETE",
+      credentials: "include", // ✅ IMPORTANT
+    });
 
     if (!res.ok) {
       alert("Failed to delete fault report");
@@ -165,23 +162,6 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
       header: "Location",
       cell: ({ row }) => row.original.location,
     },
-/*     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
-        const colors = {
-          OPEN: "bg-red-100 text-red-700",
-          IN_PROGRESS: "bg-yellow-100 text-yellow-700",
-          RESOLVED: "bg-green-100 text-green-700",
-        };
-        return (
-          <span className={`px-2 py-1 text-xs rounded-full font-medium ${colors[status]}`}>
-            {status.replace("_", " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}
-          </span>
-        );
-      },
-    }, */
     {
       header: "Description",
       cell: ({ row }) => (
@@ -218,79 +198,75 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
     },
     {
       header: "Date",
-      cell: ({ row }) =>
-        new Date(row.original.createdAt).toLocaleString("en-SG"),
+      cell: ({ row }) => new Date(row.original.createdAt).toLocaleString("en-SG"),
     },
     {
-        header: "Handled By",
-        cell: ({ row }) => {
-            const r = row.original;
-
-            const taken =
-            r.takenByTelegramName ||
-            r.takenByAdminName ||
-            null;
-
-            const resolved =
-            r.resolvedByTelegramName ||
-            r.resolvedByAdminName ||
-            null;
-
-            return (
-            <div className="text-xs text-slate-600">
-                {taken && <p>🛠 {taken}</p>}
-                {resolved && <p>✅ {resolved}</p>}
-            </div>
-            );
-        },
-    },
-   {
-    header: "Actions",
+    header: "Handled By",
     cell: ({ row }) => {
-        const report = row.original;
+        const r = row.original;
+
+        const taken =
+        r.takenByTelegramName ||
+        r.takenByAdminName ||
+        (r.status !== "OPEN" ? "Admin Dashboard" : null);
+
+        const resolved =
+        r.resolvedByTelegramName ||
+        r.resolvedByAdminName ||
+        (r.status === "RESOLVED" ? "Admin Dashboard" : null);
 
         return (
-        <div className="flex items-center gap-2">
-            {/* STATUS DROPDOWN */}
-            <Select
-            disabled={report.status === "RESOLVED"}
-            value={report.status}
-            onValueChange={(v) =>
-                updateStatus(report.id, v as FaultReport["status"])
-            }
-            >
-
-            <SelectTrigger
-            className={`h-8 min-w-[120px] px-3 text-xs font-medium rounded-full border-none ${STATUS_STYLES[report.status]}`}
-            >
-                <SelectValue>
-                {formatStatus(report.status)}
-                </SelectValue>
-            </SelectTrigger>
-
-            <SelectContent>
-                {report.status === "OPEN" && (
-                <SelectItem value="IN_PROGRESS"><span className="text-yellow-600">In Progress</span></SelectItem>
-                )}
-
-                {report.status !== "RESOLVED" && (
-                <SelectItem value="RESOLVED"><span className="text-green-600">Resolved</span></SelectItem>
-                )}
-            </SelectContent>
-            </Select>
-
-            {/* DELETE */}
-            <Button
-            variant="ghost"
-            size="sm"
-            className="text-red-600 hover:bg-red-50"
-            onClick={() => setDeleteTarget(report)}
-            >
-            <Trash2 className="h-4 w-4" />
-            </Button>
+        <div className="text-xs text-slate-600 whitespace-nowrap">
+            {taken && <p>🛠 {taken}</p>}
+            {resolved && <p>✅ {resolved}</p>}
         </div>
         );
     },
+    },
+    {
+      header: "Actions",
+      cell: ({ row }) => {
+        const report = row.original;
+
+        return (
+          <div className="flex items-center gap-2">
+            <Select
+              disabled={report.status === "RESOLVED"}
+              value={report.status}
+              onValueChange={(v) => updateStatus(report.id, v as FaultReport["status"])}
+            >
+              <SelectTrigger
+                className={`h-8 min-w-[140px] px-3 text-xs font-medium rounded-full border-none whitespace-nowrap ${STATUS_STYLES[report.status]}`}
+              >
+                <SelectValue>{formatStatus(report.status)}</SelectValue>
+              </SelectTrigger>
+
+              <SelectContent>
+                {report.status === "OPEN" && (
+                  <SelectItem value="IN_PROGRESS">
+                    <span className="text-yellow-600">In Progress</span>
+                  </SelectItem>
+                )}
+
+                {report.status !== "RESOLVED" && (
+                  <SelectItem value="RESOLVED">
+                    <span className="text-green-600">Resolved</span>
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-600 hover:bg-red-50"
+              onClick={() => setDeleteTarget(report)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
@@ -309,43 +285,34 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
     <Card isAdmin rounded fullWidth className="p-6">
       <FormHeader>Fault Reports</FormHeader>
 
-      {/* Filters */}
       <div className="flex justify-between gap-4 pb-4">
         <Input
           placeholder="Filter by category..."
           value={(table.getColumn("category")?.getFilterValue() as string) ?? ""}
-          onChange={(e) =>
-            table.getColumn("category")?.setFilterValue(e.target.value)
-          }
+          onChange={(e) => table.getColumn("category")?.setFilterValue(e.target.value)}
           className="max-w-xs"
         />
 
         <Select
-        value={
-            (table.getColumn("status")?.getFilterValue() as string) ?? "ALL"
-        }
-        onValueChange={(v) => {
-            if (v === "ALL") {
-            table.getColumn("status")?.setFilterValue(undefined);
-            } else {
-            table.getColumn("status")?.setFilterValue(v);
-            }
-        }}
+          value={(table.getColumn("status")?.getFilterValue() as string) ?? "ALL"}
+          onValueChange={(v) => {
+            if (v === "ALL") table.getColumn("status")?.setFilterValue(undefined);
+            else table.getColumn("status")?.setFilterValue(v);
+          }}
         >
-        <SelectTrigger className="w-48">
+          <SelectTrigger className="w-48">
             <SelectValue placeholder="Filter by status" />
-        </SelectTrigger>
+          </SelectTrigger>
 
-        <SelectContent>
+          <SelectContent>
             <SelectItem value="ALL">All</SelectItem>
             <SelectItem value="OPEN">Open</SelectItem>
             <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
             <SelectItem value="RESOLVED">Resolved</SelectItem>
-        </SelectContent>
+          </SelectContent>
         </Select>
       </div>
 
-      {/* Table */}
       <div className="rounded-lg border shadow-sm bg-white">
         <Table>
           <TableHeader className="bg-slate-50">
@@ -388,7 +355,6 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
         </Table>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between pt-4">
         <span className="text-sm">
           Page {table.getState().pagination.pageIndex + 1} of{" "}
@@ -415,19 +381,15 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
         </div>
       </div>
 
-      {/* Description Modal */}
       <Dialog open={!!selectedDescription} onOpenChange={() => setSelectedDescription(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Fault Description</DialogTitle>
           </DialogHeader>
-          <p className="whitespace-pre-wrap text-sm">
-            {selectedDescription}
-          </p>
+          <p className="whitespace-pre-wrap text-sm">{selectedDescription}</p>
         </DialogContent>
       </Dialog>
 
-      {/* Image Modal */}
       <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -437,7 +399,6 @@ const updateStatus = async (id: string, status: FaultReport["status"]) => {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
