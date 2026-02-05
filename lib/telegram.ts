@@ -99,7 +99,11 @@ export async function sendTelegramPhotoWithButtons(
 
     if (!res.ok) {
       console.error("❌ Telegram photo error:", data);
+    } else {
+      console.log("✅ Telegram photo sent:", data.result.message_id);
     }
+
+    return data; // ✅ ADD THIS
   } catch (err) {
     console.error("❌ Telegram photo crashed:", err);
   }
