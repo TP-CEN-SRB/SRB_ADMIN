@@ -39,7 +39,7 @@ export async function DELETE(
     // TELEGRAM CLEANUP (BEST EFFORT)
     // --------------------
     if (existing.telegramMessageId) {
-      void deleteTelegramMessage(existing.telegramMessageId);
+      void deleteTelegramMessage(Number(existing.telegramMessageId));
     }
 
     return NextResponse.json({

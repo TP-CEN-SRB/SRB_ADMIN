@@ -331,7 +331,7 @@ model FaultReport {
   resolvedByTelegramId   BigInt?
   resolvedByTelegramName String?
 
-  telegramMessageId Int?
+  telegramMessageId BigInt?
 
   // ✅ NEW: Admin attribution
   takenByAdminId      String?

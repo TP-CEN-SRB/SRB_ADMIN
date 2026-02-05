@@ -9,6 +9,17 @@ export async function PATCH(
   try {
     const { status, adminName = "Admin Dashboard" } = await req.json();
 
+    const timeSGT =
+      new Date().toLocaleString("en-SG", {
+        timeZone: "Asia/Singapore",
+        hour12: false,
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " SGT";
+
     if (!["OPEN", "IN_PROGRESS", "RESOLVED"].includes(status)) {
       return NextResponse.json(
         { error: "Invalid status" },
@@ -50,15 +61,22 @@ export async function PATCH(
     // --------------------
     if (report.telegramMessageId) {
       const baseInfo = (
-        `🆔 Report ID: ${report.id}
+`🛠 REPAIR IN PROGRESS
+🆔 Report ID: ${report.id}
+
 📍 Location: ${report.location}
 📂 Category: ${report.category}
-🛠 Type: ${report.type}`
+🛠 Type: ${report.type}
+🕒 ${timeSGT}
+
+📝 Description: ${report.description ?? "No description"}
+
+👷 Taken by: ${adminName}`
       );
 
       if (status === "IN_PROGRESS") {
-        void editTelegramMessage(
-          report.telegramMessageId,
+        void editTelegramMessage(Number(
+          report.telegramMessageId),
           `🛠 *REPAIR IN PROGRESS*\n\n${baseInfo}\n\n👷 Taken by: ${(adminName)}`,
           [
             [
@@ -76,9 +94,18 @@ export async function PATCH(
       }
 
       if (status === "RESOLVED") {
-        void editTelegramMessage(
-          report.telegramMessageId,
-          `✅ *FAULT RESOLVED*\n\n${baseInfo}\n\n👷 Resolved by: ${adminName}`,
+        void editTelegramMessage(Number(
+          report.telegramMessageId),
+`✅ *FAULT RESOLVED*
+🆔 Report ID: ${report.id}
+
+📍 Location: ${report.location}
+📂 Category: ${report.category}
+🛠 Type: ${report.type}
+🕒 ${timeSGT}
+📝 Description: ${report.description ?? "No description"}
+
+👷 Resolved by: ${adminName}`,
           []
         );
       }
