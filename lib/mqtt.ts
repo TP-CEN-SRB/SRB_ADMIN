@@ -11,31 +11,29 @@ interface MultiGuidancePayload {
   images: Record<string, string>;
 }
 
-
 let client: MqttClient | null = null;
 let isConnecting = false;
 let subscribed = false;
 
-
+/* --------------------------------------------------
+   Type Guard
+-------------------------------------------------- */
 function isMultiGuidancePayload(value: unknown): value is MultiGuidancePayload {
   if (typeof value !== "object" || value === null) return false;
-
   const v = value as any;
-
-  return (
-    Array.isArray(v.bins) &&
-    typeof v.images === "object" &&
-    v.images !== null
-  );
+  return Array.isArray(v.bins) && typeof v.images === "object" && v.images !== null;
 }
 
+/* --------------------------------------------------
+   Guidance Advancement
+-------------------------------------------------- */
 async function advanceGuidance(binId: string) {
   const session = getGuidanceSession(binId);
   if (!session) return;
 
   const nextIndex = session.currentIndex + 1;
 
-  // 🟢 Finished all bins → STOP guidance
+  // ✅ Finished all bins → STOP guidance
   if (nextIndex >= session.bins.length) {
     console.log("🧭 Multi-guidance complete for bin:", binId);
 
@@ -47,10 +45,17 @@ async function advanceGuidance(binId: string) {
       totalSteps: session.bins.length,
     });
 
+    // 🔴 Finalize session to prevent replay
+    upsertGuidanceSession({
+      ...session,
+      currentIndex: session.bins.length,
+      updatedAt: Date.now(),
+    });
+
     return;
   }
 
-  // 🟡 Move to next bin
+  // ➡️ Move to next bin
   const nextMaterial = session.bins[nextIndex];
 
   upsertGuidanceSession({
@@ -73,7 +78,9 @@ async function advanceGuidance(binId: string) {
   });
 }
 
-
+/* --------------------------------------------------
+   Multi-Guidance Start
+-------------------------------------------------- */
 async function handleMultiGuidanceMessage(payload: Buffer): Promise<void> {
   const parsed: unknown = JSON.parse(payload.toString());
 
@@ -82,8 +89,7 @@ async function handleMultiGuidanceMessage(payload: Buffer): Promise<void> {
     return;
   }
 
-  const bins = parsed.bins;
-  const images = parsed.images;
+  const { bins, images } = parsed;
 
   if (bins.length === 0) {
     console.warn("⚠️ UI multi message received with no bins");
@@ -100,6 +106,13 @@ async function handleMultiGuidanceMessage(payload: Buffer): Promise<void> {
 
   const binId = match[1];
 
+  // 🛑 Prevent duplicate guidance restarts
+  const existing = getGuidanceSession(binId);
+  if (existing) {
+    console.log("🧭 Guidance already active — ignoring duplicate start");
+    return;
+  }
+
   console.log("🧭 Starting multi-guidance for bin:", binId);
 
   upsertGuidanceSession({
@@ -110,24 +123,22 @@ async function handleMultiGuidanceMessage(payload: Buffer): Promise<void> {
     updatedAt: Date.now(),
   });
 
-  const session = getGuidanceSession(binId)!;
-  const currentMaterial = session.bins[0];
+  const currentMaterial = bins[0];
 
   await pusherServer.trigger(`guidance-${binId}`, "guidance-update", {
     active: true,
     material: currentMaterial,
-    imageUrl: session.images[currentMaterial],
+    imageUrl: images[currentMaterial],
     step: 1,
-    totalSteps: session.bins.length,
+    totalSteps: bins.length,
   });
 }
 
-
-
+/* --------------------------------------------------
+   MQTT Connection
+-------------------------------------------------- */
 const connectMqtt = (): Promise<MqttClient> => {
-  if (client && client.connected) {
-    return Promise.resolve(client);
-  }
+  if (client && client.connected) return Promise.resolve(client);
 
   if (isConnecting) {
     return new Promise((resolve) => {
@@ -154,17 +165,11 @@ const connectMqtt = (): Promise<MqttClient> => {
     console.log("✅ MQTT connected");
 
     if (!subscribed) {
-      // Existing subscriptions
-      client!.subscribe("srb/heartbeat/#", { qos: 0 });
-      console.log("Subscribed to heartbeat topic");
+      client!.subscribe("srb/heartbeat/#");
+      client!.subscribe("srb/health/#");
+      client!.subscribe("srb/ui/multi");
 
-      client!.subscribe("srb/health/#", { qos: 0 });
-      console.log("Subscribed to diagnostic topic: srb/health/#");
-
-      // 🆕 NEW — UI multi-detect guidance
-      client!.subscribe("srb/ui/multi", { qos: 0 });
-      console.log("Subscribed to UI multi-guidance topic: srb/ui/multi");
-
+      console.log("📡 MQTT subscriptions ready");
       subscribed = true;
     }
 
@@ -182,64 +187,37 @@ const connectMqtt = (): Promise<MqttClient> => {
     subscribed = false;
   });
 
-  // 🔥 Listen for ALL MQTT messages
+  /* --------------------------------------------------
+     MQTT Message Router
+  -------------------------------------------------- */
   client.on("message", async (topic, payload) => {
-
-    // -----------------------------
-    // 🧭 BIN COMPLETION → ADVANCE GUIDANCE
-    // -----------------------------
-    if (topic.startsWith("srb/")) {
-      let data: any;
-
-      try {
-        data = JSON.parse(payload.toString());
-      } catch {
-        return;
-      }
-
-      if (data?.command === "closedetection") {
-        const parts = topic.split("/");
-        const binId = parts[2];
-
-        if (!binId) return;
-
-        console.log("🧭 Bin closed, advancing guidance:", binId);
-        await advanceGuidance(binId);
-        return;
-      }
-    }
-
-
     try {
-      // -----------------------------
-      // BIN DIAGNOSTICS (existing)
-      // -----------------------------
-      if (topic.startsWith("srb/health/")) {
-        const json = JSON.parse(payload.toString());
-
-        // Topic format: srb/health/<binId>
-        const parts = topic.split("/");
-        const binId = parts[2];
-
-        if (!binId) {
-          console.warn("⚠️ Diagnostic received without binId:", topic);
+      // 🧭 Advance guidance ONLY on real bin topics
+      if (/^srb\/(plastic|paper|metal|ewaste|general)\/.+$/.test(topic)) {
+        const data = JSON.parse(payload.toString());
+        if (data?.command === "closedetection") {
+          const binId = topic.split("/")[2];
+          if (binId) {
+            console.log("🧭 Bin closed → advancing guidance:", binId);
+            await advanceGuidance(binId);
+          }
           return;
         }
+      }
 
-        console.log("🛠 Processing diagnostic for bin:", binId);
-        await handleBinDiagnostic(binId, json);
+      // 🛠 Diagnostics
+      if (topic.startsWith("srb/health/")) {
+        const json = JSON.parse(payload.toString());
+        const binId = topic.split("/")[2];
+        if (binId) await handleBinDiagnostic(binId, json);
         return;
       }
 
-      // -----------------------------
-      // 🆕 MULTI-DETECT UI GUIDANCE
-      // -----------------------------
+      // 🆕 Multi-detect UI trigger
       if (topic === "srb/ui/multi") {
         await handleMultiGuidanceMessage(payload);
         return;
       }
-
-
     } catch (err) {
       console.error("❌ MQTT message handling error:", err);
     }
@@ -250,6 +228,9 @@ const connectMqtt = (): Promise<MqttClient> => {
   });
 };
 
+/* --------------------------------------------------
+   Publish Helper
+-------------------------------------------------- */
 export const publishMqtt = async (
   topic: string,
   message: string
