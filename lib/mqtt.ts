@@ -29,6 +29,50 @@ function isMultiGuidancePayload(value: unknown): value is MultiGuidancePayload {
   );
 }
 
+async function advanceGuidance(binId: string) {
+  const session = getGuidanceSession(binId);
+  if (!session) return;
+
+  const nextIndex = session.currentIndex + 1;
+
+  // 🟢 Finished all bins → STOP guidance
+  if (nextIndex >= session.bins.length) {
+    console.log("🧭 Multi-guidance complete for bin:", binId);
+
+    await pusherServer.trigger(`guidance-${binId}`, "guidance-update", {
+      active: false,
+      material: "",
+      imageUrl: "",
+      step: session.bins.length,
+      totalSteps: session.bins.length,
+    });
+
+    return;
+  }
+
+  // 🟡 Move to next bin
+  const nextMaterial = session.bins[nextIndex];
+
+  upsertGuidanceSession({
+    ...session,
+    currentIndex: nextIndex,
+    updatedAt: Date.now(),
+  });
+
+  console.log(
+    `🧭 Advancing guidance: ${nextIndex + 1}/${session.bins.length}`,
+    nextMaterial
+  );
+
+  await pusherServer.trigger(`guidance-${binId}`, "guidance-update", {
+    active: true,
+    material: nextMaterial,
+    imageUrl: session.images[nextMaterial],
+    step: nextIndex + 1,
+    totalSteps: session.bins.length,
+  });
+}
+
 
 async function handleMultiGuidanceMessage(payload: Buffer): Promise<void> {
   const parsed: unknown = JSON.parse(payload.toString());
@@ -140,6 +184,32 @@ const connectMqtt = (): Promise<MqttClient> => {
 
   // 🔥 Listen for ALL MQTT messages
   client.on("message", async (topic, payload) => {
+
+    // -----------------------------
+    // 🧭 BIN COMPLETION → ADVANCE GUIDANCE
+    // -----------------------------
+    if (topic.startsWith("srb/")) {
+      let data: any;
+
+      try {
+        data = JSON.parse(payload.toString());
+      } catch {
+        return;
+      }
+
+      if (data?.command === "closedetection") {
+        const parts = topic.split("/");
+        const binId = parts[2];
+
+        if (!binId) return;
+
+        console.log("🧭 Bin closed, advancing guidance:", binId);
+        await advanceGuidance(binId);
+        return;
+      }
+    }
+
+
     try {
       // -----------------------------
       // BIN DIAGNOSTICS (existing)
