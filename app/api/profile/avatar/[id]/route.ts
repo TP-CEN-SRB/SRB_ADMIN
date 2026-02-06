@@ -89,8 +89,9 @@ export const POST = async (
     // 3️⃣ Convert File → Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    const filePath = `${params.id}.jpg`;
+    
+    const timestamp = Date.now();
+    const filePath = `${params.id}_${timestamp}.jpg`;
 
     // 4️⃣ Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
