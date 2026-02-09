@@ -332,7 +332,6 @@ model FaultReport {
   resolvedByTelegramName String?
 
   telegramMessageId BigInt?
-  telegramChatId    BigInt?
 
   // ✅ NEW: Admin attribution
   takenByAdminId      String?
