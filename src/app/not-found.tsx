@@ -4,8 +4,8 @@ import Card from "@/components/Card/Card";
 
 export default function NotFoundPage() {
   return (
-    <div className="bg-[var(--pastel-green)]">
-      <div className="h-screen flex items-center justify-center container mx-auto max-w-screen-lg p-4">
+    <div className="bg-(--pastel-green)">
+      <div className="h-screen flex items-center justify-center container mx-auto max-w-(--breakpoint-lg) p-4">
         <Card rounded>
           <h1 className="text-slate-800 text-center">404</h1>
           <div className="flex flex-col items-center justify-center">

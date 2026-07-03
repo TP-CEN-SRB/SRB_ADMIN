@@ -1,7 +1,7 @@
 import Card from "@/components/Card/Card";
 import UserProfileMore from "@/components/Dropdown/UserProfileMore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getNameInitials } from "@/utils/getNameInitials";
 import { notFound } from "next/navigation";
 import React from "react";

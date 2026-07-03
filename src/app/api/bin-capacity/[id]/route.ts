@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
-import { sendBinWarningEmail } from "@/lib/mail";
+import { prisma } from "@/lib/db";
+import { sendBinWarningEmail } from "@/lib/resend";
 import jwt from "jsonwebtoken";
-import { Role, BinStatus } from "@prisma/client";
+import { Role, BinStatus } from "@/generated/prisma";
 
 // ======================
 // PUT — Update bin capacity

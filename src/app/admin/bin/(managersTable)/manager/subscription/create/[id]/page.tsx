@@ -1,5 +1,5 @@
-import CreateSubscriptionForm from "@/components/Form/SubscriptionForms/CreateSubscriptionForm";
-import prisma from "@/lib/db";
+import CreateSubscriptionForm from "@/components/FormLogic/SubscriptionForms/CreateSubscriptionForm";
+import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import React from "react";
 

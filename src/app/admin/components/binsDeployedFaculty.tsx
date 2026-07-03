@@ -70,7 +70,7 @@ const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
     /> */}
     <ChartLegend
       content={<ChartLegendContent nameKey="fac" payload={[]}/>}
-      className="font-bold -translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+      className="font-bold -translate-y-2 flex-wrap gap-2 *:basis-1/4 *:justify-center"
     />
     <ChartTooltip
       cursor={false}

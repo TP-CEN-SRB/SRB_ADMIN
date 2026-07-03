@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import jwt from "jsonwebtoken";
-import { TransactionType } from "@prisma/client";
+import { TransactionType } from "@/generated/prisma";
 import { pusherServer } from "@/lib/pusher";
 
 // Safely extract userId from a decoded JWT without using `any`

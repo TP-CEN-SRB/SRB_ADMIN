@@ -1,7 +1,7 @@
 import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import React from "react";
 import { getNameInitials } from "@/utils/getNameInitials";

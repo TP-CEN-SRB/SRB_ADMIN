@@ -1,7 +1,7 @@
 import { getBinById } from "@/app/action/bin";
 import NotFoundPage from "@/app/not-found";
-import UpdateBinForm from "@/components/Form/BinForms/UpdateBinForm";
-import prisma from "@/lib/db";
+import UpdateBinForm from "@/components/FormLogic/BinForms/UpdateBinForm";
+import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import React from "react";
 

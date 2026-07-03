@@ -1,5 +1,5 @@
 "use server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 
 const getDisposalByBinId = async (

@@ -1,4 +1,4 @@
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import ViewBinManagerScreen from "@/components/Screen/ViewBinManagerScreen";
 
@@ -14,10 +14,10 @@ const ViewBinManagerPage = async ({ params }: { params: Promise<{ binUserID: str
   }
 
   // Convert Prisma Date → string (for heartbeat + disposals)
-  const binsWithFormattedDates = bins.map((bin) => ({
+  const binsWithFormattedDates = bins.map((bin: { lastHeartBeat: { toISOString: () => any; }; disposals: any[]; }) => ({
     ...bin,
     lastHeartBeat: bin.lastHeartBeat ? bin.lastHeartBeat.toISOString() : null,
-    disposals: bin.disposals.map((d) => ({
+    disposals: bin.disposals.map((d: { createdAt: { toISOString: () => any; }; updatedAt: { toISOString: () => any; }; }) => ({
       ...d,
       createdAt: d.createdAt.toISOString(),
       updatedAt: d.updatedAt.toISOString(),

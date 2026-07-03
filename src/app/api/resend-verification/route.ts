@@ -1,8 +1,8 @@
 // app/api/resend-verification/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { generateVerificationToken } from "@/lib/tokens";
-import { sendVerificationEmail } from "@/lib/mail";
+import { sendVerificationEmail } from "@/lib/resend";
 import { ableToGenerateNewVerificationToken } from "@/utils/verificationToken";
 
 export async function POST(req: NextRequest) {

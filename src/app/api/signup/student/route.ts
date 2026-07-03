@@ -1,9 +1,9 @@
-import prisma from "@/lib/db";
-import { sendVerificationEmail } from "@/lib/mail";
+import { prisma } from "@/lib/db";
+import { sendVerificationEmail } from "@/lib/resend";
 import { generateVerificationToken } from "@/lib/tokens";
 import { SignUpStudentSchema } from "@/schemas/auth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { Faculty, Role } from "@prisma/client";
+import { Faculty, Role } from "@/generated/prisma";
 import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 

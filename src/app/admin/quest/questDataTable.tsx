@@ -44,7 +44,7 @@ import { FaEdit, FaTrashRestore } from "react-icons/fa";
 import Link from "next/link";
 
 import Card from "@/components/Card/Card";
-import FormHeader from "@/components/Form/FormHeader";
+import FormHeader from "@/components/FormLogic/FormHeader";
 import ConfirmDeleteQuestDialog from "@/components/Dialog/ConfirmDeleteQuestDialog";
 
 interface Quest {

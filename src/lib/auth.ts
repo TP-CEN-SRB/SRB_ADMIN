@@ -1,33 +1,48 @@
-import { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { prisma } from "./db";
 
-type AuthPayload = {
-  id: string;
-  email?: string;
-  role?: string;
-};
+import { resend, emailTemplate } from "./resend";
 
-export async function verifyJwt(req: NextRequest): Promise<AuthPayload> {
-  const authHeader = req.headers.get("authorization");
+import { apiKey } from "@better-auth/api-key"
+import { nextCookies } from "better-auth/next-js";
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new Error("Unauthorized");
-  }
+export const auth = betterAuth({
+    database: prismaAdapter(prisma, {
+        provider: "postgresql"
+    }),
 
-  const token = authHeader.replace("Bearer ", "");
+     user: {
+        additionalFields: {
+            faculty: {
+                type: "string", 
+                required: true,
+            },
 
-  try {
-    const payload = jwt.verify(
-      token,
-      process.env.NEXT_JWT_SECRET_KEY!
-    ) as AuthPayload;
+            role: {
+                type: "string",
+                required: true,
+            },
+        }
+     },
 
-    if (!payload.id) {
-      throw new Error("Invalid token payload");
-    }
+    emailAndPassword: { 
+        enabled: true, 
+        requireEmailVerification: true,
+    },
 
-    return payload;
-  } catch {
-    throw new Error("Invalid or expired token");
-  }
-}
+    emailVerification: {
+        sendVerificationEmail: async ({ user, url }) => {
+            await resend.emails.send({
+                from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`, 
+                to: user.email,
+                subject: "[Smart Bin System] Account Verification",
+                html: emailTemplate(url, "VERIFY"),
+            });
+        }
+    },
+    
+    plugins:[
+      apiKey(),
+      nextCookies()]
+});

@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { MdVerified } from "react-icons/md";
 import { MdGppBad } from "react-icons/md";
 import Actions from "./actions";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
 import { getNameInitials } from "@/utils/getNameInitials";
 

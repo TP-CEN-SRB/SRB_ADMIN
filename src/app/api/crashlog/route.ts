@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 const allowedOrigins = [
   "http://localhost:3000",              // SRB_LOCAL dev      

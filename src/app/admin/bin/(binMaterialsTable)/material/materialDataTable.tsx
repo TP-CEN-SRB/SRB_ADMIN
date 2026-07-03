@@ -1,6 +1,6 @@
 "use client";
 
-import { BinMaterial } from "@prisma/client";
+import { BinMaterial } from "@/generated/prisma";
 import React, { useState } from "react";
 import {
   ColumnDef,

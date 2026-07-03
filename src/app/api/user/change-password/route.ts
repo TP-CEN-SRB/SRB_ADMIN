@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { NewStudentPasswordSchema } from "@/schemas/auth";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { compare, hash } from "bcryptjs";
 
 export const POST = async (req: NextRequest) => {

@@ -1,5 +1,5 @@
 import { deleteBinMaterial } from "@/app/action/binMaterial";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../Form/CustomFormMessage";
+import CustomFormMessage from "../FormLogic/CustomFormMessage";
 
 interface DeleteMaterialDialogProps {
   materialId: string;
@@ -47,8 +47,7 @@ const ConfirmDeleteMaterialDialog = ({
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
-        toast({
-          title: "Success!",
+        toast.success("success!",{
           description: (
             <div>
               Material deleted at {datetime}

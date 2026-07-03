@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import { z } from "zod";
 import { QuestSchema } from "@/schemas";

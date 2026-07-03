@@ -1,4 +1,4 @@
-import CreateQuestTemplateForm from "@/components/Form/QuestForms/CreateQuestTemplateForm";
+import CreateQuestTemplateForm from "@/components/FormLogic/QuestForms/CreateQuestTemplateForm";
 
 export default function CreateQuestTemplatePage() {
   return (

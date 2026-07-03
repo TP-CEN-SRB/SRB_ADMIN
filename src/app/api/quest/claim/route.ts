@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import prisma from "@/lib/db";
-import { TransactionType } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { TransactionType } from "@/generated/prisma";
 
 export const POST = async (req: NextRequest) => {
   try {

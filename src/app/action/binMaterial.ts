@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { BinMaterialSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";

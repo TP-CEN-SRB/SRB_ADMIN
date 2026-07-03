@@ -36,8 +36,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/(admin)/dashboard",
-    "components/Form/CreateBinStatusCombobox",
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [

@@ -1,5 +1,5 @@
-import EditSubscriptionForm from "@/components/Form/SubscriptionForms/EditSubscriptionForm";
-import prisma from "@/lib/db";
+import EditSubscriptionForm from "@/components/FormLogic/SubscriptionForms/EditSubscriptionForm";
+import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import React from "react";
 

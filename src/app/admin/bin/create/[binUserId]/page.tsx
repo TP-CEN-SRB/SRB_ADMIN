@@ -1,6 +1,6 @@
 import { getUsedMaterialsForBin } from "@/app/action/bin";
-import CreateBinForm from "@/components/Form/BinForms/CreateBinForm";
-import prisma from "@/lib/db";
+import CreateBinForm from "@/components/FormLogic/BinForms/CreateBinForm";
+import { prisma } from "@/lib/db";
 import React from "react";
 
 const CreateBinFormPageWithBinUser = async ({
@@ -34,7 +34,7 @@ const CreateBinFormPageWithBinUser = async ({
             binUserId={binUserId}
             binLocation={getBinLocation?.location}
             usedBinMaterials={getUnavailableMaterialsForBin.map(
-              (bin) => bin.binMaterial
+              (bin: { binMaterial: any; }) => bin.binMaterial
             )}
           />
         </div>

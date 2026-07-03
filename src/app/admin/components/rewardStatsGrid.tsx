@@ -3,7 +3,7 @@ import { IoMdTrendingDown } from "react-icons/io";
 import { LuTrophy } from "react-icons/lu";
 import { MdCardGiftcard } from "react-icons/md";
 import { FaFire } from "react-icons/fa";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 const RewardStatsGrid = async () => {
   const [

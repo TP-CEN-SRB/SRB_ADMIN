@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { deleteTelegramMessage } from "@/lib/telegram";
 
 export async function DELETE(

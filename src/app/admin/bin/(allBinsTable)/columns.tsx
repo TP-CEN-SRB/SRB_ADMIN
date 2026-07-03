@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { BinStatus } from "@prisma/client";
+import { BinStatus } from "@/generated/prisma";
 import Link from "next/link";
 import { BiSolidDoorOpen } from "react-icons/bi";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ import { RiDoorFill } from "react-icons/ri";
 import { useState } from "react";
 import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog";
 import { publishMqtt } from "@/lib/mqtt";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import {
   ableToPublishMqttMessage,
   updateCommandUpdatedAt,
@@ -58,8 +58,7 @@ const BinActions = ({ bin }: { bin: Bin }) => {
   const publishMessage = async (command: string) => {
     const ableToPublish = await ableToPublishMqttMessage(bin.userId);
     if (!ableToPublish) {
-      toast({
-        title: "Error!",
+      toast.error("Error!",{
         description:
           "Unable to send command at this time, please try again in a few seconds",
       });
@@ -70,14 +69,12 @@ const BinActions = ({ bin }: { bin: Bin }) => {
       JSON.stringify({ command: command })
     );
     if (success) {
-      toast({
-        title: "Success!",
+      toast.success("success!",{
         description: "Command sent successfully",
       });
       await updateCommandUpdatedAt(bin.userId);
     } else {
-      toast({
-        title: "Error!",
+      toast.error("Error!", {
         description: "Failed to send command",
       });
     }

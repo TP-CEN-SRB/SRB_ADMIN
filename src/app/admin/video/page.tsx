@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import mqtt from "mqtt";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { saveRecording } from "@/app/action/video";
 
 const MQTT_BROKER = "wss://21be7b7891f540b79302d07822b51558.s1.eu.hivemq.cloud:8884/mqtt";
@@ -29,12 +29,12 @@ const VideoStreamPage = () => {
 
     client.on("connect", () => {
       console.log("🔌 Connected to MQTT");
-      toast({ title: "Connected to MQTT Broker ✅" });
+      toast("Connected to MQTT Broker ✅");
 
       client.subscribe(MQTT_TOPIC, (err) => {
         if (!err) {
           console.log("📡 Subscribed to topic");
-          toast({ title: `Subscribed to ${MQTT_TOPIC}` });
+          toast(`Subscribed to ${MQTT_TOPIC}`);
           client.publish(MQTT_TOPIC, JSON.stringify({ command: "URL" }));
         }
       });
@@ -46,31 +46,27 @@ const VideoStreamPage = () => {
 
         if (payload.url && payload.url.includes("trycloudflare.com")) {
           setStreamUrl(payload.url);
-          toast({ title: "Live stream URL received ✅" });
+          toast("Live stream URL received ✅");
         }
 
         if (payload.type === "recorded" && payload.url) {
           const result = await saveRecording(payload.url, payload.duration);
 
           if (result?.error) {
-            toast({
-              title: "❌ Failed to Save",
+            toast( "❌ Failed to Save",{
               description: result.error,
               variant: "destructive",
             });
           } else {
-            toast({
-              title: "✅ Recording Complete",
+            toast("✅ Recording Complete",{
               description: `🕒 Total duration: ${payload.duration} seconds`,
             });
           }
         }
       } catch (err) {
         console.error("❌ MQTT payload error:", err);
-        toast({
-          title: "MQTT Error",
+        toast.error("MQTT Error",{
           description: "Received invalid data",
-          variant: "destructive",
         });
       }
     });
@@ -97,12 +93,12 @@ const VideoStreamPage = () => {
     mqttClient.publish(MQTT_TOPIC, JSON.stringify({ command }));
 
     if (recording) {
-      toast({ title: "Recording stopped ⏹️" });
+      toast("Recording stopped ⏹️");
       setRecording(false);
       setRecordStart(null);
       setDuration(0);
     } else {
-      toast({ title: "Recording started ⏺️" });
+      toast("Recording started ⏺️");
       setRecording(true);
       setRecordStart(Date.now());
     }

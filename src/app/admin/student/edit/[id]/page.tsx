@@ -1,6 +1,6 @@
-import EditStudentForm from "@/components/Form/StudentForms/EditStudentForm";
-import prisma from "@/lib/db";
-import { Faculty } from "@prisma/client";
+import EditStudentForm from "@/components/FormLogic/StudentForms/EditStudentForm";
+import { prisma } from "@/lib/db";
+import { Faculty } from "@/generated/prisma";
 import { notFound } from "next/navigation";
 import React from "react";
 

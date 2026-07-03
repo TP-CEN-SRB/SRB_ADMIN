@@ -1,4 +1,4 @@
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 const MINIMUM_RESEND_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
 

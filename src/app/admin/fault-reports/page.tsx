@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 
 import Card from "@/components/Card/Card";
-import FormHeader from "@/components/Form/FormHeader";
+import FormHeader from "@/components/FormLogic/FormHeader";
 import { Trash2, Eye, ImageIcon } from "lucide-react";
 
 import {

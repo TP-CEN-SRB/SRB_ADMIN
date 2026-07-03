@@ -1,5 +1,5 @@
 "use server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 export const saveRecording = async (url: string, duration: number) => {
   if (!url || typeof duration !== "number") {

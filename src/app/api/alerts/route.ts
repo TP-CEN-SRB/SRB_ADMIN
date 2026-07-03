@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSmartAlerts } from "@/app/action/bin";
-import { BinStatus } from "@prisma/client";
+import { BinStatus } from "@/generated/prisma";
 
 export const dynamic = "force-dynamic";
 

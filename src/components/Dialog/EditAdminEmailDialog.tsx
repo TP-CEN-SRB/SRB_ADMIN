@@ -14,7 +14,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import EditAdminEmailForm from "@/components/Form/AdminUserForms/EditAdminEmailForm";
+import EditAdminEmailForm from "@/components/FormLogic/AdminUserForms/EditAdminEmailForm";
 import { useMediaQuery } from "react-responsive";
 interface DialogProps {
   isOpen: boolean;

@@ -6,7 +6,7 @@ const CreateBinManagerPage = async () => {
   const binManagers = await getAllBinUsers();
   return (
     <CreateBinManagerScreen
-      data={binManagers.map((user) => ({
+      data={binManagers.map((user: { lat: { toNumber: () => any; }; long: { toNumber: () => any; }; }) => ({
         ...user,
         lat: user.lat?.toNumber(),
         long: user.long?.toNumber(),

@@ -1,4 +1,4 @@
-import CreateEventForm from "@/components/Form/EventForms/CreateEventForm";
+import CreateEventForm from "@/components/FormLogic/EventForms/CreateEventForm";
 import React from "react";
 
 const CreateEventPage = () => {

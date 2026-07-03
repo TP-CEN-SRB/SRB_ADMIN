@@ -12,7 +12,7 @@ import {
 import { LuSettings2 } from "react-icons/lu";
 import { FaCheck, FaPlusCircle } from "react-icons/fa";
 import { RxCross1 } from "react-icons/rx";
-import { TransactionType } from "@prisma/client";
+import { TransactionType } from "@/generated/prisma";
 import { useSearchParams } from "next/navigation";
 
 interface TableFilterProps {

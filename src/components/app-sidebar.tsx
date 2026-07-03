@@ -45,8 +45,7 @@ import Link from "next/link";
 import {
   Collapsible,
   CollapsibleContent,
-  CollapsibleTrigger,
-} from "./ui/collapsible";
+  CollapsibleTrigger, } from "@/components/ui/collapsible"
 
 import { useState } from "react";
 import SignOutDialog from "./Dialog/SignOutDialog";

@@ -1,6 +1,6 @@
 import { getQuestById } from "@/app/action/quest";
 import NotFoundPage from "@/app/not-found";
-import UpdateQuestForm from "@/components/Form/QuestForms/UpdateQuestForm";
+import UpdateQuestForm from "@/components/FormLogic/QuestForms/UpdateQuestForm";
 import { notFound } from "next/navigation";
 import React from "react";
 

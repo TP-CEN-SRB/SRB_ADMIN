@@ -1,10 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import BinMapChartWithMarker from "../Map/BinMapChartWithMarker";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import { Button } from "../ui/button";
 import { IoMdClose } from "react-icons/io";
-import EditBinForm from "../Form/AdminUserForms/EditBinForm";
+import EditBinForm from "../FormLogic/AdminUserForms/EditBinForm";
 interface ScreenProps {
   binManager: {
     id: string;

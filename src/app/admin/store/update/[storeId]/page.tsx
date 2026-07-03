@@ -1,5 +1,5 @@
 import { getStoreById } from "@/app/action/store";
-import UpdateStoreForm from "@/components/Form/StoreForms/UpdateStoreForm";
+import UpdateStoreForm from "@/components/FormLogic/StoreForms/UpdateStoreForm";
 import { notFound } from "next/navigation";
 import React from "react";
 

@@ -12,9 +12,9 @@ const HomeScreen = () => {
     },
   ];
   return (
-    <div className="bg-[var(--pastel-green)] antialiased">
-      <div className="h-screen max-w-screen-lg flex items-center justify-center container mx-auto px-4">
-        <div className="text-center max-w-screen-lg w-full">
+    <div className="bg-(--pastel-green) antialiased">
+      <div className="h-screen max-w-(--breakpoint-lg) flex items-center justify-center container mx-auto px-4">
+        <div className="text-center max-w-(--breakpoint-lg) w-full">
           <h1 className="text-slate-800 mb-4">
             Welcome to the Smart Recycling Bin!
           </h1>

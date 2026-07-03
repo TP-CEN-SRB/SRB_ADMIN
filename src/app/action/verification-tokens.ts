@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 
 export const verifyToken = async (token: string) => {

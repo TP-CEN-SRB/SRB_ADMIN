@@ -1,7 +1,7 @@
-import EditAdminForm from "@/components/Form/AdminUserForms/EditAdminForm";
-import prisma from "@/lib/db";
+import EditAdminForm from "@/components/FormLogic/AdminUserForms/EditAdminForm";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import { notFound } from "next/navigation";
 import React from "react";
 

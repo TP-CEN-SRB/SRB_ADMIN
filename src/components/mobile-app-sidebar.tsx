@@ -46,7 +46,7 @@ export function MobileAppSidebar() {
       />
       <Sheet>
         <div className="w-full p-4 shadow-lg flex justify-between md:hidden border-b-2 border-gray-200 bg-[#E6ECF0]">
-          <SheetTrigger className="text-slate-800 border border-gray-300 rounded-lg p-1 bg-[#E6ECF0] hover:!bg-[#D0D6E0]">
+          <SheetTrigger className="text-slate-800 border border-gray-300 rounded-lg p-1 bg-[#E6ECF0] hover:bg-[#D0D6E0]!">
             <GiHamburgerMenu size={40} />
           </SheetTrigger>
           <DropdownMenu modal={false}>

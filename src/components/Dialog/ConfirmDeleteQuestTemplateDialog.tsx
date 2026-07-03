@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteQuestTemplate } from "@/app/action/questTemplate";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -24,7 +24,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 
-import CustomFormMessage from "@/components/Form/CustomFormMessage";
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { formatDateTime } from "@/utils/dateFilter";
@@ -53,8 +53,7 @@ export default function ConfirmDeleteQuestTemplateDialog({
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
 
-        toast({
-          title: "Template deleted successfully",
+        toast("Template deleted successfully",{
           description: (
             <div>
               Template deleted at {datetime}
@@ -64,7 +63,6 @@ export default function ConfirmDeleteQuestTemplateDialog({
             </div>
           ),
           duration: 2000,
-          variant: "default",
         });
 
         router.push("/admin/quest-template");

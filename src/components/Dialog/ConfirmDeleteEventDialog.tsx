@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteEvent } from "@/app/action/event";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -21,7 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import CustomFormMessage from "@/components/Form/CustomFormMessage";
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { formatDateTime } from "@/utils/dateFilter";
@@ -49,8 +49,7 @@ const ConfirmDeleteEventDialog = ({
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
-        toast({
-          title: "Event deleted successfully",
+        toast("Event deleted successfully",{
           description: (
             <div>
               Event deleted at {datetime}
@@ -60,7 +59,7 @@ const ConfirmDeleteEventDialog = ({
             </div>
           ),
           duration: 2000,
-          variant: "default",
+
         });
         router.push("/admin/event");
       }

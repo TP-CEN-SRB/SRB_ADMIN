@@ -7,7 +7,7 @@ interface QrCardProps {
 const QrCard = ({ children, fullWidth = false }: QrCardProps) => {
   return (
     <div className={`card rounded-lg relative ${fullWidth ? "w-full" : ""}`}>
-      <div className="absolute rounded-full -top-[75px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-[var(--pale-mint)] p-3">
+      <div className="absolute rounded-full top-[-75px] left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-(--pale-mint) p-3">
         <Image
           src="/qr_code.png"
           width="50"

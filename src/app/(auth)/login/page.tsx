@@ -1,14 +1,28 @@
 import Image from "next/image";
-import LoginForm from "@/components/Form/AuthForms/LoginForm";
-import React from "react";
+import { LoginForm } from "@/components/FormLogic/(Auth)/Login-Form"
 
-const LoginPage = () => {
+export default function LoginPage() {
   return (
-    <div className="flex w-full overflow-hidden min-h-screen">
-      <div className="w-full md:max-w-full md:flex-1 bg-[var(--pale-mint)] flex justify-center">
-        <LoginForm />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 bg-pale-mint p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <div className="relative h-12 w-48">
+            <Image
+              priority
+              className="object-cover"
+              src="/temasekPolyBanner.png"
+              alt="Recycling bins"
+              fill
+            />
+          </div>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
+            <LoginForm />
+          </div>
+        </div>
       </div>
-      <div className="relative md:flex-1 border-gray-200 border-l-2">
+      <div className="relative hidden bg-muted lg:block">
         <Image
           priority
           className="object-cover"
@@ -18,7 +32,5 @@ const LoginPage = () => {
         />
       </div>
     </div>
-  );
-};
-
-export default LoginPage;
+  )
+}

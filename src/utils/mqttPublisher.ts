@@ -1,5 +1,5 @@
 "use server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 const MINIMUM_PUBLISH_INTERVAL = 5 * 1000; // 5 seconds
 

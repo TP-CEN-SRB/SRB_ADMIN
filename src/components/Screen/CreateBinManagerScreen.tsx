@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import SignUpBinForm from "../Form/AdminUserForms/SignUpBinForm";
+import SignUpBinForm from "../FormLogic/AdminUserForms/SignUpBinForm";
 import BinMapChartWithMarker from "../Map/BinMapChartWithMarker";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import { Button } from "../ui/button";
 import { IoMdClose } from "react-icons/io";
 interface ScreenProps {

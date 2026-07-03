@@ -1,4 +1,4 @@
-import { BinStatus } from "@prisma/client";
+import { BinStatus } from "@/generated/prisma";
 import { addDays } from "date-fns";
 import * as z from "zod";
 export const MAX_FILE_SIZE = 4 * 1024 * 1024;
@@ -134,7 +134,7 @@ const UpdateBinSchema = z.object({
   target: z.coerce.number().min(1, "Target must be 1 or more"),
   materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
   rewardPoints: z.coerce
-    .number({ invalid_type_error: "Reward points must be a number" })
+    .number({ error: "Reward points must be a number" })
     .min(0, "Must be 0 or more")
     .default(0),
   duration: z.coerce.number().min(1, "Duration must be 1 or more"),
@@ -150,7 +150,7 @@ export type MaterialType = (typeof MaterialEnum)[number];
   target: z.coerce.number().min(1, "Target must be 1 or more"),
   materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
   rewardPoints: z.coerce
-    .number({ invalid_type_error: "Reward points must be a number" })
+    .number({ error: "Reward points must be a number" })
     .min(0, "Must be 0 or more")
     .default(0),
 });
@@ -161,7 +161,7 @@ export const QuestTemplateSchema = z.object({
   target: z.coerce.number().min(1, "Target must be 1 or more"),
   materialType: z.enum(["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]),
   rewardPoints: z.coerce
-    .number({ invalid_type_error: "Reward points must be a number" })
+    .number({ error: "Reward points must be a number" })
     .min(0, "Must be 0 or more")
     .default(0),
   duration: z.coerce.number().min(1, "Duration must be 1 or more"),
@@ -199,8 +199,8 @@ const UpdateStoreSchema = z.object({
 const EventSchema = z.object({
   title: z.string().min(3, "Title is too short"),
   description: z.string().min(10, "Description is too short"),
-  startDate: z.date({ required_error: "Start date is required" }),
-  endDate: z.date({ required_error: "End date is required" }),
+  startDate: z.date({ error: "Start date is required" }),
+  endDate: z.date({ error: "End date is required" }),
 });
 
 const UpdateEventSchema = EventSchema.partial().extend({

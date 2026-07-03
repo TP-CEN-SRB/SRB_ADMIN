@@ -33,13 +33,17 @@ const Chart = ({ barChartData, pieChartData, barChartConfig }: ChartProps) => {
 
   useEffect(() => {
     const fetchFilteredPieData = async () => {
+
+      
       if (selectedDate) {
         const from = new Date(selectedDate);
         const to = new Date(selectedDate);
         to.setHours(23, 59, 59, 999);
 
         const updatedData = await getDisposalsByFaculty(from, to);
-        setFilteredPieData(updatedData);
+        const typedData = updatedData as { fac: string; count: number; fill: string; }[];
+
+        setFilteredPieData(typedData);
       }
     };
 
@@ -79,7 +83,7 @@ const Chart = ({ barChartData, pieChartData, barChartConfig }: ChartProps) => {
                 />
                 <ChartLegend
                   content={
-                    <ChartLegend className="flex flex-wrap justify-center items-center w-full gap-1 font-bold -translate-y-2 [&>*]:basis-1/4 [&>*]:justify-center" />
+                    <ChartLegend className="flex flex-wrap justify-center items-center w-full gap-1 font-bold -translate-y-2 *:basis-1/4 *:justify-center" />
                   }
                   verticalAlign="bottom"
                   height={50}

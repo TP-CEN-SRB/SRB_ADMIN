@@ -5,7 +5,7 @@ const AuthLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  return <div className="bg-[var(--pastel-green)]">{children}</div>;
+  return <div className="bg-(--pastel-green)">{children}</div>;
 };
 
 export default AuthLayout;

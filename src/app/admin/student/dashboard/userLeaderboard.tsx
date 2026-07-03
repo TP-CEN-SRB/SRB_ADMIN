@@ -294,7 +294,7 @@ const TopUserCard = ({
   return (
     <div className="bg-white rounded-lg shadow-md flex flex-col relative w-full">
       <div
-        className={`flex justify-end w-full h-32 md:h-40 bg-gradient-to-tr from-white ${gradients[rank]} px-4 rounded-t-lg`}
+        className={`flex justify-end w-full h-32 md:h-40 bg-linear-to-tr from-white ${gradients[rank]} px-4 rounded-t-lg`}
       >
         <Image
           src={icons[rank]}

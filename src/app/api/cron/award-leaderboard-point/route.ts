@@ -1,5 +1,5 @@
-import prisma from "@/lib/db";
-import { Role } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { Role } from "@/generated/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 /**

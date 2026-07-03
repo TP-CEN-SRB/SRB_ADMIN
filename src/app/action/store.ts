@@ -1,7 +1,7 @@
 "use server";
 
-import prisma from "@/lib/db";
-import { Faculty, Role } from "@prisma/client";
+import { prisma } from "@/lib/db";
+import { Faculty, Role } from "@/generated/prisma";
 import { hash } from "bcryptjs";
 import { getSessionUser } from "@/utils/getAuth";
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";

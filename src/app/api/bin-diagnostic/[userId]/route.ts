@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { handleBinDiagnostic } from "@/app/action/bin";
 
 export async function POST(

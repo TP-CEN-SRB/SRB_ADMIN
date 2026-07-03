@@ -1,9 +1,6 @@
 "use server";
-import { signIn, signOut } from "@/auth";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import {
-  LoginSchema,
-  SignUpAdminSchema,
   ResetSchema,
   NewAdminPasswordSchema,
   SignUpBinSchema,
@@ -11,63 +8,23 @@ import {
   UpdateStudentSchema,
   UpdateBinSchema,
 } from "@/schemas/auth";
-import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-import { compare, hash } from "bcryptjs";
-import { AuthError } from "next-auth";
 import { z } from "zod";
 import {
   generateVerificationToken,
   generatePasswordResetToken,
 } from "@/lib/tokens";
-import { sendVerificationEmail, sendPasswordResetEmail } from "@/lib/mail";
 import {
   ableToGenerateNewPasswordResetToken,
   getPasswordResetTokenByEmail,
   getPasswordResetTokenByToken,
 } from "@/utils/passwordResetToken";
-import { Faculty, Role } from "@prisma/client";
+import { Faculty, Role } from "@/generated/prisma";
 import {
   ableToGenerateNewVerificationToken,
   getVerificationTokenByEmail,
 } from "@/utils/verificationToken";
 import { getSessionUser } from "@/utils/getAuth";
 import { revalidatePath } from "next/cache";
-
-const signUp = async (values: z.infer<typeof SignUpAdminSchema>) => {
-  const validatedFields = SignUpAdminSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
-  }
-  const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name);
-  const email = formData.email;
-  const password = formData.password;
-  const confirmPassword = formData.confirmPassword;
-  if (password !== confirmPassword) {
-    return { error: "Passwords don't match!" };
-  }
-  const faculty = formData.faculty;
-  const existingUser = await prisma.user.findUnique({
-    where: { email: email },
-  });
-  if (existingUser) {
-    return { error: "User already exists!" };
-  }
-  const hashedPassword = await hash(password, 10);
-  await prisma.user.create({
-    data: {
-      name: name,
-      faculty: faculty,
-      email: email,
-      diploma: "N/A",
-      role: Role.ADMIN,
-      password: hashedPassword,
-    },
-  });
-  const verificationToken = await generateVerificationToken(email);
-  await sendVerificationEmail(verificationToken.email, verificationToken.token);
-  return { success: "Confirmation email sent!" };
-};
 
 const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
   const validatedFields = SignUpBinSchema.safeParse(values);
@@ -680,8 +637,8 @@ export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   });
 
 const userIds = aggregated
-  .map((user) => user.userId)
-  .filter((id): id is string => id !== null);
+  .map((user: { userId: any; }) => user.userId)
+  .filter((id: string): id is string => id !== null);
 
   if (userIds.length === 0) {
     return [];
@@ -737,8 +694,8 @@ const userIds = aggregated
   ]);
 
   const orderedDisposals = await Promise.all(
-    userIds.map(async (userId) => {
-      const disposal = userDisposals.find((d) => d.userId === userId) || {
+    userIds.map(async (userId: any) => {
+      const disposal = userDisposals.find((d: { userId: any; }) => d.userId === userId) || {
         _count: { id: 0 },
       };
 
@@ -752,8 +709,8 @@ const userIds = aggregated
       });
 
 
-      const userTestData = allTestData.filter((t) => t.user?.id === userId);
-      const materialCounts = userTestData.reduce((acc, item) => {
+      const userTestData = allTestData.filter((t: { user: { id: any; }; }) => t.user?.id === userId);
+      const materialCounts = userTestData.reduce((acc: { [x: string]: any; }, item: { bin: { binMaterial: { name: any; }; }; }) => {
         const materialName = item.bin?.binMaterial?.name;
         if (materialName) {
           acc[materialName] = (acc[materialName] || 0) + 1;
@@ -761,27 +718,31 @@ const userIds = aggregated
         return acc;
       }, {} as Record<string, number>);
 
-      const mostFrequentMaterial = Object.entries(materialCounts).reduce(
-        (max, [material, count]) =>
-          count > (max[1] || 0) ? [material, count] : max,
-        ["", 0]
-      )[0];
+        const mostFrequentMaterial = Object.entries(materialCounts).reduce(
+          (max, [material, count]) => {
+    // Treat null/undefined/missing as 0
+          const safeCount = count ?? 0; 
+          
+          return safeCount > (max[1] || 0)  ? [material, safeCount] : max;
+        },
+          ["", 0]
+        )[0];
 
       return {
         username: user?.name,
         userId,
         profileImageUrl: user?.profileImageUrl ?? null, // ✅ ADD THIS
         balance:
-          aggregated.find((d) => d.userId === userId)?._sum.pointsAwarded || 0,
+          aggregated.find((d: { userId: any; }) => d.userId === userId)?._sum.pointsAwarded || 0,
         disposalCount: disposal._count.id,
         redemptionCount:
-          userRedemptions.find((r) => r.userId === userId)?._count?.id || 0,
+          userRedemptions.find((r: { userId: any; }) => r.userId === userId)?._count?.id || 0,
         mostFrequentMaterial: mostFrequentMaterial || undefined,
       };
     })
   );
 
-  return orderedDisposals.sort((a, b) => b.balance - a.balance);
+  return orderedDisposals.sort((a: { balance: number; }, b: { balance: number; }) => b.balance - a.balance);
 };
 
 const listOfBinManagersUsed = async () => {
@@ -795,7 +756,7 @@ const listOfBinManagersUsed = async () => {
       _count: { select: { bins: true } },
     },
   });
-  return binManagers.map((binUser) => ({
+  return binManagers.map((binUser: { id: string; name: string; email: string; faculty: string; _count: { bins: number; }; }) => ({
     id: binUser?.id as string,
     name: binUser?.name as string,
     email: binUser?.email as string,

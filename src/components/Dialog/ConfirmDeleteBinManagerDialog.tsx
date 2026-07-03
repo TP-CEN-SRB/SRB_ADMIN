@@ -1,7 +1,7 @@
 "use client";
 
 import { deleteBinUser } from "@/app/action/user";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -22,7 +22,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
-import CustomFormMessage from "../Form/CustomFormMessage";
+import CustomFormMessage from "../FormLogic/CustomFormMessage";
 import { Loader2, AlertTriangle } from "lucide-react";
 
 interface DeleteBinManagerDialogProps {
@@ -47,8 +47,7 @@ const ConfirmDeleteBinManagerDialog = ({
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
-        toast({
-          title: "Bin Manager Deleted",
+        toast("Bin Manager Deleted",{
           description:
             "The bin manager and all their assigned bins have been permanently deleted.",
         });

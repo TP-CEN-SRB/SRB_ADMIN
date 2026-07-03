@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { MqttClient } from "mqtt";
 import { getHeartbeat } from "@/app/action/bin";
 import { publishMqtt, connectMqtt } from "@/lib/mqtt";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import {
   FaHeartbeat,
   FaBatteryFull,
@@ -47,8 +47,7 @@ export default function SmartBinDashboard() {
 
   const handleMqttCommand = async (command: "on" | "off" | "time") => {
     if (!mqttClient) {
-      toast({
-        title: "MQTT Not Connected",
+      toast( "MQTT Not Connected", {
         description: "Client is not connected to the broker.",
         variant: "default",
       });
@@ -59,8 +58,7 @@ export default function SmartBinDashboard() {
     const payload = JSON.stringify({ command });
 
     try {
-      toast({
-        title: `Sending \"${command}\"...`,
+      toast( `Sending \"${command}\"...`,{
         description: "Sending command to SRB Power system.",
         variant: "default",
       });
@@ -68,8 +66,7 @@ export default function SmartBinDashboard() {
       const success = await publishMqtt(topic, payload);
 
       if (success) {
-        toast({
-          title: "Command Sent",
+        toast( "Command Sent",{
           description:
             command === "on"
               ? "System switched to manual ON mode."
@@ -79,16 +76,14 @@ export default function SmartBinDashboard() {
           variant: "default",
         });
       } else {
-        toast({
-          title: "MQTT Error",
+        toast( "MQTT Error",{
           description: `Failed to send \"${command}\".`,
           variant: "destructive",
         });
       }
     } catch (err) {
       console.error("MQTT Publish Error:", err);
-      toast({
-        title: "Unexpected Error",
+      toast( "Unexpected Error",{
         description: `Something went wrong sending \"${command}\".`,
         variant: "destructive",
       });

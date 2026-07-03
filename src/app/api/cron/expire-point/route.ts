@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 /**
  * Expire user's points if they have been inactive (Points not updated for 3 months)

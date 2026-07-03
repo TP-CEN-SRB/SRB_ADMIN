@@ -44,7 +44,7 @@ import { MoreHorizontal } from "lucide-react";
 import Link from "next/link";
 
 import Card from "@/components/Card/Card";
-import FormHeader from "@/components/Form/FormHeader";
+import FormHeader from "@/components/FormLogic/FormHeader";
 import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog";
 
 interface Event {

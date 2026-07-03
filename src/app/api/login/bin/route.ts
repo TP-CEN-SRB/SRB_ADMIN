@@ -1,6 +1,6 @@
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { LoginSchema } from "@/schemas/auth";
-import { Role } from "@prisma/client";
+import { Role } from "@/generated/prisma";
 import { compare } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";

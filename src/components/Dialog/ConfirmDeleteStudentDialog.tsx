@@ -16,10 +16,10 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { deleteStudent } from "@/app/action/user";
 import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../Form/CustomFormMessage";
+import CustomFormMessage from "../FormLogic/CustomFormMessage";
 import { useRouter } from "next/navigation";
 import { useMediaQuery } from "react-responsive";
 interface DialogProps {
@@ -41,8 +41,7 @@ const ConfirmDeleteStudentDialog = ({
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
-        toast({
-          title: "Success!",
+        toast.success("success!",{
           description: data.success,
         });
         router.push("/admin/student");

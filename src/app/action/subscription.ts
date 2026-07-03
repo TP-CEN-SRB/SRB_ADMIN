@@ -1,5 +1,5 @@
 "use server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { SubscriptionSchema } from "@/schemas";
 import { getSessionUser } from "@/utils/getAuth";
 import { revalidatePath } from "next/cache";

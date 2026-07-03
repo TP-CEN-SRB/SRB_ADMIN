@@ -1,5 +1,5 @@
 import { deleteBin } from "@/app/action/bin";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { useRouter } from "next/navigation";
 import React, { useState, useTransition } from "react";
 import { useMediaQuery } from "react-responsive";
@@ -19,7 +19,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import CustomFormMessage from "../Form/CustomFormMessage";
+import CustomFormMessage from "../FormLogic/CustomFormMessage";
 import { Button } from "../ui/button";
 import { Loader2 } from "lucide-react";
 import { formatDateTime } from "@/utils/dateFilter";
@@ -45,8 +45,7 @@ const ConfirmDeleteBinDialog = ({
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
-        toast({
-          title: "Bin deleted successfully",
+        toast.success( "Bin deleted successfully",{
           description: (
             <div>
               Bin deleted at {datetime}
@@ -56,7 +55,6 @@ const ConfirmDeleteBinDialog = ({
             </div>
           ),
           duration: 2000,
-          variant: "default",
         });
         router.push("/admin/bin");
       }

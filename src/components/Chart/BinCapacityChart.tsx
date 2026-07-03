@@ -55,7 +55,7 @@ export default function BinCapacityChart({
       <ChartContainer config={chartConfig} className="min-h-[200px] max-w-24">
         <BarChart accessibilityLayer data={chartData}>
           <XAxis
-            className="font-bold !text-slate-800"
+            className="font-bold text-slate-800!"
             dataKey="name"
             tickLine={false}
             tickMargin={10}

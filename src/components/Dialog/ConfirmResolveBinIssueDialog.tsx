@@ -1,5 +1,5 @@
 import { updateBinStatus } from '@/app/action/bin';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner'
 import { formatDateTime } from '@/utils/dateFilter';
 import { BinStatus } from '@prisma/client';
 import { useRouter } from 'next/navigation';
@@ -21,7 +21,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import CustomFormMessage from '../Form/CustomFormMessage';
+import CustomFormMessage from '../FormLogic/CustomFormMessage';
 import { Button } from '../ui/button';
 import { Loader2, Router } from 'lucide-react';
 
@@ -46,8 +46,7 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
       if (!error && success !== undefined) {
         handleDialogOpen();
         handleResolved();
-        toast({
-          title: "Bin status updated successfully",
+        toast("Bin status updated successfully",{
           description: (
             <div>
               Bin status updated at {datetime}
@@ -57,12 +56,10 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
             </div>
           ),
           duration: 2000,
-          variant: "default",
         });
       }
       else{
-        toast({
-          title: "Bin status update failed",
+        toast("Bin status update failed",{
           description: (
             <div>
               Bin status updated at {datetime}
@@ -72,7 +69,6 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
             </div>
           ),
           duration: 2000,
-          variant: "destructive",
         });
       }
     });

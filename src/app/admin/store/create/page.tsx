@@ -1,4 +1,4 @@
-import CreateStoreForm from "@/components/Form/StoreForms/CreateStoreForm";
+import CreateStoreForm from "@/components/FormLogic/StoreForms/CreateStoreForm";
 import React from "react";
 
 const CreateStorePage = () => {

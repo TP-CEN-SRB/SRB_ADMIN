@@ -1,4 +1,4 @@
-import CreateQuestForm from "@/components/Form/QuestForms/CreateQuestForm";
+import CreateQuestForm from "@/components/FormLogic/QuestForms/CreateQuestForm";
 import React from "react";
 
 const CreateQuestPage = () => {

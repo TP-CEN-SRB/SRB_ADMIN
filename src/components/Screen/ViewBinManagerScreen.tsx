@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import HeartbeatBinCard from "../Card/BinHeartbeatCard";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 
 import {
   LineChart,

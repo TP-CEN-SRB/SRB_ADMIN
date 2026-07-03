@@ -26,7 +26,7 @@ import {
   MdMarkEmailRead,
   MdOutlineBarChart,
 } from "react-icons/md";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import {
   ColumnDef,
   flexRender,

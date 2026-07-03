@@ -1,7 +1,7 @@
 "use server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
-import { TransactionType } from "@prisma/client";
+import { TransactionType } from "@/generated/prisma";
 
 const getTransactionByUserId = async (
   userId: string,

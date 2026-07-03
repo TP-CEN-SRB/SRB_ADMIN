@@ -1,5 +1,5 @@
 import { getBinMaterialById } from "@/app/action/binMaterial";
-import UpdateBinMaterialForm from "@/components/Form/BinForms/UpdateBinMaterialForm";
+import UpdateBinMaterialForm from "@/components/FormLogic/BinForms/UpdateBinMaterialForm";
 import { notFound } from "next/navigation";
 import React from "react";
 

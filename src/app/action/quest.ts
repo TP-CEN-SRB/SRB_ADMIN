@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import { QuestSchema, UpdateQuestSchema } from "@/schemas";
 import { z } from "zod";
@@ -53,7 +53,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
       select: { id: true },
     });
 
-    const userQuests = users.map((u) => ({
+    const userQuests = users.map((u: { id: any; }) => ({
       userId: u.id,
       questId: quest.id,
       progress: 0,

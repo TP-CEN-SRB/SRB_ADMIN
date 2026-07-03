@@ -1,6 +1,6 @@
 "use client";
 import { maxBound } from "@/utils/map";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import Map, {
   AttributionControl,
   FullscreenControl,
@@ -77,7 +77,7 @@ export default function BinMapChartWithMarker({
         <ScaleControl />
         <AttributionControl
           position="bottom-right"
-          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20px;width:20px;"/>&nbsp;<a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp;&copy;&nbsp;contributors&nbsp;&#124;&nbsp;<a href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
+          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20px;width:20px;"/>&nbsp;<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp;&copy;&nbsp;contributors&nbsp;&#124;&nbsp;<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
         />
         {data.map((binManager) => (
           <Marker

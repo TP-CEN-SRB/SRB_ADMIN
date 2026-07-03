@@ -1,6 +1,6 @@
 "use server";
 
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import { EventSchema, UpdateEventSchema } from "@/schemas";
 import { z } from "zod";
@@ -45,7 +45,7 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
       select: { id: true },
     });
 
-    const userEvents = students.map((u) => ({
+    const userEvents = students.map((u: { id: any; }) => ({
       userId: u.id,
       eventId: event.id,
       points: 0,

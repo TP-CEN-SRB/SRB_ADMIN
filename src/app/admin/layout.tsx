@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileAppSidebar } from "@/components/mobile-app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/utils/getAuth";
 import { redirect } from "next/navigation"; // ✅ import redirect helper
 import React from "react";

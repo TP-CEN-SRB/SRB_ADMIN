@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { generateTransferQrToken } from "@/lib/jwt-tokens";
 
 export const POST = async (req: NextRequest) => {

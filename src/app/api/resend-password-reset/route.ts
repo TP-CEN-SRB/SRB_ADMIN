@@ -1,8 +1,8 @@
 // app/api/resend-password-reset/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { generatePasswordResetToken } from "@/lib/tokens";
-import { sendPasswordResetEmail } from "@/lib/mail";
+import { sendPasswordResetEmail } from "@/lib/resend";
 import { ableToGenerateNewPasswordResetToken } from "@/utils/passwordResetToken";
 
 export async function POST(req: NextRequest) {

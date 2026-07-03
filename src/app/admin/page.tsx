@@ -19,11 +19,11 @@ const fetchDashboardData = async (startDate?: Date, endDate?: Date, filter?: str
 
   // 🧠 Compute hybrid status
   const totalFuncBins = heartbeatData.filter(
-    (b) => b.effectiveStatus === "FUNCTIONAL"
+    (b: { effectiveStatus: string; }) => b.effectiveStatus === "FUNCTIONAL"
   ).length;
 
   const totalUMBins = heartbeatData.filter(
-    (b) => b.effectiveStatus === "UNDER_MAINTENANCE"
+    (b: { effectiveStatus: string; }) => b.effectiveStatus === "UNDER_MAINTENANCE"
   ).length;
 
   const totalCount = heartbeatData.length;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { MoreHorizontal } from "lucide-react";
 
 import Card from "@/components/Card/Card";
-import FormHeader from "@/components/Form/FormHeader";
+import FormHeader from "@/components/FormLogic/FormHeader";
 
 import {
   Table,

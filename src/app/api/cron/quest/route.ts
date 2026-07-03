@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 
 /**
  * Replace the 3 oldest quests with 3 new NORMAL quests.

@@ -34,7 +34,7 @@ import { DateRange } from '@/utils/dateUtils';
 import { IoMdInformationCircleOutline } from "react-icons/io";
 import { truncateText } from '@/utils/truncateString';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { toast } from '@/hooks/use-toast';
+import { toast } from "sonner"
 import { useRouter } from 'next/navigation';
 import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
@@ -155,8 +155,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
               setLineChart(DBLineChartData);
             }
         } catch (error){
-            toast({
-              title: "Error!",
+            toast.error("Error!",{
               description: "Failed to fetch data, Handle Period Change",
               duration: 2000,
               variant: "destructive",
@@ -328,8 +327,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
         return data;
         }
         catch (error){
-          toast({
-            title: "Error!",
+          toast.error("Error!",{
             description: "Failed to fetch data",
             duration: 2000,
             variant: "destructive",
@@ -421,7 +419,7 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
                         <DialogTrigger asChild>
                           <IoMdInformationCircleOutline className='text-xl sm:text-3xl text-[#f44336] mr-2 hover:cursor-pointer hover:animate-sway'/>
                         </DialogTrigger>
-                        <DialogContent className="w-[90vw] min-h-[500px] max-h-[90vh] sm:max-w-screen-sm rounded-md flex flex-col items-center">
+                        <DialogContent className="w-[90vw] min-h-[500px] max-h-[90vh] sm:max-w-(--breakpoint-sm) rounded-md flex flex-col items-center">
                           <DialogHeader className='w-full items-center'>
                             <DialogTitle>Alert Center</DialogTitle>
                             <DialogDescription>

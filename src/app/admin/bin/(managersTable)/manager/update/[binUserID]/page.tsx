@@ -1,6 +1,6 @@
 import { getAllBinUsers } from "@/app/action/user";
 import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import React from "react";
 
@@ -31,7 +31,7 @@ const UpdateBinManagersPage = async ({
     notFound();
   }
   const filteredBinManagers = binManagers.filter(
-    (manager) => manager.id !== binUser.id
+    (manager: { id: any; }) => manager.id !== binUser.id
   );
   return (
     <UpdateBinManagerScreen
@@ -40,7 +40,7 @@ const UpdateBinManagersPage = async ({
         lat: binUser.lat?.toNumber(),
         long: binUser.long?.toNumber(),
       }}
-      data={filteredBinManagers.map((user) => ({
+      data={filteredBinManagers.map((user: { lat: { toNumber: () => any; }; long: { toNumber: () => any; }; }) => ({
         ...user,
         lat: user.lat?.toNumber(),
         long: user.long?.toNumber(),

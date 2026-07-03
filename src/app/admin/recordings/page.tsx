@@ -1,5 +1,5 @@
 import React from "react";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import VideoDataTable from "./videoDataTable";
 
 const getData = async () => {
@@ -7,7 +7,7 @@ const getData = async () => {
     orderBy: { createdAt: "desc" },
   });
 
-  return videos.map((video) => ({
+  return videos.map((video: { id: any; name: any; fileUrl: any; durationInSeconds: any; createdAt: { toISOString: () => any; }; }) => ({
     id: video.id,
     name: video.name,
     url: video.fileUrl,

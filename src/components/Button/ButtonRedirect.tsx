@@ -21,27 +21,27 @@ const ButtonRedirect = ({
     indigo: {
       default: "bg-indigo-500 hover:bg-indigo-600 text-gray-50",
       outline:
-        "border border-indigo-500 bg-[var(--pale-mint)] text-indigo-500 hover:bg-indigo-50",
+        "border border-indigo-500 bg-(--pale-mint) text-indigo-500 hover:bg-indigo-50",
     },
     red: {
       default: "bg-red-500 hover:bg-red-600 text-gray-50",
       outline:
-        "border border-red-500 bg-[var(--pale-mint)] text-red-500 hover:bg-red-50",
+        "border border-red-500 bg-(--pale-mint) text-red-500 hover:bg-red-50",
     },
     amber: {
       default: "bg-amber-500 hover:bg-amber-600 text-gray-50",
       outline:
-        "border border-amber-500 bg-[var(--pale-mint)] text-amber-500 hover:bg-amber-50",
+        "border border-amber-500 bg-(--pale-mint) text-amber-500 hover:bg-amber-50",
     },
     emerald: {
       default: "bg-emerald-500 hover:bg-emerald-600 text-gray-50",
       outline:
-        "border border-emerald-500 bg-[var(--pale-mint)] text-emerald-500 hover:bg-emerald-50",
+        "border border-emerald-500 bg-(--pale-mint) text-emerald-500 hover:bg-emerald-50",
     },
     slate: {
       default: "bg-slate-500 hover:bg-slate-600 text-gray-50",
       outline:
-        "border border-slate-500 bg-[var(--pale-mint)] text-slate-500 hover:bg-slate-50",
+        "border border-slate-500 bg-(--pale-mint) text-slate-500 hover:bg-slate-50",
     },
   };
 

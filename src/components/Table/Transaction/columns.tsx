@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { TransactionType } from "@prisma/client";
+import { TransactionType } from "@/generated/prisma";
 import {
   Tooltip,
   TooltipContent,

@@ -1,5 +1,5 @@
 import { maxBound } from "@/utils/map";
-import { Faculty } from "@prisma/client";
+import { Faculty } from "@/generated/prisma";
 import * as z from "zod";
 // todo: uncomment the email validation after demonstration
 /**

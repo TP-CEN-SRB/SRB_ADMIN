@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { ArrowLeftCircle, Clock4 } from "lucide-react";
 import Link from "next/link";
 

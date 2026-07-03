@@ -1,4 +1,4 @@
-import CreateBinMaterialForm from "@/components/Form/BinForms/CreateBinMaterialForm";
+import CreateBinMaterialForm from "@/components/FormLogic/BinForms/CreateBinMaterialForm";
 import React from "react";
 
 const CreateBinMaterialPage = () => {

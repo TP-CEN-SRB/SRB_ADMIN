@@ -16,10 +16,10 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "../ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import { deleteSubscription } from "@/app/action/subscription";
 import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../Form/CustomFormMessage";
+import CustomFormMessage from "../FormLogic/CustomFormMessage";
 import { useMediaQuery } from "react-responsive";
 interface DialogProps {
   subscriptionId: string;
@@ -39,8 +39,7 @@ const ConfirmDeleteSubscriptionDialog = ({
       setError(data?.error as string);
       if (!data.error && data.success !== undefined) {
         handleDialogOpen();
-        toast({
-          title: "Success!",
+        toast.success("success!",{
           description: data.success,
         });
       }

@@ -1,6 +1,6 @@
-import prisma from "@/lib/db";
+import { prisma } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"
 
 export const GET = async (
   req: NextRequest,

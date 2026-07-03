@@ -46,7 +46,7 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
       cell: ({ row }) => (
         <div className="flex items-start gap-2">
           <AlertTriangle className="text-red-500 w-4 h-4 mt-1" />
-          <span className="whitespace-pre-wrap break-words">{row.original.message}</span>
+          <span className="whitespace-pre-wrap wrap-break-word">{row.original.message}</span>
         </div>
       ),
     },

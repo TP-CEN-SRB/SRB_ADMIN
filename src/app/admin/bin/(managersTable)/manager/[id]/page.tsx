@@ -13,7 +13,7 @@ const BinCapacityPage = async ({ params }: { params: Promise<{ id: string }> }) 
     <div className="flex flex-col justify-center items-center h-full">
       <h1 className="text-slate-800 mb-8">Bin Capacity</h1>
       <div className="grid place-items-center gap-4 md:grid-cols-5 sm:grid-cols-3 grid-cols-2">
-        {bins.map((bin, index) => (
+        {bins.map((bin: { currentCapacity: number; binMaterial: { name: string; }; status: string; }, index: React.Key | null | undefined) => (
           <BinCapacityChart
             key={index}
             currentCapacity={bin.currentCapacity}

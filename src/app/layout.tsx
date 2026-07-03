@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 import "react-image-crop/dist/ReactCrop.css";
 import "mapbox-gl/dist/mapbox-gl.css";
-import ReactQueryProvider from "./providers/reactqueryprovider";
-import "@/lib/mqtt"; // start MQTT listener on backend
+import "@/lib/mqtt";
+import { Inter } from "next/font/google";
+import { cn } from "@/lib/utils";
+
+const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -32,12 +34,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={cn("font-sans", inter.variable)}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ReactQueryProvider>
-          <main>{children}</main>
-          <Toaster />
-        </ReactQueryProvider>
+        <main>{children}</main>
       </body>
     </html>
   );

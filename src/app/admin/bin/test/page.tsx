@@ -8,7 +8,7 @@ import {
   updateCommandUpdatedAt,
   resetCommandCooldown,
 } from "@/utils/mqttPublisher";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner"
 import clsx from "clsx";
 
 const materials = ["plastic", "general", "paper"] as const;
@@ -60,11 +60,11 @@ const TestBinPage = () => {
 
   const handleMaterialTest = async (material: string) => {
     if (!binId) {
-      toast({ title: "Missing Bin ID" });
+      toast("Missing Bin ID");
       return;
     }
     if (!mqttClient) {
-      toast({ title: "MQTT not connected" });
+      toast("MQTT not connected");
       return;
     }
 
@@ -73,14 +73,13 @@ const TestBinPage = () => {
     const topic = `srb/${material}/${binId}`;
     const payload = JSON.stringify({ command: "detect" });
 
-    toast({ title: `Testing ${material} bin...` });
+    toast(`Testing ${material} bin...`);
 
     await mqttClient.subscribe(topic);
 
     const canPublish = await ableToPublishMqttMessage(binId);
     if (!canPublish) {
-      toast({
-        title: "Cooldown not finished",
+      toast( "Cooldown not finished",{
         description: `Wait before retrying ${material}`,
       });
       updateStatus(material, "failed");
@@ -93,15 +92,14 @@ const TestBinPage = () => {
       const acknowledged = await waitForReadOnce(material);
       if (acknowledged) {
         updateStatus(material, "success");
-        toast({ title: `${material} bin responded ✅` });
+        toast(`${material} bin responded ✅`);
       } else {
         updateStatus(material, "failed");
-        toast({ title: `${material} bin did not respond ❌` });
+        toast(`${material} bin did not respond ❌`);
       }
     } else {
       updateStatus(material, "failed");
-      toast({
-        title: "Failed to send",
+      toast("Failed to send",{
         description: `Could not send to ${material}`,
       });
     }
@@ -109,12 +107,11 @@ const TestBinPage = () => {
 
   const handleResetCooldown = async () => {
     if (!binId) {
-      toast({ title: "Missing Bin ID" });
+      toast("Missing Bin ID");
       return;
     }
     await resetCommandCooldown(binId);
-    toast({
-      title: "Cooldown reset",
+    toast("Cooldown reset",{
       description: "You can now test again immediately",
     });
   };

@@ -1,6 +1,6 @@
 import { getEventById } from "@/app/action/event";
 import NotFoundPage from "@/app/not-found";
-import UpdateEventForm from "@/components/Form/EventForms/UpdateEventForm";
+import UpdateEventForm from "@/components/FormLogic/EventForms/UpdateEventForm";
 import { notFound } from "next/navigation";
 import React from "react";
 
