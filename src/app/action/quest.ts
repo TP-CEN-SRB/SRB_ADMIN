@@ -1,7 +1,8 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
+import { authClient } from "@/lib/auth-client"
+const { data: session } = await authClient.getSession()
 import { QuestSchema, UpdateQuestSchema } from "@/schemas";
 import { z } from "zod";
 
@@ -23,7 +24,8 @@ type GetQuestsResult = {
 };
 
 export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
 
   if (user?.role !== "ADMIN") {
     return { error: "Unauthorized" };
@@ -48,12 +50,12 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
     const users = await prisma.user.findMany({
       where: {
         role: "STUDENT",
-        emailVerified: { not: null },
+        emailVerified: true,
       },
       select: { id: true },
     });
 
-    const userQuests = users.map((u: { id: any; }) => ({
+    const userQuests = users.map((u) => ({
       userId: u.id,
       questId: quest.id,
       progress: 0,
@@ -76,7 +78,8 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
 };
 
 export const deleteQuest = async (questId: string) => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
 
   if (user?.role !== "ADMIN") {
     return { error: "Unauthorized" };
@@ -118,7 +121,8 @@ export const updateQuest = async (
   id: string,
   data: z.infer<typeof UpdateQuestSchema>
 ) => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
 
   if (user?.role !== "ADMIN") {
     return { error: "Unauthorized" };
@@ -170,7 +174,9 @@ export const getQuests = async (
   sortOrder: string | undefined,
   sortItem: string | undefined
 ): Promise<GetQuestsResult> => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
+
   if (user?.role !== "ADMIN") {
     return { questCount: 0, quests: [] };
   }

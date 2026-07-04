@@ -2,14 +2,14 @@ import Card from "@/components/Card/Card";
 import CardHeader from "@/components/Card/CardHeader";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
+import { authClient } from "@/lib/auth-client"
 import React from "react";
 import { getNameInitials } from "@/utils/getNameInitials";
 import AdminProfileMore from "@/components/Dropdown/AdminProfileMore";
 
 const AdminProfilePage = async () => {
-  const sessionUser = await getSessionUser();
-
+  const { data: session } = await authClient.getSession()
+  const sessionUser = session?.user;
   if (!sessionUser) return null;
 
   const user = await prisma.user.findUnique({
@@ -93,7 +93,7 @@ const AdminProfilePage = async () => {
               <div>
                 <p className="text-slate-600">Account verified</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user.emailVerified?.toLocaleDateString() ?? "Not verified"}
+                  {user.emailVerified ? "Verified" : "Not verified"}
                 </p>
               </div>
 

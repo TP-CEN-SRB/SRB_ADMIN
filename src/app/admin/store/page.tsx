@@ -4,7 +4,7 @@ import StoreDataTable from "./storeDataTable";
 
 const getData = async () => {
   const stores = await getStoreAccounts();
-  return stores.map((store: { id: any; name: any; email: any; faculty: any; point: { balance: any; updatedAt: { toISOString: () => any; }; }; _count: { transactions: any; }; createdAt: string | number | Date; }) => ({
+  return stores.map((store) => ({
     id: store.id,
     name: store.name,
     email: store.email,

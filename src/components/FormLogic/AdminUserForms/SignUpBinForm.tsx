@@ -19,7 +19,7 @@ import { Loader2 } from "lucide-react";
 import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
 import Card from "@/components/Card/Card";
 import { signUpBin } from "@/app/action/user";
-import FacultyComboBox from "../AuthForms/FacultyCombobox";
+import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox";
 import { FaMapMarker } from "react-icons/fa";
 
 interface FormProps {

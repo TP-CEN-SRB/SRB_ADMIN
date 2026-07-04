@@ -105,9 +105,7 @@ const UserPage = async ({ params }: { params: Promise<{ id: string }> }) => {
               <div>
                 <p className="text-slate-600">Account verified</p>
                 <p className="text-slate-700 font-bold text-xl">
-                  {user.emailVerified
-                    ? user.emailVerified.toLocaleDateString()
-                    : "Not verified"}
+                  {user.emailVerified ? "Verified" : "Not verified"}
                 </p>
               </div>
 

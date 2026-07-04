@@ -45,7 +45,7 @@ export const GET = async (req: NextRequest) => {
     const userIds = studentPoints
       .filter((s) => s._sum.pointsAwarded && s._sum.pointsAwarded > 0)
       .map((s) => s.userId)
-      .filter((id): id is string => id !== null);
+      .filter((id)=> id !== null);
 
     if (userIds.length === 0) {
       return NextResponse.json({ FacultyCategory: [] }, { status: 200 });

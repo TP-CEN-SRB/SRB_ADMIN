@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDateTime } from "@/utils/dateFilter";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { BsActivity } from "react-icons/bs";
 import { RiDeleteBin6Line, RiRecycleFill } from "react-icons/ri";
 import { TiWarningOutline } from "react-icons/ti";
@@ -32,13 +32,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Loading from '@/app/admin/loading';
 import { DateRange } from '@/utils/dateUtils';
 import { IoMdInformationCircleOutline } from "react-icons/io";
-import { truncateText } from '@/utils/truncateString';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from "sonner"
 import { useRouter } from 'next/navigation';
-import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MoreHorizontal } from 'lucide-react';
-import { IoLocation } from "react-icons/io5";
+import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from "date-fns";
 
 
@@ -158,7 +155,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
             toast.error("Error!",{
               description: "Failed to fetch data, Handle Period Change",
               duration: 2000,
-              variant: "destructive",
             })
         } finally {
             setIsFetching(false);
@@ -330,7 +326,6 @@ const BinDashboard = ({DBBarChartData, DBPieChartData, DBLineChartData, initialS
           toast.error("Error!",{
             description: "Failed to fetch data",
             duration: 2000,
-            variant: "destructive",
           })
         }
       },

@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
+import { authClient } from "@/lib/auth-client";
 import { EventSchema, UpdateEventSchema } from "@/schemas";
 import { z } from "zod";
 
@@ -21,7 +21,9 @@ type GetEventsResult = {
 };
 
 export const createEvent = async (data: z.infer<typeof EventSchema>) => {
-  const user = await getSessionUser();
+
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
 
   if (user?.role !== "ADMIN") {
     return { error: "Unauthorized" };
@@ -40,12 +42,12 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
     const students = await prisma.user.findMany({
       where: {
         role: "STUDENT",
-        emailVerified: { not: null },
+        emailVerified: true,
       },
       select: { id: true },
     });
 
-    const userEvents = students.map((u: { id: any; }) => ({
+    const userEvents = students.map((u) => ({
       userId: u.id,
       eventId: event.id,
       points: 0,
@@ -69,7 +71,8 @@ export const updateEvent = async (
   id: string,
   data: z.infer<typeof UpdateEventSchema>
 ) => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
   if (user?.role !== "ADMIN") return { error: "Unauthorized" };
 
   try {
@@ -92,7 +95,8 @@ export const updateEvent = async (
 };
 
 export const deleteEvent = async (eventId: string) => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
   if (user?.role !== "ADMIN") return { error: "Unauthorized" };
 
   try {
@@ -129,7 +133,8 @@ type UserInEvent = {
 };
 
 export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]> => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
   if (user?.role !== "ADMIN") return [];
 
   const userEvents = await prisma.userEvent.findMany({
@@ -155,7 +160,8 @@ export const getEvents = async (
   sortOrder: string | undefined,
   sortItem: string | undefined
 ): Promise<GetEventsResult> => {
-  const user = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const user = session?.user
   if (user?.role !== "ADMIN") return { eventCount: 0, events: [] };
 
   const sortableItems = ["title", "startDate", "endDate", "createdAt"];

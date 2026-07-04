@@ -5,10 +5,10 @@ const BinManagerMap = async () => {
   const binManagers = await getAllBinUsers();
   return (
     <MapChart
-      data={binManagers.map((user: { lat: { toNumber: () => any; }; long: { toNumber: () => any; }; }) => ({
+      data={binManagers.map((user) => ({
         ...user,
-        lat: user.lat?.toNumber(),
-        long: user.long?.toNumber(),
+        lat: user.lat?.toNumber() ?? undefined,
+        long: user.long?.toNumber() ?? undefined,
       }))}
     />
   );

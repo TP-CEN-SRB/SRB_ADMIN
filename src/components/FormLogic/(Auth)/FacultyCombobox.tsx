@@ -16,11 +16,11 @@ import { Button } from "@/components/ui/button";
 import { Faculty } from "@/generated/prisma";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { ControllerRenderProps } from "react-hook-form";
+import { ControllerRenderProps, FieldValues } from "react-hook-form";
 import { z } from "zod";
 
 type FacultyComboBoxProps<T extends z.ZodTypeAny> = {
-  field: ControllerRenderProps<z.infer<T>>;
+  field: ControllerRenderProps<z.infer<T> extends FieldValues ? z.infer<T> : FieldValues>;
   disabled: boolean;
 };
 

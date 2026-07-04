@@ -637,8 +637,8 @@ export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   });
 
 const userIds = aggregated
-  .map((user: { userId: any; }) => user.userId)
-  .filter((id: string): id is string => id !== null);
+  .map((user) => user.userId)
+  .filter((id) => id !== null);
 
   if (userIds.length === 0) {
     return [];
@@ -694,8 +694,8 @@ const userIds = aggregated
   ]);
 
   const orderedDisposals = await Promise.all(
-    userIds.map(async (userId: any) => {
-      const disposal = userDisposals.find((d: { userId: any; }) => d.userId === userId) || {
+    userIds.map(async (userId) => {
+      const disposal = userDisposals.find((d) => d.userId === userId) || {
         _count: { id: 0 },
       };
 
@@ -709,7 +709,7 @@ const userIds = aggregated
       });
 
 
-      const userTestData = allTestData.filter((t: { user: { id: any; }; }) => t.user?.id === userId);
+      const userTestData = allTestData.filter((t) => t.user?.id === userId);
       const materialCounts = userTestData.reduce((acc: { [x: string]: any; }, item: { bin: { binMaterial: { name: any; }; }; }) => {
         const materialName = item.bin?.binMaterial?.name;
         if (materialName) {
@@ -756,7 +756,8 @@ const listOfBinManagersUsed = async () => {
       _count: { select: { bins: true } },
     },
   });
-  return binManagers.map((binUser: { id: string; name: string; email: string; faculty: string; _count: { bins: number; }; }) => ({
+  return binManagers.map((binUser
+  ) => ({
     id: binUser?.id as string,
     name: binUser?.name as string,
     email: binUser?.email as string,

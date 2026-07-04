@@ -126,12 +126,10 @@ export default function DateRangePicker({
 
           <Calendar
             className="min-h-[350px]"
-            initialFocus
             mode="range"
             defaultMonth={new Date()}
             selected={date}
-            fromDate={fromDate}
-            toDate={toDate}
+            disabled={[{ before: fromDate }, { after: toDate }]}
             onSelect={handleDateChange}
             numberOfMonths={isDesktop ? 2 : 1}
             onMonthChange={(newMonth) => {

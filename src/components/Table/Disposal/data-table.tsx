@@ -17,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import SortByFilter from "./sortBy";
 import ExportCSV from "./export-csv";
-import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
 // import SortByFilter from "./sortBy";
 // import ExportCSV from "./export-csv";
 
@@ -29,6 +28,11 @@ interface DataTableProps<TData, TValue> {
   material: string;
   location: string;
 }
+
+function capitalizeFirstLetter(str: string){
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 export function DataTable<TData, TValue>({
   binId,

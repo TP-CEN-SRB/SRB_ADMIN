@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FacultyComboBox from "../AuthForms/FacultyCombobox";
+import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox";
 import { Button } from "@/components/ui/button";
 import { updateBinUser } from "@/app/action/user";
 import { toast } from "sonner"

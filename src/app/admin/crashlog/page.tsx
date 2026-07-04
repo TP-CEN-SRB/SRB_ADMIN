@@ -8,7 +8,7 @@ const getData = async () => {
     orderBy: { createdAt: "desc" },
   });
 
-  return logs.map((log: { id: any; message: any; createdAt: { toISOString: () => any; }; }) => ({
+  return logs.map((log) => ({
     id: log.id,
     message: log.message,
     createdAt: log.createdAt.toISOString(),

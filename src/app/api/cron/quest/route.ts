@@ -44,7 +44,7 @@ export const PUT = async (req: NextRequest) => {
     const users = await prisma.user.findMany({
       where: {
         role: "STUDENT",
-        emailVerified: { not: null },
+        emailVerified: true,
       },
     });
 

@@ -31,7 +31,7 @@ const UpdateBinManagersPage = async ({
     notFound();
   }
   const filteredBinManagers = binManagers.filter(
-    (manager: { id: any; }) => manager.id !== binUser.id
+    (manager) => manager.id !== binUser.id
   );
   return (
     <UpdateBinManagerScreen
@@ -40,7 +40,7 @@ const UpdateBinManagersPage = async ({
         lat: binUser.lat?.toNumber(),
         long: binUser.long?.toNumber(),
       }}
-      data={filteredBinManagers.map((user: { lat: { toNumber: () => any; }; long: { toNumber: () => any; }; }) => ({
+      data={filteredBinManagers.map((user) => ({
         ...user,
         lat: user.lat?.toNumber(),
         long: user.long?.toNumber(),

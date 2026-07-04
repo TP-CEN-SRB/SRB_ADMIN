@@ -47,9 +47,8 @@ export default function SmartBinDashboard() {
 
   const handleMqttCommand = async (command: "on" | "off" | "time") => {
     if (!mqttClient) {
-      toast( "MQTT Not Connected", {
+      toast.success( "MQTT Not Connected", {
         description: "Client is not connected to the broker.",
-        variant: "default",
       });
       return;
     }
@@ -58,46 +57,47 @@ export default function SmartBinDashboard() {
     const payload = JSON.stringify({ command });
 
     try {
-      toast( `Sending \"${command}\"...`,{
+      toast.success( `Sending \"${command}\"...`,{
         description: "Sending command to SRB Power system.",
-        variant: "default",
       });
 
       const success = await publishMqtt(topic, payload);
 
       if (success) {
-        toast( "Command Sent",{
+        toast.error( "Command Sent",{
           description:
             command === "on"
               ? "System switched to manual ON mode."
               : command === "off"
               ? "System switched to manual OFF mode."
               : "System switched to RTC time-managed mode.",
-          variant: "default",
         });
       } else {
-        toast( "MQTT Error",{
+        toast.error( "MQTT Error",{
           description: `Failed to send \"${command}\".`,
-          variant: "destructive",
         });
       }
     } catch (err) {
       console.error("MQTT Publish Error:", err);
-      toast( "Unexpected Error",{
+      toast.error( "Unexpected Error",{
         description: `Something went wrong sending \"${command}\".`,
-        variant: "destructive",
       });
     }
   };
 
+  const binsWithUser = bins.filter(
+    (bin): bin is Bin & { userId: string } =>
+      "userId" in bin && typeof bin.userId === "string"
+  );
+
   const userOptions = Array.from(
-    new Map(bins.map((b) => [b.userId, b.user.name])).entries()
-  ).map(([id, name]) => ({ id, name }));
+    new Map(binsWithUser.map((b) => [b.userId, b.userId])).entries()
+  ).map(([id]) => ({ id, name: id }));
 
   const filteredBins =
     selectedUserId === "all"
       ? bins
-      : bins.filter((bin) => bin.userId === selectedUserId);
+      : binsWithUser.filter((bin) => bin.userId === selectedUserId);
 
   return (
     <div className="p-6">
@@ -143,7 +143,15 @@ export default function SmartBinDashboard() {
               </div>
               <Tooltip id={`tooltip-${bin.id}`} />
 
-              <div className="text-lg mt-2">{bin.binMaterial.name}</div>
+              <div className="text-lg mt-2">
+                {"binMaterial" in bin &&
+                bin.binMaterial &&
+                typeof bin.binMaterial === "object" &&
+                "name" in bin.binMaterial &&
+                typeof bin.binMaterial.name === "string"
+                  ? bin.binMaterial.name
+                  : "Unknown Material"}
+              </div>
               <div className={`text-sm mt-1 ${statusColor}`}>{statusText}</div>
 
               {bin.lastHeartBeat && (

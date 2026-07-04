@@ -1,8 +1,7 @@
 import { updateBinStatus } from '@/app/action/bin';
 import { toast } from 'sonner'
 import { formatDateTime } from '@/utils/dateFilter';
-import { BinStatus } from '@prisma/client';
-import { useRouter } from 'next/navigation';
+import { BinStatus } from '@/generated/prisma';
 import React, { useState, useTransition } from 'react'
 import { useMediaQuery } from 'react-responsive';
 import {

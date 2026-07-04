@@ -23,12 +23,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter";
-
 interface BinDisposalsByTime {
   hour: string;
   [key: string]: string | number; // Index signature to allow dynamic material properties
 }
+
+function capitalizeFirstLetter(str: string){
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
 
 interface ChartProps {
   chartData: BinDisposalsByTime[];

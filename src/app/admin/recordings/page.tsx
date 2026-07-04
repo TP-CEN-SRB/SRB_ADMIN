@@ -7,7 +7,7 @@ const getData = async () => {
     orderBy: { createdAt: "desc" },
   });
 
-  return videos.map((video: { id: any; name: any; fileUrl: any; durationInSeconds: any; createdAt: { toISOString: () => any; }; }) => ({
+  return videos.map((video) => ({
     id: video.id,
     name: video.name,
     url: video.fileUrl,

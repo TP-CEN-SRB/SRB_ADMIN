@@ -41,7 +41,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         emailType,
         faculty
       );
-      setAllData(students as Student[]);
+      setAllData(students as unknown as Student[]);
       setInitiateDownload(true);
     });
   };
@@ -73,7 +73,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
                 faculty: student.faculty,
                 pointBalance: student.point?.balance ?? "N/A",
                 disposals: student._count?.disposals ?? 0,
-                redemptions: student._count.redemptions ?? 0,
+                redemptions: student._count?.redemptions ?? 0,
                 createdAt: student.createdAt,
                 updatedAt: student.updatedAt,
                 pointsUpdatedAt: student.point?.updatedAt,

@@ -11,7 +11,20 @@ import {
 import { Bar, BarChart, XAxis } from "recharts";
 import BinsDeployedFaculty from "./binsDeployedFaculty";
 import { useEffect, useState } from "react";
-import { DatePicker } from "@/components/ui/datepicker";
+
+
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+
 import { getDisposalsByFaculty } from "@/app/action/bin"; 
 interface monthlyChartData {
   month: string;
@@ -107,7 +120,29 @@ const Chart = ({ barChartData, pieChartData, barChartConfig }: ChartProps) => {
             Disposals Made By Faculty
           </h2>
           <div className="flex justify-center mb-4">
-            <DatePicker value={selectedDate} onChange={setSelectedDate} />
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[280px] justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                />
+              </PopoverContent>
+            </Popover>
+
           </div>
           <div className="flex-1">
             <BinsDeployedFaculty data={filteredPieData} />

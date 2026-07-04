@@ -20,6 +20,7 @@ export const signupSchema = z.object({
 
 export type SignupFormValue = z.infer<typeof signupSchema>
 
+
 export const loginSchema = z.object({
 
   email: z.email({ error: "Email is required." })

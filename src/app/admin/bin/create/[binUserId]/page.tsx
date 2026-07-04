@@ -33,9 +33,7 @@ const CreateBinFormPageWithBinUser = async ({
             materials={getAllMaterials}
             binUserId={binUserId}
             binLocation={getBinLocation?.location}
-            usedBinMaterials={getUnavailableMaterialsForBin.map(
-              (bin: { binMaterial: any; }) => bin.binMaterial
-            )}
+            usedBinMaterials={getUnavailableMaterialsForBin.map((bin) => bin.binMaterial)}
           />
         </div>
       </div>

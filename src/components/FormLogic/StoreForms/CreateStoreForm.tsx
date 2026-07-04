@@ -29,9 +29,7 @@ const StoreSchema = z
   .object({
     name: z.string().min(1, "Store name is required"),
     email: z.string().email("Invalid email"),
-    faculty: z.enum(FacultyEnum, {
-      errorMap: () => ({ message: "Faculty is required" }),
-    }),
+    faculty: z.enum(["ENG", "BUS", "ASC", "DES", "HSS", "IIT", "OTHERS", "EXT"], { error: "Please select a faculty." }),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters"),

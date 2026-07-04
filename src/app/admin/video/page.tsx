@@ -53,9 +53,8 @@ const VideoStreamPage = () => {
           const result = await saveRecording(payload.url, payload.duration);
 
           if (result?.error) {
-            toast( "❌ Failed to Save",{
+            toast.error( "❌ Failed to Save",{
               description: result.error,
-              variant: "destructive",
             });
           } else {
             toast("✅ Recording Complete",{

@@ -27,7 +27,7 @@ export async function GET() {
     // ✅ strict Date[] (remove nulls)
     const latestDates: Date[] = grouped
       .map((g) => g._max.timestamp)
-      .filter((t): t is Date => t !== null);
+      .filter((t)=> t !== null);
 
     // No logs at all
     if (latestDates.length === 0) {

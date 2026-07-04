@@ -1,12 +1,12 @@
 import EditAdminForm from "@/components/FormLogic/AdminUserForms/EditAdminForm";
 import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
+import { authClient } from "@/lib/auth-client";
 import { Faculty } from "@/generated/prisma";
 import { notFound } from "next/navigation";
-import React from "react";
 
 const EditProfilePage = async () => {
-  const sessionUser = await getSessionUser();
+  const { data: session } = await authClient.getSession()
+  const sessionUser = session?.user;
   if (!sessionUser) {
     notFound();
   }

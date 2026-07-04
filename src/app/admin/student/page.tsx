@@ -30,7 +30,7 @@ const ViewStudentPage = async ({
   return (
     <DataTable
       columns={columns}
-      data={students === undefined ? [] : students}
+      data={students === undefined ? [] : (students as any[])}
       count={studentCount === undefined ? 0 : studentCount}
     />
   );

@@ -2,7 +2,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { MobileAppSidebar } from "@/components/mobile-app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation"; // ✅ import redirect helper
 import React from "react";
 
@@ -12,7 +13,11 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   // 🔹 Step 1: Get the currently logged-in user
-  const sessionUser = await getSessionUser();
+  const sessionData = await auth.api.getSession({
+    headers: await headers() 
+  });
+
+  const sessionUser = sessionData?.user;
 
   // 🔹 Step 2: Redirect if not authenticated
   if (!sessionUser?.id) {

@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import FacultyComboBox from "@/components/Form/AuthForms/FacultyCombobox";
+import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox";
 import FormHeader from "@/components/FormLogic/FormHeader";
 import { Loader2 } from "lucide-react";
 import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";

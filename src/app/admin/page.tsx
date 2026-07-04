@@ -10,6 +10,24 @@ import {
   getHeartbeat,
 } from "../action/bin";
 import BinDashboard from "./bin/(allBinsTable)/binDashboard";
+
+type ExpectedUMBinsData = {
+  id: string;
+  user: {
+    lat: string | null;
+    long: string | null;
+    location: string | null;
+  };
+  binMaterial: {
+    name: string;
+  };
+}[];
+
+type ExpectedTimeLineData = {
+  hour: string;
+  [key: string]: string | number;
+}[];
+
 const Page = async () => {
 const fetchDashboardData = async (startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";
@@ -19,11 +37,11 @@ const fetchDashboardData = async (startDate?: Date, endDate?: Date, filter?: str
 
   // 🧠 Compute hybrid status
   const totalFuncBins = heartbeatData.filter(
-    (b: { effectiveStatus: string; }) => b.effectiveStatus === "FUNCTIONAL"
+    (b) => b.effectiveStatus === "FUNCTIONAL"
   ).length;
 
   const totalUMBins = heartbeatData.filter(
-    (b: { effectiveStatus: string; }) => b.effectiveStatus === "UNDER_MAINTENANCE"
+    (b) => b.effectiveStatus === "UNDER_MAINTENANCE"
   ).length;
 
   const totalCount = heartbeatData.length;
@@ -55,14 +73,17 @@ const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: string
     return {
       DBBarChartData,
       DBPieChartData,
-      binDisposalsTimeLine,
+      // Tell TypeScript this matches the dashboard's expected timeline type
+      binDisposalsTimeLine: binDisposalsTimeLine as ExpectedTimeLineData, 
     };
   };
 
 const fetchUMBinsData = async (startDate?: Date, endDate?: Date, filter?: string) => {
   "use server";
   const UMBinsData = await getFaultyBins(startDate, endDate, filter);
-  return UMBinsData;
+  
+  // Tell TypeScript this matches the dashboard's expected UM bins type
+  return UMBinsData as unknown as ExpectedUMBinsData; 
 }
 
 const [dashboardData,chartsData,UMBinsData] = await Promise.all([fetchDashboardData(), fetchChartsData(), fetchUMBinsData()]);

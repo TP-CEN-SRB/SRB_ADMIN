@@ -5,7 +5,7 @@ import MaterialDataTable from "./materialDataTable";
 
 const getData = async () => {
   const allBinMaterials = await getAllMaterials();
-  return allBinMaterials.map((binMat: { id: string; name: string; multiplier: number; carbon_multiplier: number; }) => ({
+  return allBinMaterials.map((binMat) => ({
     id: binMat.id as string,
     name: binMat.name as string,
     multiplier: binMat.multiplier as number,

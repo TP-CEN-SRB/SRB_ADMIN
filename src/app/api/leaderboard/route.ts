@@ -50,7 +50,7 @@ export const GET = async (req: NextRequest) => {
 
     const userIds = data
       .map((user) => user.userId)
-      .filter((id): id is string => id !== null)
+      .filter((id)=> id !== null)
 
     if (userIds.length === 0) {
       return NextResponse.json({ orderedDisposals: [] }, { status: 200 })

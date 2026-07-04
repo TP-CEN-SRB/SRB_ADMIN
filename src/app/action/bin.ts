@@ -314,7 +314,7 @@ export const getBarChartData = async (
       return await Promise.all(
         days.map(async (day, dayIndex) => {
           const filtered = allDisposals.filter(
-            (d: { createdAt: string | number | Date; }) => new Date(d.createdAt).getDay() === (dayIndex + 1) % 7
+            (d) => new Date(d.createdAt).getDay() === (dayIndex + 1) % 7
           );
 
           const materialCounts = { ...baseMaterialCounts };
@@ -339,7 +339,7 @@ export const getBarChartData = async (
       const weekRanges = getWeeksInMonth(dateFrom ?? new Date(), dateTo ?? new Date());
       return await Promise.all(
         weekRanges.map(async ({ week, start, end }) => {
-          const filtered = allDisposals.filter((d: { createdAt: string | number | Date; }) => {
+          const filtered = allDisposals.filter((d) => {
             const date = normalizeDate(new Date(d.createdAt));
             return date >= start && date <= end;
           });
@@ -365,7 +365,7 @@ export const getBarChartData = async (
     return await Promise.all(
       months.map(async (month, monthIndex) => {
         const filtered = allDisposals.filter(
-          (d: { createdAt: string | number | Date; }) => new Date(d.createdAt).getMonth() === monthIndex
+          (d) => new Date(d.createdAt).getMonth() === monthIndex
         );
 
         const materialCounts = { ...baseMaterialCounts };
@@ -421,10 +421,10 @@ export const getBinCountsByMaterial = async (
   });
 
   const countMap = new Map(
-    binCounts.map((count: { binMaterialId: any; _count: { _all: any; }; }) => [count.binMaterialId, count._count._all])
+    binCounts.map((count) => [count.binMaterialId, count._count._all])
   );
 
-  return allMaterials.map((material: { name: any; id: unknown; }, index: number) => ({
+  return allMaterials.map((material, index) => ({
     binType: material.name,
     binCount: countMap.get(material.id) || 0,
     fill: `hsl(${170 + index * 15}, 70%, 50%)`,
@@ -467,7 +467,7 @@ export const getPieChartData = async (
     {}
   );
 
-  binsWithFaculty.forEach((bin: { user: { faculty: string | number; }; }) => {
+  binsWithFaculty.forEach((bin) => {
     if (bin.user.faculty) {
       binsByFaculty[bin.user.faculty]++;
     }
@@ -576,7 +576,7 @@ export const getBinDisposalsByTime = async (
 
   const result: DisposalsByHour[] = hours.map((hour) => ({
     hour,
-    ...Object.fromEntries(binMaterials.map((material: { name: any; }) => [material.name, 0])),
+    ...Object.fromEntries(binMaterials.map((material) => [material.name, 0])),
   }));
 
   totalDisposals.forEach((disposal: { createdAt: string | number | Date; bin: { binMaterial: { name: any; }; }; }) => {
@@ -665,7 +665,7 @@ export const getDisposalDates = async (): Promise<string[]> => {
   const uniqueDateStrings = Array.from(
     // Explicitly define this as a Set of strings
     new Set<string>(
-      disposalDates.map((d: { createdAt: string }) =>
+      disposalDates.map((d) =>
         new Date(d.createdAt).toISOString().split("T")[0]
       )
     )
@@ -726,10 +726,10 @@ export const listOfBinMaterialInUse = async () => {
   });
   const binMaterialsArr = await prisma.binMaterial.findMany();
   const binMaterialsMappedArr = await Promise.all(
-    binsArr.map(async (bin: { binMaterialId: any; }) => {
+    binsArr.map(async (bin) => {
       return {
         name: binMaterialsArr.find(
-          (material: { id: any; }) => material.id === bin.binMaterialId
+          (material) => material.id === bin.binMaterialId
         )?.name,
       };
     })
@@ -767,7 +767,7 @@ export const getFaultyBins = async (
     },
   });
 
-  return faultyBins.map((bin: { user: { lat: { toString: () => any; }; long: { toString: () => any; }; }; }) => ({
+  return faultyBins.map((bin) => ({
     ...bin,
     user: {
       ...bin.user,
@@ -812,7 +812,7 @@ export const getHeartbeat = async () => {
   });
 
   const latestTimestamps = new Map(
-    diagnostics.map((d: { binId: any; _max: { timestamp: any; }; }) => [d.binId, d._max.timestamp])
+    diagnostics.map((d) => [d.binId, d._max.timestamp])
   );
 
   const timestamps = Array.from(latestTimestamps.values()).filter(
@@ -826,10 +826,10 @@ export const getHeartbeat = async () => {
   });
 
   const logsByBin = new Map<string, typeof latestLogs[number]>();
-  latestLogs.forEach((log: { binId: string; }) => logsByBin.set(log.binId, log));
+  latestLogs.forEach((log) => logsByBin.set(log.binId, log));
 
   // STEP 2 — Evaluate each bin
-  const evaluated = bins.map((bin: { lastHeartBeat: string | number | Date; id: string; }) => {
+  const evaluated = bins.map((bin) => {
     const isOnline =
       bin.lastHeartBeat &&
       now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10;
@@ -858,7 +858,7 @@ export const getHeartbeat = async () => {
 
   // STEP 3 — Sync DB statuses only if changed
   await Promise.all(
-    evaluated.map((bin: { status: any; effectiveStatus: any; id: any; }) => {
+    evaluated.map((bin) => {
       if (bin.status !== bin.effectiveStatus) {
         return prisma.bin.update({
           where: { id: bin.id },
@@ -915,14 +915,14 @@ export const getSmartAlerts = async () => {
     where: {
       timestamp: {
         in: binDiags
-          .map((d: { _max: { timestamp: any; }; }) => d._max.timestamp)
-          .filter((t: Date): t is Date => t !== null),
+          .map((d) => d._max.timestamp)
+          .filter((t): t is Date => !!t),
       },
     },
   });
 
   const binLogsByBin = new Map<string, typeof latestBinLogs[number]>();
-  latestBinLogs.forEach((log: { binId: string; }) => binLogsByBin.set(log.binId, log));
+  latestBinLogs.forEach((log) => binLogsByBin.set(log.binId, log));
 
   // ============================
   // SCANNER DIAGNOSTICS
@@ -936,8 +936,8 @@ export const getSmartAlerts = async () => {
     where: {
       timestamp: {
         in: scannerDiags
-          .map((d: { _max: { timestamp: any; }; }) => d._max.timestamp)
-          .filter((t: Date): t is Date => t !== null),
+          .map((d) => d._max.timestamp)
+          .filter((t): t is Date => !!t),
       },
     },
   });
@@ -946,7 +946,7 @@ export const getSmartAlerts = async () => {
     string,
     typeof latestScannerLogs[number]
   >();
-  latestScannerLogs.forEach((log: { userId: string; }) =>
+  latestScannerLogs.forEach((log: typeof latestScannerLogs[number]) =>
     scannerLogsByUser.set(log.userId, log)
   );
 
