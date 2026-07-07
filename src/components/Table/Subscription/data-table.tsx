@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import {
   ColumnDef,
   flexRender,
@@ -8,7 +8,7 @@ import {
   ColumnFiltersState,
   getFilteredRowModel,
   PaginationState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 import {
   Table,
   TableBody,
@@ -16,35 +16,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { RiMailAddFill } from "react-icons/ri";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { Input } from "@/components/ui/input"
+import { RiMailAddFill } from "react-icons/ri"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
+} from "@/components/ui/select"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
   const table = useReactTable({
     data,
     columns,
@@ -57,8 +57,8 @@ export function DataTable<TData, TValue>({
       pagination,
       columnFilters,
     },
-  });
-  const id = usePathname().split("/").slice(-1);
+  })
+  const id = usePathname().split("/").slice(-1)
 
   return (
     <div className="px-4">
@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -194,5 +194,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  );
+  )
 }

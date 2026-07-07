@@ -1,35 +1,35 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
-import EventUserFilterDropdown from "@admin/components/EventUserFilterDropdown";
+import React, { useState } from "react"
+import { Input } from "@/components/ui/input"
+import EventUserFilterDropdown from "@admin/components/EventUserFilterDropdown"
 
 type UserInEvent = {
-  points: number;
+  points: number
   user: {
-    id: string;
-    name: string | null;
-    email: string;
-    faculty: string;
-  };
-};
+    id: string
+    name: string | null
+    email: string
+    faculty: string
+  }
+}
 
 type Props = {
-  usersInEvent: UserInEvent[];
-};
+  usersInEvent: UserInEvent[]
+}
 
 const ClientEventUserTable = ({ usersInEvent }: Props) => {
-  const [selectedFaculties, setSelectedFaculties] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFaculties, setSelectedFaculties] = useState<string[]>([])
+  const [searchTerm, setSearchTerm] = useState("")
 
   const filteredUsers = usersInEvent
     .filter(({ user }) => {
       const facultyMatch =
-        selectedFaculties.length === 0 || selectedFaculties.includes(user.faculty);
-      const nameMatch = (user.name ?? "").toLowerCase().includes(searchTerm.toLowerCase());
-      return facultyMatch && nameMatch;
+        selectedFaculties.length === 0 || selectedFaculties.includes(user.faculty)
+      const nameMatch = (user.name ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+      return facultyMatch && nameMatch
     })
-    .sort((a, b) => b.points - a.points);
+    .sort((a, b) => b.points - a.points)
 
   return (
     <>
@@ -92,7 +92,7 @@ const ClientEventUserTable = ({ usersInEvent }: Props) => {
         </table>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default ClientEventUserTable;
+export default ClientEventUserTable

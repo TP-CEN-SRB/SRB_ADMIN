@@ -1,10 +1,10 @@
-import Link from "next/link";
-import React from "react";
+import Link from "next/link"
+
 
 interface RedirectProps {
-  href: string;
-  children: React.ReactNode;
-  disabled?: boolean;
+  href: string
+  children: React.ReactNode
+  disabled?: boolean
 }
 
 const FormRedirect = ({ href, children, disabled = false }: RedirectProps) => {
@@ -17,7 +17,7 @@ const FormRedirect = ({ href, children, disabled = false }: RedirectProps) => {
         {children}
       </Link>
     </div>
-  );
-};
+  )
+}
 
-export default FormRedirect;
+export default FormRedirect

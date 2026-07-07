@@ -1,12 +1,9 @@
-import CreateBinMaterialForm from "@/components/FormLogic/BinForms/CreateBinMaterialForm";
-import React from "react";
+import CreateBinMaterialForm from "@/components/FormLogic/(Bins)/CreateBinMaterialForm"
 
-const CreateBinMaterialPage = () => {
+export default function CreateBinMaterialPage() {
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
       <CreateBinMaterialForm />
     </div>
-  );
-};
-
-export default CreateBinMaterialPage;
+  )
+}

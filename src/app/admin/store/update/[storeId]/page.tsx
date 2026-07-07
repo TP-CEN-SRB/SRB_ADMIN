@@ -1,26 +1,26 @@
-import { getStoreById } from "@/app/action/store";
-import UpdateStoreForm from "@/components/FormLogic/StoreForms/UpdateStoreForm";
-import { notFound } from "next/navigation";
-import React from "react";
+import { getStoreById } from "@/app/action/store"
+import UpdateStoreForm from "@/components/FormLogic/StoreForms/UpdateStoreForm"
+import { notFound } from "next/navigation"
+
 
 const UpdateStorePage = async ({
   params,
 }: {
-  params: Promise<{ storeId: string }>;
+  params: Promise<{ storeId: string }>
 }) => {
   // Fetch store details
-  const { storeId } = await params; 
-  const store = await getStoreById(storeId);
+  const { storeId } = await params 
+  const store = await getStoreById(storeId)
 
   if (!store) {
-    notFound(); 
+    notFound() 
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs py-4">
       <UpdateStoreForm id={storeId} store={store} />
     </div>
-  );
-};
+  )
+}
 
-export default UpdateStorePage;
+export default UpdateStorePage

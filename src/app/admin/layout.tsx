@@ -1,37 +1,37 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import { MobileAppSidebar } from "@/components/mobile-app-sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation"; // ✅ import redirect helper
-import React from "react";
+import { AppSidebar } from "@/components/app-sidebar"
+import { MobileAppSidebar } from "@/components/mobile-app-sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
+import { prisma } from "@/lib/db"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { redirect } from "next/navigation" // ✅ import redirect helper
+
 
 export default async function AdminLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   // 🔹 Step 1: Get the currently logged-in user
   const sessionData = await auth.api.getSession({
     headers: await headers() 
-  });
+  })
 
-  const sessionUser = sessionData?.user;
+  const sessionUser = sessionData?.user
 
   // 🔹 Step 2: Redirect if not authenticated
   if (!sessionUser?.id) {
-    redirect("/login"); // 👈 redirect to your login page
+    redirect("/login") // 👈 redirect to your login page
   }
 
   // 🔹 Step 3: Fetch the full user record
   const user = await prisma.user.findUnique({
     where: { id: sessionUser.id },
-  });
+  })
 
   // Optional: if user not found (e.g. deleted in DB), redirect again
   if (!user) {
-    redirect("/login");
+    redirect("/login")
   }
 
   // 🔹 Step 4: Return the admin layout
@@ -45,5 +45,5 @@ export default async function AdminLayout({
         </div>
       </SidebarProvider>
     </div>
-  );
+  )
 }

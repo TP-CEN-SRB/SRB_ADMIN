@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import React, { useCallback, useMemo, useState } from "react";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { getTopTenUsers } from "@/app/action/user";
+import React, { useCallback, useMemo, useState } from "react"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { getTopTenUsers } from "@/app/action/user"
 import {
   Table,
   TableBody,
@@ -11,14 +11,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 import {
   ColumnDef,
   flexRender,
@@ -26,74 +26,74 @@ import {
   getPaginationRowModel,
   PaginationState,
   useReactTable,
-} from "@tanstack/react-table";
-import { FaArrowRight } from "react-icons/fa";
-import { useRouter } from "next/navigation";
-import { getNameInitials } from "@/utils/getNameInitials";
-import { DateRange } from "@/utils/dateUtils";
+} from "@tanstack/react-table"
+import { FaArrowRight } from "react-icons/fa"
+import { useRouter } from "next/navigation"
+import { getNameInitials } from "@/utils/getNameInitials"
+import { DateRange } from "@/utils/dateUtils"
 
-type FilterPeriod = "week" | "month" | "year";
+type FilterPeriod = "week" | "month" | "year"
 
 type User = {
-  username: string | undefined;
-  userId: string | undefined;
-  profileImageUrl?: string | null; // ✅ ADD THIS
-  balance: number;
-  disposalCount: number;
-  redemptionCount: number;
-  mostFrequentMaterial: string | undefined;
-};
+  username: string | undefined
+  userId: string | undefined
+  profileImageUrl?: string | null // ✅ ADD THIS
+  balance: number
+  disposalCount: number
+  redemptionCount: number
+  mostFrequentMaterial: string | undefined
+}
 
 interface LeaderboardData {
-  username: string | undefined;
-  userId: string | undefined;
-  profileImageUrl?: string | null; // ✅ ADD THIS
-  balance: number;
-  disposalCount: number;
-  redemptionCount: number;
-  mostFrequentMaterial: string | undefined;
+  username: string | undefined
+  userId: string | undefined
+  profileImageUrl?: string | null // ✅ ADD THIS
+  balance: number
+  disposalCount: number
+  redemptionCount: number
+  mostFrequentMaterial: string | undefined
 }
 
 
 const UsersLeaderboard = ({
   leaderBoardData,
 }: {
-  leaderBoardData: LeaderboardData[];
+  leaderBoardData: LeaderboardData[]
 }) => {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [activePeriod, setActivePeriod] = useState<FilterPeriod>("week");
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [activePeriod, setActivePeriod] = useState<FilterPeriod>("week")
   const [leaderBoard, setLeaderBoard] =
-    useState<LeaderboardData[]>(leaderBoardData);
+    useState<LeaderboardData[]>(leaderBoardData)
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const getDateRange = (period: FilterPeriod) => DateRange(period);
+  const getDateRange = (period: FilterPeriod) => DateRange(period)
 
   const handlePeriodChange = useCallback(async (period: FilterPeriod) => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const { startDate, endDate } = getDateRange(period);
-      const filteredData = await getTopTenUsers(startDate, endDate);
-      setLeaderBoard(filteredData);
-      setActivePeriod(period);
+      const { startDate, endDate } = getDateRange(period)
+      const filteredData = await getTopTenUsers(startDate, endDate)
+      setLeaderBoard(filteredData)
+      setActivePeriod(period)
       // reset pagination when filter changes
-      setPagination(prev => ({ ...prev, pageIndex: 0 }));
+      setPagination(prev => ({ ...prev, pageIndex: 0 }))
     } catch (error) {
-      console.error("Failed to fetch leaderboard data:", error);
+      console.error("Failed to fetch leaderboard data:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [getDateRange]);
+  }, [getDateRange])
 
 const columns: ColumnDef<User>[] = useMemo(() => [
     {
       id: "username",
       header: "User",
       cell: ({ row }) => {
-        const user = row.original;
+        const user = row.original
         return (
           <div className="flex items-center gap-3 justify-center">
             <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex items-center justify-center">
@@ -115,7 +115,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
               {user.username}
             </span>
           </div>
-        );
+        )
       },
     },
     {
@@ -156,10 +156,10 @@ const columns: ColumnDef<User>[] = useMemo(() => [
         </button>
       ),
     },
-  ], [router]);
+  ], [router])
 
-  const topThree = useMemo(() => leaderBoard.slice(0, 3), [leaderBoard]);
-  const tableData = useMemo(() => leaderBoard.slice(3), [leaderBoard]);
+  const topThree = useMemo(() => leaderBoard.slice(0, 3), [leaderBoard])
+  const tableData = useMemo(() => leaderBoard.slice(3), [leaderBoard])
 
   const table = useReactTable({
     data: tableData,
@@ -168,7 +168,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     state: { pagination },
-  });
+  })
 
   return (
     <div className="p-2 md:p-4 w-full">
@@ -276,20 +276,20 @@ const columns: ColumnDef<User>[] = useMemo(() => [
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const TopUserCard = ({
   user,
   rank,
   onViewProfile,
 }: {
-  user: LeaderboardData;
-  rank: number;
-  onViewProfile: () => void;
+  user: LeaderboardData
+  rank: number
+  onViewProfile: () => void
 }) => {
-  const icons = ["/first_icon.png", "/second_icon.png", "/third_icon.png"];
-  const gradients = ["to-yellow-200", "to-slate-400", "to-yellow-700"];
+  const icons = ["/first_icon.png", "/second_icon.png", "/third_icon.png"]
+  const gradients = ["to-yellow-200", "to-slate-400", "to-yellow-700"]
 
   return (
     <div className="bg-white rounded-lg shadow-md flex flex-col relative w-full">
@@ -338,20 +338,20 @@ const TopUserCard = ({
         <FaArrowRight className="ml-2" />
       </Button>
     </div>
-  );
-};
+  )
+}
 
 const StatItem = ({
   label,
   value,
 }: {
-  label: string;
-  value: string | number;
+  label: string
+  value: string | number
 }) => (
   <div className="flex flex-col">
     <span className="text-xl md:text-2xl font-bold">{value}</span>
     <span className="text-xs md:text-sm">{label}</span>
   </div>
-);
+)
 
-export default UsersLeaderboard;
+export default UsersLeaderboard

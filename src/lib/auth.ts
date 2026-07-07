@@ -1,11 +1,11 @@
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./db";
+import { betterAuth } from "better-auth"
+import { prismaAdapter } from "better-auth/adapters/prisma"
+import { prisma } from "./db"
 
-import { resend, emailTemplate } from "./resend";
+import { resend, emailTemplate } from "./resend"
 
 import { apiKey } from "@better-auth/api-key"
-import { nextCookies } from "better-auth/next-js";
+import { nextCookies } from "better-auth/next-js"
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -16,12 +16,27 @@ export const auth = betterAuth({
         additionalFields: {
             faculty: {
                 type: "string", 
-                required: true,
+                required: false,
             },
 
             role: {
                 type: "string",
-                required: true,
+                required: false,
+            },
+
+            location: {
+                type: "string",
+                required: false,
+            },
+
+            lat: {
+                type: "number",
+                required: false,
+            },
+
+            long: {
+                type: "number",
+                required: false,
             },
         }
      },
@@ -38,11 +53,11 @@ export const auth = betterAuth({
                 to: user.email,
                 subject: "[Smart Bin System] Account Verification",
                 html: emailTemplate(url, "VERIFY"),
-            });
+            })
         }
     },
     
     plugins:[
       apiKey(),
       nextCookies()]
-});
+})

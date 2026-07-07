@@ -1,11 +1,11 @@
-import React from "react";
-import { prisma } from "@/lib/db";
-import VideoDataTable from "./videoDataTable";
+
+import { prisma } from "@/lib/db"
+import VideoDataTable from "./videoDataTable"
 
 const getData = async () => {
   const videos = await prisma.video.findMany({
     orderBy: { createdAt: "desc" },
-  });
+  })
 
   return videos.map((video) => ({
     id: video.id,
@@ -13,12 +13,12 @@ const getData = async () => {
     url: video.fileUrl,
     duration: video.durationInSeconds,
      createdAt: video.createdAt.toISOString(),
-  }));
-};
+  }))
+}
 
 const RecordingsPage = async () => {
-  const data = await getData();
-  return <VideoDataTable data={data} />;
-};
+  const data = await getData()
+  return <VideoDataTable data={data} />
+}
 
-export default RecordingsPage;
+export default RecordingsPage

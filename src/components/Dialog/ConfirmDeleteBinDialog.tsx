@@ -1,8 +1,8 @@
-import { deleteBin } from "@/app/action/bin";
+import { deleteBin } from "@/app/action/bin"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
-import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation"
+import React, { useState, useTransition } from "react"
+import { useMediaQuery } from "react-responsive"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -18,16 +18,16 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
-import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
-import { formatDateTime } from "@/utils/dateFilter";
+} from "@/components/ui/drawer"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
+import { Button } from "../ui/button"
+import { Loader2 } from "lucide-react"
+import { formatDateTime } from "@/utils/dateFilter"
 
 interface ConfirmDeleteBinDialogProps {
-  binId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  binId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 
 const ConfirmDeleteBinDialog = ({
@@ -35,16 +35,16 @@ const ConfirmDeleteBinDialog = ({
   isOpen,
   handleDialogOpen,
 }: ConfirmDeleteBinDialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const datetime = formatDateTime(new Date());
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const datetime = formatDateTime(new Date())
   const handleDelete = () => {
     startTransition(async () => {
-      const data = await deleteBin(binId);
-      setError(data?.error as string);
+      const data = await deleteBin(binId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast.success( "Bin deleted successfully",{
           description: (
             <div>
@@ -55,14 +55,14 @@ const ConfirmDeleteBinDialog = ({
             </div>
           ),
           duration: 2000,
-        });
-        router.push("/admin/bin");
+        })
+        router.push("/admin/bin")
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
@@ -125,7 +125,7 @@ const ConfirmDeleteBinDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteBinDialog;
+export default ConfirmDeleteBinDialog

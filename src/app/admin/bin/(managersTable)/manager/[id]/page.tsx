@@ -1,13 +1,13 @@
-import { getBinsByUserId } from "@/app/action/bin";
-import BinCapacityChart from "@/components/Chart/BinCapacityChart";
-import { notFound } from "next/navigation";
-import React from "react";
+import { getBinsByUserId } from "@/app/action/bin"
+import BinCapacityChart from "@/components/Chart/BinCapacityChart"
+import { notFound } from "next/navigation"
 
-const BinCapacityPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params; 
-  const bins = await getBinsByUserId(id);
+
+export default async function BinCapacityPage({ params }: { params: Promise<{ id: string }> }){
+  const { id } = await params 
+  const bins = await getBinsByUserId(id)
   if (bins.length === 0) {
-    notFound();
+    notFound()
   }
   return (
     <div className="flex flex-col justify-center items-center h-full">
@@ -23,7 +23,5 @@ const BinCapacityPage = async ({ params }: { params: Promise<{ id: string }> }) 
         ))}
       </div>
     </div>
-  );
-};
-
-export default BinCapacityPage;
+  )
+}

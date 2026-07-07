@@ -1,38 +1,38 @@
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { FaTableCells } from "react-icons/fa6";
-import { PiExportBold } from "react-icons/pi";
-import { IoIosDocument } from "react-icons/io";
-import { CSVLink } from "react-csv";
-import { Student } from "./columns";
-import { useSearchParams } from "next/navigation";
-import { getAllStudentUsers } from "@/app/action/user";
-import { Loader2 } from "lucide-react";
+} from "@/components/ui/dropdown-menu"
+import { FaTableCells } from "react-icons/fa6"
+import { PiExportBold } from "react-icons/pi"
+import { IoIosDocument } from "react-icons/io"
+import { CSVLink } from "react-csv"
+import { Student } from "./columns"
+import { useSearchParams } from "next/navigation"
+import { getAllStudentUsers } from "@/app/action/user"
+import { Loader2 } from "lucide-react"
 
 interface ExportCSVProps<TData> {
-  data: TData[];
+  data: TData[]
 }
 
 const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
-  const searchParams = useSearchParams();
-  const [allData, setAllData] = useState<Student[]>([]);
-  const [isPending, startTransition] = useTransition();
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [initiateDownload, setInitiateDownload] = useState(false);
-  const csvLinkRef = useRef<HTMLSpanElement>(null);
+  const searchParams = useSearchParams()
+  const [allData, setAllData] = useState<Student[]>([])
+  const [isPending, startTransition] = useTransition()
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [initiateDownload, setInitiateDownload] = useState(false)
+  const csvLinkRef = useRef<HTMLSpanElement>(null)
 
   const fetchAllData = () => {
     startTransition(async () => {
-      const query = searchParams.get("query");
-      const sortItem = searchParams.get("sortItem");
-      const sortOrder = searchParams.get("sortOrder");
-      const emailType = searchParams.get("emailType");
-      const faculty = searchParams.get("faculty");
+      const query = searchParams.get("query")
+      const sortItem = searchParams.get("sortItem")
+      const sortOrder = searchParams.get("sortOrder")
+      const emailType = searchParams.get("emailType")
+      const faculty = searchParams.get("faculty")
       const { students } = await getAllStudentUsers(
         null,
         query,
@@ -40,17 +40,17 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         (sortItem as string) ?? undefined,
         emailType,
         faculty
-      );
-      setAllData(students as unknown as Student[]);
-      setInitiateDownload(true);
-    });
-  };
+      )
+      setAllData(students as unknown as Student[])
+      setInitiateDownload(true)
+    })
+  }
 
   useEffect(() => {
     if (initiateDownload && allData.length > 0) {
-      csvLinkRef.current?.click();
+      csvLinkRef.current?.click()
     }
-  }, [allData, initiateDownload]);
+  }, [allData, initiateDownload])
 
   return (
     <DropdownMenu open={filterOpen} onOpenChange={setFilterOpen}>
@@ -88,7 +88,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         >
           <DropdownMenuItem
             onClick={(e) => {
-              fetchAllData();
+              fetchAllData()
             }}
             disabled={isPending || data.length < 1}
           >
@@ -120,7 +120,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         </CSVLink>
       )}
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default ExportCSV;
+export default ExportCSV

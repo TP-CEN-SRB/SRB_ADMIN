@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import Card from "@/components/Card/Card";
-import React, { useState, useTransition } from "react";
-import FormHeader from "../FormHeader";
+import Card from "@/components/Card/Card"
+import React, { useState, useTransition } from "react"
+import FormHeader from "../FormHeader"
 import {
   Form,
   FormControl,
@@ -10,27 +10,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../CustomFormMessage";
-import { updateEvent } from "@/app/action/event";
-import { UpdateEventSchema } from "@/schemas";
+} from "@/components/ui/form"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../CustomFormMessage"
+import { updateEvent } from "@/app/action/event"
+import { UpdateEventSchema } from "@/schemas"
 
 type Props = {
-  initialData: z.infer<typeof UpdateEventSchema>;
-};
+  initialData: z.infer<typeof UpdateEventSchema>
+}
 
 const UpdateEventForm = ({ initialData }: Props) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
 
   const form = useForm<z.infer<typeof UpdateEventSchema>>({
@@ -40,29 +40,29 @@ const UpdateEventForm = ({ initialData }: Props) => {
       startDate: new Date(initialData.startDate ?? new Date()),
       endDate: new Date(initialData.endDate ?? new Date()),
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof UpdateEventSchema>) => {
     startTransition(async () => {
       try {
-        setError("");
-        setSuccess("");
-        const result = await updateEvent(values.id, values);
+        setError("")
+        setSuccess("")
+        const result = await updateEvent(values.id, values)
         if (result?.success) {
           const time = new Date().toLocaleString("en-SG", {
             timeZone: "Asia/Singapore",
             hour12: false,
-          });
-          setSuccess("Event updated at " + time);
+          })
+          setSuccess("Event updated at " + time)
         } else {
-          setError(result?.error || "Unknown error");
+          setError(result?.error || "Unknown error")
         }
       } catch (err) {
-        console.error("updateEvent error:", err);
-        setError("An unexpected error occurred.");
+        console.error("updateEvent error:", err)
+        setError("An unexpected error occurred.")
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -151,7 +151,7 @@ const UpdateEventForm = ({ initialData }: Props) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default UpdateEventForm;
+export default UpdateEventForm

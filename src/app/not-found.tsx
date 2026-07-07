@@ -1,6 +1,6 @@
 // app/not-found.tsx
-import ButtonRedirect from "@/components/Button/ButtonRedirect";
-import Card from "@/components/Card/Card";
+import ButtonRedirect from "@/components/Button/ButtonRedirect"
+import Card from "@/components/Card/Card"
 
 export default function NotFoundPage() {
   return (
@@ -13,7 +13,7 @@ export default function NotFoundPage() {
               Oops! Page not found
             </h2>
             <p className="mt-4 text-slate-500">
-              Sorry, the page you&apos;re looking for doesn&apos;t exist or has
+              Sorry, the page you&aposre looking for doesn&apost exist or has
               been moved.
             </p>
             <ButtonRedirect href="/" rounded color="slate" variant="outline">
@@ -23,5 +23,5 @@ export default function NotFoundPage() {
         </Card>
       </div>
     </div>
-  );
+  )
 }

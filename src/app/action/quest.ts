@@ -1,39 +1,39 @@
-"use server";
+"use server"
 
-import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db"
 import { authClient } from "@/lib/auth-client"
 const { data: session } = await authClient.getSession()
-import { QuestSchema, UpdateQuestSchema } from "@/schemas";
-import { z } from "zod";
+import { QuestSchema, UpdateQuestSchema } from "@/schemas"
+import { z } from "zod"
 
 type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  target: number;
-  materialType: string;
-  rewardPoints: number;
-  startDate: Date | null;
-  endDate: Date | null;
-  createdAt: Date;
-};
+  id: string
+  title: string
+  description: string
+  target: number
+  materialType: string
+  rewardPoints: number
+  startDate: Date | null
+  endDate: Date | null
+  createdAt: Date
+}
 
 type GetQuestsResult = {
-  quests: Quest[];
-  questCount: number;
-};
+  quests: Quest[]
+  questCount: number
+}
 
 export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
   if (user?.role !== "ADMIN") {
-    return { error: "Unauthorized" };
+    return { error: "Unauthorized" }
   }
 
   try {
-    const now = new Date();
-    const endDate = new Date(now.getTime() + data.duration * 24 * 60 * 60 * 1000);
+    const now = new Date()
+    const endDate = new Date(now.getTime() + data.duration * 24 * 60 * 60 * 1000)
 
     const quest = await prisma.questDetails.create({
       data: {
@@ -45,7 +45,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
         startDate: now,
         endDate: endDate,
       },
-    });
+    })
 
     const users = await prisma.user.findMany({
       where: {
@@ -53,7 +53,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
         emailVerified: true,
       },
       select: { id: true },
-    });
+    })
 
     const userQuests = users.map((u) => ({
       userId: u.id,
@@ -61,43 +61,43 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
       progress: 0,
       isCompleted: false,
       completedAt: null,
-    }));
+    }))
 
     await prisma.userQuest.createMany({
       data: userQuests,
       skipDuplicates: true,
-    });
+    })
 
-    return { success: "Quest created and assigned to users", quest };
+    return { success: "Quest created and assigned to users", quest }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return { error: error.message };
+      return { error: error.message }
     }
-    return { error: "Failed to create quest" };
+    return { error: "Failed to create quest" }
   }
-};
+}
 
 export const deleteQuest = async (questId: string) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
   if (user?.role !== "ADMIN") {
-    return { error: "Unauthorized" };
+    return { error: "Unauthorized" }
   }
 
   try {
     await prisma.questDetails.delete({
       where: { id: questId },
-    });
+    })
 
-    return { success: "Quest deleted successfully" };
+    return { success: "Quest deleted successfully" }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return { error: error.message };
+      return { error: error.message }
     }
-    return { error: "Failed to delete quest" };
+    return { error: "Failed to delete quest" }
   }
-};
+}
 
 export const getUsersByQuestId = async (questId: string) => {
   const usersInQuest = await prisma.userQuest.findMany({
@@ -112,10 +112,10 @@ export const getUsersByQuestId = async (questId: string) => {
         },
       },
     },
-  });
+  })
 
-  return usersInQuest;
-};
+  return usersInQuest
+}
 
 export const updateQuest = async (
   id: string,
@@ -125,7 +125,7 @@ export const updateQuest = async (
   const user = session?.user
 
   if (user?.role !== "ADMIN") {
-    return { error: "Unauthorized" };
+    return { error: "Unauthorized" }
   }
 
   try {
@@ -139,16 +139,16 @@ export const updateQuest = async (
         rewardPoints: data.rewardPoints,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return { success: "Quest updated successfully", quest: updated };
+    return { success: "Quest updated successfully", quest: updated }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return { error: error.message };
+      return { error: error.message }
     }
-    return { error: "Failed to update quest" };
+    return { error: "Failed to update quest" }
   }
-};
+}
 
 export const getQuestById = async (id: string) => {
   return await prisma.questDetails.findUnique({
@@ -166,8 +166,8 @@ export const getQuestById = async (id: string) => {
       endDate: true,
       createdAt: true,
     },
-  });
-};
+  })
+}
 
 export const getQuests = async (
   page: number | null,
@@ -178,16 +178,16 @@ export const getQuests = async (
   const user = session?.user
 
   if (user?.role !== "ADMIN") {
-    return { questCount: 0, quests: [] };
+    return { questCount: 0, quests: [] }
   }
 
-  const sortableItems = ["title", "materialType", "target", "rewardPoints", "createdAt"];
-  const isInvalidPage = page != null && page < 0;
-  const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder);
-  const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem);
+  const sortableItems = ["title", "materialType", "target", "rewardPoints", "createdAt"]
+  const isInvalidPage = page != null && page < 0
+  const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder)
+  const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem)
 
   if (isInvalidPage || isInvalidSortOrder || isInvalidSortItem) {
-    return { questCount: 0, quests: [] };
+    return { questCount: 0, quests: [] }
   }
 
   const [questCount, quests] = await Promise.all([
@@ -212,7 +212,7 @@ export const getQuests = async (
         createdAt: true,
       },
     }),
-  ]);
+  ])
 
-  return { questCount, quests };
-};
+  return { questCount, quests }
+}

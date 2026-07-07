@@ -1,11 +1,11 @@
-"use client";
+"use client"
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { useDebouncedCallback } from "use-debounce";
+} from "@tanstack/react-table"
+import { useDebouncedCallback } from "use-debounce"
 import {
   Table,
   TableBody,
@@ -13,18 +13,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import TableFilter from "./filter";
-import InputFilter from "./input-filter";
-import SortByFilter from "./sortBy";
-import ExportCSV from "./export-csv";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import TableFilter from "./filter"
+import InputFilter from "./input-filter"
+import SortByFilter from "./sortBy"
+import ExportCSV from "./export-csv"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  count: number;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  count: number
 }
 
 export function DataTable<TData, TValue>({
@@ -36,81 +36,81 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  });
+  })
 
-  const searchParams = useSearchParams();
-  const path = usePathname();
-  const page = Number(searchParams.get("page")) || 1;
-  const router = useRouter();
+  const searchParams = useSearchParams()
+  const path = usePathname()
+  const page = Number(searchParams.get("page")) || 1
+  const router = useRouter()
 
   const handlePreviousClick = () => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (page > Math.ceil(count / 10)) {
-      params.set("page", "1");
+      params.set("page", "1")
     } else if (!isNaN(page)) {
-      params.set("page", `${page - 1}`);
+      params.set("page", `${page - 1}`)
     }
-    router.push(`${path}?${params.toString()}`);
-  };
+    router.push(`${path}?${params.toString()}`)
+  }
 
   const handleNextClick = () => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (!isNaN(page)) {
-      params.set("page", `${page + 1}`);
+      params.set("page", `${page + 1}`)
     } else {
-      params.set("page", "2");
+      params.set("page", "2")
     }
-    router.push(`${path}?${params.toString()}`);
-  };
+    router.push(`${path}?${params.toString()}`)
+  }
 
   const handleSearch = useDebouncedCallback((query: string) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", "1");
+    const params = new URLSearchParams(searchParams)
+    params.set("page", "1")
     if (query) {
-      params.set("query", encodeURIComponent(query));
+      params.set("query", encodeURIComponent(query))
     } else {
-      params.delete("query");
+      params.delete("query")
     }
-    router.replace(`${path}?${params.toString()}`);
-  }, 300);
+    router.replace(`${path}?${params.toString()}`)
+  }, 300)
 
   const handleApplySortBy = (sortItem: string, sortOrder: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (sortItem && sortOrder) {
-      params.set("sortItem", `${sortItem}`);
-      params.set("sortOrder", `${sortOrder}`);
+      params.set("sortItem", `${sortItem}`)
+      params.set("sortOrder", `${sortOrder}`)
     } else {
-      params.delete("sortItem");
-      params.delete("sortOrder");
+      params.delete("sortItem")
+      params.delete("sortOrder")
     }
-    router.replace(`${path}?${params.toString()}`);
-  };
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleResetSortBy = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("sortItem");
-    params.delete("sortOrder");
-    router.replace(`${path}?${params.toString()}`);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.delete("sortItem")
+    params.delete("sortOrder")
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleApplyFilter = (filters: Record<string, string[]>) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     Object.entries(filters).forEach(([key, value]) => {
       if (value.length > 0) {
-        params.set(key, `${value.join(",")}`);
+        params.set(key, `${value.join(",")}`)
       } else {
-        params.delete(key);
+        params.delete(key)
       }
-    });
-    router.replace(`${path}?${params.toString()}`);
-  };
+    })
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleResetFilter = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("emailType");
-    params.delete("faculty");
-    router.replace(`${path}?${params.toString()}`);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.delete("emailType")
+    params.delete("faculty")
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   return (
     <div className="px-4">
@@ -146,7 +146,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -206,5 +206,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  );
+  )
 }

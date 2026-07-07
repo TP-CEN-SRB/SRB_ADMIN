@@ -1,11 +1,11 @@
-"use client";
-import React, { useTransition, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { ResetSchema } from "@/schemas/auth";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+"use client"
+import React, { useTransition, useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { ResetSchema } from "@/schemas/auth"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -14,14 +14,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { resetPassword } from "@/app/action/user";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { resetPassword } from "@/app/action/user"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
 import { toast } from "sonner"
-import Card from "@/components/Card/Card";
-import { useRouter } from "next/navigation";
+import Card from "@/components/Card/Card"
+import { useRouter } from "next/navigation"
 
 const ResetPasswordForm = () => {
   const form = useForm<z.infer<typeof ResetSchema>>({
@@ -29,26 +29,26 @@ const ResetPasswordForm = () => {
     defaultValues: {
       email: "",
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const onSubmit = (values: z.infer<typeof ResetSchema>) => {
     startTransition(async () => {
-      setError(""); // clear error message
-      const data = await resetPassword(values);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
+      setError("") // clear error message
+      const data = await resetPassword(values)
+      setError(data?.error as string)
+      setSuccess(data?.success as string)
       if (!data?.error && data?.success !== undefined) {
         toast("Hey there!",{
           description: `A reset password email has been sent to ${values.email.toLowerCase()}`,
-        });
+        })
         setTimeout(() => {
-          window.close();
-        }, 5000);
+          window.close()
+        }, 5000)
       }
-    });
-  };
+    })
+  }
   return (
     <Card fullWidth rounded>
       <FormHeader>Forgot Password</FormHeader>
@@ -95,7 +95,7 @@ const ResetPasswordForm = () => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default ResetPasswordForm;
+export default ResetPasswordForm

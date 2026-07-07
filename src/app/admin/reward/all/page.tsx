@@ -1,14 +1,14 @@
-import RewardCard from "@/components/Card/RewardCard";
-import RewardMore from "@/components/Dropdown/RewardMore";
-import { prisma } from "@/lib/db";
-import Image from "next/image";
-import React from "react";
-import { FaCircleDot } from "react-icons/fa6";
+import RewardCard from "@/components/Card/RewardCard"
+import RewardMore from "@/components/Dropdown/RewardMore"
+import { prisma } from "@/lib/db"
+import Image from "next/image"
+
+import { FaCircleDot } from "react-icons/fa6"
 
 const RewardPage = async () => {
   const rewards = await prisma.reward.findMany({
     orderBy: { updatedAt: "desc" },
-  });
+  })
   return (
     <div className="grid lg:grid-cols-3 md:grid-cols-3 grid-cols-2 gap-5 p-4">
       {rewards.map((reward, index) => (
@@ -41,7 +41,7 @@ const RewardPage = async () => {
         </RewardCard>
       ))}
     </div>
-  );
-};
+  )
+}
 
-export default RewardPage;
+export default RewardPage

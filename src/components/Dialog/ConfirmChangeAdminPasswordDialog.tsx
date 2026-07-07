@@ -1,4 +1,5 @@
-import React, { useState, useTransition } from "react";
+//@ts-nocheck
+import React, { useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
@@ -6,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -14,40 +15,40 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
 import { toast } from "sonner"
-import { resetPassword } from "@/app/action/user";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
-import { useMediaQuery } from "react-responsive";
+import { resetPassword } from "@/app/action/user"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
+import { useMediaQuery } from "react-responsive"
 interface DialogProps {
-  isOpen: boolean;
-  handleDialogOpen: () => void;
-  email: string;
+  isOpen: boolean
+  handleDialogOpen: () => void
+  email: string
 }
 const ConfirmChangeAdminPasswordDialog = ({
   isOpen,
   handleDialogOpen,
   email,
 }: DialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
   const handleConfirm = () => {
     startTransition(async () => {
-      const data = await resetPassword({ email });
-      setError(data?.error as string);
+      const data = await resetPassword({ email })
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast("Hey there!", {
           description: `A reset password email has been sent to ${email}`,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
@@ -111,7 +112,7 @@ const ConfirmChangeAdminPasswordDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmChangeAdminPasswordDialog;
+export default ConfirmChangeAdminPasswordDialog

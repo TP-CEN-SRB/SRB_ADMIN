@@ -1,17 +1,17 @@
 type ChartConfig = {
-  [key: string]: { label: string; color?: string } | string | number;
-};
+  [key: string]: { label: string; color?: string } | string | number
+}
 
 interface BarChartProps {
-    materials: { [key: string]: string | number };
+    materials: { [key: string]: string | number }
 }
 
 interface PieChartProps {
-  DBPieChartData: { binType: string; binCount: number; fill?: string }[];
-};
+  DBPieChartData: { binType: string; binCount: number; fill?: string }[]
+}
 
 interface UserChartProps {
-  userData: { [key: string]: string | number }; 
+  userData: { [key: string]: string | number } 
 }
 
 export const BarChartConfig = ({materials}: BarChartProps): ChartConfig => {
@@ -37,8 +37,8 @@ export const BarChartConfig = ({materials}: BarChartProps): ChartConfig => {
       }),
       {}
     ),
-  };
-};
+  }
+}
 
 export const PieChartConfig = ({DBPieChartData}:PieChartProps): ChartConfig => {
   return {
@@ -55,8 +55,8 @@ export const PieChartConfig = ({DBPieChartData}:PieChartProps): ChartConfig => {
       }),
       {}
     ),
-  };
-};
+  }
+}
 
 export const UserChartConfig = ({ userData }: UserChartProps): ChartConfig => {
   return {
@@ -78,8 +78,8 @@ export const UserChartConfig = ({ userData }: UserChartProps): ChartConfig => {
       }),
       {}
     ),
-  };
-};
+  }
+}
 
 // export const binDisposalsTimeLineConfig: ChartConfig = {
 //   totalDisposals: {
@@ -100,4 +100,4 @@ export const UserChartConfig = ({ userData }: UserChartProps): ChartConfig => {
 //     }),
 //     {}
 //   ),
-// };
+// }

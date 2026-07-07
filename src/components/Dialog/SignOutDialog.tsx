@@ -1,11 +1,11 @@
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -13,33 +13,35 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
-import { logout } from "@/app/action/user";
-import { useMediaQuery } from "react-responsive";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
+import { Loader2 } from "lucide-react"
+
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
+import { useMediaQuery } from "react-responsive"
 interface DialogProps {
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
   const logOut = () => {
     startTransition(async () => {
-      handleDialogOpen();
-      await logout();
-    });
-  };
+      handleDialogOpen()
+      await logout()
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
           <DialogDescription className="text-slate-500 mt-4 text-md">
-            You&apos;re about to sign out from your account. Any unsaved changes
+            You&aposre about to sign out from your account. Any unsaved changes
             will be <span className="font-bold text-black">lost</span>.
           </DialogDescription>
         </DialogHeader>
@@ -62,7 +64,7 @@ const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-2xl">Are you sure?</DrawerTitle>
           <DrawerDescription className="text-slate-500 text-md">
-            You&apos;re about to sign out from your account. Any unsaved changes
+            You&aposre about to sign out from your account. Any unsaved changes
             will be <span className="font-bold text-black">lost</span>.
           </DrawerDescription>
         </DrawerHeader>
@@ -85,7 +87,7 @@ const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default SignOutDialog;
+export default SignOutDialog

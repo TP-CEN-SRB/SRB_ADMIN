@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import {
   Sidebar,
   SidebarContent,
@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
+} from "@/components/ui/sidebar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,12 +17,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
-import { MdReportProblem } from "react-icons/md";
-import { BsFillBarChartFill } from "react-icons/bs";
-import { CgProfile } from "react-icons/cg";
-import { RiRecycleFill } from "react-icons/ri";
+import { MdReportProblem } from "react-icons/md"
+import { BsFillBarChartFill } from "react-icons/bs"
+import { CgProfile } from "react-icons/cg"
+import { RiRecycleFill } from "react-icons/ri"
 import {
   FaTrash,
   FaUser,
@@ -34,21 +34,21 @@ import {
   FaBug,
   FaExclamationTriangle,
   FaCommentDots,
-} from "react-icons/fa";
-import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi";
-import { FaMapMarkedAlt } from "react-icons/fa";
-import { GiPresent } from "react-icons/gi";
-import { FaHeartPulse } from "react-icons/fa6";
-import Image from "next/image";
-import Link from "next/link";
+} from "react-icons/fa"
+import { PiRankingBold, PiSignOutBold, PiStudentFill } from "react-icons/pi"
+import { FaMapMarkedAlt } from "react-icons/fa"
+import { GiPresent } from "react-icons/gi"
+import { FaHeartPulse } from "react-icons/fa6"
+import Image from "next/image"
+import Link from "next/link"
 
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger, } from "@/components/ui/collapsible"
 
-import { useState } from "react";
-import SignOutDialog from "./Dialog/SignOutDialog";
+import { useState } from "react"
+import SignOutDialog from "./Dialog/SignOutDialog"
 
 export const collaspeItems = [
   {
@@ -160,21 +160,21 @@ export const collaspeItems = [
     icon: FaBug,
     child: [{ title: "Messages", icon: FaExclamationTriangle, url: "/admin/crashlog" }],
   },
-];
+]
 
 export const dropdownItems = [
   { title: "Profile", icon: FaUser, url: "/admin/profile" },
-];
+]
 
 export function AppSidebar({ email }: { email: string | null | undefined }) {
-  const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false);
-  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+  const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false)
+  const [openIndexes, setOpenIndexes] = useState<number[]>([])
 
   const handleToggle = (index: number) => {
     setOpenIndexes((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -287,5 +287,5 @@ export function AppSidebar({ email }: { email: string | null | undefined }) {
         </SidebarFooter>
       </Sidebar>
     </>
-  );
+  )
 }

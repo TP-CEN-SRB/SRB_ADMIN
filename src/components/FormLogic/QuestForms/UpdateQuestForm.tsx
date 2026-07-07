@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { UpdateQuestSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useRouter } from "next/navigation"
+import { UpdateQuestSchema } from "@/schemas"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -13,31 +13,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { updateQuest } from "@/app/action/quest";
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { updateQuest } from "@/app/action/quest"
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
 
 interface UpdateQuestFormProps {
-  id: string;
+  id: string
   quest: {
-    title: string;
-    description: string;
-    target: number;
-    materialType: string;
-    rewardPoints: number;
-  };
+    title: string
+    description: string
+    target: number
+    materialType: string
+    rewardPoints: number
+  }
 }
 
 const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
 
-  const router = useRouter();
+  const router = useRouter()
 
   const materialOptions = [
     { label: "Plastic", value: "PLASTIC" },
@@ -45,7 +45,7 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
     { label: "Paper", value: "PAPER" },
     { label: "E-Waste", value: "E_WASTE" },
     { label: "General", value: "GENERAL" },
-  ];
+  ]
 
   const form = useForm<z.infer<typeof UpdateQuestSchema>>({
     resolver: zodResolver(UpdateQuestSchema),
@@ -61,35 +61,35 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
         | "GENERAL",
       rewardPoints: quest.rewardPoints,
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof UpdateQuestSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
-    });
+    })
 
     startTransition(async () => {
       try {
-        const result = await updateQuest(id, values);
+        const result = await updateQuest(id, values)
         if (result?.success) {
           toast.success("Success",{
             description: `Quest updated at ${datetime}`,
-          });
-          router.push("/admin/quest");
+          })
+          router.push("/admin/quest")
         } else {
           toast.error("Error",{
             description: result?.error || "Failed to update quest",
-          });
+          })
         }
       } catch (error) {
-        console.error("Update error:", error);
+        console.error("Update error:", error)
         toast.error("Error",{
           description: "An unexpected error occurred",
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -184,7 +184,7 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default UpdateQuestForm;
+export default UpdateQuestForm

@@ -1,36 +1,36 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
-import { CheckCircle, XCircle } from "lucide-react";
-import QuestUserFilterDropdown from "@admin/components/QuestUserFilterDropdown";
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react"
+import { CheckCircle, XCircle } from "lucide-react"
+import QuestUserFilterDropdown from "@admin/components/QuestUserFilterDropdown"
+import { Input } from "@/components/ui/input"
 
 interface UserQuest {
   user: {
-    id: string;
-    name: string;
-    email: string;
-    faculty: string;
-  };
-  progress: number;
-  isCompleted: boolean;
+    id: string
+    name: string
+    email: string
+    faculty: string
+  }
+  progress: number
+  isCompleted: boolean
 }
 
 const ClientQuestUserTable = ({ usersInQuest }: { usersInQuest: UserQuest[] }) => {
-  const [filters, setFilters] = useState({ faculty: [] as string[], completion: [] as string[] });
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({ faculty: [] as string[], completion: [] as string[] })
+  const [searchTerm, setSearchTerm] = useState("")
 
   const filteredUsers = usersInQuest.filter(({ user, isCompleted }) => {
     const facultyMatch =
-      filters.faculty.length === 0 || filters.faculty.includes(user.faculty);
+      filters.faculty.length === 0 || filters.faculty.includes(user.faculty)
     const completionMatch =
       filters.completion.length === 0 ||
-      filters.completion.includes(isCompleted ? "Completed" : "Not Completed");
-    const nameMatch = user.name.toLowerCase().includes(searchTerm.toLowerCase());
+      filters.completion.includes(isCompleted ? "Completed" : "Not Completed")
+    const nameMatch = user.name.toLowerCase().includes(searchTerm.toLowerCase())
 
-    return facultyMatch && completionMatch && nameMatch;
+    return facultyMatch && completionMatch && nameMatch
   })
-   .sort((a, b) => Number(b.isCompleted) - Number(a.isCompleted));
+   .sort((a, b) => Number(b.isCompleted) - Number(a.isCompleted))
 
   return (
     <>
@@ -88,7 +88,7 @@ const ClientQuestUserTable = ({ usersInQuest }: { usersInQuest: UserQuest[] }) =
         </table>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default ClientQuestUserTable;
+export default ClientQuestUserTable

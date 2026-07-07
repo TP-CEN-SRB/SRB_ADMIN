@@ -1,22 +1,22 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { FaTableCells } from "react-icons/fa6";
-import { PiExportBold } from "react-icons/pi";
-import { CSVLink } from "react-csv";
-import { Bin } from "./columns";
+} from "@/components/ui/dropdown-menu"
+import { FaTableCells } from "react-icons/fa6"
+import { PiExportBold } from "react-icons/pi"
+import { CSVLink } from "react-csv"
+import { Bin } from "./columns"
 
 interface ExportCSVProps<TData> {
-  data: TData[];
+  data: TData[]
 }
 
 const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
-  const [filterOpen, setFilterOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false)
 
   return (
     <DropdownMenu open={filterOpen} onOpenChange={setFilterOpen}>
@@ -49,7 +49,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default ExportCSV;
+export default ExportCSV

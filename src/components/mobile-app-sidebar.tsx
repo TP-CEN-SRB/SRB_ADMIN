@@ -1,10 +1,10 @@
-"use client";
+"use client"
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/components/ui/sheet"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,32 +12,32 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { BsFillBarChartFill } from "react-icons/bs";
-import { CgProfile } from "react-icons/cg";
-import { PiSignOutBold } from "react-icons/pi";
-import Image from "next/image";
-import Link from "next/link";
+} from "@/components/ui/dropdown-menu"
+import { GiHamburgerMenu } from "react-icons/gi"
+import { BsFillBarChartFill } from "react-icons/bs"
+import { CgProfile } from "react-icons/cg"
+import { PiSignOutBold } from "react-icons/pi"
+import Image from "next/image"
+import Link from "next/link"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "./ui/collapsible";
-import { useState } from "react";
-import SignOutDialog from "./Dialog/SignOutDialog";
-import { collaspeItems, dropdownItems } from "./app-sidebar";
-import { FaChevronDown } from "react-icons/fa";
+} from "./ui/collapsible"
+import { useState } from "react"
+import SignOutDialog from "./Dialog/SignOutDialog"
+import { collaspeItems, dropdownItems } from "./app-sidebar"
+import { FaChevronDown } from "react-icons/fa"
 
 export function MobileAppSidebar() {
-  const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false);
-  const [openIndexes, setOpenIndexes] = useState<number[]>([]);
+  const [isSignOutDialogOpen, setSignOutDialogOpen] = useState(false)
+  const [openIndexes, setOpenIndexes] = useState<number[]>([])
 
   const handleToggle = (index: number) => {
     setOpenIndexes((prev) =>
       prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
-    );
-  };
+    )
+  }
   return (
     <>
       <SignOutDialog
@@ -139,5 +139,5 @@ export function MobileAppSidebar() {
         </SheetContent>
       </Sheet>
     </>
-  );
+  )
 }

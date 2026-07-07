@@ -1,16 +1,16 @@
-"use client";
-import React from "react";
-import ReactCrop, { type Crop } from "react-image-crop";
+"use client"
 
-const MIN_CROP_WIDTH = 30;
-const ASPECT_RATIO = 3 / 2;
+import ReactCrop, { type Crop } from "react-image-crop"
+
+const MIN_CROP_WIDTH = 30
+const ASPECT_RATIO = 3 / 2
 
 interface ImagePreviewProps {
-  image: string;
-  crop: Crop | undefined;
-  imgRef: React.LegacyRef<HTMLImageElement> | undefined;
-  setCrop: (crop: Crop) => void;
-  onImageLoad: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void;
+  image: string
+  crop: Crop | undefined
+  imgRef: React.LegacyRef<HTMLImageElement> | undefined
+  setCrop: (crop: Crop) => void
+  onImageLoad: (e: React.SyntheticEvent<HTMLImageElement, Event>) => void
 }
 const ImagePreview = ({
   image,
@@ -40,7 +40,7 @@ const ImagePreview = ({
         </ReactCrop>
       </div>
     )
-  );
-};
+  )
+}
 
-export default ImagePreview;
+export default ImagePreview

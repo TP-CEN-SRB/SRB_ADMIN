@@ -1,30 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/db"
 import {
   editTelegramMessage,
   editTelegramPhotoCaption,
   deleteTelegramMessage,
   answerTelegramCallback,
-} from "@/lib/telegram";
+} from "@/lib/telegram"
 
 function formatTelegramUser(from: any) {
   if (from.username) {
-    return `@${from.username}`;
+    return `@${from.username}`
   }
-  return `${from.first_name}${from.last_name ? " " + from.last_name : ""}`;
+  return `${from.first_name}${from.last_name ? " " + from.last_name : ""}`
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const callback = body.callback_query;
+  const body = await req.json()
+  const callback = body.callback_query
 
-  if (!callback) return NextResponse.json({ ok: true });
+  if (!callback) return NextResponse.json({ ok: true })
 
-  const callbackId = callback.id;
-  const message = callback.message;
-  const messageId = message.message_id;
-  const data = callback.data;
-  const from = callback.from;
+  const callbackId = callback.id
+  const message = callback.message
+  const messageId = message.message_id
+  const data = callback.data
+  const from = callback.from
 
       const timeSGT =
       new Date().toLocaleString("en-SG", {
@@ -35,20 +35,20 @@ export async function POST(req: NextRequest) {
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
-      }) + " SGT";
+      }) + " SGT"
 
-  const [, action, faultId] = data.split(":");
+  const [, action, faultId] = data.split(":")
 
   // 🔑 ACK IMMEDIATELY — stops spinner, prevents retries
-  await answerTelegramCallback(callbackId);
+  await answerTelegramCallback(callbackId)
 
   // ✅ Respond immediately to Telegram
-  const response = NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true })
 
   // Determine message type
-  const isPhotoMessage = Array.isArray(message.photo);
-  const actorName = formatTelegramUser(from);
-  const actorId = BigInt(from.id);
+  const isPhotoMessage = Array.isArray(message.photo)
+  const actorName = formatTelegramUser(from)
+  const actorId = BigInt(from.id)
 
   // Helper to update message safely
   const updateMessage = (
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
     buttons?: any[]
   ) => {
     if (isPhotoMessage) {
-      void editTelegramPhotoCaption(messageId, text, buttons);
+      void editTelegramPhotoCaption(messageId, text, buttons)
     } else {
-      void editTelegramMessage(messageId, text, buttons);
+      void editTelegramMessage(messageId, text, buttons)
     }
-  };
+  }
 
   // --------------------
   // BACKGROUND LOGIC
@@ -68,11 +68,11 @@ export async function POST(req: NextRequest) {
   (async () => {
     const report = await prisma.faultReport.findUnique({
       where: { id: faultId },
-    });
+    })
 
     if (!report) {
-      void deleteTelegramMessage(messageId);
-      return;
+      void deleteTelegramMessage(messageId)
+      return
     }
 
     // 🛠 TAKE JOB
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
       updateMessage(
         "⏳ *Taking repair job…*",
         []
-      );
+      )
 
       await prisma.faultReport.update({
         where: { id: faultId },
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
           takenByTelegramId: actorId,
           takenByTelegramName: actorName,
         },
-      });
+      })
 
     updateMessage(
 `🛠 REPAIR IN PROGRESS
@@ -110,9 +110,9 @@ export async function POST(req: NextRequest) {
             { text: "🗑 Delete", callback_data: `fault:delete:${faultId}` },
           ],
         ]
-      );
+      )
 
-      return;
+      return
     }
 
     // ✅ RESOLVE
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
       updateMessage(
         "⏳ *Resolving fault…*",
         []
-      );
+      )
 
       await prisma.faultReport.update({
         where: { id: faultId },
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
           resolvedByTelegramId: actorId,
           resolvedByTelegramName: actorName,
         },
-      });
+      })
 
       updateMessage(
 `✅ *FAULT RESOLVED*
@@ -143,9 +143,9 @@ export async function POST(req: NextRequest) {
 
 👷 Resolved by: ${actorName}`,
         []
-      );
+      )
 
-      return;
+      return
     }
 
     // 🗑 DELETE
@@ -154,16 +154,16 @@ export async function POST(req: NextRequest) {
       updateMessage(
         "🗑 *Deleting fault report…*",
         []
-      );
+      )
 
       await prisma.faultReport.delete({
         where: { id: faultId },
-      });
+      })
 
-      void deleteTelegramMessage(messageId);
-      return;
+      void deleteTelegramMessage(messageId)
+      return
     }
-  })().catch(console.error);
+  })().catch(console.error)
 
-  return response;
+  return response
 }

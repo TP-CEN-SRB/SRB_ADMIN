@@ -1,11 +1,11 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from "react"
 
 interface CardProps {
-  isAdmin?: boolean;
-  rounded?: boolean;
-  fullWidth?: boolean;
-  className?: string;      // ✅ allow custom classes
-  children: React.ReactNode;
+  isAdmin?: boolean
+  rounded?: boolean
+  fullWidth?: boolean
+  className?: string      // ✅ allow custom classes
+  children: React.ReactNode
 }
 
 const Card = ({
@@ -22,7 +22,7 @@ const Card = ({
     >
       {children}
     </div>
-  );
-};
+  )
+}
 
-export default Card;
+export default Card

@@ -1,10 +1,10 @@
-"use client";
-import React, { useTransition, useState, ChangeEvent } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
-import { date, z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+"use client"
+import React, { useTransition, useState, ChangeEvent } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm, useWatch } from "react-hook-form"
+import { date, z } from "zod"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -13,25 +13,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import Card from "@/components/Card/Card";
-import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas";
-import { updateReward } from "@/app/action/reward";
-import CropRewardDialog from "@/components/Dialog/CropRewardDialog";
-import DateRangePicker from "@/components/DatePicker/DateRangePicker";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Reward } from "@/generated/prisma";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import Card from "@/components/Card/Card"
+import { ACCEPTED_IMAGE_TYPES, MAX_FILE_SIZE, RewardSchema } from "@/schemas"
+import { updateReward } from "@/app/action/reward"
+import CropRewardDialog from "@/components/Dialog/CropRewardDialog"
+import DateRangePicker from "@/components/DatePicker/DateRangePicker"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Reward } from "@/generated/prisma"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/components/ui/switch"
 interface RewardProps {
-  reward: Reward;
+  reward: Reward
 }
 const EditRewardForm = ({ reward }: RewardProps) => {
   const form = useForm<z.infer<typeof RewardSchema>>({
@@ -48,85 +48,85 @@ const EditRewardForm = ({ reward }: RewardProps) => {
         to: reward.endDate ?? undefined,
       },
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>();
-  const [croppedFile, setCroppedFile] = useState<File | null>(null);
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [imagePreview, setImagePreview] = useState<string | null>()
+  const [croppedFile, setCroppedFile] = useState<File | null>(null)
 
   const isExistingImage = useWatch({
     control: form.control,
     name: "isExistingImage",
-  });
+  })
   const isCustomDateRange = useWatch({
     control: form.control,
     name: "isCustomDateRange",
     defaultValue: reward.startDate !== null && reward.endDate !== null,
-  });
+  })
 
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const router = useRouter();
+  const [isDialogOpen, setDialogOpen] = useState(false)
+  const router = useRouter()
   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
     startTransition(async () => {
-      const formData = new FormData();
-      formData.append("name", values.name);
-      formData.append("pointsRequired", values.pointsRequired.toString());
-      formData.append("description", values.description);
-      formData.append("isAvailable", values.isAvailable.toString());
-      formData.append("isExistingImage", values.isExistingImage.toString());
-      formData.append("isCustomDateRange", values.isCustomDateRange.toString());
+      const formData = new FormData()
+      formData.append("name", values.name)
+      formData.append("pointsRequired", values.pointsRequired.toString())
+      formData.append("description", values.description)
+      formData.append("isAvailable", values.isAvailable.toString())
+      formData.append("isExistingImage", values.isExistingImage.toString())
+      formData.append("isCustomDateRange", values.isCustomDateRange.toString())
       if (values.isCustomDateRange) {
         const dateData = JSON.stringify({
           from: values.dates.from.toISOString(),
           to: values.dates.to.toISOString(),
-        });
-        formData.append("dates", dateData);
+        })
+        formData.append("dates", dateData)
       }
       if (!croppedFile && !values.isExistingImage) {
-        setError("Please select an image");
-        return;
+        setError("Please select an image")
+        return
       }
       if (croppedFile && !values.isExistingImage) {
-        formData.set("image", croppedFile);
+        formData.set("image", croppedFile)
       }
-      const data = await updateReward(reward.id, formData);
-      setError(data?.error as string);
+      const data = await updateReward(reward.id, formData)
+      setError(data?.error as string)
       if (!data?.error && data?.success !== undefined) {
-        router.push("/admin/reward");
+        router.push("/admin/reward")
         toast.success("success!",{
           description: `${data.success}`,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const file = e.target.files?.[0]
+    if (!file) return
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      return;
+      return
     }
     if (file.size > MAX_FILE_SIZE) {
-      return;
+      return
     }
-    const reader = new FileReader();
-    reader.onloadend = () => setImagePreview(reader.result as string);
-    reader.readAsDataURL(file);
-    setDialogOpen(true);
-  };
+    const reader = new FileReader()
+    reader.onloadend = () => setImagePreview(reader.result as string)
+    reader.readAsDataURL(file)
+    setDialogOpen(true)
+  }
   const handleCropComplete = (file: File) => {
-    setCroppedFile(file); // Update the state with the cropped file
-    setDialogOpen(false);
-  };
+    setCroppedFile(file) // Update the state with the cropped file
+    setDialogOpen(false)
+  }
 
   const handleDialogClose = (error: string | undefined) => {
     if (error) {
-      setError(error);
+      setError(error)
     }
-    setDialogOpen(false);
-    setCroppedFile(null);
-    setImagePreview(null);
-    form.resetField("image");
-  };
+    setDialogOpen(false)
+    setCroppedFile(null)
+    setImagePreview(null)
+    form.resetField("image")
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -215,8 +215,8 @@ const EditRewardForm = ({ reward }: RewardProps) => {
                       {...field}
                       type="file"
                       onChange={(event) => {
-                        onChange(event.target.files && event.target.files[0]);
-                        handleImageChange(event);
+                        onChange(event.target.files && event.target.files[0])
+                        handleImageChange(event)
                       }}
                     />
                   </FormControl>
@@ -266,8 +266,8 @@ const EditRewardForm = ({ reward }: RewardProps) => {
             <RadioGroup
               disabled={isPending}
               onValueChange={(e) => {
-                form.setValue("isCustomDateRange", e === "true");
-                form.resetField("dates");
+                form.setValue("isCustomDateRange", e === "true")
+                form.resetField("dates")
               }}
               defaultValue={isCustomDateRange.toString() ?? "false"}
             >
@@ -303,9 +303,9 @@ const EditRewardForm = ({ reward }: RewardProps) => {
                           field.onChange({
                             from: dateRange.from,
                             to: dateRange.to,
-                          });
+                          })
                         } else {
-                          form.resetField("dates");
+                          form.resetField("dates")
                         }
                       }}
                     />
@@ -328,7 +328,7 @@ const EditRewardForm = ({ reward }: RewardProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default EditRewardForm;
+export default EditRewardForm

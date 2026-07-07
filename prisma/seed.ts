@@ -1,11 +1,11 @@
-import "dotenv/config";
-import { Prisma } from "@/generated/prisma";
-import { BinStatus } from "@/generated/prisma";
-import { PrismaClient } from "@/generated/prisma";
-import { hashPassword } from "better-auth/crypto";
-import { randomUUID } from "crypto";
+import "dotenv/config"
+import { Prisma } from "@/generated/prisma"
+import { BinStatus } from "@/generated/prisma"
+import { PrismaClient } from "@/generated/prisma"
+import { hashPassword } from "better-auth/crypto"
+import { randomUUID } from "crypto"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function withPassword(password: string) {
   return {
@@ -17,7 +17,7 @@ async function withPassword(password: string) {
         password: await hashPassword(password),
       },
     },
-  };
+  }
 }
 
 const userData: (Prisma.UserCreateInput & { _password?: string })[] = [
@@ -144,7 +144,7 @@ const userData: (Prisma.UserCreateInput & { _password?: string })[] = [
     faculty: "ENG",
     _password: "password123",
   },
-];
+]
 
 const binMaterialData: Prisma.BinMaterialCreateInput[] = [
   {
@@ -172,7 +172,7 @@ const binMaterialData: Prisma.BinMaterialCreateInput[] = [
     name: "GENERAL",
     multiplier: 0,
   },
-];
+]
 
 const rewardsData: Prisma.RewardCreateInput[] = [
   {
@@ -210,40 +210,40 @@ const rewardsData: Prisma.RewardCreateInput[] = [
     isAvailable: true,
     image: "https://utfs.io/f/oCGZ90SRbWapl61FyKqA5mhpsex0kJjiROr3492wgyFaUKnN",
   },
-];
+]
 
 
 async function main() {
   for (const data of binMaterialData) {
     const binMaterial = await prisma.binMaterial.create({
       data: data,
-    });
+    })
   }
  
   for (const { _password, ...data } of userData) {
-    const passwordExtra = _password ? await withPassword(_password) : undefined;
+    const passwordExtra = _password ? await withPassword(_password) : undefined
  
     const user = await prisma.user.create({
       data: {
         ...data,
         ...(passwordExtra ?? {}),
       },
-    });
+    })
   }
  
   for (const data of rewardsData) {
     const reward = await prisma.reward.create({
       data: data,
-    });
+    })
   }
 }
  
 main()
   .then(async () => {
-    await prisma.$disconnect();
+    await prisma.$disconnect()
   })
   .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+    console.error(e)
+    await prisma.$disconnect()
+    process.exit(1)
+  })

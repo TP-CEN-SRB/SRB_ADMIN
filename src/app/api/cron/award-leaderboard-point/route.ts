@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/db";
-import { Role } from "@/generated/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db"
+import { Role } from "@/generated/prisma"
+import { NextRequest, NextResponse } from "next/server"
 
 /**
  * Award's the top 10 students who have earned the most points within the last month
@@ -8,17 +8,17 @@ import { NextRequest, NextResponse } from "next/server";
  */
 
 // defines the bonus points awarded for top 10 point earners
-const bonusPoints = [1000, 500, 300, 100, 50, 50, 50, 50, 50, 50];
+const bonusPoints = [1000, 500, 300, 100, 50, 50, 50, 50, 50, 50]
 export const POST = async (req: NextRequest) => {
   try {
-    const authorization = req.headers.get("x-api-key");
+    const authorization = req.headers.get("x-api-key")
     if (authorization !== process.env.API_KEY) {
       return NextResponse.json(
         { message: "Permission denied!" },
         { status: 401 }
-      );
+      )
     }
-    const today = new Date();
+    const today = new Date()
     // todo: uncomment this line of code after demonstration
     // check if it's the first day of the month
     // if (today.getDate() !== 1) {
@@ -28,18 +28,18 @@ export const POST = async (req: NextRequest) => {
     //         "Leaderboard points are only awarded on the first of every month",
     //     },
     //     { status: 400 }
-    //   );
+    //   )
     // }
     const firstDayOfLastMonth = new Date(
       today.getFullYear(),
       today.getMonth() - 1,
       1
-    );
+    )
     const lastDayOfLastmonth = new Date(
       today.getFullYear(),
       today.getMonth(),
       0
-    );
+    )
     const topStudents = await prisma.disposal.groupBy({
       by: ["userId", "pointsAwarded"],
       where: {
@@ -59,7 +59,7 @@ export const POST = async (req: NextRequest) => {
         _sum: { pointsAwarded: "desc" },
       },
       take: 10,
-    });
+    })
     await prisma.$transaction(
       topStudents
         .filter((student) => student.userId !== null)
@@ -82,18 +82,18 @@ export const POST = async (req: NextRequest) => {
           }),
         ])
         .flat()
-    );
+    )
     return NextResponse.json(
       { message: "Leaderboard points have been awarded" },
       { status: 200 }
-    );
+    )
   } catch (error) {
     if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
+      return NextResponse.json({ message: error.message }, { status: 500 })
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
       { status: 500 }
-    );
+    )
   }
-};
+}

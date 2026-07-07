@@ -1,21 +1,20 @@
-import NewPasswordForm from "@/components/Form/AuthForms/NewPasswordForm";
-import React from "react";
+import NewPasswordForm from "@/components/Form/AuthForms/NewPasswordForm"
 
 const NewPasswordPage = ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined };
+  searchParams: { [key: string]: string | undefined }
 }) => {
-  const token = searchParams?.token ?? "";
-  const email = searchParams?.email ?? "";
-  const redirect = searchParams?.redirect; // optional
+  const token = searchParams?.token ?? ""
+  const email = searchParams?.email ?? ""
+  const redirect = searchParams?.redirect // optional
 
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center text-center">
         Invalid or missing reset link.
       </div>
-    );
+    )
   }
 
   return (
@@ -26,7 +25,7 @@ const NewPasswordPage = ({
         redirect={redirect}
       />
     </div>
-  );
-};
+  )
+}
 
-export default NewPasswordPage;
+export default NewPasswordPage

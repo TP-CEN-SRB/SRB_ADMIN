@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
+} from "@/components/ui/chart"
 import {
   XAxis,
   Line,
   LineChart,
   CartesianGrid,
-} from "recharts";
-import { Button } from "@/components/ui/button";
+} from "recharts"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -21,27 +21,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
 interface BinDisposalsByTime {
-  hour: string;
-  [key: string]: string | number; // Index signature to allow dynamic material properties
+  hour: string
+  [key: string]: string | number // Index signature to allow dynamic material properties
 }
 
 function capitalizeFirstLetter(str: string){
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+  if (!str) return ""
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
 interface ChartProps {
-  chartData: BinDisposalsByTime[];
-  binTimeLineChartConfig: ChartConfig;
+  chartData: BinDisposalsByTime[]
+  binTimeLineChartConfig: ChartConfig
 }
 
 const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
   const [activeChart, setActiveChart] =
-    useState<keyof typeof binTimeLineChartConfig>("totalDisposals");
-  const [totalDisposalsSelected, setTotalDisposalsSelected] = useState(true);
+    useState<keyof typeof binTimeLineChartConfig>("totalDisposals")
+  const [totalDisposalsSelected, setTotalDisposalsSelected] = useState(true)
   return (
     <div className="w-full px-4 md:px-6 lg:px-8 pb-4">
       <div className="bg-white rounded-xl">
@@ -62,7 +62,7 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
               <DropdownMenuLabel>Materials</DropdownMenuLabel>
               <DropdownMenuSeparator />
               {Object.keys(binTimeLineChartConfig).map((key, index) => {
-                const chart = key as keyof typeof binTimeLineChartConfig;
+                const chart = key as keyof typeof binTimeLineChartConfig
                 return (
                   binTimeLineChartConfig[chart].label !== "Disposals Hourly" && (
                     <DropdownMenuCheckboxItem
@@ -70,11 +70,11 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
                       checked={activeChart === chart}
                       onClick={() => {
                         if (chart === "totalDisposals") {
-                          setTotalDisposalsSelected(true);
+                          setTotalDisposalsSelected(true)
                         } else {
-                          setTotalDisposalsSelected(false);
+                          setTotalDisposalsSelected(false)
                         }
-                        setActiveChart(chart);
+                        setActiveChart(chart)
                       }}
                       className={`font-bold text-gray-600 ${
                         activeChart === chart ? "text-2xl text-gray-800" : "text-gray-600"
@@ -85,7 +85,7 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
                       )}
                     </DropdownMenuCheckboxItem>
                   )
-                );
+                )
               })}
 
             </DropdownMenuContent>
@@ -119,7 +119,7 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
             />
 
             {Object.keys(binTimeLineChartConfig).map((key) => {
-              const chart = key as keyof typeof binTimeLineChartConfig;
+              const chart = key as keyof typeof binTimeLineChartConfig
               return totalDisposalsSelected ? (
                 <Line
                   key={chart} // Add a unique key for each mapped element
@@ -139,13 +139,13 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
                   dot={false}
                   className={chart}
                 />
-              );
+              )
             })}
           </LineChart>
         </ChartContainer>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BinTimeChart;
+export default BinTimeChart

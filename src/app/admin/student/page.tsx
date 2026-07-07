@@ -1,24 +1,24 @@
-import { getAllStudentUsers } from "@/app/action/user";
-import { columns } from "@/components/Table/Student/columns";
-import { DataTable } from "@/components/Table/Student/data-table";
+import { getAllStudentUsers } from "@/app/action/user"
+import { columns } from "@/components/Table/Student/columns"
+import { DataTable } from "@/components/Table/Student/data-table"
 
 const ViewStudentPage = async ({
   searchParams,
 }: {
-  searchParams: { [key: string]: string };
+  searchParams: { [key: string]: string }
 }) => {
-  const page = Number(searchParams?.page) || 1;
+  const page = Number(searchParams?.page) || 1
   const query = searchParams.query
     ? decodeURIComponent(searchParams.query)
-    : null;
-  const sortItem = searchParams.sortItem;
-  const sortOrder = searchParams.sortOrder;
+    : null
+  const sortItem = searchParams.sortItem
+  const sortOrder = searchParams.sortOrder
   const emailType = searchParams.emailType
     ? decodeURIComponent(searchParams.emailType)
-    : null;
+    : null
   const faculty = searchParams.faculty
     ? decodeURIComponent(searchParams.faculty)
-    : null;
+    : null
   const { studentCount, students } = await getAllStudentUsers(
     page,
     query,
@@ -26,13 +26,13 @@ const ViewStudentPage = async ({
     sortItem,
     emailType,
     faculty
-  );
+  )
   return (
     <DataTable
       columns={columns}
       data={students === undefined ? [] : (students as any[])}
       count={studentCount === undefined ? 0 : studentCount}
     />
-  );
-};
-export default ViewStudentPage;
+  )
+}
+export default ViewStudentPage

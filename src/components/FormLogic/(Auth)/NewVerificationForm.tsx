@@ -1,159 +1,159 @@
-"use client";
+"use client"
 
-import React, { useState, useTransition, useEffect } from "react";
-import { IoRocket } from "react-icons/io5";
-import { MdVerified, MdError } from "react-icons/md";
-import { Loader2 } from "lucide-react";
-import Confetti from "react-confetti";
-import { MdAccessTime } from "react-icons/md";
+import React, { useState, useTransition, useEffect } from "react"
+import { IoRocket } from "react-icons/io5"
+import { MdVerified, MdError } from "react-icons/md"
+import { Loader2 } from "lucide-react"
+import Confetti from "react-confetti"
+import { MdAccessTime } from "react-icons/md"
 
 
-import { verifyToken } from "@/app/action/verification-tokens";
-import { Button } from "@/components/ui/button";
-import Card from "@/components/Card/Card";
-import CardHeader from "@/components/Card/CardHeader";
+import { verifyToken } from "@/app/action/verification-tokens"
+import { Button } from "@/components/ui/button"
+import Card from "@/components/Card/Card"
+import CardHeader from "@/components/Card/CardHeader"
 
 interface VerificationFormProps {
-  token: string;
-  email: string;
-  redirect?: string;
+  token: string
+  email: string
+  redirect?: string
 }
 
-type ViewState = "initial" | "error" | "info" | "cooldown" | "success";
+type ViewState = "initial" | "error" | "info" | "cooldown" | "success"
 
-const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
-const REDIRECT_SECONDS = 3;
-const RESEND_COOLDOWN = 30;
+const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/"
+const REDIRECT_SECONDS = 3
+const RESEND_COOLDOWN = 30
 
 const NewVerificationForm = ({
   token,
   email,
   redirect,
 }: VerificationFormProps) => {
-  const redirectUrl = redirect || DEFAULT_REDIRECT;
+  const redirectUrl = redirect || DEFAULT_REDIRECT
 
-  const [view, setView] = useState<ViewState>("initial");
-  const [error, setError] = useState<string>();
-  const [info, setInfo] = useState<string>();
-  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
+  const [view, setView] = useState<ViewState>("initial")
+  const [error, setError] = useState<string>()
+  const [info, setInfo] = useState<string>()
+  const [countdown, setCountdown] = useState(REDIRECT_SECONDS)
 
-  const [isPending, startTransition] = useTransition();
-  const [isResending, setIsResending] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const CLOCK_PAGE_COOLDOWN = 5; // seconds
-  const [clockCooldown, setClockCooldown] = useState(0);
+  const [isPending, startTransition] = useTransition()
+  const [isResending, setIsResending] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const CLOCK_PAGE_COOLDOWN = 5 // seconds
+  const [clockCooldown, setClockCooldown] = useState(0)
 
 
   /* -------------------------------- VERIFY -------------------------------- */
 
   const handleVerify = () => {
     startTransition(async () => {
-      setError(undefined);
-      setInfo(undefined);
+      setError(undefined)
+      setInfo(undefined)
 
-      const res = await verifyToken(token);
+      const res = await verifyToken(token)
 
       if (res?.success) {
-        setView("success");
+        setView("success")
       } else {
-        setError(res?.error || "Invalid or expired verification link.");
-        setView("error");
+        setError(res?.error || "Invalid or expired verification link.")
+        setView("error")
       }
-    });
-  };
+    })
+  }
 
   /* -------------------------------- RESEND -------------------------------- */
 
   const handleResend = async () => {
-    if (isResending || resendCooldown > 0 || clockCooldown > 0) return;
+    if (isResending || resendCooldown > 0 || clockCooldown > 0) return
 
-    setIsResending(true);
-    setError(undefined);
-    setInfo(undefined);
+    setIsResending(true)
+    setError(undefined)
+    setInfo(undefined)
 
     try {
       const res = await fetch("/api/resend-verification", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, redirect: redirectUrl }),
-      });
+      })
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
         if (res.status === 429) {
           setInfo(
             "A verification email was already sent recently. Please check your inbox or wait before requesting another one."
-          );
-          setView("cooldown");
-          setClockCooldown(CLOCK_PAGE_COOLDOWN);
-          return;
+          )
+          setView("cooldown")
+          setClockCooldown(CLOCK_PAGE_COOLDOWN)
+          return
         }
 
-        setError(data?.error || "Failed to resend verification email.");
-        setView("error");
-        return;
+        setError(data?.error || "Failed to resend verification email.")
+        setView("error")
+        return
       }
 
       setInfo(
         "If your account is not yet verified, a new verification email has been sent. Please check your inbox."
-      );
-      setResendCooldown(RESEND_COOLDOWN);
-      setView("info");
+      )
+      setResendCooldown(RESEND_COOLDOWN)
+      setView("info")
     } catch {
-      setError("Failed to resend verification email. Please try again later.");
-      setView("error");
+      setError("Failed to resend verification email. Please try again later.")
+      setView("error")
     } finally {
-      setIsResending(false);
+      setIsResending(false)
     }
-  };
+  }
 
   /* ------------------------------ COOLDOWN TIMER ------------------------------ */
 
   useEffect(() => {
-    if (resendCooldown <= 0) return;
+    if (resendCooldown <= 0) return
 
     const timer = setInterval(
       () => setResendCooldown((c) => c - 1),
       1000
-    );
+    )
 
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
+    return () => clearInterval(timer)
+  }, [resendCooldown])
 
 
   useEffect(() => {
-  if (clockCooldown <= 0) return;
+  if (clockCooldown <= 0) return
 
   const timer = setInterval(() => {
-    setClockCooldown((c) => c - 1);
-  }, 1000);
+    setClockCooldown((c) => c - 1)
+  }, 1000)
 
-  return () => clearInterval(timer);
-}, [clockCooldown]);
+  return () => clearInterval(timer)
+}, [clockCooldown])
 
 
   /* ------------------------------ REDIRECT TIMER ------------------------------ */
 
   useEffect(() => {
-    if (view !== "success") return;
+    if (view !== "success") return
 
-    setCountdown(REDIRECT_SECONDS);
+    setCountdown(REDIRECT_SECONDS)
 
     const interval = setInterval(
       () => setCountdown((c) => c - 1),
       1000
-    );
+    )
 
     const timeout = setTimeout(() => {
-      window.location.href = redirectUrl;
-    }, REDIRECT_SECONDS * 1000);
+      window.location.href = redirectUrl
+    }, REDIRECT_SECONDS * 1000)
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [view, redirectUrl]);
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+  }, [view, redirectUrl])
 
   /* ---------------------------------- UI ---------------------------------- */
 
@@ -283,7 +283,7 @@ const NewVerificationForm = ({
         </div>
       )}
     </Card>
-  );
-};
+  )
+}
 
-export default NewVerificationForm;
+export default NewVerificationForm

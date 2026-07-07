@@ -1,67 +1,67 @@
-"use client";
+"use client"
 
-export const dynamic = "force-dynamic";
-import { useState, useEffect } from "react";
-import { MqttClient } from "mqtt";
-import { getHeartbeat } from "@/app/action/bin";
-import { publishMqtt, connectMqtt } from "@/lib/mqtt";
+export const dynamic = "force-dynamic"
+import { useState, useEffect } from "react"
+import { MqttClient } from "mqtt"
+import { getHeartbeat } from "@/app/action/bin"
+import { publishMqtt, connectMqtt } from "@/lib/mqtt"
 import { toast } from "sonner"
 import {
   FaHeartbeat,
   FaBatteryFull,
   FaPowerOff,
   FaClock,
-} from "react-icons/fa";
-import { Tooltip } from "react-tooltip";
-import { formatDistanceToNow } from "date-fns";
+} from "react-icons/fa"
+import { Tooltip } from "react-tooltip"
+import { formatDistanceToNow } from "date-fns"
 
-type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number];
+type Bin = Awaited<ReturnType<typeof getHeartbeat>>[number]
 
 export default function SmartBinDashboard() {
-  const [bins, setBins] = useState<Bin[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState("all");
-  const [mqttClient, setMqttClient] = useState<MqttClient | null>(null);
+  const [bins, setBins] = useState<Bin[]>([])
+  const [selectedUserId, setSelectedUserId] = useState("all")
+  const [mqttClient, setMqttClient] = useState<MqttClient | null>(null)
 
   useEffect(() => {
     const init = async () => {
-      const client = await connectMqtt();
-      setMqttClient(client);
-    };
-    init();
-  }, []);
+      const client = await connectMqtt()
+      setMqttClient(client)
+    }
+    init()
+  }, [])
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getHeartbeat();
-        setBins(data);
+        const data = await getHeartbeat()
+        setBins(data)
       } catch (err) {
-        console.error("Failed to fetch heartbeat data:", err);
+        console.error("Failed to fetch heartbeat data:", err)
       }
-    };
+    }
 
-    fetchData();
-    const interval = setInterval(fetchData, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    fetchData()
+    const interval = setInterval(fetchData, 3000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleMqttCommand = async (command: "on" | "off" | "time") => {
     if (!mqttClient) {
       toast.success( "MQTT Not Connected", {
         description: "Client is not connected to the broker.",
-      });
-      return;
+      })
+      return
     }
 
-    const topic = "srb/power";
-    const payload = JSON.stringify({ command });
+    const topic = "srb/power"
+    const payload = JSON.stringify({ command })
 
     try {
       toast.success( `Sending \"${command}\"...`,{
         description: "Sending command to SRB Power system.",
-      });
+      })
 
-      const success = await publishMqtt(topic, payload);
+      const success = await publishMqtt(topic, payload)
 
       if (success) {
         toast.error( "Command Sent",{
@@ -71,33 +71,33 @@ export default function SmartBinDashboard() {
               : command === "off"
               ? "System switched to manual OFF mode."
               : "System switched to RTC time-managed mode.",
-        });
+        })
       } else {
         toast.error( "MQTT Error",{
           description: `Failed to send \"${command}\".`,
-        });
+        })
       }
     } catch (err) {
-      console.error("MQTT Publish Error:", err);
+      console.error("MQTT Publish Error:", err)
       toast.error( "Unexpected Error",{
         description: `Something went wrong sending \"${command}\".`,
-      });
+      })
     }
-  };
+  }
 
   const binsWithUser = bins.filter(
     (bin): bin is Bin & { userId: string } =>
       "userId" in bin && typeof bin.userId === "string"
-  );
+  )
 
   const userOptions = Array.from(
     new Map(binsWithUser.map((b) => [b.userId, b.userId])).entries()
-  ).map(([id]) => ({ id, name: id }));
+  ).map(([id]) => ({ id, name: id }))
 
   const filteredBins =
     selectedUserId === "all"
       ? bins
-      : binsWithUser.filter((bin) => bin.userId === selectedUserId);
+      : binsWithUser.filter((bin) => bin.userId === selectedUserId)
 
   return (
     <div className="p-6">
@@ -124,11 +124,11 @@ export default function SmartBinDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredBins.map((bin) => {
-          const statusText = bin.isOnline ? "Online" : "Offline";
-          const statusColor = bin.isOnline ? "text-green-500" : "text-red-500";
+          const statusText = bin.isOnline ? "Online" : "Offline"
+          const statusColor = bin.isOnline ? "text-green-500" : "text-red-500"
           const pulseClass = bin.isOnline
             ? "text-red-500 animate-pulse scale-125"
-            : "text-gray-400";
+            : "text-gray-400"
 
           return (
             <div
@@ -163,7 +163,7 @@ export default function SmartBinDashboard() {
                 </div>
               )}
             </div>
-          );
+          )
         })}
       </div>
 
@@ -208,5 +208,5 @@ export default function SmartBinDashboard() {
         </div>
       </div>
     </div>
-  );
+  )
 }

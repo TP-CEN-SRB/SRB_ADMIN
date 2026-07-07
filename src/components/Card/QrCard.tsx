@@ -1,8 +1,8 @@
-import Image from "next/image";
-import React, { ReactNode } from "react";
+import Image from "next/image"
+import React, { ReactNode } from "react"
 interface QrCardProps {
-  children: ReactNode;
-  fullWidth?: boolean;
+  children: ReactNode
+  fullWidth?: boolean
 }
 const QrCard = ({ children, fullWidth = false }: QrCardProps) => {
   return (
@@ -18,7 +18,7 @@ const QrCard = ({ children, fullWidth = false }: QrCardProps) => {
       </div>
       {children}
     </div>
-  );
-};
+  )
+}
 
-export default QrCard;
+export default QrCard

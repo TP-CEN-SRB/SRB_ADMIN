@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { deleteBinUser } from "@/app/action/user";
+import { deleteBinUser } from "@/app/action/user"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
-import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation"
+import React, { useState, useTransition } from "react"
+import { useMediaQuery } from "react-responsive"
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -20,15 +20,15 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
-import { Loader2, AlertTriangle } from "lucide-react";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
+import { Loader2, AlertTriangle } from "lucide-react"
 
 interface DeleteBinManagerDialogProps {
-  userId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  userId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 
 const ConfirmDeleteBinManagerDialog = ({
@@ -36,25 +36,25 @@ const ConfirmDeleteBinManagerDialog = ({
   isOpen,
   handleDialogOpen,
 }: DeleteBinManagerDialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" });
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" })
 
   const handleDelete = () => {
     startTransition(async () => {
-      const data = await deleteBinUser(userId);
-      setError(data?.error as string);
+      const data = await deleteBinUser(userId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast("Bin Manager Deleted",{
           description:
             "The bin manager and all their assigned bins have been permanently deleted.",
-        });
-        router.push("/admin/bin/manager");
+        })
+        router.push("/admin/bin/manager")
       }
-    });
-  };
+    })
+  }
 
   const WarningContent = (
     <>
@@ -71,7 +71,7 @@ const ConfirmDeleteBinManagerDialog = ({
         Are you sure you want to continue?
       </p>
     </>
-  );
+  )
 
   // Desktop: use Dialog
   if (isDesktop) {
@@ -110,7 +110,7 @@ const ConfirmDeleteBinManagerDialog = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    );
+    )
   }
 
   // Mobile: use Drawer
@@ -149,7 +149,7 @@ const ConfirmDeleteBinManagerDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteBinManagerDialog;
+export default ConfirmDeleteBinManagerDialog

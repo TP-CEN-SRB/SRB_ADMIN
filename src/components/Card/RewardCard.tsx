@@ -1,8 +1,8 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode } from "react"
 interface RewardCardProps {
-  children: ReactNode;
-  fullWidth?: boolean;
-  rounded?: boolean;
+  children: ReactNode
+  fullWidth?: boolean
+  rounded?: boolean
 }
 const RewardCard = ({
   children,
@@ -17,7 +17,7 @@ const RewardCard = ({
     >
       {children}
     </div>
-  );
-};
+  )
+}
 
-export default RewardCard;
+export default RewardCard

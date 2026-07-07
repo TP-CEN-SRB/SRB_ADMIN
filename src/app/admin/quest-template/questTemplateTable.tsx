@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import React, { useState, useTransition } from "react";
-import Link from "next/link";
-import { MoreHorizontal } from "lucide-react";
+import React, { useState, useTransition } from "react"
+import Link from "next/link"
+import { MoreHorizontal } from "lucide-react"
 
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
 
 import {
   Table,
@@ -14,16 +14,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
 import {
   Select,
@@ -31,50 +31,50 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/input"
 
-import ConfirmDeleteQuestTemplateDialog from "@/components/Dialog/ConfirmDeleteQuestTemplateDialog";
+import ConfirmDeleteQuestTemplateDialog from "@/components/Dialog/ConfirmDeleteQuestTemplateDialog"
 
 export interface QuestTemplate {
-  id: string;
-  title: string;
-  materialType: string;
-  duration: number;
+  id: string
+  title: string
+  materialType: string
+  duration: number
 }
 
 export default function QuestTemplateTable({ data }: { data: QuestTemplate[] }) {
-  const [templates, setTemplates] = useState<QuestTemplate[]>(data);
+  const [templates, setTemplates] = useState<QuestTemplate[]>(data)
 
   // Filtering
-  const [filterValue, setFilterValue] = useState("");
+  const [filterValue, setFilterValue] = useState("")
 
   const filteredTemplates = templates.filter((t) =>
     t.materialType.toLowerCase().includes(filterValue.toLowerCase())
-  );
+  )
 
   // Pagination
-  const [pageSize, setPageSize] = useState(10);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10)
+  const [pageIndex, setPageIndex] = useState(0)
 
-  const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / pageSize))
 
   const paginated = filteredTemplates.slice(
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
-  );
+  )
 
   // Dialog
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const openDeleteDialog = (id: string) => {
-    setDeleteId(id);
-    setDialogOpen(true);
-  };
+    setDeleteId(id)
+    setDialogOpen(true)
+  }
 
-  const closeDialog = () => setDialogOpen(false);
+  const closeDialog = () => setDialogOpen(false)
 
   return (
     <Card isAdmin rounded fullWidth className="p-6">
@@ -87,8 +87,8 @@ export default function QuestTemplateTable({ data }: { data: QuestTemplate[] }) 
           className="max-w-xs"
           value={filterValue}
           onChange={(e) => {
-            setFilterValue(e.target.value);
-            setPageIndex(0);
+            setFilterValue(e.target.value)
+            setPageIndex(0)
           }}
         />
 
@@ -177,8 +177,8 @@ export default function QuestTemplateTable({ data }: { data: QuestTemplate[] }) 
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {
-              setPageSize(Number(v));
-              setPageIndex(0);
+              setPageSize(Number(v))
+              setPageIndex(0)
             }}
           >
             <SelectTrigger className="w-20">
@@ -247,5 +247,5 @@ export default function QuestTemplateTable({ data }: { data: QuestTemplate[] }) 
         />
       )}
     </Card>
-  );
+  )
 }

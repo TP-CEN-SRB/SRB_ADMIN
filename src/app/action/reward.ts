@@ -1,30 +1,30 @@
-"use server";
-import { prisma } from "@/lib/db";
-import { RewardSchema } from "@/schemas";
-import { utapi } from "@/server/uploadthing";
-import { getSessionUser } from "@/utils/getAuth";
-import { revalidatePath } from "next/cache";
+"use server"
+import { prisma } from "@/lib/db"
+import { RewardSchema } from "@/schemas"
+import { utapi } from "@/server/uploadthing"
+import { getSessionUser } from "@/utils/getAuth"
+import { revalidatePath } from "next/cache"
 
 // form action needed to pass file type as a parameter to server action
 const createReward = async (formData: FormData) => {
-  const user = await getSessionUser();
+  const user = await getSessionUser()
   if (!user || user.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   const data: Record<string, string | number | boolean | File> =
-    Object.fromEntries(formData.entries());
+    Object.fromEntries(formData.entries())
   if (data.isCustomDateRange === "true") {
-    const jsonDate = JSON.parse(data.dates as string);
-    data.dates = jsonDate;
+    const jsonDate = JSON.parse(data.dates as string)
+    data.dates = jsonDate
   }
-  data.isAvailable = data.isAvailable === "true";
-  data.isExistingImage = data.isExistingImage === "true";
-  data.isCustomDateRange = data.isCustomDateRange === "true";
-  const validatedFields = RewardSchema.safeParse(data);
+  data.isAvailable = data.isAvailable === "true"
+  data.isExistingImage = data.isExistingImage === "true"
+  data.isCustomDateRange = data.isCustomDateRange === "true"
+  const validatedFields = RewardSchema.safeParse(data)
   if (!validatedFields.success) {
-    return { error: validatedFields.error };
+    return { error: validatedFields.error }
   }
-  let image, from, to;
+  let image, from, to
   const {
     name,
     pointsRequired,
@@ -32,25 +32,25 @@ const createReward = async (formData: FormData) => {
     isAvailable,
     isCustomDateRange,
     isExistingImage,
-  } = validatedFields.data;
+  } = validatedFields.data
   if (isCustomDateRange) {
-    from = validatedFields.data.dates.from;
-    to = validatedFields.data.dates.to;
+    from = validatedFields.data.dates.from
+    to = validatedFields.data.dates.to
   }
   if (!isExistingImage) {
-    image = validatedFields.data.image;
+    image = validatedFields.data.image
   }
   const existingReward = await prisma.reward.findUnique({
     where: {
       name: name,
     },
-  });
+  })
   if (existingReward) {
-    return { error: "Reward already exists!" };
+    return { error: "Reward already exists!" }
   }
-  const res = await utapi.uploadFiles(image as File);
+  const res = await utapi.uploadFiles(image as File)
   if (res.error) {
-    return { error: "Unable to upload image!" };
+    return { error: "Unable to upload image!" }
   }
   await prisma.reward.create({
     data: {
@@ -62,32 +62,32 @@ const createReward = async (formData: FormData) => {
       startDate: from ?? null,
       endDate: to ?? null,
     },
-  });
-  revalidatePath("/admin/reward");
+  })
+  revalidatePath("/admin/reward")
   return {
     success: "Reward created successfully!",
-  };
-};
+  }
+}
 
 const updateReward = async (id: string, formData: FormData) => {
-  const user = await getSessionUser();
+  const user = await getSessionUser()
   if (!user || user.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   const data: Record<string, string | number | boolean | File> =
-    Object.fromEntries(formData.entries());
+    Object.fromEntries(formData.entries())
   if (data.isCustomDateRange === "true") {
-    const jsonDate = JSON.parse(data.dates as string);
-    data.dates = jsonDate;
+    const jsonDate = JSON.parse(data.dates as string)
+    data.dates = jsonDate
   }
-  data.isAvailable = data.isAvailable === "true";
-  data.isExistingImage = data.isExistingImage === "true";
-  data.isCustomDateRange = data.isCustomDateRange === "true";
-  const validatedFields = RewardSchema.safeParse(data);
+  data.isAvailable = data.isAvailable === "true"
+  data.isExistingImage = data.isExistingImage === "true"
+  data.isCustomDateRange = data.isCustomDateRange === "true"
+  const validatedFields = RewardSchema.safeParse(data)
   if (!validatedFields.success) {
-    return { error: validatedFields.error };
+    return { error: validatedFields.error }
   }
-  let image, from, to;
+  let image, from, to
   const {
     name,
     pointsRequired,
@@ -95,38 +95,38 @@ const updateReward = async (id: string, formData: FormData) => {
     isAvailable,
     isCustomDateRange,
     isExistingImage,
-  } = validatedFields.data;
+  } = validatedFields.data
   if (isCustomDateRange) {
-    from = validatedFields.data.dates.from;
-    to = validatedFields.data.dates.to;
+    from = validatedFields.data.dates.from
+    to = validatedFields.data.dates.to
   }
   if (!isExistingImage) {
-    image = validatedFields.data.image;
+    image = validatedFields.data.image
   }
   const existingReward = await prisma.reward.findFirst({
     where: { name: name, id: { not: id } },
-  });
+  })
   if (existingReward) {
-    return { error: "Reward with the same name already exists!" };
+    return { error: "Reward with the same name already exists!" }
   }
   const currentReward = await prisma.reward.findUnique({
     where: {
       id: id,
     },
-  });
+  })
   if (!currentReward) {
-    return { error: "Reward does not exist!" };
+    return { error: "Reward does not exist!" }
   }
   if (!isExistingImage && image !== undefined) {
     const deleteRes = await utapi.deleteFiles(
       currentReward.image.split("/").pop() as string
-    );
+    )
     if (!deleteRes.success) {
-      return { error: "Unable to delete image!" };
+      return { error: "Unable to delete image!" }
     }
-    const createRes = await utapi.uploadFiles(image as File);
+    const createRes = await utapi.uploadFiles(image as File)
     if (createRes.error) {
-      return { error: "Unable to upload image!" };
+      return { error: "Unable to upload image!" }
     }
     const updatedReward = await prisma.reward.update({
       where: {
@@ -141,9 +141,9 @@ const updateReward = async (id: string, formData: FormData) => {
         startDate: from ?? null,
         endDate: to ?? null,
       },
-    });
-    revalidatePath("/admin/reward");
-    return { success: `Reward ${updatedReward.id} updated successfully` };
+    })
+    revalidatePath("/admin/reward")
+    return { success: `Reward ${updatedReward.id} updated successfully` }
   }
   const updatedReward = await prisma.reward.update({
     where: {
@@ -157,39 +157,39 @@ const updateReward = async (id: string, formData: FormData) => {
       ...(from !== undefined ? { startDate: from } : { startDate: null }),
       ...(to !== undefined ? { endDate: to } : { endDate: null }),
     },
-  });
-  revalidatePath("/admin/reward");
-  return { success: `Reward ${updatedReward.id} updated successfully ` };
-};
+  })
+  revalidatePath("/admin/reward")
+  return { success: `Reward ${updatedReward.id} updated successfully ` }
+}
 
 const deleteReward = async (id: string) => {
-  const user = await getSessionUser();
+  const user = await getSessionUser()
   if (!user || user.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   const reward = await prisma.reward.findUnique({
     where: {
       id,
     },
-  });
+  })
   if (!reward) {
-    return { error: "Reward not found" };
+    return { error: "Reward not found" }
   }
   const deleteRes = await utapi.deleteFiles(
     reward.image.split("/").pop() as string
-  );
+  )
   if (!deleteRes.success) {
-    return { error: "Unable to delete image!" };
+    return { error: "Unable to delete image!" }
   }
   const deletedReward = await prisma.reward.delete({
     where: {
       id,
     },
-  });
+  })
   if (!deletedReward) {
-    return { error: "Failed to delete reward" };
+    return { error: "Failed to delete reward" }
   }
-  revalidatePath("/admin/reward");
-  return { success: `Reward ${deletedReward.id} deleted successfully` };
-};
-export { createReward, updateReward, deleteReward };
+  revalidatePath("/admin/reward")
+  return { success: `Reward ${deletedReward.id} deleted successfully` }
+}
+export { createReward, updateReward, deleteReward }

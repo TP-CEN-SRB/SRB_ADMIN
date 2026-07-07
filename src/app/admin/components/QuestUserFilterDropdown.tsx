@@ -1,8 +1,8 @@
-"use client";
-import React from "react";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+
+import { Button } from "@/components/ui/button"
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,22 +10,22 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FaFilter } from "react-icons/fa";
+} from "@/components/ui/dropdown-menu"
+import { FaFilter } from "react-icons/fa"
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 interface QuestUserFilterDropdownProps {
-  selectedFaculties: string[];
-  selectedCompletion: string[];
+  selectedFaculties: string[]
+  selectedCompletion: string[]
   onChange: (filter: {
-    faculty: string[];
-    completion: string[];
-  }) => void;
+    faculty: string[]
+    completion: string[]
+  }) => void
 }
 
-const allFaculties = ["ENG", "DES", "IIT", "BUS"];
-const completionOptions = ["Completed", "Not Completed"];
+const allFaculties = ["ENG", "DES", "IIT", "BUS"]
+const completionOptions = ["Completed", "Not Completed"]
 
 const QuestUserFilterDropdown = ({
   selectedFaculties,
@@ -39,20 +39,20 @@ const QuestUserFilterDropdown = ({
   ) => {
     const updated = type === "faculty"
       ? [...selectedFaculties]
-      : [...selectedCompletion];
+      : [...selectedCompletion]
 
     if (checked) {
-      updated.push(value);
+      updated.push(value)
     } else {
-      const index = updated.indexOf(value);
-      if (index > -1) updated.splice(index, 1);
+      const index = updated.indexOf(value)
+      if (index > -1) updated.splice(index, 1)
     }
 
     onChange({
       faculty: type === "faculty" ? updated : selectedFaculties,
       completion: type === "completion" ? updated : selectedCompletion,
-    });
-  };
+    })
+  }
 
   return (
     <DropdownMenu>
@@ -92,7 +92,7 @@ const QuestUserFilterDropdown = ({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default QuestUserFilterDropdown;
+export default QuestUserFilterDropdown

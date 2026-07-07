@@ -1,14 +1,10 @@
-import { getUsedMaterialsForBin } from "@/app/action/bin";
-import CreateBinForm from "@/components/FormLogic/BinForms/CreateBinForm";
-import { prisma } from "@/lib/db";
-import React from "react";
+import { getUsedMaterialsForBin } from "@/app/action/bin"
+import CreateBinForm from "@/components/FormLogic/(Bins)/CreateBinForm"
+import { prisma } from "@/lib/db"
 
-const CreateBinFormPageWithBinUser = async ({
-  params,
-}: {
-  params: Promise<{ binUserId: string }>;
-}) => {
-  const { binUserId } = await params; 
+
+export default async function CreateBinFormPageWithBinUser({ params }: { params: Promise<{ binUserId: string }> }) {
+  const { binUserId } = await params 
   const [getAllMaterials, getBinLocation, getUnavailableMaterialsForBin] =
     await Promise.all([
       prisma.binMaterial.findMany(),
@@ -24,7 +20,7 @@ const CreateBinFormPageWithBinUser = async ({
           userId: binUserId,
         },
       }),
-    ]);
+    ])
   return (
     <>
       <div className="flex justify-center min-h-screen items-center">
@@ -38,7 +34,5 @@ const CreateBinFormPageWithBinUser = async ({
         </div>
       </div>
     </>
-  );
-};
-
-export default CreateBinFormPageWithBinUser;
+  )
+}

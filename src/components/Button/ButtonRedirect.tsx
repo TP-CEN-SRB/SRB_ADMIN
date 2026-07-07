@@ -1,13 +1,13 @@
-import React from "react";
-import { Button } from "../ui/button";
-import Link from "next/link";
+
+import { Button } from "../ui/button"
+import Link from "next/link"
 
 interface ButtonProps {
-  href: string;
-  children: React.ReactNode;
-  color: "indigo" | "red" | "amber" | "emerald" | "slate";
-  rounded?: boolean;
-  variant?: "default" | "outline";
+  href: string
+  children: React.ReactNode
+  color: "indigo" | "red" | "amber" | "emerald" | "slate"
+  rounded?: boolean
+  variant?: "default" | "outline"
 }
 
 const ButtonRedirect = ({
@@ -43,7 +43,7 @@ const ButtonRedirect = ({
       outline:
         "border border-slate-500 bg-(--pale-mint) text-slate-500 hover:bg-slate-50",
     },
-  };
+  }
 
   return (
     <div className="mt-4 text-center">
@@ -58,7 +58,7 @@ const ButtonRedirect = ({
         <Link href={href}>{children}</Link>
       </Button>
     </div>
-  );
-};
+  )
+}
 
-export default ButtonRedirect;
+export default ButtonRedirect

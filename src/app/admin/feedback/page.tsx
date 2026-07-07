@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -10,7 +10,7 @@ import {
   useReactTable,
   PaginationState,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -19,28 +19,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import { Star, Trash2, Eye } from "lucide-react";
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import { Star, Trash2, Eye } from "lucide-react"
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 
 // ⭐ Star Rating
 const StarRating = ({ rating }: { rating: number }) => (
@@ -54,60 +54,60 @@ const StarRating = ({ rating }: { rating: number }) => (
       />
     ))}
   </div>
-);
+)
 
 interface Feedback {
-  id: string;
-  rating: number;
-  category: string;
-  message?: string | null;
-  createdAt: string;
+  id: string
+  rating: number
+  category: string
+  message?: string | null
+  createdAt: string
   user: {
-    name: string;
-    email: string;
-  };
+    name: string
+    email: string
+  }
 }
 
 export default function FeedbackPage() {
-  const [data, setData] = useState<Feedback[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<Feedback[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Feedback | null>(null);
+  const [selectedMessage, setSelectedMessage] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Feedback | null>(null)
 
   // Pagination & filters
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const fetchFeedbacks = () => {
-    setLoading(true);
+    setLoading(true)
     fetch("/api/admin/feedback")
       .then((res) => res.json())
       .then(setData)
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
-  useEffect(fetchFeedbacks, []);
+  useEffect(fetchFeedbacks, [])
 
 const handleDelete = async () => {
-  if (!deleteTarget) return;
+  if (!deleteTarget) return
 
   const res = await fetch(`/api/admin/feedback/${deleteTarget.id}`, {
     method: "DELETE",
-  });
+  })
 
   if (!res.ok) {
-    alert("Failed to delete feedback");
-    return;
+    alert("Failed to delete feedback")
+    return
   }
 
-  setDeleteTarget(null);
-  fetchFeedbacks();
-};
+  setDeleteTarget(null)
+  fetchFeedbacks()
+}
 
   const columns: ColumnDef<Feedback>[] = [
     {
@@ -169,7 +169,7 @@ const handleDelete = async () => {
         </Button>
       ),
     },
-  ];
+  ]
 
   const table = useReactTable({
     data,
@@ -180,7 +180,7 @@ const handleDelete = async () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-  });
+  })
 
   return (
     <Card isAdmin rounded fullWidth className="p-6">
@@ -330,5 +330,5 @@ const handleDelete = async () => {
         </DialogContent>
       </Dialog>
     </Card>
-  );
+  )
 }

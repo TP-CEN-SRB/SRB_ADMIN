@@ -1,14 +1,14 @@
-"use client";
-import React from "react";
-import { formatDistanceToNow } from "date-fns";
+"use client"
+
+import { formatDistanceToNow } from "date-fns"
 
 type HeartbeatBinCardProps = {
-  title: string;                     // Bin title (e.g. "Plastic Bin")
-  color: string;                     // Tailwind ring color, e.g. 'ring-red-400'
-  percentage: number;                // Fill percentage
-  status: "online" | "offline" | "warning"; // ⬅️ Add warning here
-  lastActive?: string | null;        // Last heartbeat timestamp
-};
+  title: string                     // Bin title (e.g. "Plastic Bin")
+  color: string                     // Tailwind ring color, e.g. 'ring-red-400'
+  percentage: number                // Fill percentage
+  status: "online" | "offline" | "warning" // ⬅️ Add warning here
+  lastActive?: string | null        // Last heartbeat timestamp
+}
 
 export default function HeartbeatBinCard({
   title,
@@ -22,7 +22,7 @@ export default function HeartbeatBinCard({
         ? "text-green-600"
         : status === "warning"
         ? "text-yellow-500"
-        : "text-red-500";
+        : "text-red-500"
 
 
   return (
@@ -65,5 +65,5 @@ export default function HeartbeatBinCard({
         </div>
       )}
     </div>
-  );
+  )
 }

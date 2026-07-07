@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   ColumnDef,
@@ -9,7 +9,7 @@ import {
   PaginationState,
   getFilteredRowModel,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -18,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
 import {
   Select,
@@ -28,15 +28,15 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
 }
 
 export function DataTable<TData, TValue>({
@@ -46,10 +46,10 @@ export function DataTable<TData, TValue>({
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  );
+  )
   const table = useReactTable({
     data,
     columns,
@@ -62,15 +62,15 @@ export function DataTable<TData, TValue>({
       pagination,
       columnFilters,
     },
-  });
+  })
   const [filterValue, setFilterValue] = useState(
     (table.getColumn("name")?.getFilterValue() as string) ?? ""
-  );
+  )
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setFilterValue(value); // Update the input state
-    table.getColumn("name")?.setFilterValue(value); // Update the table filter
-  };
+    const value = event.target.value
+    setFilterValue(value) // Update the input state
+    table.getColumn("name")?.setFilterValue(value) // Update the table filter
+  }
   return (
     <>
       <div className="px-4">
@@ -97,7 +97,7 @@ export function DataTable<TData, TValue>({
                               header.getContext()
                             )}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -195,6 +195,6 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </>
-  );
+  )
 }
 

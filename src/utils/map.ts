@@ -1,10 +1,10 @@
-import type { FeatureCollection } from "geojson";
+import type { FeatureCollection } from "geojson"
 export const maxBound = {
   minLat: 1.34162,
   maxLat: 1.35,
   minLong: 103.92431,
   maxLong: 103.93916,
-};
+}
 
 const engineeringGeoJson: FeatureCollection = {
   type: "FeatureCollection",
@@ -42,7 +42,7 @@ const engineeringGeoJson: FeatureCollection = {
       },
     },
   ],
-};
+}
 const businessGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
@@ -71,7 +71,7 @@ const businessGeoJson: FeatureCollection = {
       },
     },
   ],
-};
+}
 const designGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
@@ -112,7 +112,7 @@ const designGeoJson: FeatureCollection = {
       },
     },
   ],
-};
+}
 const scienceGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
@@ -135,7 +135,7 @@ const scienceGeoJson: FeatureCollection = {
       },
     },
   ],
-};
+}
 const informationTechnologyGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
@@ -157,7 +157,7 @@ const informationTechnologyGeoJson: FeatureCollection = {
       },
     },
   ],
-};
+}
 const humanitiesGeoJson: FeatureCollection = {
   type: "FeatureCollection",
   features: [
@@ -178,7 +178,7 @@ const humanitiesGeoJson: FeatureCollection = {
       },
     },
   ],
-};
+}
 export {
   engineeringGeoJson,
   businessGeoJson,
@@ -186,4 +186,4 @@ export {
   scienceGeoJson,
   informationTechnologyGeoJson,
   humanitiesGeoJson,
-};
+}

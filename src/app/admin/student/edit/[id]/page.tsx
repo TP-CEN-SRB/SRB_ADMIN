@@ -1,19 +1,19 @@
-import EditStudentForm from "@/components/FormLogic/StudentForms/EditStudentForm";
-import { prisma } from "@/lib/db";
-import { Faculty } from "@/generated/prisma";
-import { notFound } from "next/navigation";
-import React from "react";
+import EditStudentForm from "@/components/FormLogic/StudentForms/EditStudentForm"
+import { prisma } from "@/lib/db"
+import { Faculty } from "@/generated/prisma"
+import { notFound } from "next/navigation"
+
 
 const EditUserPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params; 
+  const { id } = await params 
   const user = await prisma.user.findUnique({
     where: { id },
     include: {
       point: { select: { balance: true } },
     },
-  });
+  })
   if (!user) {
-    notFound();
+    notFound()
   }
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
@@ -25,7 +25,7 @@ const EditUserPage = async ({ params }: { params: Promise<{ id: string }> }) => 
         points={user.point?.balance}
       />
     </div>
-  );
-};
+  )
+}
 
-export default EditUserPage;
+export default EditUserPage

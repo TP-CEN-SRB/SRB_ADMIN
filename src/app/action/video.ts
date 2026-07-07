@@ -1,9 +1,9 @@
-"use server";
-import { prisma } from "@/lib/db";
+"use server"
+import { prisma } from "@/lib/db"
 
 export const saveRecording = async (url: string, duration: number) => {
   if (!url || typeof duration !== "number") {
-    return { error: "Missing URL or duration" };
+    return { error: "Missing URL or duration" }
   }
 
   try {
@@ -13,11 +13,11 @@ export const saveRecording = async (url: string, duration: number) => {
         fileUrl: url,
         durationInSeconds: duration,
       },
-    });
+    })
 
-    return { video };
+    return { video }
   } catch (err) {
-    console.error("Failed to save recording:", err);
-    return { error: "Database save failed" };
+    console.error("Failed to save recording:", err)
+    return { error: "Database save failed" }
   }
-};
+}

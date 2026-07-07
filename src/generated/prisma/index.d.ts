@@ -3505,16 +3505,16 @@ export namespace Prisma {
   }
 
   export type UserAvgAggregateOutputType = {
-    lat: Decimal | null
-    long: Decimal | null
+    lat: number | null
+    long: number | null
     treesaved: number | null
     treeprogress: number | null
     carbonprint: number | null
   }
 
   export type UserSumAggregateOutputType = {
-    lat: Decimal | null
-    long: Decimal | null
+    lat: number | null
+    long: number | null
     treesaved: number | null
     treeprogress: number | null
     carbonprint: number | null
@@ -3529,8 +3529,8 @@ export namespace Prisma {
     diploma: string | null
     faculty: $Enums.Faculty | null
     role: $Enums.Role | null
-    lat: Decimal | null
-    long: Decimal | null
+    lat: number | null
+    long: number | null
     location: string | null
     commandUpdatedAt: Date | null
     createdAt: Date | null
@@ -3551,8 +3551,8 @@ export namespace Prisma {
     diploma: string | null
     faculty: $Enums.Faculty | null
     role: $Enums.Role | null
-    lat: Decimal | null
-    long: Decimal | null
+    lat: number | null
+    long: number | null
     location: string | null
     commandUpdatedAt: Date | null
     createdAt: Date | null
@@ -3766,8 +3766,8 @@ export namespace Prisma {
     diploma: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat: Decimal | null
-    long: Decimal | null
+    lat: number | null
+    long: number | null
     location: string | null
     commandUpdatedAt: Date | null
     createdAt: Date
@@ -3955,8 +3955,8 @@ export namespace Prisma {
       diploma: string | null
       faculty: $Enums.Faculty
       role: $Enums.Role
-      lat: Prisma.Decimal | null
-      long: Prisma.Decimal | null
+      lat: number | null
+      long: number | null
       location: string | null
       commandUpdatedAt: Date | null
       createdAt: Date
@@ -4413,8 +4413,8 @@ export namespace Prisma {
     readonly diploma: FieldRef<"User", 'String'>
     readonly faculty: FieldRef<"User", 'Faculty'>
     readonly role: FieldRef<"User", 'Role'>
-    readonly lat: FieldRef<"User", 'Decimal'>
-    readonly long: FieldRef<"User", 'Decimal'>
+    readonly lat: FieldRef<"User", 'Float'>
+    readonly long: FieldRef<"User", 'Float'>
     readonly location: FieldRef<"User", 'String'>
     readonly commandUpdatedAt: FieldRef<"User", 'DateTime'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
@@ -32457,16 +32457,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Decimal'
+   * Reference to a field of type 'Float'
    */
-  export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 
   /**
-   * Reference to a field of type 'Decimal[]'
+   * Reference to a field of type 'Float[]'
    */
-  export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -32495,20 +32495,6 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float'
-   */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
-    
-
-
-  /**
-   * Reference to a field of type 'Float[]'
-   */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 
@@ -32611,8 +32597,8 @@ export namespace Prisma {
     diploma?: StringNullableFilter<"User"> | string | null
     faculty?: EnumFacultyFilter<"User"> | $Enums.Faculty
     role?: EnumRoleFilter<"User"> | $Enums.Role
-    lat?: DecimalNullableFilter<"User"> | Decimal | DecimalJsLike | number | string | null
-    long?: DecimalNullableFilter<"User"> | Decimal | DecimalJsLike | number | string | null
+    lat?: FloatNullableFilter<"User"> | number | null
+    long?: FloatNullableFilter<"User"> | number | null
     location?: StringNullableFilter<"User"> | string | null
     commandUpdatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -32691,8 +32677,8 @@ export namespace Prisma {
     diploma?: StringNullableFilter<"User"> | string | null
     faculty?: EnumFacultyFilter<"User"> | $Enums.Faculty
     role?: EnumRoleFilter<"User"> | $Enums.Role
-    lat?: DecimalNullableFilter<"User"> | Decimal | DecimalJsLike | number | string | null
-    long?: DecimalNullableFilter<"User"> | Decimal | DecimalJsLike | number | string | null
+    lat?: FloatNullableFilter<"User"> | number | null
+    long?: FloatNullableFilter<"User"> | number | null
     commandUpdatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -32758,8 +32744,8 @@ export namespace Prisma {
     diploma?: StringNullableWithAggregatesFilter<"User"> | string | null
     faculty?: EnumFacultyWithAggregatesFilter<"User"> | $Enums.Faculty
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
-    lat?: DecimalNullableWithAggregatesFilter<"User"> | Decimal | DecimalJsLike | number | string | null
-    long?: DecimalNullableWithAggregatesFilter<"User"> | Decimal | DecimalJsLike | number | string | null
+    lat?: FloatNullableWithAggregatesFilter<"User"> | number | null
+    long?: FloatNullableWithAggregatesFilter<"User"> | number | null
     location?: StringNullableWithAggregatesFilter<"User"> | string | null
     commandUpdatedAt?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -34437,8 +34423,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -34475,8 +34461,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -34513,8 +34499,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34551,8 +34537,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34589,8 +34575,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -34611,8 +34597,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34633,8 +34619,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36450,15 +36436,15 @@ export namespace Prisma {
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
-  export type DecimalNullableFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  export type FloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type DateTimeNullableFilter<$PrismaModel = never> = {
@@ -36801,20 +36787,20 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
-  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedDecimalNullableFilter<$PrismaModel>
-    _sum?: NestedDecimalNullableFilter<$PrismaModel>
-    _min?: NestedDecimalNullableFilter<$PrismaModel>
-    _max?: NestedDecimalNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -38195,12 +38181,12 @@ export namespace Prisma {
     set?: $Enums.Role
   }
 
-  export type NullableDecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string | null
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
+  export type NullableFloatFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -39362,15 +39348,15 @@ export namespace Prisma {
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
-  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
@@ -39490,20 +39476,20 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
-  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
-    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
-    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
-    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
     _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedDecimalNullableFilter<$PrismaModel>
-    _sum?: NestedDecimalNullableFilter<$PrismaModel>
-    _min?: NestedDecimalNullableFilter<$PrismaModel>
-    _max?: NestedDecimalNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedFloatNullableFilter<$PrismaModel>
+    _min?: NestedFloatNullableFilter<$PrismaModel>
+    _max?: NestedFloatNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -39659,17 +39645,6 @@ export namespace Prisma {
     _sum?: NestedBigIntNullableFilter<$PrismaModel>
     _min?: NestedBigIntNullableFilter<$PrismaModel>
     _max?: NestedBigIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -40635,8 +40610,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -40672,8 +40647,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -40725,8 +40700,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40762,8 +40737,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40799,8 +40774,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -40836,8 +40811,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -40889,8 +40864,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40926,8 +40901,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -40982,8 +40957,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41019,8 +40994,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41161,8 +41136,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41198,8 +41173,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41371,8 +41346,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41408,8 +41383,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41477,8 +41452,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41514,8 +41489,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41586,8 +41561,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41623,8 +41598,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41738,8 +41713,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41775,8 +41750,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41839,8 +41814,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41876,8 +41851,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -41929,8 +41904,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41966,8 +41941,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42074,8 +42049,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42111,8 +42086,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42201,8 +42176,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42238,8 +42213,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42275,8 +42250,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42312,8 +42287,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42365,8 +42340,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42402,8 +42377,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42439,8 +42414,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42476,8 +42451,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42529,8 +42504,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42566,8 +42541,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42676,8 +42651,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42713,8 +42688,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42803,8 +42778,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42840,8 +42815,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -42877,8 +42852,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42914,8 +42889,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42956,8 +42931,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -42993,8 +42968,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43046,8 +43021,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43083,8 +43058,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43131,8 +43106,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43168,8 +43143,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43243,8 +43218,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43280,8 +43255,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43358,8 +43333,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43395,8 +43370,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43463,8 +43438,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43500,8 +43475,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43553,8 +43528,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43590,8 +43565,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43627,8 +43602,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43664,8 +43639,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43717,8 +43692,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43754,8 +43729,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43867,8 +43842,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43904,8 +43879,8 @@ export namespace Prisma {
     diploma?: string | null
     faculty: $Enums.Faculty
     role: $Enums.Role
-    lat?: Decimal | DecimalJsLike | number | string | null
-    long?: Decimal | DecimalJsLike | number | string | null
+    lat?: number | null
+    long?: number | null
     location?: string | null
     commandUpdatedAt?: Date | string | null
     createdAt?: Date | string
@@ -43957,8 +43932,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -43994,8 +43969,8 @@ export namespace Prisma {
     diploma?: NullableStringFieldUpdateOperationsInput | string | null
     faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    lat?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    long?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
     location?: NullableStringFieldUpdateOperationsInput | string | null
     commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

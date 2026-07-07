@@ -1,20 +1,20 @@
-import { Resend } from 'resend';
+import { Resend } from 'resend'
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error(
     'Missing RESEND_API_KEY environment variable. ' +
       'Get your API key from https://resend.com/api-keys',
-  );
+  )
 }
 
 //resend API
-export const resend = new Resend(process.env.RESEND_API_KEY);
+export const resend = new Resend(process.env.RESEND_API_KEY)
 
 //Email Template
 export function emailTemplate(link: string, type: "VERIFY" | "RESET") {
 
-  const actionText = type === "RESET" ? "Reset Password" : "Verify Email";
-  const actionInstruction = type === "RESET" ? "reset your password" : "verify your email address";
+  const actionText = type === "RESET" ? "Reset Password" : "Verify Email"
+  const actionInstruction = type === "RESET" ? "reset your password" : "verify your email address"
 
   return`
   <!DOCTYPE html>
@@ -25,41 +25,41 @@ export function emailTemplate(link: string, type: "VERIFY" | "RESET") {
       <title>${actionText}</title>
       <style>
         body {
-          font-family: Arial, sans-serif;
-          background-color: #f4f4f4;
-          margin: 0;
-          padding: 0;
+          font-family: Arial, sans-serif
+          background-color: #f4f4f4
+          margin: 0
+          padding: 0
         }
         .container {
-          max-width: 600px;
-          margin: 0 auto;
-          background-color: #ffffff;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          max-width: 600px
+          margin: 0 auto
+          background-color: #ffffff
+          padding: 20px
+          border-radius: 8px
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
         }
-        h1 { color: #333333; }
-        p { color: #555555; }
+        h1 { color: #333333 }
+        p { color: #555555 }
         .btn {
-          display: inline-block;
-          padding: 12px 24px;
-          background-color: #007BFF;
-          color: #ffffff;
-          text-decoration: none;
-          border-radius: 5px;
-          font-weight: bold;
-          margin-top: 20px;
+          display: inline-block
+          padding: 12px 24px
+          background-color: #007BFF
+          color: #ffffff
+          text-decoration: none
+          border-radius: 5px
+          font-weight: bold
+          margin-top: 20px
         }
-        .btn:hover { background-color: #0056b3; }
+        .btn:hover { background-color: #0056b3 }
         .footer {
-          margin-top: 20px;
-          font-size: 12px;
-          color: #999999;
+          margin-top: 20px
+          font-size: 12px
+          color: #999999
         }
         .raw-link {
-          margin-top: 20px;
-          word-break: break-all;
-          color: #007BFF;
+          margin-top: 20px
+          word-break: break-all
+          color: #007BFF
         }
       </style>
     </head>
@@ -75,7 +75,7 @@ export function emailTemplate(link: string, type: "VERIFY" | "RESET") {
         </div>
       </div>
     </body>
-  </html>`;
+  </html>`
 }
 
 //Email Template
@@ -88,11 +88,11 @@ export function warningEmailTemplate(binCapacity: number, material: string, loca
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>Bin Capacity Warning</title>
       <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-        h1 { color: #333333; }
-        p { color: #555555; }
-        .footer { margin-top: 20px; font-size: 12px; color: #999999; }
+        body { font-family: Arial, sans-serif background-color: #f4f4f4 margin: 0 padding: 0 }
+        .container { max-width: 600px margin: 0 auto background-color: #ffffff padding: 20px border-radius: 8px box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) }
+        h1 { color: #333333 }
+        p { color: #555555 }
+        .footer { margin-top: 20px font-size: 12px color: #999999 }
       </style>
     </head>
     <body>
@@ -105,7 +105,7 @@ export function warningEmailTemplate(binCapacity: number, material: string, loca
         </div>
       </div>
     </body>
-  </html>`;
+  </html>`
 }
 
 //Resend Email
@@ -121,12 +121,12 @@ export const sendBinWarningEmail = async (
       to: emailList,
       subject: "[Smart Bin System] Bin Capacity Information",
       html: warningEmailTemplate(binCapacity, material, location),
-    });
+    })
 
     console.log(
       `📧 Bin warning email SENT → ${material} at ${location} (${binCapacity}%)`
-    );
+    )
   } catch (err: any) {
-    console.error("❌ Bin warning email failed:", err.message);
+    console.error("❌ Bin warning email failed:", err.message)
   }
-};
+}

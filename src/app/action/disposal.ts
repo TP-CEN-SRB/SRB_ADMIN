@@ -1,6 +1,6 @@
-"use server";
-import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
+"use server"
+import { prisma } from "@/lib/db"
+import { getSessionUser } from "@/utils/getAuth"
 
 const getDisposalByBinId = async (
   binId: string,
@@ -8,18 +8,18 @@ const getDisposalByBinId = async (
   sortOrder: string | undefined,
   sortItem: string | undefined
 ) => {
-  const user = await getSessionUser();
+  const user = await getSessionUser()
   if (user?.role !== "ADMIN") {
-    return { error: "Permission denied!" };
+    return { error: "Permission denied!" }
   }
-  const sortableItems = ["weight", "point", "createdAt"];
-  const pageCondition = page != null && page < 0;
+  const sortableItems = ["weight", "point", "createdAt"]
+  const pageCondition = page != null && page < 0
   const sortOrderCondition =
-    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
+    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc"
   const sortItemCondition =
-    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem);
+    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem)
   if (pageCondition || sortItemCondition || sortOrderCondition) {
-    return { disposalCount: 0, disposals: [] };
+    return { disposalCount: 0, disposals: [] }
   }
 
   const [disposalCount, disposals, bin] = await Promise.all([
@@ -52,8 +52,8 @@ const getDisposalByBinId = async (
         user: { select: { location: true } },
       },
     }),
-  ]);
-  return { disposalCount, disposals, bin };
-};
+  ])
+  return { disposalCount, disposals, bin }
+}
 
-export { getDisposalByBinId };
+export { getDisposalByBinId }

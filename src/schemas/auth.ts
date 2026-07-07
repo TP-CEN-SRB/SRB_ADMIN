@@ -1,15 +1,15 @@
-import { maxBound } from "@/utils/map";
-import { Faculty } from "@/generated/prisma";
-import * as z from "zod";
+import { maxBound } from "@/utils/map"
+import { Faculty } from "@/generated/prisma"
+import * as z from "zod"
 // todo: uncomment the email validation after demonstration
 /**
  * All
  */
-const { minLat, maxLat, minLong, maxLong } = maxBound;
+const { minLat, maxLat, minLong, maxLong } = maxBound
 const LoginSchema = z.object({
   email: z.string().email("Please enter a valid email address").toLowerCase(),
   password: z.string().min(1, "Password is required"),
-});
+})
 
 /**
  * Admins
@@ -31,20 +31,20 @@ const SignUpAdminSchema = z.object({
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(1, "Confirm Password is required"),
-});
+})
 
 const UpdateAdminEmailSchema = SignUpAdminSchema.pick({
   email: true,
-}).merge(z.object({ password: z.string().min(1, "Password is required") }));
+}).merge(z.object({ password: z.string().min(1, "Password is required") }))
 
 /**
  * Students + Admins
  */
 const ResetSchema = z.object({
   email: z.string().email("Please enter a valid email address").toLowerCase(),
-});
+})
 
-const NewAdminPasswordSchema = SignUpAdminSchema.pick({ password: true });
+const NewAdminPasswordSchema = SignUpAdminSchema.pick({ password: true })
 
 /**
  * Bins
@@ -89,7 +89,7 @@ const SignUpBinSchema = z.object({
     .refine((val) => val >= minLong && val <= maxLong, {
       message: `Longitude must be between ${minLong} and ${maxLong}`,
     }),
-});
+})
 const BinPasswordSchema = z.discriminatedUnion("isExistingPassword", [
   z.object({
     isExistingPassword: z.literal(true),
@@ -101,7 +101,7 @@ const BinPasswordSchema = z.discriminatedUnion("isExistingPassword", [
       .regex(/^\S*$/, "Password cannot contain spaces")
       .min(8, "Password must be at least 8 characters"),
   }),
-]);
+])
 
 const UpdateBinSchema = z
   .object({
@@ -137,7 +137,7 @@ const UpdateBinSchema = z
         message: `Longitude must be between ${minLong} and ${maxLong}`,
       }),
   })
-  .and(BinPasswordSchema);
+  .and(BinPasswordSchema)
 
 /**
  * Students
@@ -161,7 +161,7 @@ const SignUpStudentSchema = z.object({
     .regex(/^\S*$/, "Password cannot contain spaces")
     .min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(1, "Confirm Password is required"),
-});
+})
 
 
 const UpdateStudentSchema = SignUpStudentSchema.omit({
@@ -173,11 +173,11 @@ const UpdateStudentSchema = SignUpStudentSchema.omit({
     .int("Points must be an integer")
     .max(2147483647, "Maximum value is 2147483647")
     .gte(0, "Points cannot be negative"),
-});
+})
 const NewStudentPasswordSchema = SignUpStudentSchema.pick({
   password: true,
   confirmPassword: true,
-});
+})
 
 export {
   LoginSchema,
@@ -190,4 +190,4 @@ export {
   NewAdminPasswordSchema,
   UpdateBinSchema,
   NewStudentPasswordSchema,
-};
+}

@@ -1,16 +1,16 @@
-import Card from "@/components/Card/Card";
-import CardHeader from "@/components/Card/CardHeader";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { prisma } from "@/lib/db";
+import Card from "@/components/Card/Card"
+import CardHeader from "@/components/Card/CardHeader"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { prisma } from "@/lib/db"
 import { authClient } from "@/lib/auth-client"
-import React from "react";
-import { getNameInitials } from "@/utils/getNameInitials";
-import AdminProfileMore from "@/components/Dropdown/AdminProfileMore";
+
+import { getNameInitials } from "@/utils/getNameInitials"
+import AdminProfileMore from "@/components/Dropdown/AdminProfileMore"
 
 const AdminProfilePage = async () => {
   const { data: session } = await authClient.getSession()
-  const sessionUser = session?.user;
-  if (!sessionUser) return null;
+  const sessionUser = session?.user
+  if (!sessionUser) return null
 
   const user = await prisma.user.findUnique({
     where: { id: sessionUser.id },
@@ -24,9 +24,9 @@ const AdminProfilePage = async () => {
       emailVerified: true,
       profileImageUrl: true, // ✅ IMPORTANT
     },
-  });
+  })
 
-  if (!user) return null;
+  if (!user) return null
 
   return (
     <div className="p-4 space-y-4">
@@ -108,7 +108,7 @@ const AdminProfilePage = async () => {
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default AdminProfilePage;
+export default AdminProfilePage

@@ -1,18 +1,18 @@
-"use client";
-import React, { useState } from "react";
+"use client"
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MdDeleteForever, MdMoreVert } from "react-icons/md";
-import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
-import ConfirmDeleteStudentDialog from "@/components/Dialog/ConfirmDeleteStudentDialog";
+} from "@/components/ui/dropdown-menu"
+import { MdDeleteForever, MdMoreVert } from "react-icons/md"
+import Link from "next/link"
+import { FaEdit } from "react-icons/fa"
+import ConfirmDeleteStudentDialog from "@/components/Dialog/ConfirmDeleteStudentDialog"
 
 const UserProfileMore = ({ id }: { id: string }) => {
-  const [isDeleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false);
+  const [isDeleteUserDialogOpen, setDeleteUserDialogOpen] = useState(false)
   return (
     <div>
       <ConfirmDeleteStudentDialog
@@ -47,7 +47,7 @@ const UserProfileMore = ({ id }: { id: string }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
-export default UserProfileMore;
+export default UserProfileMore

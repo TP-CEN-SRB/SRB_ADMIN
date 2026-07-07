@@ -1,9 +1,9 @@
-import { updateBinStatus } from '@/app/action/bin';
+import { updateBinStatus } from '@/app/action/bin'
 import { toast } from 'sonner'
-import { formatDateTime } from '@/utils/dateFilter';
-import { BinStatus } from '@/generated/prisma';
+import { formatDateTime } from '@/utils/dateFilter'
+import { BinStatus } from '@/generated/prisma'
 import React, { useState, useTransition } from 'react'
-import { useMediaQuery } from 'react-responsive';
+import { useMediaQuery } from 'react-responsive'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -19,32 +19,32 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import CustomFormMessage from '../FormLogic/CustomFormMessage';
-import { Button } from '../ui/button';
-import { Loader2, Router } from 'lucide-react';
+} from "@/components/ui/drawer"
+import CustomFormMessage from '../FormLogic/CustomFormMessage'
+import { Button } from '../ui/button'
+import { Loader2, Router } from 'lucide-react'
 
 interface ConfirmResolveBinIssueDialog {
-  binId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
-  isResolved: boolean;
-  handleResolved: () => void;
+  binId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
+  isResolved: boolean
+  handleResolved: () => void
 }
 
 const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolved, handleResolved}: ConfirmResolveBinIssueDialog) => {
-    const [isPending, startTransition] = useTransition();
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState("");
-    const datetime = formatDateTime(new Date());
+    const [isPending, startTransition] = useTransition()
+    const [error, setError] = useState("")
+    const [success, setSuccess] = useState("")
+    const datetime = formatDateTime(new Date())
     const handleUpdateBinStatus = () => {
     startTransition(async () => {
-      const data = await updateBinStatus(binId, BinStatus.FUNCTIONAL);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
+      const data = await updateBinStatus(binId, BinStatus.FUNCTIONAL)
+      setError(data?.error as string)
+      setSuccess(data?.success as string)
       if (!error && success !== undefined) {
-        handleDialogOpen();
-        handleResolved();
+        handleDialogOpen()
+        handleResolved()
         toast("Bin status updated successfully",{
           description: (
             <div>
@@ -55,7 +55,7 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
             </div>
           ),
           duration: 2000,
-        });
+        })
       }
       else{
         toast("Bin status update failed",{
@@ -68,13 +68,13 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
             </div>
           ),
           duration: 2000,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>

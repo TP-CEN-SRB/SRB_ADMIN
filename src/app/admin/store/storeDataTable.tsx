@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   flexRender,
   getCoreRowModel,
@@ -9,8 +9,8 @@ import {
   PaginationState,
   getFilteredRowModel,
   ColumnFiltersState,
-} from "@tanstack/react-table";
-import { columns } from "./columns";
+} from "@tanstack/react-table"
+import { columns } from "./columns"
 import {
   Table,
   TableBody,
@@ -18,38 +18,38 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
 export interface Store {
-  id: string;
-  name: string;
-  email: string;
-  faculty: string;
-  totalPoints: number;
-  lastActive: string;
-  totalPurchases: number;
+  id: string
+  name: string
+  email: string
+  faculty: string
+  totalPoints: number
+  lastActive: string
+  totalPurchases: number
 }
 
 interface StoreDataTableProps {
-  data: Store[];
+  data: Store[]
 }
 
 const StoreDataTable = ({ data }: StoreDataTableProps) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
     data,
@@ -63,17 +63,17 @@ const StoreDataTable = ({ data }: StoreDataTableProps) => {
       pagination,
       columnFilters,
     },
-  });
+  })
 
-  const [filterValue, setFilterValue] = useState("");
+  const [filterValue, setFilterValue] = useState("")
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFilterValue(value);
-    table.getColumn("name")?.setFilterValue(value);
-    table.getColumn("email")?.setFilterValue(value);
-    table.getColumn("faculty")?.setFilterValue(value);
-  };
+    const value = e.target.value
+    setFilterValue(value)
+    table.getColumn("name")?.setFilterValue(value)
+    table.getColumn("email")?.setFilterValue(value)
+    table.getColumn("faculty")?.setFilterValue(value)
+  }
 
   return (
     <div className="px-4">
@@ -198,7 +198,7 @@ const StoreDataTable = ({ data }: StoreDataTableProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default StoreDataTable;
+export default StoreDataTable

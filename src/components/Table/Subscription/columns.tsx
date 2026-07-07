@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
-import Actions from "./actions";
+import { ColumnDef } from "@tanstack/react-table"
+import Actions from "./actions"
 export type Subscription = {
-  id: string;
-  email: string;
-};
+  id: string
+  email: string
+}
 
 export const columns: ColumnDef<Subscription>[] = [
   {
@@ -16,7 +16,7 @@ export const columns: ColumnDef<Subscription>[] = [
     header: "Actions",
     id: "actions",
     cell: ({ row }) => {
-      return <Actions data={row.original} />;
+      return <Actions data={row.original} />
     },
   },
-];
+]

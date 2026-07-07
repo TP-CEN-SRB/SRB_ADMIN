@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   ColumnDef,
   getCoreRowModel,
@@ -10,7 +10,7 @@ import {
   flexRender,
   PaginationState,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 import {
   Table,
   TableBody,
@@ -18,28 +18,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/table"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { format } from "date-fns";
+} from "@/components/ui/select"
+import { format } from "date-fns"
 
 interface Video {
-  id: string;
-  name: string;
-  url: string;
-  duration: number;
-  createdAt: string;
+  id: string
+  name: string
+  url: string
+  duration: number
+  createdAt: string
 }
 
 interface VideoDataTableProps {
-  data: Video[];
+  data: Video[]
 }
 
 const VideoDataTable = ({ data }: VideoDataTableProps) => {
@@ -56,19 +56,19 @@ const VideoDataTable = ({ data }: VideoDataTableProps) => {
       accessorKey: "createdAt",
       header: "Created At",
       cell: ({ row }) => {
-        const date = new Date(row.original.createdAt);
-        return <span>{format(date, "yyyy-MM-dd HH:mm")}</span>;
+        const date = new Date(row.original.createdAt)
+        return <span>{format(date, "yyyy-MM-dd HH:mm")}</span>
       },
     },
-  ];
+  ]
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [filterValue, setFilterValue] = useState("");
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [filterValue, setFilterValue] = useState("")
 
   const table = useReactTable({
     data,
@@ -82,13 +82,13 @@ const VideoDataTable = ({ data }: VideoDataTableProps) => {
       pagination,
       columnFilters,
     },
-  });
+  })
 
   const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFilterValue(value);
-    table.getColumn("name")?.setFilterValue(value);
-  };
+    const value = e.target.value
+    setFilterValue(value)
+    table.getColumn("name")?.setFilterValue(value)
+  }
 
   return (
     <div className="px-4">
@@ -220,7 +220,7 @@ const VideoDataTable = ({ data }: VideoDataTableProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default VideoDataTable;
+export default VideoDataTable

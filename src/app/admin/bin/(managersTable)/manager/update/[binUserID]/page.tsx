@@ -1,15 +1,11 @@
-import { getAllBinUsers } from "@/app/action/user";
-import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen";
-import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
-import React from "react";
+import { getAllBinUsers } from "@/app/action/user"
+import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen"
+import { prisma } from "@/lib/db"
+import { notFound } from "next/navigation"
 
-const UpdateBinManagersPage = async ({
-  params,
-}: {
-  params: Promise<{ binUserID: string }>;
-}) => {
-  const { binUserID } = await params; 
+
+export default async function UpdateBinManagersPage({ params }: { params: Promise<{ binUserID: string }> }) {
+  const { binUserID } = await params 
   const [binUser, binManagers] = await Promise.all([
     prisma.user.findUnique({
       where: {
@@ -26,27 +22,25 @@ const UpdateBinManagersPage = async ({
       },
     }),
     getAllBinUsers(),
-  ]);
+  ])
   if (!binUser) {
-    notFound();
+    notFound()
   }
   const filteredBinManagers = binManagers.filter(
     (manager) => manager.id !== binUser.id
-  );
+  )
   return (
     <UpdateBinManagerScreen
       binManager={{
         ...binUser,
-        lat: binUser.lat?.toNumber(),
-        long: binUser.long?.toNumber(),
+        lat: binUser.lat?? undefined,
+        long: binUser.long?? undefined,
       }}
       data={filteredBinManagers.map((user) => ({
         ...user,
-        lat: user.lat?.toNumber(),
-        long: user.long?.toNumber(),
+        lat: user.lat?? undefined,
+        long: user.long?? undefined,
       }))}
     />
-  );
-};
-
-export default UpdateBinManagersPage;
+  )
+}

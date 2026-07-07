@@ -1,6 +1,6 @@
-"use client";
-import Link from "next/link";
-import { RiAdminFill } from "react-icons/ri";
+"use client"
+import Link from "next/link"
+import { RiAdminFill } from "react-icons/ri"
 const HomeScreen = () => {
   const adminButtons = [
     {
@@ -10,7 +10,7 @@ const HomeScreen = () => {
       hoverColor: "hover:bg-green-600",
       icon: <RiAdminFill />,
     },
-  ];
+  ]
   return (
     <div className="bg-(--pastel-green) antialiased">
       <div className="h-screen max-w-(--breakpoint-lg) flex items-center justify-center container mx-auto px-4">
@@ -38,7 +38,7 @@ const HomeScreen = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default HomeScreen;
+export default HomeScreen

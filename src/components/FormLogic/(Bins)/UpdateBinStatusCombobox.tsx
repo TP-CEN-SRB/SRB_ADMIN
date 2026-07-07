@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -6,34 +6,34 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { BinStatus } from "@/generated/prisma";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { ControllerRenderProps } from "react-hook-form";
+} from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { BinStatus } from "@/generated/prisma"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
+import { ControllerRenderProps } from "react-hook-form"
 
 const BinStatusCombobox = ({
   field,
 }: {
   field: ControllerRenderProps<
     {
-      status: "FUNCTIONAL" | "UNDER_MAINTENANCE";
-      location: string;
-      materialId: string;
+      status: "FUNCTIONAL" | "UNDER_MAINTENANCE"
+      location: string
+      materialId: string
     },
     "status"
-  >;
+  >
 }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   const [createValue, setCreateValue] = useState<
     "FUNCTIONAL" | "UNDER_MAINTENANCE" | undefined
-  >(field?.value || "");
+  >(field?.value || "")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -64,9 +64,9 @@ const BinStatusCombobox = ({
                       currentValue === createValue
                         ? undefined
                         : (currentValue as "FUNCTIONAL" | "UNDER_MAINTENANCE")
-                    );
-                    setOpen(false);
-                    field?.onChange(currentValue); // Handles both create and update
+                    )
+                    setOpen(false)
+                    field?.onChange(currentValue) // Handles both create and update
                   }}
                 >
                   <Check
@@ -83,7 +83,7 @@ const BinStatusCombobox = ({
         </Command>
       </PopoverContent>
     </Popover>
-  );
-};
+  )
+}
 
-export default BinStatusCombobox;
+export default BinStatusCombobox

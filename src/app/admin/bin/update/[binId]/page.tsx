@@ -1,23 +1,23 @@
-import { getBinById } from "@/app/action/bin";
-import NotFoundPage from "@/app/not-found";
-import UpdateBinForm from "@/components/FormLogic/BinForms/UpdateBinForm";
-import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
-import React from "react";
+import { getBinById } from "@/app/action/bin"
+import NotFoundPage from "@/app/not-found"
+import UpdateBinForm from "@/components/FormLogic/BinForms/UpdateBinForm"
+import { prisma } from "@/lib/db"
+import { notFound } from "next/navigation"
+
 
 const UpdateBinManagerPage = async ({
   params,
 }: {
-  params: Promise<{ binId: string }>;
+  params: Promise<{ binId: string }>
 }) => {
 
   // Fetch the bin data first
-  const { binId } = await params; 
-  const bin = await getBinById(binId);
+  const { binId } = await params 
+  const bin = await getBinById(binId)
   if (!bin) {
-    notFound();
+    notFound()
   }
-  const getAllMaterials = await prisma.binMaterial.findMany();
+  const getAllMaterials = await prisma.binMaterial.findMany()
   return (
     <>
       <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs py-4">
@@ -30,7 +30,7 @@ const UpdateBinManagerPage = async ({
         />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default UpdateBinManagerPage;
+export default UpdateBinManagerPage

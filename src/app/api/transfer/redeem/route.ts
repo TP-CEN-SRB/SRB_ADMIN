@@ -1,37 +1,37 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { prisma } from "@/lib/db";
-import { verifyQrToken } from "@/lib/jwt-tokens";
+import { NextRequest, NextResponse } from "next/server"
+import jwt from "jsonwebtoken"
+import { prisma } from "@/lib/db"
+import { verifyQrToken } from "@/lib/jwt-tokens"
 
 export const POST = async (req: NextRequest) => {
   try {
-    const token = req.headers.get("Authorization")?.split(" ")[1];
-    if (!token) return NextResponse.json({ message: "Missing auth" }, { status: 401 });
+    const token = req.headers.get("Authorization")?.split(" ")[1]
+    if (!token) return NextResponse.json({ message: "Missing auth" }, { status: 401 })
 
-    const decoded = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!);
-    if (typeof decoded === "string") return NextResponse.json({ message: "Invalid token" }, { status: 401 });
+    const decoded = jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!)
+    if (typeof decoded === "string") return NextResponse.json({ message: "Invalid token" }, { status: 401 })
 
-    const { token: qrToken } = await req.json();
-    const receiverId = decoded.userId;
+    const { token: qrToken } = await req.json()
+    const receiverId = decoded.userId
 
-    const payload = verifyQrToken(qrToken);
-    const { sessionId, senderId, amount } = payload;
+    const payload = verifyQrToken(qrToken)
+    const { sessionId, senderId, amount } = payload
 
     const session = await prisma.transferSession.findUnique({
       where: { id: sessionId },
-    });
+    })
 
     if (!session || session.status !== "PENDING") {
-      return NextResponse.json({ message: "Invalid or redeemed session" }, { status: 400 });
+      return NextResponse.json({ message: "Invalid or redeemed session" }, { status: 400 })
     }
 
     if (senderId === receiverId) {
-      return NextResponse.json({ message: "Sender and receiver cannot be the same" }, { status: 400 });
+      return NextResponse.json({ message: "Sender and receiver cannot be the same" }, { status: 400 })
     }
 
-    const senderPoints = await prisma.point.findUnique({ where: { userId: senderId } });
+    const senderPoints = await prisma.point.findUnique({ where: { userId: senderId } })
     if (!senderPoints || senderPoints.balance < amount) {
-      return NextResponse.json({ message: "Sender has insufficient points" }, { status: 400 });
+      return NextResponse.json({ message: "Sender has insufficient points" }, { status: 400 })
     }
 
     const [sender, receiver] = await Promise.all([
@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest) => {
     where: { id: receiverId },
     select: { name: true },
   }),
-]);
+])
 
 await prisma.$transaction([
   prisma.point.update({
@@ -88,7 +88,7 @@ await prisma.$transaction([
       updatedAt: new Date(),
     },
   }),
-]);
+])
 
     return NextResponse.json({
       success: true,
@@ -101,9 +101,9 @@ await prisma.$transaction([
         receiverName: receiver?.name ?? "Unknown",
         redeemedAt: new Date().toISOString(),
       },
-    }, { status: 200 });
+    }, { status: 200 })
 
   } catch {
-    return NextResponse.json({ message: "Redemption failed" }, { status: 500 });
+    return NextResponse.json({ message: "Redemption failed" }, { status: 500 })
   }
-};
+}

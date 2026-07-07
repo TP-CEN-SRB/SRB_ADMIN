@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -14,40 +14,40 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
 import { toast } from "sonner"
-import { deleteSubscription } from "@/app/action/subscription";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
-import { useMediaQuery } from "react-responsive";
+import { deleteSubscription } from "@/app/action/subscription"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
+import { useMediaQuery } from "react-responsive"
 interface DialogProps {
-  subscriptionId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  subscriptionId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 const ConfirmDeleteSubscriptionDialog = ({
   subscriptionId,
   isOpen,
   handleDialogOpen,
 }: DialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
   const handleConfirm = () => {
     startTransition(async () => {
-      const data = await deleteSubscription(subscriptionId);
-      setError(data?.error as string);
+      const data = await deleteSubscription(subscriptionId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast.success("success!",{
           description: data.success,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
@@ -110,7 +110,7 @@ const ConfirmDeleteSubscriptionDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteSubscriptionDialog;
+export default ConfirmDeleteSubscriptionDialog

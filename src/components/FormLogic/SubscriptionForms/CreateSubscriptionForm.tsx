@@ -1,8 +1,8 @@
-"use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+"use client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -10,18 +10,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import Card from "@/components/Card/Card";
-import { Button } from "@/components/ui/button";
-import { SubscriptionSchema } from "@/schemas";
-import { createSubscription } from "@/app/action/subscription";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import Card from "@/components/Card/Card"
+import { Button } from "@/components/ui/button"
+import { SubscriptionSchema } from "@/schemas"
+import { createSubscription } from "@/app/action/subscription"
 
 interface CreateSubscriptionFormProps {
-  id: string;
+  id: string
 }
 const CreateSubscriptionForm = ({ id }: CreateSubscriptionFormProps) => {
   const form = useForm<z.infer<typeof SubscriptionSchema>>({
@@ -29,21 +29,21 @@ const CreateSubscriptionForm = ({ id }: CreateSubscriptionFormProps) => {
     defaultValues: {
       email: "",
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const onSubmit = (values: z.infer<typeof SubscriptionSchema>) => {
     startTransition(async () => {
-      setError(""); // clear error message
-      const data = await createSubscription(values, id);
-      setError(data?.error as string);
-      setSuccess(data?.success as string);
+      setError("") // clear error message
+      const data = await createSubscription(values, id)
+      setError(data?.error as string)
+      setSuccess(data?.success as string)
       if (!data?.error && data?.success !== undefined) {
-        form.reset({ email: "" });
+        form.reset({ email: "" })
       }
-    });
-  };
+    })
+  }
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Add a subscription</FormHeader>
@@ -84,7 +84,7 @@ const CreateSubscriptionForm = ({ id }: CreateSubscriptionFormProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default CreateSubscriptionForm;
+export default CreateSubscriptionForm

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   ColumnDef,
@@ -9,7 +9,7 @@ import {
   PaginationState,
   getFilteredRowModel,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -18,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
 import {
   Select,
@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
 import {
   DropdownMenu,
@@ -35,24 +35,24 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FaPlusCircle } from "react-icons/fa";
+import React, { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { FaPlusCircle } from "react-icons/fa"
 
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
-import ExportCSV from "./export-csv";
-import { TbSettingsCheck, TbSettingsX } from "react-icons/tb";
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
+import ExportCSV from "./export-csv"
+import { TbSettingsCheck, TbSettingsX } from "react-icons/tb"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  materials: { name: string; id: string }[];
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  materials: { name: string; id: string }[]
 }
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 export function DataTable<TData, TValue>({
   columns,
@@ -62,8 +62,8 @@ export function DataTable<TData, TValue>({
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  })
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const table = useReactTable({
     data,
     columns,
@@ -76,14 +76,14 @@ export function DataTable<TData, TValue>({
       pagination,
       columnFilters,
     },
-  });
+  })
   const [statusFilter, setStatusFilter] = useState<string | undefined>(
     undefined
-  );
+  )
   const [locationFilterValue, setLocationFilterValue] = useState(
     (table.getColumn("location")?.getFilterValue() as string) ?? ""
-  );
-  const [selectedMaterial, setSelectedMaterial] = useState<string[]>([]);
+  )
+  const [selectedMaterial, setSelectedMaterial] = useState<string[]>([])
 
   const handleMaterialFilterChange = (checked: boolean, material: string) => {
     //update the selected material array based on the checked material state
@@ -91,42 +91,42 @@ export function DataTable<TData, TValue>({
     //if state is unchecked, use filter to remove the material from the array
     const updatedMaterials = checked
       ? [...selectedMaterial, material]
-      : selectedMaterial.filter((item) => item !== material);
-    setSelectedMaterial(updatedMaterials);
+      : selectedMaterial.filter((item) => item !== material)
+    setSelectedMaterial(updatedMaterials)
     //apply the filter to the table
     table
       .getColumn("material")
-      ?.setFilterValue(updatedMaterials.length ? updatedMaterials : undefined);
-  };
+      ?.setFilterValue(updatedMaterials.length ? updatedMaterials : undefined)
+  }
 
   //update the location filter value and apply the filter to the table
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setLocationFilterValue(value); // Update the input state
-    table.getColumn("location")?.setFilterValue(value); // Update the table filter
-  };
+    const value = event.target.value
+    setLocationFilterValue(value) // Update the input state
+    table.getColumn("location")?.setFilterValue(value) // Update the table filter
+  }
 
   const handleFilterChange = (checked: boolean, status: string) => {
     setStatusFilter((prevFilter) => {
-      let newFilter;
+      let newFilter
       if (checked) {
         if (!prevFilter) {
-          newFilter = status;
+          newFilter = status
         } else if (
           (prevFilter === "FUNCTIONAL" && status === "UNDER_MAINTENANCE") ||
           (prevFilter === "UNDER_MAINTENANCE" && status === "FUNCTIONAL")
         ) {
-          newFilter = undefined;
+          newFilter = undefined
         } else {
-          newFilter = prevFilter;
+          newFilter = prevFilter
         }
       } else {
-        newFilter = prevFilter === status ? undefined : prevFilter;
+        newFilter = prevFilter === status ? undefined : prevFilter
       }
-      table.getColumn("status")?.setFilterValue(newFilter);
-      return newFilter;
-    });
-  };
+      table.getColumn("status")?.setFilterValue(newFilter)
+      return newFilter
+    })
+  }
 
   return (
     <>
@@ -203,7 +203,7 @@ export function DataTable<TData, TValue>({
                               header.getContext()
                             )}
                       </TableHead>
-                    );
+                    )
                   })}
                 </TableRow>
               ))}
@@ -301,5 +301,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </>
-  );
+  )
 }

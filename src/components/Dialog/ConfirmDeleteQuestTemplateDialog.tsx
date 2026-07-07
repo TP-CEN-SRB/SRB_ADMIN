@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { deleteQuestTemplate } from "@/app/action/questTemplate";
+import { deleteQuestTemplate } from "@/app/action/questTemplate"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
-import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation"
+import React, { useState, useTransition } from "react"
+import { useMediaQuery } from "react-responsive"
 
 import {
   Dialog,
@@ -13,7 +13,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 
 import {
   Drawer,
@@ -22,17 +22,17 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
+} from "@/components/ui/drawer"
 
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { formatDateTime } from "@/utils/dateFilter";
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import { formatDateTime } from "@/utils/dateFilter"
 
 interface Props {
-  templateId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  templateId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 
 export default function ConfirmDeleteQuestTemplateDialog({
@@ -40,18 +40,18 @@ export default function ConfirmDeleteQuestTemplateDialog({
   isOpen,
   handleDialogOpen,
 }: Props) {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const datetime = formatDateTime(new Date());
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const datetime = formatDateTime(new Date())
 
   const handleDelete = () => {
     startTransition(async () => {
-      const data = await deleteQuestTemplate(templateId);
-      setError(data?.error as string);
+      const data = await deleteQuestTemplate(templateId)
+      setError(data?.error as string)
 
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
 
         toast("Template deleted successfully",{
           description: (
@@ -63,14 +63,14 @@ export default function ConfirmDeleteQuestTemplateDialog({
             </div>
           ),
           duration: 2000,
-        });
+        })
 
-        router.push("/admin/quest-template");
+        router.push("/admin/quest-template")
       }
-    });
-  };
+    })
+  }
 
-  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" });
+  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" })
 
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
@@ -136,5 +136,5 @@ export default function ConfirmDeleteQuestTemplateDialog({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
+  )
 }

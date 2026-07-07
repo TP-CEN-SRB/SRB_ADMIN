@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { BinMaterial } from "@/generated/prisma";
-import React, { useState } from "react";
+import { BinMaterial } from "@/generated/prisma"
+import React, { useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -11,7 +11,7 @@ import {
   PaginationState,
   getFilteredRowModel,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   Table,
   TableBody,
@@ -27,46 +27,46 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
+import { FaEdit } from "react-icons/fa"
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from "@radix-ui/react-tooltip";
+} from "@radix-ui/react-tooltip"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { MdDeleteForever } from "react-icons/md";
-import { Input } from "@/components/ui/input";
-import ConfirmDeleteMaterialDialog from "@/components/Dialog/ConfirmDeleteMaterialDialog";
+} from "@/components/ui/select"
+import { MdDeleteForever } from "react-icons/md"
+import { Input } from "@/components/ui/input"
+import ConfirmDeleteMaterialDialog from "@/components/Dialog/ConfirmDeleteMaterialDialog"
 
 interface MaterialActionsProps {
-  allBinMaterials: { name: string | undefined }[];
-  data: BinMaterial[];
+  allBinMaterials: { name: string | undefined }[]
+  data: BinMaterial[]
 }
 
 const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
   const BinMaterialActions = ({
     binMaterial,
   }: {
-    binMaterial: BinMaterial;
+    binMaterial: BinMaterial
   }) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
+    const [isDialogOpen, setDialogOpen] = useState(false)
     const [hasBins, setHasBins] = useState(
       allBinMaterials.some((material) => material.name == binMaterial.name)
-    );
+    )
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false, // 24-hour format, remove if 12-hour format is needed
-    });
+    })
     return (
       <div>
         <ConfirmDeleteMaterialDialog
@@ -141,8 +141,8 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    );
-  };
+    )
+  }
   const columns: ColumnDef<BinMaterial>[] = [
     {
       accessorKey: "name",
@@ -157,12 +157,12 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
       header: "Actions",
       cell: ({ row }) => <BinMaterialActions binMaterial={row.original} />,
     },
-  ];
+  ]
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  })
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const table = useReactTable({
     data,
     columns,
@@ -175,15 +175,15 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
       pagination,
       columnFilters,
     },
-  });
+  })
   const [filterValue, setFilterValue] = useState(
     (table.getColumn("name")?.getFilterValue() as string) ?? ""
-  );
+  )
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setFilterValue(value); // Update the input state
-    table.getColumn("name")?.setFilterValue(value); // Update the table filter
-  };
+    const value = event.target.value
+    setFilterValue(value) // Update the input state
+    table.getColumn("name")?.setFilterValue(value) // Update the table filter
+  }
   return (
     <div className="px-4">
       <div className="flex flex-wrap justify-end items-center gap-3 py-3">
@@ -211,7 +211,7 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -308,7 +308,7 @@ const MaterialDataTable = ({ allBinMaterials, data }: MaterialActionsProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default MaterialDataTable;
+export default MaterialDataTable

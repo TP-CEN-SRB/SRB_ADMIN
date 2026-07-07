@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import React, { useTransition, useState, useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import Confetti from "react-confetti";
+import React, { useTransition, useState, useEffect } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import Confetti from "react-confetti"
 
-import { NewAdminPasswordSchema } from "@/schemas/auth";
-import { newPassword } from "@/app/action/user";
+import { NewAdminPasswordSchema } from "@/schemas/auth"
+import { newPassword } from "@/app/action/user"
 
 import {
   Form,
@@ -17,68 +17,68 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import Card from "@/components/Card/Card";
-import CardHeader from "@/components/Card/CardHeader";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import Card from "@/components/Card/Card"
+import CardHeader from "@/components/Card/CardHeader"
 
 
-import { Loader2 } from "lucide-react";
-import { MdLockReset, MdError, MdVerified, MdAccessTime } from "react-icons/md";
+import { Loader2 } from "lucide-react"
+import { MdLockReset, MdError, MdVerified, MdAccessTime } from "react-icons/md"
 
 
 interface NewPasswordFormProps {
-  token: string;
-  email: string;
-  redirect?: string;
+  token: string
+  email: string
+  redirect?: string
 }
 
-type ViewState = "form" | "error" | "clock" | "sent" | "success";
+type ViewState = "form" | "error" | "clock" | "sent" | "success"
 
 
-const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/";
-const REDIRECT_SECONDS = 3;
-const RESEND_COOLDOWN_SECONDS = 30;
-const CLOCK_PAGE_COOLDOWN = 5;
+const DEFAULT_REDIRECT = "https://tp-cen-srb.github.io/RecycleTP/"
+const REDIRECT_SECONDS = 3
+const RESEND_COOLDOWN_SECONDS = 30
+const CLOCK_PAGE_COOLDOWN = 5
 
 const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
-  const redirectUrl = redirect || DEFAULT_REDIRECT;
+  const redirectUrl = redirect || DEFAULT_REDIRECT
 
   const form = useForm<z.infer<typeof NewAdminPasswordSchema>>({
     resolver: zodResolver(NewAdminPasswordSchema),
     defaultValues: { password: "" },
-  });
+  })
 
-  const [view, setView] = useState<ViewState>("form");
-  const [error, setError] = useState<string>();
-  const [info, setInfo] = useState<string>();
+  const [view, setView] = useState<ViewState>("form")
+  const [error, setError] = useState<string>()
+  const [info, setInfo] = useState<string>()
 
-  const [isPending, startTransition] = useTransition();
-  const [isResending, setIsResending] = useState(false);
+  const [isPending, startTransition] = useTransition()
+  const [isResending, setIsResending] = useState(false)
 
-  const [countdown, setCountdown] = useState(REDIRECT_SECONDS);
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [clockCooldown, setClockCooldown] = useState(0);
+  const [countdown, setCountdown] = useState(REDIRECT_SECONDS)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const [clockCooldown, setClockCooldown] = useState(0)
 
   /* --------------------------- SUBMIT NEW PASSWORD --------------------------- */
 
   const onSubmit = (values: z.infer<typeof NewAdminPasswordSchema>) => {
     startTransition(async () => {
-      setError(undefined);
-      setInfo(undefined);
+      setError(undefined)
+      setInfo(undefined)
 
-      const res = await newPassword(values, token);
+      const res = await newPassword(values, token)
 
       if (res?.success) {
-        setView("success");
+        setView("success")
       } else {
-        setError(res?.error || "Reset link is invalid or expired.");
-        setView("error");
+        setError(res?.error || "Reset link is invalid or expired.")
+        setView("error")
       }
-    });
-  };
+    })
+  }
 
   /* ------------------------------ RESEND EMAIL ------------------------------ */
 
@@ -88,96 +88,96 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
       resendCooldown > 0 ||
       clockCooldown > 0
     )
-      return;
+      return
 
-    setIsResending(true);
-    setError(undefined);
-    setInfo(undefined);
+    setIsResending(true)
+    setError(undefined)
+    setInfo(undefined)
 
     try {
       const res = await fetch("/api/resend-password-reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
-      });
+      })
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}))
 
       if (!res.ok) {
         if (res.status === 429) {
           setInfo(
             "A reset email was already sent recently. Please check your inbox or wait before requesting another one."
-          );
-          setClockCooldown(CLOCK_PAGE_COOLDOWN);
-          setView("clock"); // ⏳ STAY HERE
-          return;
+          )
+          setClockCooldown(CLOCK_PAGE_COOLDOWN)
+          setView("clock") // ⏳ STAY HERE
+          return
         }
 
-        setError(data?.error || "Failed to resend reset email.");
-        setView("error");
-        return;
+        setError(data?.error || "Failed to resend reset email.")
+        setView("error")
+        return
       }
 
       // ✅ SUCCESSFUL resend
       setInfo(
         "If the account exists, a new reset email has been sent. Please check your inbox."
-      );
-      setResendCooldown(RESEND_COOLDOWN_SECONDS);
-      setView("sent"); // 🟠 ONLY HERE
+      )
+      setResendCooldown(RESEND_COOLDOWN_SECONDS)
+      setView("sent") // 🟠 ONLY HERE
 
     } catch {
-      setError("Failed to resend reset email. Please try again later.");
-      setView("error");
+      setError("Failed to resend reset email. Please try again later.")
+      setView("error")
     } finally {
-      setIsResending(false);
+      setIsResending(false)
     }
-  };
+  }
 
   /* ---------------------------- COOLDOWN TIMERS ---------------------------- */
 
   useEffect(() => {
-    if (resendCooldown <= 0) return;
+    if (resendCooldown <= 0) return
 
     const timer = setInterval(
       () => setResendCooldown((c) => c - 1),
       1000
-    );
+    )
 
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
+    return () => clearInterval(timer)
+  }, [resendCooldown])
 
   useEffect(() => {
-    if (clockCooldown <= 0) return;
+    if (clockCooldown <= 0) return
 
     const timer = setInterval(
       () => setClockCooldown((c) => c - 1),
       1000
-    );
+    )
 
-    return () => clearInterval(timer);
-  }, [clockCooldown]);
+    return () => clearInterval(timer)
+  }, [clockCooldown])
 
   /* ----------------------------- REDIRECT TIMER ----------------------------- */
 
   useEffect(() => {
-    if (view !== "success") return;
+    if (view !== "success") return
 
-    setCountdown(REDIRECT_SECONDS);
+    setCountdown(REDIRECT_SECONDS)
 
     const interval = setInterval(
       () => setCountdown((c) => c - 1),
       1000
-    );
+    )
 
     const timeout = setTimeout(() => {
-      window.location.href = redirectUrl;
-    }, REDIRECT_SECONDS * 1000);
+      window.location.href = redirectUrl
+    }, REDIRECT_SECONDS * 1000)
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [view, redirectUrl]);
+      clearInterval(interval)
+      clearTimeout(timeout)
+    }
+  }, [view, redirectUrl])
 
   /* ---------------------------------- UI ---------------------------------- */
 
@@ -337,7 +337,7 @@ const NewPasswordForm = ({ token, email, redirect }: NewPasswordFormProps) => {
         </div>
       )}
     </Card>
-  );
-};
+  )
+}
 
-export default NewPasswordForm;
+export default NewPasswordForm

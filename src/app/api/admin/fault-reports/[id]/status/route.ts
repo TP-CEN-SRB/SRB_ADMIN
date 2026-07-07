@@ -1,36 +1,36 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/lib/db"
 import {
   editTelegramMessage,
   editTelegramPhotoCaption,
-} from "@/lib/telegram";
+} from "@/lib/telegram"
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await params
 
-    console.log("---- PATCH /status called ----", id);
+    console.log("---- PATCH /status called ----", id)
 
-    const { status } = await req.json();
+    const { status } = await req.json()
 
     if (!["OPEN", "IN_PROGRESS", "RESOLVED"].includes(status)) {
-      return NextResponse.json({ error: "Invalid status" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid status" }, { status: 400 })
     }
 
     // 1️⃣ Fetch existing report
     const existing = await prisma.faultReport.findUnique({
       where: { id },
-    });
+    })
 
     if (!existing) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
+      return NextResponse.json({ error: "Not found" }, { status: 404 })
     }
 
     if (existing.status === status) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true })
     }
 
     // 2️⃣ Update DB (source of truth)
@@ -45,20 +45,20 @@ export async function PATCH(
           resolvedByAdminName: "Admin Dashboard",
         }),
       },
-    });
+    })
 
     // 3️⃣ Re-fetch (important)
     const report = await prisma.faultReport.findUnique({
       where: { id },
-    });
+    })
 
     if (!report || !report.telegramMessageId) {
-      console.log("ℹ️ No Telegram message to sync");
-      return NextResponse.json({ success: true });
+      console.log("ℹ️ No Telegram message to sync")
+      return NextResponse.json({ success: true })
     }
 
-    const telegramMessageId = Number(report.telegramMessageId);
-    const isPhotoMessage = Boolean(report.faultimageUrl);
+    const telegramMessageId = Number(report.telegramMessageId)
+    const isPhotoMessage = Boolean(report.faultimageUrl)
 
     const timeSGT =
       new Date().toLocaleString("en-SG", {
@@ -69,7 +69,7 @@ export async function PATCH(
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
-      }) + " SGT";
+      }) + " SGT"
 
     const updateTelegram = (
       text: string,
@@ -80,15 +80,15 @@ export async function PATCH(
           telegramMessageId,
           text,
           buttons
-        );
+        )
       } else {
         void editTelegramMessage(
           telegramMessageId,
           text,
           buttons
-        );
+        )
       }
-    };
+    }
 
     // 4️⃣ Sync Telegram
     if (status === "IN_PROGRESS") {
@@ -110,7 +110,7 @@ export async function PATCH(
             { text: "🗑 Delete", callback_data: `fault:delete:${report.id}` },
           ],
         ]
-      );
+      )
     }
 
     if (status === "RESOLVED") {
@@ -126,17 +126,17 @@ export async function PATCH(
 
 👷 Resolved by: Admin Dashboard`,
         []
-      );
+      )
     }
 
-    console.log("✅ Telegram synced");
+    console.log("✅ Telegram synced")
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true })
   } catch (err) {
-    console.error("❌ PATCH status error:", err);
+    console.error("❌ PATCH status error:", err)
     return NextResponse.json(
       { error: "Failed to update status" },
       { status: 500 }
-    );
+    )
   }
 }

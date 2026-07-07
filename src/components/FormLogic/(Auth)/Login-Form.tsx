@@ -10,10 +10,10 @@ import {
 import { Input } from "@/components/ui/input"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react"
+import { useForm } from "react-hook-form"
 
 import { authClient } from "@/lib/auth-client"
 import { loginSchema, LoginFormValue } from "./auth-schema"
@@ -24,28 +24,28 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
 
-  const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const router = useRouter()
+  const [isPending, setIsPending] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  const form = useForm<LoginFormValue>({resolver: zodResolver(loginSchema)});
+  const form = useForm<LoginFormValue>({resolver: zodResolver(loginSchema)})
 
   async function onSubmit(loginData: LoginFormValue){
-    setIsPending(true);
-    setServerError(null);
+    setIsPending(true)
+    setServerError(null)
 
     const { data, error } = await authClient.signIn.email({
       email: loginData.email,
       password: loginData.password,
       callbackURL: "/admin",
-    });
+    })
 
     if (error) {
-      setServerError(error.message || "Failed to login.");
-      setIsPending(false);
-      return;
+      setServerError(error.message || "Failed to login.")
+      setIsPending(false)
+      return
     }
-  };
+  }
   
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col gap-6", className)} {...props}>
@@ -100,7 +100,7 @@ export function LoginForm({
 
         <Field>
           <FieldDescription className="text-center">
-            Don&apos;t have an account?{" "}
+            Don&apost have an account?{" "}
             <Link href="/signup" className="underline underline-offset-4">
               Sign up
             </Link>

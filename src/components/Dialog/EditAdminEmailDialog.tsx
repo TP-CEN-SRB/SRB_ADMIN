@@ -1,11 +1,11 @@
-import React from "react";
+
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -13,17 +13,17 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import EditAdminEmailForm from "@/components/FormLogic/AdminUserForms/EditAdminEmailForm";
-import { useMediaQuery } from "react-responsive";
+} from "@/components/ui/drawer"
+import EditAdminEmailForm from "@/components/FormLogic/(Admin)/EditAdminEmailForm"
+import { useMediaQuery } from "react-responsive"
 interface DialogProps {
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 const EditAdminEmailDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
@@ -52,7 +52,7 @@ const EditAdminEmailDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default EditAdminEmailDialog;
+export default EditAdminEmailDialog

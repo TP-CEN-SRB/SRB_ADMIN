@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   ColumnDef,
   getCoreRowModel,
@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
   flexRender,
   PaginationState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 import {
   Table,
   TableBody,
@@ -16,26 +16,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { format } from "date-fns";
-import { AlertTriangle } from "lucide-react";
+} from "@/components/ui/select"
+import { format } from "date-fns"
+import { AlertTriangle } from "lucide-react"
 
 interface Crashlog {
-  id: string;
-  message: string;
-  createdAt: string;
+  id: string
+  message: string
+  createdAt: string
 }
 
 interface CrashlogTableProps {
-  data: Crashlog[];
+  data: Crashlog[]
 }
 
 const CrashlogTable = ({ data }: CrashlogTableProps) => {
@@ -55,12 +55,12 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
       header: "Timestamp",
       cell: ({ row }) => format(new Date(row.original.createdAt), "yyyy-MM-dd HH:mm:ss"),
     },
-  ];
+  ]
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
   const table = useReactTable({
     data,
@@ -69,7 +69,7 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
     state: { pagination },
-  });
+  })
 
   return (
     <div className="px-4 py-6">
@@ -174,7 +174,7 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CrashlogTable;
+export default CrashlogTable

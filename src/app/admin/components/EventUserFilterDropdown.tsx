@@ -1,8 +1,8 @@
-"use client";
-import React from "react";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+
+import { Button } from "@/components/ui/button"
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,34 +10,34 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FaFilter } from "react-icons/fa";
+} from "@/components/ui/dropdown-menu"
+import { FaFilter } from "react-icons/fa"
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 interface EventUserFilterDropdownProps {
-  selectedFaculties: string[];
-  onChange: (filter: { faculty: string[] }) => void;
+  selectedFaculties: string[]
+  onChange: (filter: { faculty: string[] }) => void
 }
 
-const allFaculties = ["ENG", "DES", "IIT", "BUS"];
+const allFaculties = ["ENG", "DES", "IIT", "BUS"]
 
 const EventUserFilterDropdown = ({
   selectedFaculties,
   onChange,
 }: EventUserFilterDropdownProps) => {
   const handleToggle = (value: string, checked: boolean) => {
-    const updated = [...selectedFaculties];
+    const updated = [...selectedFaculties]
 
     if (checked) {
-      updated.push(value);
+      updated.push(value)
     } else {
-      const index = updated.indexOf(value);
-      if (index > -1) updated.splice(index, 1);
+      const index = updated.indexOf(value)
+      if (index > -1) updated.splice(index, 1)
     }
 
-    onChange({ faculty: updated });
-  };
+    onChange({ faculty: updated })
+  }
 
   return (
     <DropdownMenu>
@@ -60,7 +60,7 @@ const EventUserFilterDropdown = ({
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default EventUserFilterDropdown;
+export default EventUserFilterDropdown

@@ -1,9 +1,9 @@
-import React from "react";
-import { IoMdTrendingDown } from "react-icons/io";
-import { LuTrophy } from "react-icons/lu";
-import { MdCardGiftcard } from "react-icons/md";
-import { FaFire } from "react-icons/fa";
-import { prisma } from "@/lib/db";
+
+import { IoMdTrendingDown } from "react-icons/io"
+import { LuTrophy } from "react-icons/lu"
+import { MdCardGiftcard } from "react-icons/md"
+import { FaFire } from "react-icons/fa"
+import { prisma } from "@/lib/db"
 
 const RewardStatsGrid = async () => {
   const [
@@ -30,13 +30,13 @@ const RewardStatsGrid = async () => {
       orderBy: { pointsRequired: "desc" },
       select: { pointsRequired: true, name: true },
     }),
-  ]);
-  let reward;
+  ])
+  let reward
   if (mostPopularReward.length) {
     reward = await prisma.reward.findUnique({
       where: { id: mostPopularReward[0].rewardId },
       select: { name: true },
-    });
+    })
   }
 
   const rewardStatsData = [
@@ -87,7 +87,7 @@ const RewardStatsGrid = async () => {
         </>
       ),
     },
-  ];
+  ]
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
       {rewardStatsData.map((data, index) => {
@@ -119,10 +119,10 @@ const RewardStatsGrid = async () => {
               </div>
             </div>
           </div>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
-export default RewardStatsGrid;
+export default RewardStatsGrid

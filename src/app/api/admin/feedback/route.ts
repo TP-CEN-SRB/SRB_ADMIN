@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db"
+import { NextResponse } from "next/server"
 
 export async function GET() {
   const feedbacks = await prisma.feedback.findMany({
@@ -12,7 +12,7 @@ export async function GET() {
         },
       },
     },
-  });
+  })
 
-  return NextResponse.json(feedbacks);
+  return NextResponse.json(feedbacks)
 }

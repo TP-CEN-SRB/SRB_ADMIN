@@ -1,31 +1,31 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FaEdit, FaTrashRestore } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog";
+} from "@/components/ui/dropdown-menu"
+import { FaEdit, FaTrashRestore } from "react-icons/fa"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
+import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog"
 
 export type Event = {
-  id: string;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  createdAt: Date;
-};
+  id: string
+  title: string
+  description: string
+  startDate: Date
+  endDate: Date
+  createdAt: Date
+}
 
 const EventActions = ({ event }: { event: Event }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false)
   return (
     <div>
       <ConfirmDeleteEventDialog
@@ -53,8 +53,8 @@ const EventActions = ({ event }: { event: Event }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
 export const columns: ColumnDef<Event>[] = [
   {
@@ -90,4 +90,4 @@ export const columns: ColumnDef<Event>[] = [
     header: "Actions",
     cell: ({ row }) => <EventActions event={row.original} />,
   },
-];
+]

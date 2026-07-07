@@ -1,10 +1,10 @@
-"use client";
+"use client"
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 import {
   Table,
   TableBody,
@@ -12,27 +12,27 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import SortByFilter from "./sortBy";
-import ExportCSV from "./export-csv";
-// import SortByFilter from "./sortBy";
-// import ExportCSV from "./export-csv";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import SortByFilter from "./sortBy"
+import ExportCSV from "./export-csv"
+// import SortByFilter from "./sortBy"
+// import ExportCSV from "./export-csv"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  count: number;
-  binId: string;
-  material: string;
-  location: string;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  count: number
+  binId: string
+  material: string
+  location: string
 }
 
 function capitalizeFirstLetter(str: string){
-  if (!str) return "";
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+  if (!str) return ""
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 
 export function DataTable<TData, TValue>({
   binId,
@@ -46,51 +46,51 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  });
+  })
 
-  const searchParams = useSearchParams();
-  const path = usePathname();
-  const page = Number(searchParams.get("page")) || 1;
-  const router = useRouter();
+  const searchParams = useSearchParams()
+  const path = usePathname()
+  const page = Number(searchParams.get("page")) || 1
+  const router = useRouter()
 
   const handlePreviousClick = () => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (page > Math.ceil(count / 10)) {
-      params.set("page", "1");
+      params.set("page", "1")
     } else if (!isNaN(page)) {
-      params.set("page", `${page - 1}`);
+      params.set("page", `${page - 1}`)
     }
-    router.push(`${path}?${params.toString()}`);
-  };
+    router.push(`${path}?${params.toString()}`)
+  }
 
   const handleNextClick = () => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (!isNaN(page)) {
-      params.set("page", `${page + 1}`);
+      params.set("page", `${page + 1}`)
     } else {
-      params.set("page", "2");
+      params.set("page", "2")
     }
-    router.push(`${path}?${params.toString()}`);
-  };
+    router.push(`${path}?${params.toString()}`)
+  }
 
   const handleApplySortBy = (sortItem: string, sortOrder: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (sortItem && sortOrder) {
-      params.set("sortItem", `${sortItem}`);
-      params.set("sortOrder", `${sortOrder}`);
+      params.set("sortItem", `${sortItem}`)
+      params.set("sortOrder", `${sortOrder}`)
     } else {
-      params.delete("sortItem");
-      params.delete("sortOrder");
+      params.delete("sortItem")
+      params.delete("sortOrder")
     }
-    router.replace(`${path}?${params.toString()}`);
-  };
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleResetSortBy = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("sortItem");
-    params.delete("sortOrder");
-    router.replace(`${path}?${params.toString()}`);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.delete("sortItem")
+    params.delete("sortOrder")
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   return (
     <div className="px-4">
@@ -123,7 +123,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -183,5 +183,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  );
+  )
 }

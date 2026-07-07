@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import React, { useState, useTransition } from "react";
-import Card from "@/components/Card/Card";
-import FormHeader from "../FormHeader";
+import React, { useState, useTransition } from "react"
+import Card from "@/components/Card/Card"
+import FormHeader from "../FormHeader"
 import {
   Form,
   FormControl,
@@ -10,19 +10,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../CustomFormMessage";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { createStore } from "@/app/action/store";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../CustomFormMessage"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import { createStore } from "@/app/action/store"
 
 // Faculty enum values
-const FacultyEnum = ["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"] as const;
+const FacultyEnum = ["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"] as const
 
 // Schema
 const StoreSchema = z
@@ -38,12 +38,12 @@ const StoreSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  })
 
 const CreateStoreForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
 
   const form = useForm<z.infer<typeof StoreSchema>>({
@@ -55,26 +55,26 @@ const CreateStoreForm = () => {
       password: "",
       confirmPassword: "",
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof StoreSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
-    });
+    })
 
     startTransition(async () => {
-      setError("");
-      setSuccess("");
-      const result = await createStore(values);
+      setError("")
+      setSuccess("")
+      const result = await createStore(values)
       if (result?.success) {
-        setSuccess("Store created successfully at " + datetime);
-        form.reset();
+        setSuccess("Store created successfully at " + datetime)
+        form.reset()
       } else if (result?.error) {
-        setError(result.error); // should return duplicate email/name errors
+        setError(result.error) // should return duplicate email/name errors
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -181,7 +181,7 @@ const CreateStoreForm = () => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default CreateStoreForm;
+export default CreateStoreForm

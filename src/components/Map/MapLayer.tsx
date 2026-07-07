@@ -1,14 +1,14 @@
-import React from "react";
-import { Layer, Source } from "react-map-gl";
-import type { FeatureCollection } from "geojson";
+
+import { Layer, Source } from "react-map-gl"
+import type { FeatureCollection } from "geojson"
 
 interface LayerProps {
-  sourceId: string;
-  fillId: string;
-  lineId: string;
-  symbolId: string;
-  data: FeatureCollection;
-  color: string;
+  sourceId: string
+  fillId: string
+  lineId: string
+  symbolId: string
+  data: FeatureCollection
+  color: string
 }
 const MapLayer = ({
   sourceId,
@@ -58,7 +58,7 @@ const MapLayer = ({
         }}
       />
     </Source>
-  );
-};
+  )
+}
 
-export default MapLayer;
+export default MapLayer

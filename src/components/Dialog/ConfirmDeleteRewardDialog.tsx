@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -14,41 +14,41 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
 import { toast } from "sonner"
 
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
-import { deleteReward } from "@/app/action/reward";
-import { useMediaQuery } from "react-responsive";
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
+import { deleteReward } from "@/app/action/reward"
+import { useMediaQuery } from "react-responsive"
 interface DialogProps {
-  rewardId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  rewardId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 const ConfirmDeleteRewardDialog = ({
   rewardId,
   isOpen,
   handleDialogOpen,
 }: DialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
   const handleConfirm = () => {
     startTransition(async () => {
-      const data = await deleteReward(rewardId);
-      setError(data?.error as string);
+      const data = await deleteReward(rewardId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast.success("success!",{
           description: data.success,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
@@ -111,7 +111,7 @@ const ConfirmDeleteRewardDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteRewardDialog;
+export default ConfirmDeleteRewardDialog

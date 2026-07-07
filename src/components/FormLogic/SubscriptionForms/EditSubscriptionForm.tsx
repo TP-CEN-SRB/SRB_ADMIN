@@ -1,8 +1,8 @@
-"use client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+"use client"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -10,21 +10,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import Card from "@/components/Card/Card";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import Card from "@/components/Card/Card"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
-import { SubscriptionSchema } from "@/schemas";
-import { updateSubscription } from "@/app/action/subscription";
+import { useRouter } from "next/navigation"
+import { SubscriptionSchema } from "@/schemas"
+import { updateSubscription } from "@/app/action/subscription"
 
 interface EditSubscriptionFormProps {
-  id: string;
-  email: string;
+  id: string
+  email: string
 }
 const EditSubscriptionForm = ({ id, email }: EditSubscriptionFormProps) => {
   const form = useForm<z.infer<typeof SubscriptionSchema>>({
@@ -32,23 +32,23 @@ const EditSubscriptionForm = ({ id, email }: EditSubscriptionFormProps) => {
     defaultValues: {
       email,
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
   const onSubmit = (values: z.infer<typeof SubscriptionSchema>) => {
     startTransition(async () => {
-      setError(""); // clear error message
-      const data = await updateSubscription(values, id);
-      setError(data?.error as string);
+      setError("") // clear error message
+      const data = await updateSubscription(values, id)
+      setError(data?.error as string)
       if (!data?.error && data?.success !== undefined) {
-        router.push(`/admin/bin/manager/subscription/${data.userId}`);
+        router.push(`/admin/bin/manager/subscription/${data.userId}`)
         toast.success("success!",{
           description: `${data.success}`,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Update subscription</FormHeader>
@@ -86,7 +86,7 @@ const EditSubscriptionForm = ({ id, email }: EditSubscriptionFormProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default EditSubscriptionForm;
+export default EditSubscriptionForm

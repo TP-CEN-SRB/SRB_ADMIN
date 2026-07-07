@@ -1,23 +1,23 @@
-import Card from "@/components/Card/Card";
-import UserProfileMore from "@/components/Dropdown/UserProfileMore";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { prisma } from "@/lib/db";
-import { getNameInitials } from "@/utils/getNameInitials";
-import { notFound } from "next/navigation";
-import React from "react";
+import Card from "@/components/Card/Card"
+import UserProfileMore from "@/components/Dropdown/UserProfileMore"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { prisma } from "@/lib/db"
+import { getNameInitials } from "@/utils/getNameInitials"
+import { notFound } from "next/navigation"
+
 
 const UserPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params; 
+  const { id } = await params 
   const user = await prisma.user.findUnique({
     where: { id },
     include: {
       _count: { select: { disposals: true, redemptions: true } },
       point: { select: { balance: true } },
     },
-  });
+  })
 
   if (!user) {
-    notFound();
+    notFound()
   }
 
   return (
@@ -134,7 +134,7 @@ const UserPage = async ({ params }: { params: Promise<{ id: string }> }) => {
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default UserPage;
+export default UserPage

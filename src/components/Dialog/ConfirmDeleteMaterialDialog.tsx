@@ -1,8 +1,8 @@
-import { deleteBinMaterial } from "@/app/action/binMaterial";
+import { deleteBinMaterial } from "@/app/action/binMaterial"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
-import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation"
+import React, { useState, useTransition } from "react"
+import { useMediaQuery } from "react-responsive"
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -18,15 +18,15 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
 
 interface DeleteMaterialDialogProps {
-  materialId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  materialId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 
 const ConfirmDeleteMaterialDialog = ({
@@ -34,19 +34,19 @@ const ConfirmDeleteMaterialDialog = ({
   isOpen,
   handleDialogOpen,
 }: DeleteMaterialDialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
   const datetime = new Date().toLocaleString("en-SG", {
     timeZone: "Asia/Singapore",
     hour12: false, // 24-hour format, remove if 12-hour format is needed
-  });
-  const router = useRouter();
+  })
+  const router = useRouter()
   const handleDelete = async () => {
     startTransition(async () => {
-      const data = await deleteBinMaterial(materialId);
-      setError(data?.error as string);
+      const data = await deleteBinMaterial(materialId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast.success("success!",{
           description: (
             <div>
@@ -56,14 +56,14 @@ const ConfirmDeleteMaterialDialog = ({
               <strong>Material ID: </strong> {materialId}
             </div>
           ),
-        });
-        router.push("/admin/bin/material");
+        })
+        router.push("/admin/bin/material")
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
 
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
@@ -127,7 +127,7 @@ const ConfirmDeleteMaterialDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteMaterialDialog;
+export default ConfirmDeleteMaterialDialog

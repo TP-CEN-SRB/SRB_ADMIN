@@ -16,8 +16,8 @@ model User {
   diploma              String?
   faculty              Faculty
   role                 Role
-  lat                  Decimal?               @db.Decimal(10, 7)
-  long                 Decimal?               @db.Decimal(10, 7)
+  lat                  Float?
+  long                 Float?
   location             String?                @unique
   commandUpdatedAt     DateTime?
   createdAt            DateTime               @default(now())

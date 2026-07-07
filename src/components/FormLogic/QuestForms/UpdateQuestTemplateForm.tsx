@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import Card from "@/components/Card/Card";
-import FormHeader from "../FormHeader";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { QuestTemplateSchema } from "@/schemas";
-import { updateQuestTemplate } from "@/app/action/questTemplate";
+import { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import Card from "@/components/Card/Card"
+import FormHeader from "../FormHeader"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { QuestTemplateSchema } from "@/schemas"
+import { updateQuestTemplate } from "@/app/action/questTemplate"
 
 import {
   Form,
@@ -17,34 +17,34 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../CustomFormMessage";
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../CustomFormMessage"
 
 interface Props {
-  id: string;
+  id: string
   template: {
-    title: string;
-    description: string;
-    target: number;
-    rewardPoints: number;
-    materialType: string;
-    duration: number;
-  };
+    title: string
+    description: string
+    target: number
+    rewardPoints: number
+    materialType: string
+    duration: number
+  }
 }
 
 export default function UpdateQuestTemplateForm({ id, template }: Props) {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
 
   // --------------------------------------------
   // NEW: Error & Success States
   // --------------------------------------------
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   const materialOptions = [
     { label: "Plastic", value: "PLASTIC" },
@@ -52,7 +52,7 @@ export default function UpdateQuestTemplateForm({ id, template }: Props) {
     { label: "Paper", value: "PAPER" },
     { label: "E-Waste", value: "E_WASTE" },
     { label: "General", value: "GENERAL" },
-  ];
+  ]
 
   const form = useForm<z.infer<typeof QuestTemplateSchema>>({
     resolver: zodResolver(QuestTemplateSchema),
@@ -69,23 +69,23 @@ export default function UpdateQuestTemplateForm({ id, template }: Props) {
         | "GENERAL",
       duration: template.duration,
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof QuestTemplateSchema>) => {
     startTransition(async () => {
-      setError("");
-      setSuccess("");
+      setError("")
+      setSuccess("")
 
-      const res = await updateQuestTemplate(id, values);
+      const res = await updateQuestTemplate(id, values)
 
       if (res?.success) {
-        setSuccess("Quest Template updated successfully!");
-        form.reset(values); // keep updated values
+        setSuccess("Quest Template updated successfully!")
+        form.reset(values) // keep updated values
       } else {
-        setError(res?.error || "Failed to update quest template.");
+        setError(res?.error || "Failed to update quest template.")
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -232,5 +232,5 @@ export default function UpdateQuestTemplateForm({ id, template }: Props) {
         </form>
       </Form>
     </Card>
-  );
+  )
 }

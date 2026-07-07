@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import { useTimeout } from "@/hooks/use-timeout";
-import { useEffect } from "react";
+import { useTimeout } from "@/hooks/use-timeout"
+import { useEffect } from "react"
 interface TimerRedirectProps {
-  redirectTo: string;
-  delayInMs: number;
-  resetTimeInMs?: number;
-  resetCondition?: boolean;
+  redirectTo: string
+  delayInMs: number
+  resetTimeInMs?: number
+  resetCondition?: boolean
 }
 const TimerRedirect = ({
   redirectTo,
@@ -14,12 +14,12 @@ const TimerRedirect = ({
   resetTimeInMs = 30000, // default 30000 milliseconds
   resetCondition = false,
 }: TimerRedirectProps) => {
-  const { remainingTime, resetTimer } = useTimeout(delayInMs, redirectTo);
+  const { remainingTime, resetTimer } = useTimeout(delayInMs, redirectTo)
   useEffect(() => {
     if (resetCondition) {
-      resetTimer(resetTimeInMs);
+      resetTimer(resetTimeInMs)
     }
-  }, [resetCondition, resetTimeInMs, resetTimer]);
+  }, [resetCondition, resetTimeInMs, resetTimer])
   return (
     <div className="text-center">
       <p className="text-slate-600 font-semibold mt-4">
@@ -27,7 +27,7 @@ const TimerRedirect = ({
         <span className="text-green-500 text-xl"> {remainingTime}</span> seconds
       </p>
     </div>
-  );
-};
+  )
+}
 
-export default TimerRedirect;
+export default TimerRedirect

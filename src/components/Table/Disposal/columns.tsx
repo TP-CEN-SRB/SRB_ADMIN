@@ -1,22 +1,22 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
-import { BsPersonFillCheck, BsPersonFillX } from "react-icons/bs";
+import { ColumnDef } from "@tanstack/react-table"
+import { BsPersonFillCheck, BsPersonFillX } from "react-icons/bs"
 export type Disposal = {
-  id: string;
-  weightInGrams: number;
-  isRedeemed: boolean;
-  pointsAwarded: number;
-  userId: string | null;
-  createdAt: Date;
-};
+  id: string
+  weightInGrams: number
+  isRedeemed: boolean
+  pointsAwarded: number
+  userId: string | null
+  createdAt: Date
+}
 
 export const columns: ColumnDef<Disposal>[] = [
   {
     accessorKey: "createdAt",
     header: "Date",
     cell: ({ row }) => {
-      const date = row.original.createdAt.toLocaleDateString("en-SG");
+      const date = row.original.createdAt.toLocaleDateString("en-SG")
 
       return (
         <div className="flex items-center gap-1">
@@ -27,7 +27,7 @@ export const columns: ColumnDef<Disposal>[] = [
           )}
           {date}
         </div>
-      );
+      )
     },
   },
   {
@@ -39,9 +39,9 @@ export const columns: ColumnDef<Disposal>[] = [
         minute: "2-digit",
         second: "2-digit",
         hour12: false,
-      });
+      })
 
-      return <div>{time}</div>;
+      return <div>{time}</div>
     },
   },
   {
@@ -52,4 +52,4 @@ export const columns: ColumnDef<Disposal>[] = [
     accessorKey: "pointsAwarded",
     header: "Points Awarded",
   },
-];
+]

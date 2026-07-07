@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   DropdownMenu,
@@ -8,25 +8,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from "@radix-ui/react-tooltip";
-import { useRouter } from "next/navigation";
-import { FaClipboardList, FaEdit, FaPlus, FaPlusCircle } from "react-icons/fa";
-import { FaCheck } from "react-icons/fa6";
+} from "@radix-ui/react-tooltip"
+import { useRouter } from "next/navigation"
+import { FaClipboardList, FaEdit, FaPlus, FaPlusCircle } from "react-icons/fa"
+import { FaCheck } from "react-icons/fa6"
 import {
   MdDeleteForever,
   MdMarkEmailRead,
   MdOutlineBarChart,
-} from "react-icons/md";
-import { Faculty } from "@/generated/prisma";
+} from "react-icons/md"
+import { Faculty } from "@/generated/prisma"
 import {
   ColumnDef,
   flexRender,
@@ -35,7 +35,7 @@ import {
   getPaginationRowModel,
   PaginationState,
   getFilteredRowModel,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -44,7 +44,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
 import {
   Select,
@@ -52,33 +52,33 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import React from "react";
-import ConfirmDeleteBinManagerDialog from "@/components/Dialog/ConfirmDeleteBinManagerDialog";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/select"
+
+import ConfirmDeleteBinManagerDialog from "@/components/Dialog/ConfirmDeleteBinManagerDialog"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { Input } from "@/components/ui/input"
 
 interface BinManager {
-  id: string;
-  name: string;
-  email: string;
-  faculty: Faculty;
-  _count: { bins: number };
+  id: string
+  name: string
+  email: string
+  faculty: Faculty
+  _count: { bins: number }
 }
 
 interface BinManagerProps {
-  data: BinManager[];
+  data: BinManager[]
 }
 
 const BinManagerDataTable = ({ data }: BinManagerProps) => {
   const BinManagerActions = ({ binManager }: { binManager: BinManager }) => {
-    const hasBins = binManager._count.bins > 0;
-    const [isDialogOpen, setDialogOpen] = useState(false);
-    const router = useRouter();
+    const hasBins = binManager._count.bins > 0
+    const [isDialogOpen, setDialogOpen] = useState(false)
+    const router = useRouter()
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false, // 24-hour format, remove if 12-hour format is needed
-    });
+    })
 
     return (
       <div>
@@ -216,8 +216,8 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    );
-  };
+    )
+  }
   const columns: ColumnDef<BinManager>[] = [
     {
       accessorKey: "name",
@@ -232,9 +232,9 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
       header: "Faculty",
       filterFn: (row, columnId, filterValue) => {
         if (Array.isArray(filterValue)) {
-          return filterValue.includes(row.getValue(columnId));
+          return filterValue.includes(row.getValue(columnId))
         }
-        return true;
+        return true
       },
     },
     {
@@ -242,11 +242,11 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
       header: "Actions",
       cell: ({ row }) => <BinManagerActions binManager={row.original} />,
     },
-  ];
+  ]
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
   const table = useReactTable({
     data,
     columns,
@@ -257,27 +257,27 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
     state: {
       pagination,
     },
-  });
+  })
 
-  const [selectedFaculty, setSelectedFaculty] = useState<string[]>([]);
+  const [selectedFaculty, setSelectedFaculty] = useState<string[]>([])
   const [searchFilter, setSearchFilter] = useState(
     (table.getColumn("name")?.getFilterValue() as string) ?? ""
-  );
+  )
 
   const handleFacultyFilterChange = (checked: boolean, faculty: string) => {
     const updateFaculties = checked
       ? [...selectedFaculty, faculty]
-      : selectedFaculty.filter((item) => item !== faculty);
-    setSelectedFaculty(updateFaculties);
+      : selectedFaculty.filter((item) => item !== faculty)
+    setSelectedFaculty(updateFaculties)
     table
       .getColumn("faculty")
-      ?.setFilterValue(updateFaculties.length ? updateFaculties : undefined);
-  };
+      ?.setFilterValue(updateFaculties.length ? updateFaculties : undefined)
+  }
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setSearchFilter(value); // Update the input state
-    table.getColumn("name")?.setFilterValue(value);
-  };
+    const value = event.target.value
+    setSearchFilter(value) // Update the input state
+    table.getColumn("name")?.setFilterValue(value)
+  }
   return (
     <div className="px-4">
       <div className="flex flex-wrap justify-end items-center gap-3 py-3">
@@ -327,7 +327,7 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -424,7 +424,7 @@ const BinManagerDataTable = ({ data }: BinManagerProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BinManagerDataTable;
+export default BinManagerDataTable

@@ -1,9 +1,9 @@
-"use client";
-import { UpdateStudentSchema } from "@/schemas/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+"use client"
+import { UpdateStudentSchema } from "@/schemas/auth"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -11,25 +11,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import Card from "@/components/Card/Card";
-import { Button } from "@/components/ui/button";
-import { Faculty } from "@/generated/prisma";
-import { updateStudent } from "@/app/action/user";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import Card from "@/components/Card/Card"
+import { Button } from "@/components/ui/button"
+import { Faculty } from "@/generated/prisma"
+import { updateStudent } from "@/app/action/user"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
 interface EditStudentFormProps {
-  id: string;
-  email: string;
-  name: string;
-  faculty: Faculty;
-  points: number | undefined;
+  id: string
+  email: string
+  name: string
+  faculty: Faculty
+  points: number | undefined
 }
 const EditStudentForm = ({
   id,
@@ -46,23 +46,23 @@ const EditStudentForm = ({
       faculty,
       points,
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
   const onSubmit = (values: z.infer<typeof UpdateStudentSchema>) => {
     startTransition(async () => {
-      setError(""); // clear error message
-      const data = await updateStudent(values, id);
-      setError(data?.error as string);
+      setError("") // clear error message
+      const data = await updateStudent(values, id)
+      setError(data?.error as string)
       if (!data?.error && data?.success !== undefined) {
-        router.push("/admin/student");
+        router.push("/admin/student")
         toast.success("Success!",{
           description: `${data.success}`,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Update user</FormHeader>
@@ -153,7 +153,7 @@ const EditStudentForm = ({
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default EditStudentForm;
+export default EditStudentForm

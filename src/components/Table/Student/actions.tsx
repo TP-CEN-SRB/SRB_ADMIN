@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,20 +6,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Student } from "@/components/Table/Student/columns";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import ConfirmDeleteStudentDialog from "../../Dialog/ConfirmDeleteStudentDialog";
-import { FaCopy } from "react-icons/fa";
-import { FaEye } from "react-icons/fa";
-import { IoReceipt } from "react-icons/io5";
-import { MdDeleteForever } from "react-icons/md";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/dropdown-menu"
+import { Student } from "@/components/Table/Student/columns"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import ConfirmDeleteStudentDialog from "../../Dialog/ConfirmDeleteStudentDialog"
+import { FaCopy } from "react-icons/fa"
+import { FaEye } from "react-icons/fa"
+import { IoReceipt } from "react-icons/io5"
+import { MdDeleteForever } from "react-icons/md"
+import { useRouter } from "next/navigation"
 
 const Actions = ({ data }: { data: Student }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const router = useRouter();
+  const [isDialogOpen, setDialogOpen] = useState(false)
+  const router = useRouter()
   return (
     <div>
       <ConfirmDeleteStudentDialog
@@ -67,7 +67,7 @@ const Actions = ({ data }: { data: Student }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
-export default Actions;
+export default Actions

@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import {
   engineeringGeoJson,
   businessGeoJson,
@@ -7,8 +7,8 @@ import {
   scienceGeoJson,
   informationTechnologyGeoJson,
   humanitiesGeoJson,
-} from "@/utils/map";
-import { Faculty } from "@/generated/prisma";
+} from "@/utils/map"
+import { Faculty } from "@/generated/prisma"
 import Map, {
   AttributionControl,
   FullscreenControl,
@@ -16,38 +16,38 @@ import Map, {
   NavigationControl,
   Popup,
   ScaleControl,
-} from "react-map-gl";
-import { useState } from "react";
-import { FaEdit, FaPlus } from "react-icons/fa";
-import Link from "next/link";
-import { IoLocationSharp } from "react-icons/io5";
-import { Checkbox } from "@/components/ui/checkbox";
-import MapLayer from "@/components/Map/MapLayer";
-import { useSearchParams } from "next/navigation";
+} from "react-map-gl"
+import { useState } from "react"
+import { FaEdit, FaPlus } from "react-icons/fa"
+import Link from "next/link"
+import { IoLocationSharp } from "react-icons/io5"
+import { Checkbox } from "@/components/ui/checkbox"
+import MapLayer from "@/components/Map/MapLayer"
+import { useSearchParams } from "next/navigation"
 
 interface MapChartProps {
   data: {
-    id: string;
-    name: string;
-    email: string;
-    faculty: Faculty;
-    _count: { bins: number };
-    lat: number | undefined;
-    long: number | undefined;
-  }[];
+    id: string
+    name: string
+    email: string
+    faculty: Faculty
+    _count: { bins: number }
+    lat: number | undefined
+    long: number | undefined
+  }[]
 }
 type PopupInfo = {
-  id: string;
-  name: string;
-  faculty: Faculty;
-  lat: number;
-  long: number;
-  _count: { bins: number };
-};
+  id: string
+  name: string
+  faculty: Faculty
+  lat: number
+  long: number
+  _count: { bins: number }
+}
 export default function MapChart({ data }: MapChartProps) {
-  const { minLat, maxLat, minLong, maxLong } = maxBound;
-  const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
-  const [showLayer, setShowLayer] = useState(true);
+  const { minLat, maxLat, minLong, maxLong } = maxBound
+  const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
+  const [showLayer, setShowLayer] = useState(true)
   const searchParams = useSearchParams()
   const Binlat = searchParams.get('lat')
   const Binlong = searchParams.get('long')
@@ -82,7 +82,7 @@ export default function MapChart({ data }: MapChartProps) {
         <ScaleControl />
         <AttributionControl
           position="bottom-right"
-          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20px;width:20px;"/>&nbsp;<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp;&copy;&nbsp;contributors&nbsp;&#124;&nbsp;<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
+          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20pxwidth:20px"/>&nbsp<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp&copy&nbspcontributors&nbsp&#124&nbsp<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
         />
         {showLayer && (
           <>
@@ -137,35 +137,41 @@ export default function MapChart({ data }: MapChartProps) {
           </>
         )}
         {data.map((binManager) => {
+          // 1. If this user has no coordinates, don't render a marker at all
+          if (binManager.lat === undefined || binManager.long === undefined) return null;
+
           const binLat = parseFloat(searchParams.get('lat') || '');
           const binLong = parseFloat(searchParams.get('long') || '');
+
+          // 2. If it exactly matches the URL params, skip it
+          if (binManager.lat === binLat && binManager.long === binLong) return null;
+
+          // 3. Otherwise, render the marker safely
           return (
-            binManager.lat === binLat && binManager.long === binLong ? (
-              null
-            ): (<Marker
-                onClick={(e) => {
-                  e.originalEvent.stopPropagation();
-                  setPopupInfo({
-                    id: binManager.id,
-                    name: binManager.name,
-                    faculty: binManager.faculty,
-                    lat: binManager.lat as number,
-                    long: binManager.long as number,
-                    _count: binManager._count,
-                  });
-                }}
-                key={binManager.id}
-                latitude={binManager.lat as number}
-                longitude={binManager.long as number}
-                anchor="bottom"
-              >
-                <IoLocationSharp
-                  stroke="black"
-                  strokeWidth={20}
-                  className="text-red-500"
-                  size={40}
-                />
-              </Marker>)
+            <Marker
+              key={binManager.id}
+              latitude={binManager.lat} // No need for "as number" anymore!
+              longitude={binManager.long}
+              anchor="bottom"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setPopupInfo({
+                  id: binManager.id,
+                  name: binManager.name,
+                  faculty: binManager.faculty,
+                  lat: binManager.lat as number,
+                  long: binManager.long as number,
+                  _count: binManager._count,
+                });
+              }}
+            >
+              <IoLocationSharp
+                stroke="black"
+                strokeWidth={20}
+                className="text-red-500"
+                size={40}
+              />
+            </Marker>
           );
         })}
         {searchParams && (
@@ -202,11 +208,11 @@ export default function MapChart({ data }: MapChartProps) {
               </div>
               <div>
                 <span className="font-bold">Latitude: </span>
-                {popupInfo.lat}&deg;
+                {popupInfo.lat}&deg
               </div>
               <div>
                 <span className="font-bold">Longitude: </span>
-                {popupInfo.long}&deg;
+                {popupInfo.long}&deg
               </div>
               <div>
                 <span className="font-bold">No. of bins: </span>
@@ -237,5 +243,5 @@ export default function MapChart({ data }: MapChartProps) {
         )}
       </Map>
     </div>
-  );
+  )
 }

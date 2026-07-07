@@ -1,7 +1,7 @@
-"use server";
-import { prisma } from "@/lib/db";
-import { getSessionUser } from "@/utils/getAuth";
-import { TransactionType } from "@/generated/prisma";
+"use server"
+import { prisma } from "@/lib/db"
+import { getSessionUser } from "@/utils/getAuth"
+import { TransactionType } from "@/generated/prisma"
 
 const getTransactionByUserId = async (
   userId: string,
@@ -9,24 +9,24 @@ const getTransactionByUserId = async (
   sortOrder: string | undefined,
   transactionType: string | null
 ) => {
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser()
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
-  const pageCondition = page != null && page < 0;
+  const pageCondition = page != null && page < 0
   const sortOrderCondition =
-    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
+    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc"
   const transactionTypeCondition =
     transactionType &&
     !transactionType
       .split(",")
       .every((type) =>
         Object.values(TransactionType).includes(type as TransactionType)
-      );
+      )
 
   // check if all conditions are met
   if (pageCondition || sortOrderCondition || transactionTypeCondition) {
-    return { transactionCount: 0, transactions: [] };
+    return { transactionCount: 0, transactions: [] }
   }
   const [transactionCount, transactions, user] = await Promise.all([
     prisma.transaction.count({
@@ -57,8 +57,8 @@ const getTransactionByUserId = async (
       },
     }),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
-  ]);
-  return { transactionCount, transactions, user };
-};
+  ])
+  return { transactionCount, transactions, user }
+}
 
-export { getTransactionByUserId };
+export { getTransactionByUserId }

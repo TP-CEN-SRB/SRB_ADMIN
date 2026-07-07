@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { BinSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useTransition, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { BinSchema } from "@/schemas"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useTransition, useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -12,24 +12,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import BinStatusCombobox from "@/components/FormLogic/BinForms/CreateBinStatusCombobox";
-import { Button } from "../../ui/button";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { BinMaterial, BinStatus } from "@/generated/prisma";
-import { createBin } from "@/app/action/bin";
-import { redirect } from "next/navigation";
-import BinMaterialCheckBox from "@/components/FormLogic/BinMaterialForms/BinMaterialCheckbox";
-import Card from "@/components/Card/Card";
-import FormHeader from "../FormHeader";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import BinStatusCombobox from "@/components/FormLogic/(Bins)/CreateBinStatusCombobox"
+import { Button } from "../../ui/button"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { BinMaterial, BinStatus } from "@/generated/prisma"
+import { createBin } from "@/app/action/bin"
+import { redirect } from "next/navigation"
+import BinMaterialCheckBox from "@/components/FormLogic/BinMaterialForms/BinMaterialCheckbox"
+import Card from "@/components/Card/Card"
+import FormHeader from "../FormHeader"
 
 interface CreateBinFormProps {
-  materials: BinMaterial[];
-  binUserId: string;
-  binLocation: string | undefined | null;
-  usedBinMaterials: { id: string; name: string }[];
+  materials: BinMaterial[]
+  binUserId: string
+  binLocation: string | undefined | null
+  usedBinMaterials: { id: string; name: string }[]
 }
 
 const CreateBinForm = ({
@@ -38,7 +38,7 @@ const CreateBinForm = ({
   binLocation,
   usedBinMaterials,
 }: CreateBinFormProps) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
   const form = useForm<z.infer<typeof BinSchema>>({
     resolver: zodResolver(BinSchema),
     defaultValues: {
@@ -46,36 +46,36 @@ const CreateBinForm = ({
       status: BinStatus.FUNCTIONAL,
       materialIds: [],
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof BinSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false, // 24-hour format, remove if 12-hour format is needed
-    });
+    })
     startTransition(async () => {
-      const result = await createBin(values, binUserId);
+      const result = await createBin(values, binUserId)
       if (result?.success) {
         toast("Bin created successfully",{
           description: `Bin created at ${datetime}`,
           duration: 2000,
-        });
+        })
         // Reset the form, including clearing materialIds
         form.reset({
           location: "",
           status: BinStatus.FUNCTIONAL,
           materialIds: [],
-        });
-        redirect("/admin/bin");
+        })
+        redirect("/admin/bin")
       } else if (result?.error) {
         toast.error("Error creating bin",{
           description: result?.error,
           duration: 2000,
 
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -144,7 +144,7 @@ const CreateBinForm = ({
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default CreateBinForm;
+export default CreateBinForm

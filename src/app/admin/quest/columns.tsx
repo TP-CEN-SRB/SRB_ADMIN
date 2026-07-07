@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,31 +8,31 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 import {
   FaEdit,
   FaTrashRestore,
-} from "react-icons/fa";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { useState } from "react";
-import ConfirmDeleteDialog from "@/components/Dialog/ConfirmDeleteQuestDialog";
+} from "react-icons/fa"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
+import ConfirmDeleteDialog from "@/components/Dialog/ConfirmDeleteQuestDialog"
 
 export type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  target: number;
-  materialType: string;
-  rewardPoints: number;
-  startDate: Date | null;
-  endDate: Date | null;
-  createdAt: Date;
-};
+  id: string
+  title: string
+  description: string
+  target: number
+  materialType: string
+  rewardPoints: number
+  startDate: Date | null
+  endDate: Date | null
+  createdAt: Date
+}
 
 const QuestActions = ({ quest }: { quest: Quest }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false)
   return (
     <div>
       <ConfirmDeleteDialog
@@ -63,8 +63,8 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 export const columns: ColumnDef<Quest>[] = [
   {
     accessorKey: "title",
@@ -111,4 +111,4 @@ export const columns: ColumnDef<Quest>[] = [
     header: "Actions",
     cell: ({ row }) => <QuestActions quest={row.original} />,
   },
-];
+]

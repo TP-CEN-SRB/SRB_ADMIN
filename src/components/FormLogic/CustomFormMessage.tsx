@@ -1,10 +1,10 @@
-import { ReactNode } from "react";
-import { FaExclamationTriangle } from "react-icons/fa";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LucideCheckCircle } from "lucide-react";
+import { ReactNode } from "react"
+import { FaExclamationTriangle } from "react-icons/fa"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { LucideCheckCircle } from "lucide-react"
 interface FormMessageProps {
-  children: ReactNode;
-  type: "Error" | "Success";
+  children: ReactNode
+  type: "Error" | "Success"
 }
 const CustomFormMessage = ({ children, type }: FormMessageProps) => {
   return (
@@ -23,7 +23,7 @@ const CustomFormMessage = ({ children, type }: FormMessageProps) => {
       </AlertTitle>
       <AlertDescription>{children}</AlertDescription>
     </Alert>
-  );
-};
+  )
+}
 
-export default CustomFormMessage;
+export default CustomFormMessage

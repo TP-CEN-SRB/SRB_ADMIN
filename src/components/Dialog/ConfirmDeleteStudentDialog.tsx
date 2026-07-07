@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -14,43 +14,43 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import { Button } from "../ui/button";
+} from "@/components/ui/drawer"
+import { Button } from "../ui/button"
 import { toast } from "sonner"
-import { deleteStudent } from "@/app/action/user";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../FormLogic/CustomFormMessage";
-import { useRouter } from "next/navigation";
-import { useMediaQuery } from "react-responsive";
+import { deleteStudent } from "@/app/action/user"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../FormLogic/CustomFormMessage"
+import { useRouter } from "next/navigation"
+import { useMediaQuery } from "react-responsive"
 interface DialogProps {
-  userId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  userId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 const ConfirmDeleteStudentDialog = ({
   userId,
   isOpen,
   handleDialogOpen,
 }: DialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
   const handleConfirm = () => {
     startTransition(async () => {
-      const data = await deleteStudent(userId);
-      setError(data?.error as string);
+      const data = await deleteStudent(userId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast.success("success!",{
           description: data.success,
-        });
-        router.push("/admin/student");
+        })
+        router.push("/admin/student")
       }
-    });
-  };
+    })
+  }
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
+  })
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>
@@ -113,7 +113,7 @@ const ConfirmDeleteStudentDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteStudentDialog;
+export default ConfirmDeleteStudentDialog

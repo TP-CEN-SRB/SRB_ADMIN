@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import {
   ChartContainer,
@@ -7,61 +7,61 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from "@/components/ui/chart";
-import { Bar, BarChart, XAxis } from "recharts";
-import BinsDeployedFaculty from "./binsDeployedFaculty";
-import { useEffect, useState } from "react";
+} from "@/components/ui/chart"
+import { Bar, BarChart, XAxis } from "recharts"
+import BinsDeployedFaculty from "./binsDeployedFaculty"
+import { useEffect, useState } from "react"
 
 
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/ui/popover"
 
 
-import { getDisposalsByFaculty } from "@/app/action/bin"; 
+import { getDisposalsByFaculty } from "@/app/action/bin" 
 interface monthlyChartData {
-  month: string;
-  bin: number;
-  [material: string]: number | string;
+  month: string
+  bin: number
+  [material: string]: number | string
 }
 
 interface ChartProps {
-  barChartData?: monthlyChartData[];
-  pieChartData: { fac: string; count: number; fill: string; }[];
-  barChartConfig: ChartConfig;
+  barChartData?: monthlyChartData[]
+  pieChartData: { fac: string; count: number; fill: string }[]
+  barChartConfig: ChartConfig
 }
 
 const Chart = ({ barChartData, pieChartData, barChartConfig }: ChartProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [filteredPieData, setFilteredPieData] = useState(pieChartData);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
+  const [filteredPieData, setFilteredPieData] = useState(pieChartData)
 
-  const { month, bin, ...materials } = barChartData![0];
+  const { month, bin, ...materials } = barChartData![0]
 
   useEffect(() => {
     const fetchFilteredPieData = async () => {
 
       
       if (selectedDate) {
-        const from = new Date(selectedDate);
-        const to = new Date(selectedDate);
-        to.setHours(23, 59, 59, 999);
+        const from = new Date(selectedDate)
+        const to = new Date(selectedDate)
+        to.setHours(23, 59, 59, 999)
 
-        const updatedData = await getDisposalsByFaculty(from, to);
-        const typedData = updatedData as { fac: string; count: number; fill: string; }[];
+        const updatedData = await getDisposalsByFaculty(from, to)
+        const typedData = updatedData as { fac: string; count: number; fill: string }[]
 
-        setFilteredPieData(typedData);
+        setFilteredPieData(typedData)
       }
-    };
+    }
 
-    fetchFilteredPieData();
-  }, [selectedDate]);
+    fetchFilteredPieData()
+  }, [selectedDate])
 
   return (
     <div className="w-full py-4 px-4 md:px-6 lg:px-8">
@@ -150,7 +150,7 @@ const Chart = ({ barChartData, pieChartData, barChartConfig }: ChartProps) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Chart;
+export default Chart

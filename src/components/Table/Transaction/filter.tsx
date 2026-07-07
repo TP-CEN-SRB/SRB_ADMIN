@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import { Button } from "@/components/ui/button"
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,46 +8,46 @@ import {
   DropdownMenuTrigger,
   DropdownMenuGroup,
   DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu";
-import { LuSettings2 } from "react-icons/lu";
-import { FaCheck, FaPlusCircle } from "react-icons/fa";
-import { RxCross1 } from "react-icons/rx";
-import { TransactionType } from "@/generated/prisma";
-import { useSearchParams } from "next/navigation";
+} from "@/components/ui/dropdown-menu"
+import { LuSettings2 } from "react-icons/lu"
+import { FaCheck, FaPlusCircle } from "react-icons/fa"
+import { RxCross1 } from "react-icons/rx"
+import { TransactionType } from "@/generated/prisma"
+import { useSearchParams } from "next/navigation"
 
 interface TableFilterProps {
-  onApplyFilter: (filters: Record<string, string[]>) => void;
-  onResetFilter: () => void;
+  onApplyFilter: (filters: Record<string, string[]>) => void
+  onResetFilter: () => void
 }
 const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
-  const [filterOpen, setFilterOpen] = useState(false);
-  const searchParams = useSearchParams();
+  const [filterOpen, setFilterOpen] = useState(false)
+  const searchParams = useSearchParams()
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({
     transactionType:
       (searchParams.get("transactionType")?.split(",") as string[]) || [],
-  });
+  })
 
   const handleCheckboxChange = (group: string, value: string) => {
     setSelectedFilters((prev) => {
       const updatedGroup = prev[group]?.includes(value)
         ? prev[group].filter((item) => item !== value)
-        : [...(prev[group] || []), value];
-      return { ...prev, [group]: updatedGroup };
-    });
-  };
+        : [...(prev[group] || []), value]
+      return { ...prev, [group]: updatedGroup }
+    })
+  }
 
   const handleResetFilter = () => {
-    setSelectedFilters({ transactionType: [] });
-    onResetFilter();
-    setFilterOpen(false);
-  };
+    setSelectedFilters({ transactionType: [] })
+    onResetFilter()
+    setFilterOpen(false)
+  }
 
   const handleApplyFilter = () => {
-    onApplyFilter(selectedFilters);
-    setFilterOpen(false);
-  };
+    onApplyFilter(selectedFilters)
+    setFilterOpen(false)
+  }
   return (
     <DropdownMenu open={filterOpen} onOpenChange={setFilterOpen}>
       <DropdownMenuTrigger className="bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 text-gray-50 flex items-center gap-x-2 text-sm">
@@ -100,7 +100,7 @@ const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default TableFilter;
+export default TableFilter

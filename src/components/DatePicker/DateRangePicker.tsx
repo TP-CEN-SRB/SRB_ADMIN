@@ -1,33 +1,33 @@
-"use client";
-import * as React from "react";
-import { format, getMonth, getYear, setMonth, setYear } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
+"use client"
+import * as React from "react"
+import { format, getMonth, getYear, setMonth, setYear } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import { DateRange } from "react-day-picker"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { getYears, months } from "@/utils/dateUtils";
-import { useMediaQuery } from "react-responsive";
+} from "@/components/ui/popover"
+import { getYears, months } from "@/utils/dateUtils"
+import { useMediaQuery } from "react-responsive"
 
 interface DatePickerProps {
-  startYear?: number;
-  endYear?: number;
-  className?: string;
-  initialDate?: DateRange;
-  onDateChange: (dateRange: DateRange | undefined) => void;
-  disabled?: boolean;
+  startYear?: number
+  endYear?: number
+  className?: string
+  initialDate?: DateRange
+  onDateChange: (dateRange: DateRange | undefined) => void
+  disabled?: boolean
 }
 export default function DateRangePicker({
   startYear = getYear(new Date()),
@@ -39,28 +39,28 @@ export default function DateRangePicker({
 }: DatePickerProps) {
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
-  });
-  const years = getYears(startYear, endYear);
-  const [date, setDate] = React.useState<DateRange | undefined>(initialDate);
+  })
+  const years = getYears(startYear, endYear)
+  const [date, setDate] = React.useState<DateRange | undefined>(initialDate)
   const [calendarMonth, setCalendarMonth] = React.useState<number>(
     getMonth(new Date())
-  );
+  )
   const [calendarYear, setCalendarYear] = React.useState<number>(
     getYear(new Date())
-  );
+  )
   const handleDateChange = (selectedDate: DateRange | undefined) => {
-    setDate(selectedDate);
-    onDateChange(selectedDate);
-  };
+    setDate(selectedDate)
+    onDateChange(selectedDate)
+  }
   const handleMonthChange = (month: string) => {
-    setCalendarMonth(months.indexOf(month));
-  };
+    setCalendarMonth(months.indexOf(month))
+  }
 
   const handleYearChange = (year: string) => {
-    setCalendarYear(parseInt(year));
-  };
-  const fromDate = new Date();
-  const toDate = new Date(endYear - 2, 11, 31);
+    setCalendarYear(parseInt(year))
+  }
+  const fromDate = new Date()
+  const toDate = new Date(endYear - 2, 11, 31)
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -133,13 +133,13 @@ export default function DateRangePicker({
             onSelect={handleDateChange}
             numberOfMonths={isDesktop ? 2 : 1}
             onMonthChange={(newMonth) => {
-              setCalendarMonth(getMonth(newMonth));
-              setCalendarYear(getYear(newMonth));
+              setCalendarMonth(getMonth(newMonth))
+              setCalendarYear(getYear(newMonth))
             }}
             month={setMonth(setYear(new Date(), calendarYear), calendarMonth)}
           />
         </PopoverContent>
       </Popover>
     </div>
-  );
+  )
 }

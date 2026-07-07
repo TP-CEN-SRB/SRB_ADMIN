@@ -1,14 +1,14 @@
-"use server";
-import { prisma } from "@/lib/db";
-import { SubscriptionSchema } from "@/schemas";
-import { getSessionUser } from "@/utils/getAuth";
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
+"use server"
+import { prisma } from "@/lib/db"
+import { SubscriptionSchema } from "@/schemas"
+import { getSessionUser } from "@/utils/getAuth"
+import { revalidatePath } from "next/cache"
+import { z } from "zod"
 
 const getSubscriptionByUserId = async (userId: string) => {
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser()
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   const subscriptions = await prisma.subscription.findMany({
     where: {
@@ -19,102 +19,102 @@ const getSubscriptionByUserId = async (userId: string) => {
       id: true,
       email: true,
     },
-  });
+  })
 
-  return { subscriptions };
-};
+  return { subscriptions }
+}
 
 const createSubscription = async (
   values: z.infer<typeof SubscriptionSchema>,
   userId: string
 ) => {
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser()
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
-  const validatedFields = SubscriptionSchema.safeParse(values);
+  const validatedFields = SubscriptionSchema.safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid field!" };
+    return { error: "Invalid field!" }
   }
-  const { email } = validatedFields.data;
+  const { email } = validatedFields.data
   const existingSubscription = await prisma.subscription.findUnique({
     where: { email: email },
-  });
+  })
   if (existingSubscription) {
-    return { error: "Email already exists" };
+    return { error: "Email already exists" }
   }
   const existingBinManager = await prisma.user.findUnique({
     where: { id: userId },
-  });
+  })
   if (!existingBinManager) {
-    return { error: "Bin manager not found" };
+    return { error: "Bin manager not found" }
   }
   const subscription = await prisma.subscription.create({
     data: { email: email, userId: userId },
-  });
-  revalidatePath("/admin/bin/manager/subscription");
+  })
+  revalidatePath("/admin/bin/manager/subscription")
   return {
     success: "Subscription added successfully",
     userId: subscription.userId,
-  };
-};
+  }
+}
 
 const updateSubscription = async (
   values: z.infer<typeof SubscriptionSchema>,
   subscriptionId: string
 ) => {
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser()
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
-  const validatedFields = SubscriptionSchema.safeParse(values);
+  const validatedFields = SubscriptionSchema.safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid field!" };
+    return { error: "Invalid field!" }
   }
-  const { email } = validatedFields.data;
+  const { email } = validatedFields.data
   const existingSubscription = await prisma.subscription.findFirst({
     where: { email: email, id: { not: subscriptionId } },
-  });
+  })
   if (existingSubscription) {
-    return { error: "Email already exists!" };
+    return { error: "Email already exists!" }
   }
   const subscription = await prisma.subscription.update({
     where: { id: subscriptionId },
     data: { email: email },
-  });
-  revalidatePath("/admin/bin/manager/subscription");
+  })
+  revalidatePath("/admin/bin/manager/subscription")
   return {
     success: "Subscription updated successfully",
     userId: subscription.userId,
-  };
-};
+  }
+}
 
 const deleteSubscription = async (subscriptionId: string) => {
-  const sessionUser = await getSessionUser();
+  const sessionUser = await getSessionUser()
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   const subscription = await prisma.subscription.findUnique({
     where: { id: subscriptionId },
-  });
+  })
   if (!subscription) {
-    return { error: "Subscription not found" };
+    return { error: "Subscription not found" }
   }
   const deletedSubscription = await prisma.subscription.delete({
     where: { id: subscriptionId },
-  });
+  })
   if (!deletedSubscription) {
-    return { error: "Failed to delete user" };
+    return { error: "Failed to delete user" }
   }
-  revalidatePath("/admin/bin/manager/subscription");
+  revalidatePath("/admin/bin/manager/subscription")
   return {
     success: `Subscription ${deletedSubscription.id} deleted successfully`,
-  };
-};
+  }
+}
 
 export {
   createSubscription,
   updateSubscription,
   getSubscriptionByUserId,
   deleteSubscription,
-};
+}

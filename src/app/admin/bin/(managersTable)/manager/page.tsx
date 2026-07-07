@@ -1,10 +1,11 @@
-import React from "react";
-import { listOfBinManagersUsed } from "@/app/action/user";
-import BinManagerDataTable from "./binManagerDataTable";
 
-const AllBinManagersPage = async () => {
-  const binManagers = await listOfBinManagersUsed();
-  return <BinManagerDataTable data={binManagers} />;
-};
+import { listOfBinManagersUsed } from "@/app/action/user"
+import BinManagerDataTable from "./binManagerDataTable"
 
-export default AllBinManagersPage;
+export default async function AllBinManagersPage(){
+  const binManagers = await listOfBinManagersUsed()
+
+  return (
+  <BinManagerDataTable data={binManagers} />
+  )
+}

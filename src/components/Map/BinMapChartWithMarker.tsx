@@ -1,6 +1,6 @@
-"use client";
-import { maxBound } from "@/utils/map";
-import { Faculty } from "@/generated/prisma";
+"use client"
+import { maxBound } from "@/utils/map"
+import { Faculty } from "@/generated/prisma"
 import Map, {
   AttributionControl,
   FullscreenControl,
@@ -9,41 +9,41 @@ import Map, {
   NavigationControl,
   Popup,
   ScaleControl,
-} from "react-map-gl";
-import { useCallback, useState } from "react";
-import { IoLocationSharp } from "react-icons/io5";
+} from "react-map-gl"
+import { useCallback, useState } from "react"
+import { IoLocationSharp } from "react-icons/io5"
 
 interface MapChartProps {
   data: {
-    id: string;
-    name: string;
-    email: string;
-    faculty: Faculty;
-    _count: { bins: number };
-    lat: number | undefined;
-    long: number | undefined;
-  }[];
-  latLng: { lat: number; lng: number };
-  initialLatLng: { lat: number; lng: number };
-  onLatLngChange: (latLng: { lat: number; lng: number }) => void;
+    id: string
+    name: string
+    email: string
+    faculty: Faculty
+    _count: { bins: number }
+    lat: number | undefined
+    long: number | undefined
+  }[]
+  latLng: { lat: number; lng: number }
+  initialLatLng: { lat: number; lng: number }
+  onLatLngChange: (latLng: { lat: number; lng: number }) => void
 }
 type PopupInfo = {
-  id: string;
-  name: string;
-  faculty: Faculty;
-  lat: number;
-  long: number;
-  _count: { bins: number };
-};
+  id: string
+  name: string
+  faculty: Faculty
+  lat: number
+  long: number
+  _count: { bins: number }
+}
 export default function BinMapChartWithMarker({
   data,
   onLatLngChange,
   initialLatLng,
   latLng,
 }: MapChartProps) {
-  const { minLat, maxLat, minLong, maxLong } = maxBound;
-  const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null);
-  const [showMarkerPopUp, setShowMarkerPopUp] = useState(true);
+  const { minLat, maxLat, minLong, maxLong } = maxBound
+  const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
+  const [showMarkerPopUp, setShowMarkerPopUp] = useState(true)
 
   const onMarkerDrag = useCallback(
     (event: MarkerDragEvent) => {
@@ -51,10 +51,10 @@ export default function BinMapChartWithMarker({
       onLatLngChange({
         lat: parseFloat(event.lngLat.lat.toFixed(7)),
         lng: parseFloat(event.lngLat.lng.toFixed(7)),
-      });
+      })
     },
     [onLatLngChange]
-  );
+  )
   return (
     <div className="relative h-full w-full">
       <Map
@@ -77,12 +77,16 @@ export default function BinMapChartWithMarker({
         <ScaleControl />
         <AttributionControl
           position="bottom-right"
-          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20px;width:20px;"/>&nbsp;<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp;&copy;&nbsp;contributors&nbsp;&#124;&nbsp;<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
+          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20pxwidth:20px"/>&nbsp<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp&copy&nbspcontributors&nbsp&#124&nbsp<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
         />
-        {data.map((binManager) => (
+        {data
+          // 1. Filter out any items missing valid coordinates
+          .filter((binManager) => typeof binManager.lat === 'number' && typeof binManager.long === 'number')
+          // 2. Map over the clean data
+          .map((binManager) => (
           <Marker
             onClick={(e) => {
-              e.originalEvent.stopPropagation();
+              e.originalEvent.stopPropagation()
               setPopupInfo({
                 id: binManager.id,
                 name: binManager.name,
@@ -90,7 +94,7 @@ export default function BinMapChartWithMarker({
                 lat: binManager.lat as number,
                 long: binManager.long as number,
                 _count: binManager._count,
-              });
+              })
             }}
             key={binManager.id}
             latitude={binManager.lat as number}
@@ -112,8 +116,8 @@ export default function BinMapChartWithMarker({
           draggable
           onDrag={onMarkerDrag}
           onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            setShowMarkerPopUp(true);
+            e.originalEvent.stopPropagation()
+            setShowMarkerPopUp(true)
           }}
         >
           <IoLocationSharp
@@ -142,11 +146,11 @@ export default function BinMapChartWithMarker({
               </div>
               <div>
                 <span className="font-bold">Latitude: </span>
-                {popupInfo.lat}&deg;
+                {popupInfo.lat}&deg
               </div>
               <div>
                 <span className="font-bold">Longitude: </span>
-                {popupInfo.long}&deg;
+                {popupInfo.long}&deg
               </div>
               <div>
                 <span className="font-bold">No. of bins: </span>
@@ -166,16 +170,16 @@ export default function BinMapChartWithMarker({
             <div className="flex flex-col">
               <div>
                 <span className="font-bold">Latitude: </span>
-                {latLng.lat}&deg;
+                {latLng.lat}&deg
               </div>
               <div>
                 <span className="font-bold">Longitude: </span>
-                {latLng.lng}&deg;
+                {latLng.lng}&deg
               </div>
             </div>
           </Popup>
         )}
       </Map>
     </div>
-  );
+  )
 }

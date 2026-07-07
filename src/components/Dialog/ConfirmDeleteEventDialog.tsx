@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { deleteEvent } from "@/app/action/event";
+import { deleteEvent } from "@/app/action/event"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
-import React, { useState, useTransition } from "react";
-import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation"
+import React, { useState, useTransition } from "react"
+import { useMediaQuery } from "react-responsive"
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 import {
   Drawer,
   DrawerContent,
@@ -20,16 +20,16 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "@/components/ui/drawer";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { formatDateTime } from "@/utils/dateFilter";
+} from "@/components/ui/drawer"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import { formatDateTime } from "@/utils/dateFilter"
 
 interface ConfirmDeleteEventDialogProps {
-  eventId: string;
-  isOpen: boolean;
-  handleDialogOpen: () => void;
+  eventId: string
+  isOpen: boolean
+  handleDialogOpen: () => void
 }
 
 const ConfirmDeleteEventDialog = ({
@@ -37,18 +37,18 @@ const ConfirmDeleteEventDialog = ({
   isOpen,
   handleDialogOpen,
 }: ConfirmDeleteEventDialogProps) => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
-  const datetime = formatDateTime(new Date());
-  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" });
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
+  const datetime = formatDateTime(new Date())
+  const isDesktop = useMediaQuery({ query: "(min-width: 768px)" })
 
   const handleDelete = () => {
     startTransition(async () => {
-      const data = await deleteEvent(eventId);
-      setError(data?.error as string);
+      const data = await deleteEvent(eventId)
+      setError(data?.error as string)
       if (!data.error && data.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast("Event deleted successfully",{
           description: (
             <div>
@@ -60,14 +60,14 @@ const ConfirmDeleteEventDialog = ({
           ),
           duration: 2000,
 
-        });
-        router.push("/admin/event");
+        })
+        router.push("/admin/event")
       }
-    });
-  };
+    })
+  }
 
-  const title = "Are you sure?";
-  const description = `You are about to delete event ${eventId}`;
+  const title = "Are you sure?"
+  const description = `You are about to delete event ${eventId}`
 
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
@@ -131,7 +131,7 @@ const ConfirmDeleteEventDialog = ({
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ConfirmDeleteEventDialog;
+export default ConfirmDeleteEventDialog

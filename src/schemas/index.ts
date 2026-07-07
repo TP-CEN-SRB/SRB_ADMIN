@@ -1,13 +1,13 @@
-import { BinStatus } from "@/generated/prisma";
-import { addDays } from "date-fns";
-import * as z from "zod";
-export const MAX_FILE_SIZE = 4 * 1024 * 1024;
+import { BinStatus } from "@/generated/prisma"
+import { addDays } from "date-fns"
+import * as z from "zod"
+export const MAX_FILE_SIZE = 4 * 1024 * 1024
 export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
   "image/webp",
-];
+]
 
 const BinSchema = z.object({
   location: z
@@ -19,7 +19,7 @@ const BinSchema = z.object({
   materialIds: z
     .array(z.string())
     .nonempty("At least one material must be selected"),
-});
+})
 
 const FaultReportSchema = z.object({
   location: z.string().min(1),
@@ -27,7 +27,7 @@ const FaultReportSchema = z.object({
   type: z.string().min(1),
   faultimageUrl: z.string().optional(),
   description: z.string().max(1000).optional(),
-});
+})
 
 const FeedbackSchema = z.object({
   rating: z.number().int().min(1).max(5),
@@ -35,12 +35,12 @@ const FeedbackSchema = z.object({
   message: z.string().min(1).max(1000),
   faculty: z.string().optional(),
   binId: z.string().optional(),
-});
+})
 
 const DisposalSchema = z.object({
   weightInGrams: z.coerce.number().min(1, "Minimum weight must be 1"),
   material: z.string().regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-});
+})
 
 const DateRangeSchema = z.discriminatedUnion("isCustomDateRange", [
   z.object({
@@ -59,7 +59,7 @@ const DateRangeSchema = z.discriminatedUnion("isCustomDateRange", [
       ),
   }),
   z.object({ isCustomDateRange: z.literal(false) }),
-]);
+])
 
 const ImageSchema = z.discriminatedUnion("isExistingImage", [
   z.object({
@@ -79,7 +79,7 @@ const ImageSchema = z.discriminatedUnion("isExistingImage", [
         message: "Only .jpg, .jpeg, .png, and .webp files are accepted",
       }),
   }),
-]);
+])
 
 const RewardSchema = z
   .object({
@@ -98,7 +98,7 @@ const RewardSchema = z
     isAvailable: z.boolean(),
   })
   .and(DateRangeSchema)
-  .and(ImageSchema);
+  .and(ImageSchema)
 const BinMaterialSchema = z.object({
   name: z
     .string()
@@ -113,11 +113,11 @@ const BinMaterialSchema = z.object({
       "Multiplier exceeds the maximum limit for a float"
     )
     .multipleOf(0.1, "Multipler can only be set to 1 d.p."),
-});
+})
 
 const SubscriptionSchema = z.object({
   email: z.string().email("Please enter a valid email address").toLowerCase(),
-});
+})
 
 const UpdateBinSchema = z.object({
   location: z
@@ -126,7 +126,7 @@ const UpdateBinSchema = z.object({
     .regex(/^[A-Za-z0-9\s,]+$/, "Invalid. Accepted: letters, numbers, commas"),
   status: z.nativeEnum(BinStatus, { message: "Invalid status" }),
   materialId: z.string().min(1, "Please select the material type"),
-});
+})
 
   const QuestSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -138,11 +138,11 @@ const UpdateBinSchema = z.object({
     .min(0, "Must be 0 or more")
     .default(0),
   duration: z.coerce.number().min(1, "Duration must be 1 or more"),
-});
+})
 
 
-export const MaterialEnum = ["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"] as const;
-export type MaterialType = (typeof MaterialEnum)[number];
+export const MaterialEnum = ["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"] as const
+export type MaterialType = (typeof MaterialEnum)[number]
 
   const UpdateQuestSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -153,7 +153,7 @@ export type MaterialType = (typeof MaterialEnum)[number];
     .number({ error: "Reward points must be a number" })
     .min(0, "Must be 0 or more")
     .default(0),
-});
+})
 
 export const QuestTemplateSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -165,7 +165,7 @@ export const QuestTemplateSchema = z.object({
     .min(0, "Must be 0 or more")
     .default(0),
   duration: z.coerce.number().min(1, "Duration must be 1 or more"),
-});
+})
 
 const StoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),
@@ -177,7 +177,7 @@ const StoreSchema = z.object({
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  })
 
 const UpdateStoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),
@@ -193,7 +193,7 @@ const UpdateStoreSchema = z.object({
       message: "Passwords do not match",
       path: ["confirmPassword"],
     }
-  );
+  )
 
   
 const EventSchema = z.object({
@@ -201,11 +201,11 @@ const EventSchema = z.object({
   description: z.string().min(10, "Description is too short"),
   startDate: z.date({ error: "Start date is required" }),
   endDate: z.date({ error: "End date is required" }),
-});
+})
 
 const UpdateEventSchema = EventSchema.partial().extend({
   id: z.string().uuid({ message: "Invalid Event ID" }),
-});
+})
 
 
 export {
@@ -223,4 +223,4 @@ export {
   EventSchema,
   FeedbackSchema,
   FaultReportSchema
-};
+}

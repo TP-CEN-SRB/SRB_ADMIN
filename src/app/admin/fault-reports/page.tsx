@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -10,7 +10,7 @@ import {
   useReactTable,
   PaginationState,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -19,85 +19,85 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
   SelectItem,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import { Trash2, Eye, ImageIcon } from "lucide-react";
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import { Trash2, Eye, ImageIcon } from "lucide-react"
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 
 interface FaultReport {
-  id: string;
-  location: string;
-  category: string;
-  type: string;
-  description?: string | null;
-  faultimageUrl?: string | null;
-  status: "OPEN" | "IN_PROGRESS" | "RESOLVED";
-  createdAt: string;
+  id: string
+  location: string
+  category: string
+  type: string
+  description?: string | null
+  faultimageUrl?: string | null
+  status: "OPEN" | "IN_PROGRESS" | "RESOLVED"
+  createdAt: string
 
-  takenByTelegramName?: string | null;
-  resolvedByTelegramName?: string | null;
-  takenByAdminName?: string | null;
-  resolvedByAdminName?: string | null;
+  takenByTelegramName?: string | null
+  resolvedByTelegramName?: string | null
+  takenByAdminName?: string | null
+  resolvedByAdminName?: string | null
 
   user: {
-    name: string;
-    email: string;
-  };
+    name: string
+    email: string
+  }
 }
 
 const STATUS_STYLES: Record<FaultReport["status"], string> = {
   OPEN: "bg-red-100 text-red-700",
   IN_PROGRESS: "bg-yellow-100 text-yellow-700",
   RESOLVED: "bg-green-100 text-green-700",
-};
+}
 
 const formatStatus = (status: string) =>
-  status.replace("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  status.replace("_", " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
 
 export default function FaultReportsPage() {
-  const [data, setData] = useState<FaultReport[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<FaultReport[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const [selectedDescription, setSelectedDescription] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<FaultReport | null>(null);
+  const [selectedDescription, setSelectedDescription] = useState<string | null>(null)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<FaultReport | null>(null)
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const fetchReports = () => {
-    setLoading(true);
+    setLoading(true)
     fetch("/api/admin/fault-reports", { credentials: "include" })
       .then((res) => res.json())
       .then(setData)
-      .finally(() => setLoading(false));
-  };
+      .finally(() => setLoading(false))
+  }
 
   const updateStatus = async (id: string, status: FaultReport["status"]) => {
     // optimistic UI update
-    setData((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
+    setData((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
 
     const res = await fetch(`/api/admin/fault-reports/${id}/status`, {
     method: "PATCH",
@@ -105,35 +105,35 @@ export default function FaultReportsPage() {
         "Content-Type": "application/json",
     },
     body: JSON.stringify({ status }),
-    });
+    })
 
     if (!res.ok) {
-      alert("Failed to update status");
-      fetchReports(); // rollback
+      alert("Failed to update status")
+      fetchReports() // rollback
     } else {
       // refresh to pull handledBy names that backend sets
-      fetchReports();
+      fetchReports()
     }
-  };
+  }
 
-  useEffect(fetchReports, []);
+  useEffect(fetchReports, [])
 
   const handleDelete = async () => {
-    if (!deleteTarget) return;
+    if (!deleteTarget) return
 
     const res = await fetch(`/api/admin/fault-reports/${deleteTarget.id}/delete`, {
       method: "DELETE",
       credentials: "include", // ✅ IMPORTANT
-    });
+    })
 
     if (!res.ok) {
-      alert("Failed to delete fault report");
-      return;
+      alert("Failed to delete fault report")
+      return
     }
 
-    setDeleteTarget(null);
-    fetchReports();
-  };
+    setDeleteTarget(null)
+    fetchReports()
+  }
 
   const columns: ColumnDef<FaultReport>[] = [
     {
@@ -203,30 +203,30 @@ export default function FaultReportsPage() {
     {
     header: "Handled By",
     cell: ({ row }) => {
-        const r = row.original;
+        const r = row.original
 
         const taken =
         r.takenByTelegramName ||
         r.takenByAdminName ||
-        (r.status !== "OPEN" ? "Admin Dashboard" : null);
+        (r.status !== "OPEN" ? "Admin Dashboard" : null)
 
         const resolved =
         r.resolvedByTelegramName ||
         r.resolvedByAdminName ||
-        (r.status === "RESOLVED" ? "Admin Dashboard" : null);
+        (r.status === "RESOLVED" ? "Admin Dashboard" : null)
 
         return (
         <div className="text-xs text-slate-600 whitespace-nowrap">
             {taken && <p>🛠 {taken}</p>}
             {resolved && <p>✅ {resolved}</p>}
         </div>
-        );
+        )
     },
     },
     {
       header: "Actions",
       cell: ({ row }) => {
-        const report = row.original;
+        const report = row.original
 
         return (
           <div className="flex items-center gap-2">
@@ -265,10 +265,10 @@ export default function FaultReportsPage() {
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
-        );
+        )
       },
     },
-  ];
+  ]
 
   const table = useReactTable({
     data,
@@ -279,7 +279,7 @@ export default function FaultReportsPage() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-  });
+  })
 
   return (
     <Card isAdmin rounded fullWidth className="p-6">
@@ -296,8 +296,8 @@ export default function FaultReportsPage() {
         <Select
           value={(table.getColumn("status")?.getFilterValue() as string) ?? "ALL"}
           onValueChange={(v) => {
-            if (v === "ALL") table.getColumn("status")?.setFilterValue(undefined);
-            else table.getColumn("status")?.setFilterValue(v);
+            if (v === "ALL") table.getColumn("status")?.setFilterValue(undefined)
+            else table.getColumn("status")?.setFilterValue(v)
           }}
         >
           <SelectTrigger className="w-48">
@@ -418,5 +418,5 @@ export default function FaultReportsPage() {
         </DialogContent>
       </Dialog>
     </Card>
-  );
+  )
 }

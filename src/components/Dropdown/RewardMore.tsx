@@ -1,18 +1,18 @@
-"use client";
-import React, { useState } from "react";
+"use client"
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MdDeleteForever, MdMoreVert } from "react-icons/md";
-import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
-import ConfirmDeleteRewardDialog from "../Dialog/ConfirmDeleteRewardDialog";
+} from "@/components/ui/dropdown-menu"
+import { MdDeleteForever, MdMoreVert } from "react-icons/md"
+import Link from "next/link"
+import { FaEdit } from "react-icons/fa"
+import ConfirmDeleteRewardDialog from "../Dialog/ConfirmDeleteRewardDialog"
 
 const RewardMore = ({ id }: { id: string }) => {
-  const [isDeleteRewardDialogOpen, setDeleteRewardDialogOpen] = useState(false);
+  const [isDeleteRewardDialogOpen, setDeleteRewardDialogOpen] = useState(false)
   return (
     <div>
       <ConfirmDeleteRewardDialog
@@ -47,7 +47,7 @@ const RewardMore = ({ id }: { id: string }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
-export default RewardMore;
+export default RewardMore

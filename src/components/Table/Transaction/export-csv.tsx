@@ -1,52 +1,52 @@
-import React, { useEffect, useRef, useState, useTransition } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { FaTableCells } from "react-icons/fa6";
-import { PiExportBold } from "react-icons/pi";
-import { IoIosDocument } from "react-icons/io";
-import { CSVLink } from "react-csv";
-import { Transaction } from "./columns";
-import { useSearchParams } from "next/navigation";
-import { getTransactionByUserId } from "@/app/action/transaction";
-import { Loader2 } from "lucide-react";
+} from "@/components/ui/dropdown-menu"
+import { FaTableCells } from "react-icons/fa6"
+import { PiExportBold } from "react-icons/pi"
+import { IoIosDocument } from "react-icons/io"
+import { CSVLink } from "react-csv"
+import { Transaction } from "./columns"
+import { useSearchParams } from "next/navigation"
+import { getTransactionByUserId } from "@/app/action/transaction"
+import { Loader2 } from "lucide-react"
 
 interface ExportCSVProps<TData> {
-  data: TData[];
-  userId: string;
+  data: TData[]
+  userId: string
 }
 
 const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
-  const searchParams = useSearchParams();
-  const [allData, setAllData] = useState<Transaction[]>([]);
-  const [isPending, startTransition] = useTransition();
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [initiateDownload, setInitiateDownload] = useState(false);
-  const csvLinkRef = useRef<HTMLSpanElement>(null);
+  const searchParams = useSearchParams()
+  const [allData, setAllData] = useState<Transaction[]>([])
+  const [isPending, startTransition] = useTransition()
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [initiateDownload, setInitiateDownload] = useState(false)
+  const csvLinkRef = useRef<HTMLSpanElement>(null)
 
   const fetchAllData = () => {
     startTransition(async () => {
-      const sortOrder = searchParams.get("sortOrder");
-      const transactionType = searchParams.get("transactionType");
+      const sortOrder = searchParams.get("sortOrder")
+      const transactionType = searchParams.get("transactionType")
       const { transactions } = await getTransactionByUserId(
         userId,
         null,
         (sortOrder as string) ?? undefined,
         transactionType
-      );
-      setAllData(transactions as Transaction[]);
-      setInitiateDownload(true);
-    });
-  };
+      )
+      setAllData(transactions as Transaction[])
+      setInitiateDownload(true)
+    })
+  }
 
   useEffect(() => {
     if (initiateDownload && allData.length > 0) {
-      csvLinkRef.current?.click();
+      csvLinkRef.current?.click()
     }
-  }, [allData, initiateDownload]);
+  }, [allData, initiateDownload])
 
   return (
     <DropdownMenu open={filterOpen} onOpenChange={setFilterOpen}>
@@ -79,7 +79,7 @@ const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
         >
           <DropdownMenuItem
             onClick={(e) => {
-              fetchAllData();
+              fetchAllData()
             }}
             disabled={isPending || data.length < 1}
           >
@@ -106,7 +106,7 @@ const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
         </CSVLink>
       )}
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default ExportCSV;
+export default ExportCSV

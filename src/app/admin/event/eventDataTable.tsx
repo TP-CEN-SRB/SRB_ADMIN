@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -10,7 +10,7 @@ import {
   PaginationState,
   getFilteredRowModel,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -19,17 +19,17 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
 import {
   DropdownMenu,
@@ -37,30 +37,30 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
-import { FaEdit, FaTrashRestore, FaUsers } from "react-icons/fa";
-import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
+import { FaEdit, FaTrashRestore, FaUsers } from "react-icons/fa"
+import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
 
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog";
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import ConfirmDeleteEventDialog from "@/components/Dialog/ConfirmDeleteEventDialog"
 
 interface Event {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface EventDataTableProps {
-  data: Event[];
+  data: Event[]
 }
 
 /* ---------------------------------------------
    ACTIONS MENU (styled same as Quest page)
 --------------------------------------------- */
 const EventActions = ({ event }: { event: Event }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false)
 
   return (
     <>
@@ -101,8 +101,8 @@ const EventActions = ({ event }: { event: Event }) => {
         handleDialogOpen={() => setDialogOpen((prev) => !prev)}
       />
     </>
-  );
-};
+  )
+}
 
 export default function EventDataTable({ data }: EventDataTableProps) {
   const columns: ColumnDef<Event>[] = [
@@ -112,14 +112,14 @@ export default function EventDataTable({ data }: EventDataTableProps) {
       header: "Actions",
       cell: ({ row }) => <EventActions event={row.original} />,
     },
-  ];
+  ]
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
     data,
@@ -130,17 +130,17 @@ export default function EventDataTable({ data }: EventDataTableProps) {
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     state: { pagination, columnFilters },
-  });
+  })
 
   const [filterValue, setFilterValue] = useState(
     (table.getColumn("name")?.getFilterValue() as string) ?? ""
-  );
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFilterValue(value);
-    table.getColumn("name")?.setFilterValue(value);
-  };
+    const value = e.target.value
+    setFilterValue(value)
+    table.getColumn("name")?.setFilterValue(value)
+  }
 
   return (
     <Card isAdmin rounded fullWidth className="p-6">
@@ -271,5 +271,5 @@ export default function EventDataTable({ data }: EventDataTableProps) {
         </div>
       </div>
     </Card>
-  );
+  )
 }

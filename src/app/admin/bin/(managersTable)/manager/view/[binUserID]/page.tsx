@@ -1,16 +1,16 @@
-import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
-import ViewBinManagerScreen from "@/components/Screen/ViewBinManagerScreen";
+import { prisma } from "@/lib/db"
+import { notFound } from "next/navigation"
+import ViewBinManagerScreen from "@/components/Screen/ViewBinManagerScreen"
 
-const ViewBinManagerPage = async ({ params }: { params: Promise<{ binUserID: string }> }) => {
-  const { binUserID } = await params; 
+export default async function ViewBinManagerPage({ params }: { params: Promise<{ binUserID: string }> }) {
+  const { binUserID } = await params 
   const bins = await prisma.bin.findMany({
     where: { userId: binUserID },
     include: { binMaterial: true, disposals: true },
-  });
+  })
 
   if (!bins.length) {
-    notFound();
+    notFound()
   }
 
   // Convert Prisma Date → string (for heartbeat + disposals)
@@ -22,7 +22,7 @@ const ViewBinManagerPage = async ({ params }: { params: Promise<{ binUserID: str
       createdAt: d.createdAt.toISOString(),
       updatedAt: d.updatedAt.toISOString(),
     })),
-  }));
+  }))
 
   const manager = await prisma.user.findUnique({
     where: { id: binUserID },
@@ -34,22 +34,20 @@ const ViewBinManagerPage = async ({ params }: { params: Promise<{ binUserID: str
       lat: true,
       long: true,
     },
-  });
+  })
 
   if (!manager) {
-    notFound();
+    notFound()
   }
 
   return (
     <ViewBinManagerScreen
       binManager={{
         ...manager,
-        lat: manager.lat?.toNumber(),
-        long: manager.long?.toNumber(),
+        lat: manager.lat?? undefined,
+        long: manager.long?? undefined,
         bins: binsWithFormattedDates,
       }}
     />
-  );
-};
-
-export default ViewBinManagerPage;
+  )
+}

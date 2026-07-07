@@ -1,21 +1,21 @@
-"use client";
-import React, { useState } from "react";
+"use client"
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MdLockReset, MdMoreVert } from "react-icons/md";
-import Link from "next/link";
-import { FaEdit } from "react-icons/fa";
-import { IoIosMail } from "react-icons/io";
-import ConfirmChangeAdminPasswordDialog from "../Dialog/ConfirmChangeAdminPasswordDialog";
-import EditAdminEmailDialog from "@/components/Dialog/EditAdminEmailDialog";
+} from "@/components/ui/dropdown-menu"
+import { MdLockReset, MdMoreVert } from "react-icons/md"
+import Link from "next/link"
+import { FaEdit } from "react-icons/fa"
+import { IoIosMail } from "react-icons/io"
+import ConfirmChangeAdminPasswordDialog from "../Dialog/ConfirmChangeAdminPasswordDialog"
+import EditAdminEmailDialog from "@/components/Dialog/EditAdminEmailDialog"
 
 const AdminProfileMore = ({ email }: { email: string }) => {
-  const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false);
-  const [isEmailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false)
+  const [isEmailDialogOpen, setEmailDialogOpen] = useState(false)
   return (
     <div>
       <ConfirmChangeAdminPasswordDialog
@@ -59,7 +59,7 @@ const AdminProfileMore = ({ email }: { email: string }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
-export default AdminProfileMore;
+export default AdminProfileMore

@@ -1,11 +1,11 @@
-const BASE_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID!;
+const BASE_URL = `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}`
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID!
 
 // --------------------
 // BASIC TEXT MESSAGE
 // --------------------
 export async function sendTelegramAlert(message: string) {
-  if (!BASE_URL || !CHAT_ID) return;
+  if (!BASE_URL || !CHAT_ID) return
 
   try {
     await fetch(`${BASE_URL}/sendMessage`, {
@@ -16,9 +16,9 @@ export async function sendTelegramAlert(message: string) {
         text: message,
         parse_mode: undefined,
       }),
-    });
+    })
   } catch (err) {
-    console.error("Telegram sendMessage failed", err);
+    console.error("Telegram sendMessage failed", err)
   }
 }
 
@@ -26,7 +26,7 @@ export async function sendTelegramAlert(message: string) {
 // PHOTO MESSAGE
 // --------------------
 export async function sendTelegramPhoto(photoUrl: string, caption: string) {
-  if (!BASE_URL || !CHAT_ID) return;
+  if (!BASE_URL || !CHAT_ID) return
 
   try {
     await fetch(`${BASE_URL}/sendPhoto`, {
@@ -38,9 +38,9 @@ export async function sendTelegramPhoto(photoUrl: string, caption: string) {
         caption: caption,
         parse_mode: undefined,
       }),
-    });
+    })
   } catch (err) {
-    console.error("Telegram sendPhoto failed", err);
+    console.error("Telegram sendPhoto failed", err)
   }
 }
 
@@ -61,19 +61,19 @@ export async function sendTelegramWithButtons(
         parse_mode: undefined,
         reply_markup: { inline_keyboard: buttons },
       }),
-    });
+    })
 
-    const data = await res.json();
+    const data = await res.json()
 
     if (!res.ok) {
-      console.error("❌ Telegram send failed:", data);
+      console.error("❌ Telegram send failed:", data)
     } else {
-      console.log("✅ Telegram sent:", data.result.message_id);
+      console.log("✅ Telegram sent:", data.result.message_id)
     }
 
-    return data;
+    return data
   } catch (err) {
-    console.error("❌ Telegram buttons send crashed", err);
+    console.error("❌ Telegram buttons send crashed", err)
   }
 }
 
@@ -93,19 +93,19 @@ export async function sendTelegramPhotoWithButtons(
         parse_mode: undefined,
         reply_markup: { inline_keyboard: buttons },
       }),
-    });
+    })
 
-    const data = await res.json();
+    const data = await res.json()
 
     if (!res.ok) {
-      console.error("❌ Telegram photo error:", data);
+      console.error("❌ Telegram photo error:", data)
     } else {
-      console.log("✅ Telegram photo sent:", data.result.message_id);
+      console.log("✅ Telegram photo sent:", data.result.message_id)
     }
 
-    return data; // ✅ ADD THIS
+    return data // ✅ ADD THIS
   } catch (err) {
-    console.error("❌ Telegram photo crashed:", err);
+    console.error("❌ Telegram photo crashed:", err)
   }
 }
 
@@ -128,9 +128,9 @@ export async function editTelegramMessage(
         parse_mode: undefined,
         reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
       }),
-    });
+    })
   } catch (err) {
-    console.error("Telegram edit failed", err);
+    console.error("Telegram edit failed", err)
   }
 }
 
@@ -150,9 +150,9 @@ export async function editTelegramPhotoCaption(
         parse_mode: undefined,
         reply_markup: buttons ? { inline_keyboard: buttons } : undefined,
       }),
-    });
+    })
   } catch (err) {
-    console.error("Telegram edit caption failed", err);
+    console.error("Telegram edit caption failed", err)
   }
 }
 
@@ -169,9 +169,9 @@ export async function deleteTelegramMessage(messageId: number) {
         chat_id: CHAT_ID,
         message_id: messageId,
       }),
-    });
+    })
   } catch (err) {
-    console.error("Telegram delete failed", err);
+    console.error("Telegram delete failed", err)
   }
 }
 
@@ -186,8 +186,8 @@ export async function answerTelegramCallback(callbackQueryId: string) {
       body: JSON.stringify({
         callback_query_id: callbackQueryId,
       }),
-    });
+    })
   } catch (err) {
-    console.error("Callback ack failed", err);
+    console.error("Callback ack failed", err)
   }
 }

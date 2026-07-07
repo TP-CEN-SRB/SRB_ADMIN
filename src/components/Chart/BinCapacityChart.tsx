@@ -1,18 +1,18 @@
-"use client";
-import { Bar, BarChart, LabelList, XAxis } from "recharts";
-import { FaScrewdriverWrench } from "react-icons/fa6";
+"use client"
+import { Bar, BarChart, LabelList, XAxis } from "recharts"
+import { FaScrewdriverWrench } from "react-icons/fa6"
 
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from "@/components/ui/chart"
 
 interface ChartProps {
-  currentCapacity: number;
-  material: string;
-  isUnderMaintenance: boolean;
+  currentCapacity: number
+  material: string
+  isUnderMaintenance: boolean
 }
 
 export default function BinCapacityChart({
@@ -28,7 +28,7 @@ export default function BinCapacityChart({
       maintenanceCapacity: 0,
       totalMaintenanceCapacity: 100,
     },
-  ];
+  ]
   const chartConfig = {
     currentCapacity: {
       label: "Filled",
@@ -48,7 +48,7 @@ export default function BinCapacityChart({
       label: "Under Maintenance",
       color: "#4B5563",
     },
-  } satisfies ChartConfig;
+  } satisfies ChartConfig
 
   return (
     <div className="flex flex-col items-center">
@@ -159,5 +159,5 @@ export default function BinCapacityChart({
         </BarChart>
       </ChartContainer>
     </div>
-  );
+  )
 }

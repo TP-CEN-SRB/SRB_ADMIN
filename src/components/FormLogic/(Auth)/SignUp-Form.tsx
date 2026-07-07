@@ -10,10 +10,10 @@ import {
 import { Input } from "@/components/ui/input"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useState } from "react"
+import { useForm } from "react-hook-form"
 
 import { authClient } from "@/lib/auth-client"
 import { signupSchema, SignupFormValue } from "./auth-schema"
@@ -24,15 +24,15 @@ export function SignupForm({
   ...props
 }: React.ComponentProps<"form">) {
 
-  const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
+  const router = useRouter()
+  const [isPending, setIsPending] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
 
-  const form = useForm<SignupFormValue>({resolver: zodResolver(signupSchema)});
+  const form = useForm<SignupFormValue>({resolver: zodResolver(signupSchema)})
 
   async function onSubmit(signUpData: SignupFormValue){
-    setIsPending(true);
-    setServerError(null);
+    setIsPending(true)
+    setServerError(null)
 
     const { data, error } = await authClient.signUp.email({
       email: signUpData.email,
@@ -40,16 +40,16 @@ export function SignupForm({
       name: signUpData.name,
       faculty: signUpData.faculty,
       role: signUpData.role
-    });
+    })
 
     if (error) {
-      setServerError(error.message || "Failed to create account.");
-      setIsPending(false);
-      return;
+      setServerError(error.message || "Failed to create account.")
+      setIsPending(false)
+      return
     }
 
-    router.push("/login"); 
-  };
+    router.push("/login") 
+  }
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col gap-6", className)} {...props}>
@@ -107,7 +107,7 @@ export function SignupForm({
               <option value="HSS">HSS</option>
               <option value="IIT">IIT</option>
               <option value="OTHERS">OTHERS</option>
-              <option value="EXTERNAL">EXTERNAL</option>
+              <option value="EXT">EXTERNAL</option>
             </select>
             {form.formState.errors.faculty && (<p className="text-sm text-destructive">{form.formState.errors.faculty.message}</p>)}
           </Field>

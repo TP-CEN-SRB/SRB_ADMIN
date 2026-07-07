@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   ColumnDef,
   flexRender,
@@ -10,7 +10,7 @@ import {
   PaginationState,
   getFilteredRowModel,
   ColumnFiltersState,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 
 import {
   Table,
@@ -19,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/table"
 
 import {
   DropdownMenu,
@@ -27,7 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"
 
 import {
   Select,
@@ -35,30 +35,30 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/select"
 
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import { FaEdit, FaTrashRestore } from "react-icons/fa";
-import Link from "next/link";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import { FaEdit, FaTrashRestore } from "react-icons/fa"
+import Link from "next/link"
 
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import ConfirmDeleteQuestDialog from "@/components/Dialog/ConfirmDeleteQuestDialog";
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import ConfirmDeleteQuestDialog from "@/components/Dialog/ConfirmDeleteQuestDialog"
 
 interface Quest {
-  id: string;
-  name: string;
-  material: string;
+  id: string
+  name: string
+  material: string
 }
 
 interface QuestDataTableProps {
-  data: Quest[];
+  data: Quest[]
 }
 
 const QuestActions = ({ quest }: { quest: Quest }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false)
 
   return (
     <>
@@ -99,8 +99,8 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
         handleDialogOpen={() => setDialogOpen((prev) => !prev)}
       />
     </>
-  );
-};
+  )
+}
 
 export default function QuestDataTable({ data }: QuestDataTableProps) {
   const columns: ColumnDef<Quest>[] = [
@@ -111,15 +111,15 @@ export default function QuestDataTable({ data }: QuestDataTableProps) {
       header: "Actions",
       cell: ({ row }) => <QuestActions quest={row.original} />,
     },
-  ];
+  ]
 
   // State
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
-  });
+  })
 
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   // Table Instance
   const table = useReactTable({
@@ -131,18 +131,18 @@ export default function QuestDataTable({ data }: QuestDataTableProps) {
     onPaginationChange: setPagination,
     onColumnFiltersChange: setColumnFilters,
     state: { pagination, columnFilters },
-  });
+  })
 
   // Search Filter
   const [filterValue, setFilterValue] = useState(
     (table.getColumn("material")?.getFilterValue() as string) ?? ""
-  );
+  )
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setFilterValue(value);
-    table.getColumn("material")?.setFilterValue(value);
-  };
+    const value = e.target.value
+    setFilterValue(value)
+    table.getColumn("material")?.setFilterValue(value)
+  }
 
   return (
     <Card isAdmin rounded fullWidth className="p-6">
@@ -275,5 +275,5 @@ export default function QuestDataTable({ data }: QuestDataTableProps) {
         </div>
       </div>
     </Card>
-  );
+  )
 }

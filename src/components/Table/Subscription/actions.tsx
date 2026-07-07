@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,18 +6,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Subscription } from "@/components/Table/Subscription/columns";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import { MdDeleteForever } from "react-icons/md";
-import { useRouter } from "next/navigation";
-import { FaEdit } from "react-icons/fa";
-import ConfirmDeleteSubscriptionDialog from "@/components/Dialog/ConfirmDeleteSubscriptionDialog";
+} from "@/components/ui/dropdown-menu"
+import { Subscription } from "@/components/Table/Subscription/columns"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import { MdDeleteForever } from "react-icons/md"
+import { useRouter } from "next/navigation"
+import { FaEdit } from "react-icons/fa"
+import ConfirmDeleteSubscriptionDialog from "@/components/Dialog/ConfirmDeleteSubscriptionDialog"
 
 const Actions = ({ data }: { data: Subscription }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const router = useRouter();
+  const [isDialogOpen, setDialogOpen] = useState(false)
+  const router = useRouter()
   return (
     <div>
       <ConfirmDeleteSubscriptionDialog
@@ -48,7 +48,7 @@ const Actions = ({ data }: { data: Subscription }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
-export default Actions;
+export default Actions

@@ -1,5 +1,5 @@
-import Image from "next/image";
-import React, { ReactNode } from "react";
+import Image from "next/image"
+import React, { ReactNode } from "react"
 
 const FormHeader = ({ children }: { children: ReactNode }) => {
   return (
@@ -13,7 +13,7 @@ const FormHeader = ({ children }: { children: ReactNode }) => {
       />
       {children}
     </h1>
-  );
-};
+  )
+}
 
-export default FormHeader;
+export default FormHeader

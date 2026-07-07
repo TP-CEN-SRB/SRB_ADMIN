@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -6,29 +6,29 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { BinMaterial, BinStatus } from "@/generated/prisma";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { ControllerRenderProps } from "react-hook-form";
+} from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { BinMaterial, BinStatus } from "@/generated/prisma"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
+import { ControllerRenderProps } from "react-hook-form"
 
 interface BinMaterialComboboxProps {
-  materials: BinMaterial[]; // `materials` is now a string array
+  materials: BinMaterial[] // `materials` is now a string array
   field: ControllerRenderProps<
     {
-      status: "FUNCTIONAL" | "UNDER_MAINTENANCE";
-      location: string;
-      materialId: string;
+      status: "FUNCTIONAL" | "UNDER_MAINTENANCE"
+      location: string
+      materialId: string
     },
     "materialId"
-  >;
-  currentFieldName: string;
+  >
+  currentFieldName: string
 }
 
 const BinMaterialCombobox = ({
@@ -36,8 +36,8 @@ const BinMaterialCombobox = ({
   field,
   currentFieldName,
 }: BinMaterialComboboxProps) => {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(currentFieldName || "");
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState(currentFieldName || "")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -62,10 +62,10 @@ const BinMaterialCombobox = ({
                 <CommandItem
                   key={material.id}
                   onSelect={() => {
-                    const newValue = material.id;
-                    setValue(material.name);
-                    setOpen(false);
-                    field.onChange(newValue);
+                    const newValue = material.id
+                    setValue(material.name)
+                    setOpen(false)
+                    field.onChange(newValue)
                   }}
                 >
                   <Check
@@ -82,7 +82,7 @@ const BinMaterialCombobox = ({
         </Command>
       </PopoverContent>
     </Popover>
-  );
-};
+  )
+}
 
-export default BinMaterialCombobox;
+export default BinMaterialCombobox

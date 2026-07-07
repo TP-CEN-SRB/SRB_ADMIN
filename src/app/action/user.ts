@@ -1,96 +1,98 @@
-"use server";
-import { prisma } from "@/lib/db";
+"use server"
+import { prisma } from "@/lib/db"
 import {
-  ResetSchema,
-  NewAdminPasswordSchema,
+  SignUpAdminSchema,
   SignUpBinSchema,
   UpdateAdminEmailSchema,
   UpdateStudentSchema,
   UpdateBinSchema,
-} from "@/schemas/auth";
-import { z } from "zod";
-import {
-  generateVerificationToken,
-  generatePasswordResetToken,
-} from "@/lib/tokens";
-import {
-  ableToGenerateNewPasswordResetToken,
-  getPasswordResetTokenByEmail,
-  getPasswordResetTokenByToken,
-} from "@/utils/passwordResetToken";
-import { Faculty, Role } from "@/generated/prisma";
-import {
-  ableToGenerateNewVerificationToken,
-  getVerificationTokenByEmail,
-} from "@/utils/verificationToken";
-import { getSessionUser } from "@/utils/getAuth";
-import { revalidatePath } from "next/cache";
+} from "@/schemas/auth"
+import { z } from "zod"
+import { hash } from "bcrypt"
+import { Faculty, Role } from "@/generated/prisma"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
 
-const signUpBin = async (values: z.infer<typeof SignUpBinSchema>) => {
-  const validatedFields = SignUpBinSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
+function capitalizeFirstLetter(name: string): string {
+  const trimmedName = name?.trim()
+  if (!trimmedName) {
+    return ""
   }
-  const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name);
-  const email = formData.email;
-  const password = formData.password.trim();
-  const location = capitalizeFirstLetter(formData.location);
-  const faculty = formData.faculty;
-  const lat = formData.latitude;
-  const long = formData.longitude;
+  return trimmedName[0].toUpperCase() + trimmedName.slice(1)
+}
+
+
+export async function signUpBin(values: z.infer<typeof SignUpBinSchema>){
+  const validatedFields = SignUpBinSchema.safeParse(values)
+  if (!validatedFields.success) {
+    return { error: "Invalid fields!" }
+  }
+  
+  const { name, email, password, location, faculty, latitude, longitude } = validatedFields.data
+  
+  const formattedName = capitalizeFirstLetter(name)
+  const formattedLocation = capitalizeFirstLetter(location)
+  const cleanPassword = password.trim()
+
   const existingBinUser = await checkBinUserWithSimilarRecord(
-    name,
+    formattedName,
     email,
-    location,
-    lat,
-    long
-  );
-  if (existingBinUser) {
-    return { error: "Duplicate found. Bin Manager already exists!" };
-  }
-  const hashedPassword = await hash(password, 10);
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      emailVerified: new Date(), // automatically verify bin user
-      location: location,
-      faculty: faculty,
-      diploma: "N/A",
-      role: Role.BIN,
-      password: hashedPassword,
-      lat: lat,
-      long: long,
-      //to update faculty 
-    },
-  });
-  revalidatePath("/admin/bin/manager");
-  return { success: "Bin user created successfully" };
-};
+    formattedLocation,
+    latitude,
+    longitude
+  )
 
-const updateBinUser = async (
-  id: string,
-  values: z.infer<typeof UpdateBinSchema>
-) => {
-  const validatedFields = UpdateBinSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
+  if (existingBinUser) {
+    return { error: "Duplicate found. Bin Manager already exists!" }
   }
-  const formData = validatedFields.data;
-  const name = capitalizeFirstLetter(formData.name).trim();
-  const email = formData.email.toLowerCase().trim();
-  const location = formData.location.trim();
-  const faculty = formData.faculty;
-  const lat = formData.latitude;
-  const long = formData.longitude;
-  const isExistingPassword = formData.isExistingPassword;
-  let password;
+  const hashedPassword = await hash(cleanPassword, 10)
+
+  try {
+    await prisma.user.create({
+      data: {
+        name: formattedName,
+        email,
+        emailVerified: true, // Better Auth standard is usually boolean, check your schema
+        location: formattedLocation,
+        faculty,
+        diploma: "N/A",
+        role: Role.BIN,
+        password: hashedPassword,
+        lat: latitude,
+        long: longitude,
+      },
+    })
+    revalidatePath("/admin/bin/manager")
+    return { success: "Bin user created successfully." }
+      
+  } 
+  catch (error) {
+    console.error("Failed to create Bin Manager:", error)
+    return { error: "Database error occurred while creating the user." }
+  }
+}
+
+
+export async function updateBinUser(id: string, values: z.infer<typeof UpdateBinSchema>){
+  const validatedFields = UpdateBinSchema.safeParse(values)
+  if (!validatedFields.success) {
+    return { error: "Invalid fields!" }
+  }
+  const formData = validatedFields.data
+  const name = capitalizeFirstLetter(formData.name).trim()
+  const email = formData.email.toLowerCase().trim()
+  const location = formData.location.trim()
+  const faculty = formData.faculty
+  const lat = formData.latitude
+  const long = formData.longitude
+  const isExistingPassword = formData.isExistingPassword
+  let password
   const existingBinUser = await prisma.user.findUnique({
     where: { id },
-  });
+  })
   if (!isExistingPassword) {
-    password = await hash(formData.password, 10);
+    password = await hash(formData.password, 10)
   }
 
   if (existingBinUser) {
@@ -102,9 +104,9 @@ const updateBinUser = async (
       long,
       true,
       id
-    );
+    )
     if (existingBinUser) {
-      return { error: "Duplicate found. Bin Manager already exists!" };
+      return { error: "Duplicate found. Bin Manager already exists!" }
     }
     await prisma.user.update({
       where: { id },
@@ -117,15 +119,15 @@ const updateBinUser = async (
         long,
         ...(!isExistingPassword && { password: password }),
       },
-    });
-    revalidatePath("/admin/bin/manager");
-    return { success: "Bin Manager updated!" };
+    })
+    revalidatePath("/admin/bin/manager")
+    return { success: "Bin Manager updated!" }
   } else {
-    return { error: "Bin Manager does not exist!" };
+    return { error: "Bin Manager does not exist!" }
   }
-};
+}
 
-const checkBinUserWithSimilarRecord = async (
+async function checkBinUserWithSimilarRecord(
   name: string,
   email: string,
   location: string,
@@ -133,273 +135,110 @@ const checkBinUserWithSimilarRecord = async (
   long: number,
   update?: boolean,
   id?: string
-) => {
+){
   const binUser = await prisma.user.findFirst({
     where: {
       OR: [{ name }, { email }, { location }, { AND: [{ lat }, { long }] }],
       ...(update && id && { id: { not: id } }),
     },
-  });
-  return binUser;
-};
+  })
+  return binUser
+}
 
-const login = async (values: z.infer<typeof LoginSchema>) => {
-  const validatedFields = LoginSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
-  }
-  const formData = validatedFields.data;
-  const email = formData.email;
-  const password = formData.password;
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      email: email,
-      role: Role.ADMIN,
-    },
-  });
-  if (!existingUser) {
-    return { error: "Invalid credentials" };
-  }
-  const isMatched = await compare(password, existingUser.password);
-  if (!isMatched) {
-    return { error: "Invalid credentials!" };
-  }
-  if (!existingUser.emailVerified) {
-    const existingToken = await getVerificationTokenByEmail(existingUser.email);
-    if (!existingToken) {
-      const verificationToken = await generateVerificationToken(
-        existingUser.email
-      );
-      await sendVerificationEmail(
-        verificationToken.email,
-        verificationToken.token
-      );
-      return { success: "Confirmation email sent!" };
-    }
-    const ableToResendEmail = await ableToGenerateNewVerificationToken(
-      existingUser.email
-    );
-    if (!ableToResendEmail) {
-      return {
-        error:
-          "We have already sent you an email! If you wish to resend please try again later",
-      };
-    }
-    const verificationToken = await generateVerificationToken(
-      existingUser.email
-    );
-    await sendVerificationEmail(
-      verificationToken.email,
-      verificationToken.token
-    );
-    return { success: "Confirmation email sent!" };
-  }
-  try {
-    await signIn("credentials", {
-      redirectTo: "/admin",
-      email,
-      password,
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "Invalid credentials!" };
-        default: {
-          return { error: "Something went wrong!" };
-        }
-      }
-    }
-    throw error;
-  }
-};
-
-const logout = async () => {
-  await signOut({
-    redirectTo: "/",
-  });
-};
-
-const resetPassword = async (values: z.infer<typeof ResetSchema>) => {
-  const validatedFields = ResetSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid email!" };
-  }
-  const formData = validatedFields.data;
-  const email = formData.email;
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      email: email,
-      role: {
-        in: ["ADMIN", "STUDENT"],
-      },
-    },
-  });
-  if (!existingUser) {
-    return { error: "Invalid credentials!" };
-  }
-  const existingToken = await getPasswordResetTokenByEmail(existingUser.email);
-  if (!existingToken) {
-    const passwordResetToken = await generatePasswordResetToken(
-      existingUser.email
-    );
-    await sendPasswordResetEmail(
-      passwordResetToken.email,
-      passwordResetToken.token
-    );
-    return { success: "Confirmation email sent!" };
-  }
-  const ableToResendEmail = await ableToGenerateNewPasswordResetToken(
-    existingUser.email
-  );
-  if (!ableToResendEmail) {
-    return {
-      error:
-        "We have already sent you an email! If you wish to resend please try again later",
-    };
-  }
-  const passwordResetToken = await generatePasswordResetToken(email);
-  await sendPasswordResetEmail(
-    passwordResetToken.email,
-    passwordResetToken.token
-  );
-  return { success: "Reset email sent!" };
-};
-
-const newPassword = async (
-  values: z.infer<typeof NewAdminPasswordSchema>,
-  token: string
-) => {
-  if (!token) return { error: "Something went wrong!" };
-  const validatedFields = NewAdminPasswordSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid credentials!" };
-  }
-  const formData = validatedFields.data;
-  const password = formData.password;
-  const existingToken = await getPasswordResetTokenByToken(token);
-  if (!existingToken)
-    return {
-      error: "Oops! This link may have already been used",
-    };
-
-  const hasExpired = new Date(existingToken.expires) < new Date();
-  if (hasExpired) return { error: "Oops! This link has expired" };
-
-  const existingUser = await prisma.user.findUnique({
-    where: { email: existingToken.email },
-  });
-  if (!existingUser) {
-    return { error: "Something went wrong!" };
-  }
-  const hashedPassword = await hash(password, 10);
-  await prisma.user.update({
-    where: { id: existingUser.id },
-    data: { password: hashedPassword },
-  });
-  await prisma.passswordResetToken.delete({
-    where: { id: existingToken.id },
-  });
-  return { success: "Your password has been updated!" };
-};
-
-const getLoggedInUserById = async (id: string) => {
-  const sessionUser = await getSessionUser();
-  if (sessionUser?.id !== id || !sessionUser) {
-    return;
-  }
-  const binUser = await prisma.user.findFirst({
-    where: { id: id, role: sessionUser.role },
-  });
-  return binUser;
-};
-
-const updateAdmin = async (values: z.infer<typeof SignUpAdminSchema>) => {
+export async function updateAdmin(values: z.infer<typeof SignUpAdminSchema>){
   const validatedFields = SignUpAdminSchema.omit({
     password: true,
     confirmPassword: true,
-  }).safeParse(values);
+  }).safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid credentials!" };
+    return { error: "Invalid credentials!" }
   }
-  const { name, email, faculty } = validatedFields.data;
+  const { name, email, faculty } = validatedFields.data
   const existingUser = await prisma.user.findUnique({
     where: { email: email, role: "ADMIN" },
-  });
+  })
   if (!existingUser) {
-    return { error: "Something went wrong!" };
+    return { error: "Something went wrong!" }
   }
-  const sessionUser = await getSessionUser();
+  const sessionData = await auth.api.getSession({
+      headers: await headers() 
+    })
+  
+  const sessionUser = sessionData?.user
   if (
     !sessionUser ||
     sessionUser.role !== "ADMIN" ||
     sessionUser.id !== existingUser.id
   ) {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   await prisma.user.update({
     where: { id: existingUser.id },
     data: { name: capitalizeFirstLetter(name), faculty },
-  });
-  revalidatePath("/admin/profile");
-  return { success: "Profile updated successfully" };
-};
+  })
+  revalidatePath("/admin/profile")
+  return { success: "Profile updated successfully" }
+}
 
-const updateAdminEmail = async (
+export async function updateAdminEmail(
   values: z.infer<typeof UpdateAdminEmailSchema>
-) => {
-  const sessionUser = await getSessionUser();
+){
+  const sessionData = await auth.api.getSession({
+      headers: await headers() 
+    })
+  
+  const sessionUser = sessionData?.user
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
-  const validatedFields = UpdateAdminEmailSchema.safeParse(values);
+  const validatedFields = UpdateAdminEmailSchema.safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid credentials!" };
+    return { error: "Invalid credentials!" }
   }
-  const { email, password } = validatedFields.data;
+  const { email, password } = validatedFields.data
   const currentUser = await prisma.user.findUnique({
     where: { id: sessionUser.id, role: "ADMIN" },
-  });
+  })
   if (!currentUser) {
-    return { error: "Something went wrong!" };
+    return { error: "Something went wrong!" }
   }
-  const isMatched = await compare(password, currentUser.password);
+  const isMatched = await compare(password, currentUser.password)
   if (!isMatched) {
-    return { error: "Invalid credentials!" };
+    return { error: "Invalid credentials!" }
   }
   const existingUser = await prisma.user.findUnique({
     where: { email: email },
-  });
+  })
   if (existingUser) {
-    return { error: "Email is already in use!" };
+    return { error: "Email is already in use!" }
   }
-  const existingToken = await getVerificationTokenByEmail(email);
+  const existingToken = await getVerificationTokenByEmail(email)
   if (!existingToken) {
     const verificationToken = await generateVerificationToken(
       email,
       currentUser.email
-    );
+    )
     await sendVerificationEmail(
       verificationToken.email,
       verificationToken.token
-    );
-    return { success: "Confirmation email sent!" };
+    )
+    return { success: "Confirmation email sent!" }
   }
   const ableToResendEmail = await ableToGenerateNewVerificationToken(
     email
-  );
+  )
   if (!ableToResendEmail) {
     return {
       error:
         "We have already sent you an email! If you wish to resend please try again later",
-    };
+    }
   }
-  const verificationToken = await generateVerificationToken(email);
-  await sendVerificationEmail(verificationToken.email, verificationToken.token);
-  return { success: "Confirmation email sent!" };
-};
+  const verificationToken = await generateVerificationToken(email)
+  await sendVerificationEmail(verificationToken.email, verificationToken.token)
+  return { success: "Confirmation email sent!" }
+}
 
-const getAllBinUsers = async () => {
+export async function getAllBinUsers(){
   const result = await prisma.user.findMany({
     where: {
       role: "BIN",
@@ -415,18 +254,18 @@ const getAllBinUsers = async () => {
         select: { bins: true },
       },
     },
-  });
-  return result;
-};
+  })
+  return result
+}
 
-const deleteBinUser = async (id: string) => {
+export async function deleteBinUser(id: string){
   // Find the bin manager by ID
   const user = await prisma.user.findUnique({
     where: { id },
-  });
+  })
 
   if (!user) {
-    return { error: `User with ID ${id} does not exist` };
+    return { error: `User with ID ${id} does not exist` }
   }
 
   try {
@@ -435,53 +274,57 @@ const deleteBinUser = async (id: string) => {
       where: {
         userId: id,
       },
-    });
+    })
 
     // 👤 Step 2: Delete the bin manager (user)
     await prisma.user.delete({
       where: {
         id: id,
       },
-    });
+    })
 
     // 🔁 Step 3: Revalidate admin dashboard to update table
-    revalidatePath("/admin/bin/manager");
+    revalidatePath("/admin/bin/manager")
 
-    return { success: `Bin Manager with ID ${id} and all assigned bins were permanently deleted.` };
+    return { success: `Bin Manager with ID ${id} and all assigned bins were permanently deleted.` }
   } catch (error) {
-    console.error("Error deleting bin user and bins:", error);
-    return { error: "Unexpected error occurred while deleting user and bins." };
+    console.error("Error deleting bin user and bins:", error)
+    return { error: "Unexpected error occurred while deleting user and bins." }
   }
-};
+}
 
 
-const getAllStudentUsers = async (
+export async function getAllStudentUsers(
   page: number | null,
   query: string | null,
   sortOrder: string | undefined,
   sortItem: string | undefined,
   emailType: string | null,
   faculty: string | null
-) => {
-  const sessionUser = await getSessionUser();
+){
+  const sessionData = await auth.api.getSession({
+    headers: await headers() 
+  })
+
+  const sessionUser = sessionData?.user
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
-  const sortableItems = ["disposal", "point", "redemption"];
-  const allowedEmailTypes = ["verified", "non-verified"];
-  const pageCondition = page != null && page < 0;
+  const sortableItems = ["disposal", "point", "redemption"]
+  const allowedEmailTypes = ["verified", "non-verified"]
+  const pageCondition = page != null && page < 0
   const sortOrderCondition =
-    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc";
+    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc"
   const sortItemCondition =
-    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem);
+    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem)
   const emailTypeCondition =
     emailType &&
-    !emailType.split(",").every((type) => allowedEmailTypes.includes(type));
+    !emailType.split(",").every((type) => allowedEmailTypes.includes(type))
   const facultyCondition =
     faculty &&
     !faculty
       .split(",")
-      .every((f) => Object.values(Faculty).includes(f as Faculty));
+      .every((f) => Object.values(Faculty).includes(f as Faculty))
 
   // check if all conditions are met
   if (
@@ -491,7 +334,7 @@ const getAllStudentUsers = async (
     emailTypeCondition ||
     facultyCondition
   ) {
-    return { studentCount: 0, students: [] };
+    return { studentCount: 0, students: [] }
   }
   const [studentCount, students] = await Promise.all([
     prisma.user.count({
@@ -558,47 +401,55 @@ const getAllStudentUsers = async (
         updatedAt: true,
       },
     }),
-  ]);
-  return { studentCount, students };
-};
+  ])
+  return { studentCount, students }
+}
 
-const deleteStudent = async (userId: string) => {
-  const sessionUser = await getSessionUser();
+export async function deleteStudent(userId: string) {
+  const sessionData = await auth.api.getSession({
+    headers: await headers() 
+  })
+
+  const sessionUser = sessionData?.user
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
   const student = await prisma.user.findUnique({
     where: { id: userId, role: "STUDENT" },
-  });
+  })
   if (!student) {
-    return { error: "User not found" };
+    return { error: "User not found" }
   }
-  const deletedStudent = await prisma.user.delete({ where: { id: userId } });
+  const deletedStudent = await prisma.user.delete({ where: { id: userId } })
   if (!deletedStudent) {
-    return { error: "Failed to delete user" };
+    return { error: "Failed to delete user" }
   }
-  revalidatePath("/admin/student");
-  return { success: `Student ${deletedStudent.id} deleted successfully` };
-};
+  revalidatePath("/admin/student")
+  return { success: `Student ${deletedStudent.id} deleted successfully` }
+}
 
-const updateStudent = async (
+export async function updateStudent(
   values: z.infer<typeof UpdateStudentSchema>,
   userId: string
-) => {
-  const sessionUser = await getSessionUser();
+){
+  const sessionData = await auth.api.getSession({
+      headers: await headers() 
+    })
+  
+  const sessionUser = sessionData?.user
   if (!sessionUser || sessionUser.role !== "ADMIN") {
-    return { error: "Unauthorized access!" };
+    return { error: "Unauthorized access!" }
   }
-  const validatedFields = UpdateStudentSchema.safeParse(values);
+  const validatedFields = UpdateStudentSchema.safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid credentials!" };
+    return { error: "Invalid credentials!" }
   }
-  const { name, email, faculty, points } = validatedFields.data;
+  const { name, email, faculty, points } = validatedFields.data
   const existingUser = await prisma.user.findUnique({
     where: { id: userId, role: "STUDENT" },
-  });
+  })
   if (!existingUser) {
-    return { error: "Something went wrong!" };
+    return { error: "Something went wrong!" }
   }
   const updatedUser = await prisma.user.update({
     where: { id: existingUser.id },
@@ -608,10 +459,10 @@ const updateStudent = async (
       faculty,
       point: { update: { balance: points } },
     },
-  });
-  revalidatePath("/admin/student");
-  return { success: `Student ${updatedUser.id} updated successfully ` };
-};
+  })
+  revalidatePath("/admin/student")
+  return { success: `Student ${updatedUser.id} updated successfully ` }
+}
 
 export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
   // 1️⃣ Aggregate top users by points
@@ -634,14 +485,14 @@ export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
       _sum: { pointsAwarded: "desc" },
     },
     take: 10,
-  });
+  })
 
 const userIds = aggregated
   .map((user) => user.userId)
-  .filter((id) => id !== null);
+  .filter((id) => id !== null)
 
   if (userIds.length === 0) {
-    return [];
+    return []
   }
 
   const [userDisposals, userRedemptions, allTestData] = await Promise.all([
@@ -691,13 +542,13 @@ const userIds = aggregated
         },
       },
     }),
-  ]);
+  ])
 
   const orderedDisposals = await Promise.all(
     userIds.map(async (userId) => {
       const disposal = userDisposals.find((d) => d.userId === userId) || {
         _count: { id: 0 },
-      };
+      }
 
       const user = await prisma.user.findUnique({
         where: { id: userId },
@@ -706,46 +557,46 @@ const userIds = aggregated
           email: true,
           profileImageUrl: true, // ✅ ADD THIS
         },
-      });
+      })
 
 
-      const userTestData = allTestData.filter((t) => t.user?.id === userId);
-      const materialCounts = userTestData.reduce((acc: { [x: string]: any; }, item: { bin: { binMaterial: { name: any; }; }; }) => {
-        const materialName = item.bin?.binMaterial?.name;
+      const userTestData = allTestData.filter((t) => t.user?.id === userId)
+      const materialCounts = userTestData.reduce((acc: { [x: string]: any }, item: { bin: { binMaterial: { name: any } } }) => {
+        const materialName = item.bin?.binMaterial?.name
         if (materialName) {
-          acc[materialName] = (acc[materialName] || 0) + 1;
+          acc[materialName] = (acc[materialName] || 0) + 1
         }
-        return acc;
-      }, {} as Record<string, number>);
+        return acc
+      }, {} as Record<string, number>)
 
         const mostFrequentMaterial = Object.entries(materialCounts).reduce(
           (max, [material, count]) => {
     // Treat null/undefined/missing as 0
-          const safeCount = count ?? 0; 
+          const safeCount = count ?? 0 
           
-          return safeCount > (max[1] || 0)  ? [material, safeCount] : max;
+          return safeCount > (max[1] || 0)  ? [material, safeCount] : max
         },
           ["", 0]
-        )[0];
+        )[0]
 
       return {
         username: user?.name,
         userId,
         profileImageUrl: user?.profileImageUrl ?? null, // ✅ ADD THIS
         balance:
-          aggregated.find((d: { userId: any; }) => d.userId === userId)?._sum.pointsAwarded || 0,
+          aggregated.find((d: { userId: any }) => d.userId === userId)?._sum.pointsAwarded || 0,
         disposalCount: disposal._count.id,
         redemptionCount:
-          userRedemptions.find((r: { userId: any; }) => r.userId === userId)?._count?.id || 0,
+          userRedemptions.find((r: { userId: any }) => r.userId === userId)?._count?.id || 0,
         mostFrequentMaterial: mostFrequentMaterial || undefined,
-      };
+      }
     })
-  );
+  )
 
-  return orderedDisposals.sort((a: { balance: number; }, b: { balance: number; }) => b.balance - a.balance);
-};
+  return orderedDisposals.sort((a: { balance: number }, b: { balance: number }) => b.balance - a.balance)
+}
 
-const listOfBinManagersUsed = async () => {
+export async function listOfBinManagersUsed() {
   const binManagers = await prisma.user.findMany({
     where: { role: "BIN" },
     select: {
@@ -755,7 +606,7 @@ const listOfBinManagersUsed = async () => {
       faculty: true,
       _count: { select: { bins: true } },
     },
-  });
+  })
   return binManagers.map((binUser
   ) => ({
     id: binUser?.id as string,
@@ -763,24 +614,5 @@ const listOfBinManagersUsed = async () => {
     email: binUser?.email as string,
     faculty: binUser?.faculty as Faculty,
     _count: { bins: binUser._count.bins as number },
-  }));
-};
-
-export {
-  signUp,
-  signUpBin,
-  updateBinUser,
-  login,
-  logout,
-  resetPassword,
-  newPassword,
-  getLoggedInUserById,
-  updateAdmin,
-  updateAdminEmail,
-  getAllBinUsers,
-  deleteBinUser,
-  getAllStudentUsers,
-  deleteStudent,
-  updateStudent,
-  listOfBinManagersUsed,
-};
+  }))
+}

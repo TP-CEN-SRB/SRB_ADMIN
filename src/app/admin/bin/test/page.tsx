@@ -1,140 +1,140 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { MqttClient } from "mqtt";
-import { publishMqtt, connectMqtt } from "@/lib/mqtt";
+import { useState, useEffect } from "react"
+import { MqttClient } from "mqtt"
+import { publishMqtt, connectMqtt } from "@/lib/mqtt"
 import {
   ableToPublishMqttMessage,
   updateCommandUpdatedAt,
   resetCommandCooldown,
-} from "@/utils/mqttPublisher";
+} from "@/utils/mqttPublisher"
 import { toast } from "sonner"
-import clsx from "clsx";
+import clsx from "clsx"
 
-const materials = ["plastic", "general", "paper"] as const;
-type Status = "ready" | "testing" | "success" | "failed";
+const materials = ["plastic", "general", "paper"] as const
+type Status = "ready" | "testing" | "success" | "failed"
 
 const TestBinPage = () => {
-  const [binId, setBinId] = useState("");
-  const [mqttClient, setMqttClient] = useState<MqttClient | null>(null);
+  const [binId, setBinId] = useState("")
+  const [mqttClient, setMqttClient] = useState<MqttClient | null>(null)
   const [statuses, setStatuses] = useState<Record<string, Status>>({
     plastic: "ready",
     general: "ready",
     paper: "ready",
-  });
+  })
 
   useEffect(() => {
     const init = async () => {
-      const client = await connectMqtt();
-      setMqttClient(client);
-    };
-    init();
-  }, []);
+      const client = await connectMqtt()
+      setMqttClient(client)
+    }
+    init()
+  }, [])
 
   const waitForReadOnce = (material: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      const topic = `srb/${material}/${binId}`;
+      const topic = `srb/${material}/${binId}`
       const timeout = setTimeout(() => {
-        mqttClient?.off("message", onMessage);
-        resolve(false);
-      }, 60000);
+        mqttClient?.off("message", onMessage)
+        resolve(false)
+      }, 60000)
 
       const onMessage = (topicReceived: string, message: Buffer) => {
         if (topicReceived === topic) {
-          const payload = JSON.parse(message.toString());
+          const payload = JSON.parse(message.toString())
           if (payload.command === "readonce") {
-            clearTimeout(timeout);
-            mqttClient?.off("message", onMessage);
-            resolve(true);
+            clearTimeout(timeout)
+            mqttClient?.off("message", onMessage)
+            resolve(true)
           }
         }
-      };
+      }
 
-      mqttClient?.on("message", onMessage);
-    });
-  };
+      mqttClient?.on("message", onMessage)
+    })
+  }
 
   const updateStatus = (material: string, status: Status) => {
-    setStatuses((prev) => ({ ...prev, [material]: status }));
-  };
+    setStatuses((prev) => ({ ...prev, [material]: status }))
+  }
 
   const handleMaterialTest = async (material: string) => {
     if (!binId) {
-      toast("Missing Bin ID");
-      return;
+      toast("Missing Bin ID")
+      return
     }
     if (!mqttClient) {
-      toast("MQTT not connected");
-      return;
+      toast("MQTT not connected")
+      return
     }
 
-    updateStatus(material, "testing");
+    updateStatus(material, "testing")
 
-    const topic = `srb/${material}/${binId}`;
-    const payload = JSON.stringify({ command: "detect" });
+    const topic = `srb/${material}/${binId}`
+    const payload = JSON.stringify({ command: "detect" })
 
-    toast(`Testing ${material} bin...`);
+    toast(`Testing ${material} bin...`)
 
-    await mqttClient.subscribe(topic);
+    await mqttClient.subscribe(topic)
 
-    const canPublish = await ableToPublishMqttMessage(binId);
+    const canPublish = await ableToPublishMqttMessage(binId)
     if (!canPublish) {
       toast( "Cooldown not finished",{
         description: `Wait before retrying ${material}`,
-      });
-      updateStatus(material, "failed");
-      return;
+      })
+      updateStatus(material, "failed")
+      return
     }
 
-    const success = await publishMqtt(topic, payload);
+    const success = await publishMqtt(topic, payload)
     if (success) {
-      await updateCommandUpdatedAt(binId);
-      const acknowledged = await waitForReadOnce(material);
+      await updateCommandUpdatedAt(binId)
+      const acknowledged = await waitForReadOnce(material)
       if (acknowledged) {
-        updateStatus(material, "success");
-        toast(`${material} bin responded ✅`);
+        updateStatus(material, "success")
+        toast(`${material} bin responded ✅`)
       } else {
-        updateStatus(material, "failed");
-        toast(`${material} bin did not respond ❌`);
+        updateStatus(material, "failed")
+        toast(`${material} bin did not respond ❌`)
       }
     } else {
-      updateStatus(material, "failed");
+      updateStatus(material, "failed")
       toast("Failed to send",{
         description: `Could not send to ${material}`,
-      });
+      })
     }
-  };
+  }
 
   const handleResetCooldown = async () => {
     if (!binId) {
-      toast("Missing Bin ID");
-      return;
+      toast("Missing Bin ID")
+      return
     }
-    await resetCommandCooldown(binId);
+    await resetCommandCooldown(binId)
     toast("Cooldown reset",{
       description: "You can now test again immediately",
-    });
-  };
+    })
+  }
 
   const statusStyle = {
     ready: "border-l-gray-400 text-gray-700",
     testing: "border-l-yellow-500 text-yellow-800",
     success: "border-l-green-500 text-green-700",
     failed: "border-l-red-500 text-red-700",
-  };
+  }
 
   const statusLabel = (status: Status) => {
     switch (status) {
       case "ready":
-        return "🕓 Ready to test";
+        return "🕓 Ready to test"
       case "testing":
-        return "⏳ Testing...";
+        return "⏳ Testing..."
       case "success":
-        return "✅ Test passed";
+        return "✅ Test passed"
       case "failed":
-        return "❌ Test failed";
+        return "❌ Test failed"
     }
-  };
+  }
 
   return (
     <div className="max-w-xl mx-auto mt-10 space-y-6">
@@ -181,7 +181,7 @@ const TestBinPage = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TestBinPage;
+export default TestBinPage

@@ -1,16 +1,16 @@
-"use server";
+"use server"
 
-import { prisma } from "@/lib/db";
-import { BinSchema, UpdateBinSchema } from "@/schemas";
-import { Bin, BinStatus, Prisma, Role } from "@/generated/prisma";
-import { revalidatePath } from "next/cache";
-import { z } from "zod";
-import { getWeeksInMonth, months, days, normalizeDate } from "@/utils/dateUtils";
+import { prisma } from "@/lib/db"
+import { BinSchema, UpdateBinSchema } from "@/schemas"
+import { Bin, BinStatus, Prisma, Role } from "@/generated/prisma"
+import { revalidatePath } from "next/cache"
+import { z } from "zod"
+import { getWeeksInMonth, months, days, normalizeDate } from "@/utils/dateUtils"
 
 export const getAllBins = async (dateFrom?: Date, dateTo?: Date) => {
   if (dateFrom !== undefined && dateTo !== undefined) {
-    const adjustedEndDate = new Date(dateTo);
-    adjustedEndDate.setHours(23, 59, 59, 999);
+    const adjustedEndDate = new Date(dateTo)
+    adjustedEndDate.setHours(23, 59, 59, 999)
     return await prisma.bin.findMany({
       where: {
         createdAt: {
@@ -18,15 +18,15 @@ export const getAllBins = async (dateFrom?: Date, dateTo?: Date) => {
           lte: adjustedEndDate,
         },
       },
-    });
+    })
   }
   const result = await prisma.bin.findMany({
     orderBy: {
       createdAt: "desc",
     },
-  });
-  return result;
-};
+  })
+  return result
+}
 
 export const getBinById = async (id: string) => {
   return await prisma.bin.findUnique({
@@ -45,8 +45,8 @@ export const getBinById = async (id: string) => {
         },
       },
     },
-  });
-};
+  })
+}
 
 export const getBinsByUserId = async (id: string) => {
   return await prisma.bin.findMany({
@@ -62,29 +62,29 @@ export const getBinsByUserId = async (id: string) => {
         },
       },
     },  
-  });
-};
+  })
+}
 
 export const createBin = async (
   values: z.infer<typeof BinSchema>,
   binUserId: string
 ) => {
-  const validatedFields = BinSchema.safeParse(values);
+  const validatedFields = BinSchema.safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
+    return { error: "Invalid fields!" }
   }
-  const formData = validatedFields.data;
+  const formData = validatedFields.data
   for (let i = 0; i < formData.materialIds.length; i++) {
     const checkBinWithSimilarRecord = await checkExistingBinRecord(
       formData.location,
       formData.status,
       formData.materialIds[i],
       binUserId
-    );
+    )
     if (checkBinWithSimilarRecord) {
       return {
         error: "Duplicate found. A bin of similar properties already exists",
-      };
+      }
     }
     try {
       await prisma.bin.create({
@@ -94,53 +94,53 @@ export const createBin = async (
           userId: binUserId,
           lastHeartBeat: null,
         },
-      });
+      })
       if (i == formData.materialIds.length - 1) {
         try {
           await prisma.user.update({
             where: { id: binUserId },
             data: { location: formData.location },
-          });
+          })
         } catch (error) {
-          return { error: "Failed to update user location" };
+          return { error: "Failed to update user location" }
         }
-        revalidatePath("/admin/bin");
+        revalidatePath("/admin/bin")
         return {
           success: `Bin created successfully, Location: ${formData.location}`,
-        };
+        }
       }
     } catch (error) {
       return {
         error: "Unexpected Error occurred, Failed to create bin",
-      };
+      }
     }
   }
-};
+}
 
 export const updateBin = async (
   id: string,
   values: z.infer<typeof UpdateBinSchema>
 ) => {
-  const validatedFields = UpdateBinSchema.safeParse(values);
+  const validatedFields = UpdateBinSchema.safeParse(values)
   if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
+    return { error: "Invalid fields!" }
   }
-  const formData = validatedFields.data;
+  const formData = validatedFields.data
   const checkIfBinExist = await prisma.bin.findUnique({
     where: { id },
-  });
+  })
   if (!checkIfBinExist) {
-    return { error: "Bin does not exist" };
+    return { error: "Bin does not exist" }
   }
   const checkBinWithSimilarRecord = await checkExistingBinRecord(
     formData.location,
     formData.status,
     formData.materialId
-  );
+  )
   if (checkBinWithSimilarRecord) {
     return {
       error: "Duplicate found. A bin of similar properties already exists",
-    };
+    }
   } else {
     try {
       await Promise.all([
@@ -157,35 +157,35 @@ export const updateBin = async (
             location: formData.location,
           },
         }),
-      ]);
-      revalidatePath("/admin/bin");
+      ])
+      revalidatePath("/admin/bin")
       return {
         success: `Bin updated successfully, Bin ID: ${id}`,
-      };
+      }
     } catch (error) {
       return {
         error: "Unexpected error occurred, Failed to update bin",
-      };
+      }
     }
   }
-};
+}
 
 export const deleteBin = async (id: string) => {
   const bin = await prisma.bin.findUnique({
     where: {
       id,
     },
-  });
+  })
   if (bin) {
     await prisma.bin.delete({
       where: {
         id,
       },
-    });
-    revalidatePath("/admin/bin");
-    return { success: `Bin with ID ${id} deleted successfully` };
-  } else return { error: `Bin with ID ${id} does not exist` };
-};
+    })
+    revalidatePath("/admin/bin")
+    return { success: `Bin with ID ${id} deleted successfully` }
+  } else return { error: `Bin with ID ${id} does not exist` }
+}
 
 const checkExistingBinRecord = async (
   binLocation: string,
@@ -209,32 +209,32 @@ const checkExistingBinRecord = async (
         },
       },
     },
-  });
+  })
 
-  return bin !== null;
-};
+  return bin !== null
+}
 
 type MaterialCounts = {
-  [key: string]: number;
-};
+  [key: string]: number
+}
 
 type MonthlyData = {
-  month: string;
-  bin: number;
-  [key: string]: number | string;
-};
+  month: string
+  bin: number
+  [key: string]: number | string
+}
 
 function getWeekDatesByIndex(weekIndex: number) {
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  const currentDate = new Date()
+  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear()
 
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1)
+  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0)
 
-  const firstMonday = new Date(firstDayOfMonth);
+  const firstMonday = new Date(firstDayOfMonth)
   while (firstMonday.getDay() !== 1) {
-    firstMonday.setDate(firstMonday.getDate() - 1);
+    firstMonday.setDate(firstMonday.getDate() - 1)
   }
 
   const startDates = Array.from(
@@ -244,34 +244,34 @@ function getWeekDatesByIndex(weekIndex: number) {
       ),
     },
     (_, i) => {
-      const start = new Date(firstMonday);
-      start.setDate(start.getDate() + i * 7);
-      start.setHours(0, 0, 0, 0); // Ensure the start of the week is at 00:00:00.000
-      return start;
+      const start = new Date(firstMonday)
+      start.setDate(start.getDate() + i * 7)
+      start.setHours(0, 0, 0, 0) // Ensure the start of the week is at 00:00:00.000
+      return start
     }
-  );
+  )
 
   const weekRanges = startDates.map((startOfWeek) => {
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
+    const endOfWeek = new Date(startOfWeek)
+    endOfWeek.setDate(startOfWeek.getDate() + 6)
+    endOfWeek.setHours(23, 59, 59, 999)
 
     return {
       start: startOfWeek,
       end: endOfWeek > lastDayOfMonth ? new Date(lastDayOfMonth.setHours(23, 59, 59, 999)) : endOfWeek,
-    };
+    }
   }).filter(week => 
     week.start.getMonth() === currentMonth || 
     week.end.getMonth() === currentMonth
-  );
+  )
 
   if (weekIndex < 0 || weekIndex >= weekRanges.length) {
     throw new Error(
       "Invalid week index. Ensure it's within the range of weeks for the month."
-    );
+    )
   }
 
-  return weekRanges[weekIndex];
+  return weekRanges[weekIndex]
 }
 
 export const getBarChartData = async (
@@ -282,12 +282,12 @@ export const getBarChartData = async (
   try {
     const binMaterials = await prisma.binMaterial.findMany({
       select: { name: true },
-    });
+    })
 
-    const baseMaterialCounts = binMaterials.reduce((acc: { [x: string]: number; }, material: { name: string | number; }) => {
-      acc[material.name] = 0;
-      return acc;
-    }, {} as MaterialCounts);
+    const baseMaterialCounts = binMaterials.reduce((acc: { [x: string]: number }, material: { name: string | number }) => {
+      acc[material.name] = 0
+      return acc
+    }, {} as MaterialCounts)
 
     const allDisposals = await prisma.disposal.findMany({
       where: {
@@ -307,7 +307,7 @@ export const getBarChartData = async (
           },
         },
       },
-    });
+    })
 
     // WEEK filter
     if (filter === "week") {
@@ -315,50 +315,50 @@ export const getBarChartData = async (
         days.map(async (day, dayIndex) => {
           const filtered = allDisposals.filter(
             (d) => new Date(d.createdAt).getDay() === (dayIndex + 1) % 7
-          );
+          )
 
-          const materialCounts = { ...baseMaterialCounts };
-          filtered.forEach((d: { bin: { binMaterial: { name: any; }; }; }) => {
-            const material = d.bin.binMaterial.name;
+          const materialCounts = { ...baseMaterialCounts }
+          filtered.forEach((d: { bin: { binMaterial: { name: any } } }) => {
+            const material = d.bin.binMaterial.name
             if (material in materialCounts) {
-              materialCounts[material]++;
+              materialCounts[material]++
             }
-          });
+          })
 
           return {
             month: day,
             bin: filtered.length,
             ...materialCounts,
-          };
+          }
         })
-      );
+      )
     }
 
     // MONTH filter
     if (filter === "month") {
-      const weekRanges = getWeeksInMonth(dateFrom ?? new Date(), dateTo ?? new Date());
+      const weekRanges = getWeeksInMonth(dateFrom ?? new Date(), dateTo ?? new Date())
       return await Promise.all(
         weekRanges.map(async ({ week, start, end }) => {
           const filtered = allDisposals.filter((d) => {
-            const date = normalizeDate(new Date(d.createdAt));
-            return date >= start && date <= end;
-          });
+            const date = normalizeDate(new Date(d.createdAt))
+            return date >= start && date <= end
+          })
 
-          const materialCounts = { ...baseMaterialCounts };
-          filtered.forEach((d: { bin: { binMaterial: { name: any; }; }; }) => {
-            const material = d.bin.binMaterial.name;
+          const materialCounts = { ...baseMaterialCounts }
+          filtered.forEach((d: { bin: { binMaterial: { name: any } } }) => {
+            const material = d.bin.binMaterial.name
             if (material in materialCounts) {
-              materialCounts[material]++;
+              materialCounts[material]++
             }
-          });
+          })
 
           return {
             month: week,
             bin: filtered.length,
             ...materialCounts,
-          };
+          }
         })
-      );
+      )
     }
 
     // DEFAULT = All Time (group by month)
@@ -366,34 +366,34 @@ export const getBarChartData = async (
       months.map(async (month, monthIndex) => {
         const filtered = allDisposals.filter(
           (d) => new Date(d.createdAt).getMonth() === monthIndex
-        );
+        )
 
-        const materialCounts = { ...baseMaterialCounts };
-        filtered.forEach((d: { bin: { binMaterial: { name: any; }; }; }) => {
-          const material = d.bin.binMaterial.name;
+        const materialCounts = { ...baseMaterialCounts }
+        filtered.forEach((d: { bin: { binMaterial: { name: any } } }) => {
+          const material = d.bin.binMaterial.name
           if (material in materialCounts) {
-            materialCounts[material]++;
+            materialCounts[material]++
           }
-        });
+        })
 
         return {
           month,
           bin: filtered.length,
           ...materialCounts,
-        };
+        }
       })
-    );
+    )
   } catch (error) {
-    console.error("Error in disposal-based getBarChartData:", error);
-    throw error;
+    console.error("Error in disposal-based getBarChartData:", error)
+    throw error
   }
-};
+}
 
 
 interface BinCount {
-  binType: string;
-  binCount: number;
-  fill: string;
+  binType: string
+  binCount: number
+  fill: string
 }
 
 export const getBinCountsByMaterial = async (
@@ -411,25 +411,25 @@ export const getBinCountsByMaterial = async (
     _count: {
       _all: true,
     },
-  });
+  })
 
   const allMaterials = await prisma.binMaterial.findMany({
     select: {
       id: true,
       name: true,
     },
-  });
+  })
 
   const countMap = new Map(
     binCounts.map((count) => [count.binMaterialId, count._count._all])
-  );
+  )
 
   return allMaterials.map((material, index) => ({
     binType: material.name,
     binCount: countMap.get(material.id) || 0,
     fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-  }));
-};
+  }))
+}
 
 export const getPieChartData = async (
   dateFrom?: Date,
@@ -453,32 +453,32 @@ export const getPieChartData = async (
         lte: dateTo,
       },
     },
-  });
+  })
 
   const faculties = await prisma.user.groupBy({
     by: ["faculty"],
-  });
+  })
 
   const binsByFaculty = faculties.reduce(
-    (acc: Record<string, number>, faculty: { faculty: string | number; }) => {
-      acc[faculty.faculty] = 0;
-    return acc;
+    (acc: Record<string, number>, faculty: { faculty: string | number }) => {
+      acc[faculty.faculty] = 0
+    return acc
     },
     {}
-  );
+  )
 
   binsWithFaculty.forEach((bin) => {
     if (bin.user.faculty) {
-      binsByFaculty[bin.user.faculty]++;
+      binsByFaculty[bin.user.faculty]++
     }
-  });
+  })
 
   return Object.keys(binsByFaculty).map((faculty, index) => ({
     fac: faculty,
     count: binsByFaculty[faculty],
     fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-  }));
-};
+  }))
+}
 
 
 export const getBinCountsByStatus = async (
@@ -487,30 +487,30 @@ export const getBinCountsByStatus = async (
   notFunctional?: boolean,
   filter?: string
 ) => {
-  let bins: Bin[] = [];
+  let bins: Bin[] = []
 
-  const whereClause: Prisma.BinWhereInput = {};
+  const whereClause: Prisma.BinWhereInput = {}
 
   whereClause.createdAt = {
     gte: dateFrom,
     lte: dateTo,
-  };
+  }
 
   whereClause.status = notFunctional
     ? BinStatus.UNDER_MAINTENANCE 
-    : BinStatus.FUNCTIONAL;
+    : BinStatus.FUNCTIONAL
 
   bins = await prisma.bin.findMany({
     where: whereClause,
-  });
+  })
 
-  return bins.length;
-};
+  return bins.length
+}
 
 export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
-    const adjustedEndDate = dateTo ? new Date(dateTo) : undefined;
+    const adjustedEndDate = dateTo ? new Date(dateTo) : undefined
     if (adjustedEndDate) {
-      adjustedEndDate.setHours(23, 59, 59, 999);
+      adjustedEndDate.setHours(23, 59, 59, 999)
     }
     const disposals = await prisma.disposal.findMany({
       where: {
@@ -522,14 +522,14 @@ export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
       select: {
         id: true,
       },
-    });
-    return disposals.length;
-};
+    })
+    return disposals.length
+}
 
 type DisposalsByHour = {
-  hour: string;
-  [key: string]: string | number;
-};
+  hour: string
+  [key: string]: string | number
+}
 
 export const getBinDisposalsByTime = async (
   dateFrom?: Date,
@@ -537,12 +537,12 @@ export const getBinDisposalsByTime = async (
   filter?: string
 ): Promise<DisposalsByHour[]> => {
 
-  const whereClause: Prisma.DisposalWhereInput = {};
+  const whereClause: Prisma.DisposalWhereInput = {}
   
   whereClause.createdAt = {
     gte: dateFrom,
     lte: dateTo,
-  };
+  }
 
   const [binMaterials, totalDisposals] = await Promise.all([
     prisma.binMaterial.findMany({
@@ -567,56 +567,56 @@ export const getBinDisposalsByTime = async (
         createdAt: "asc",
       },
     }),
-  ]);
+  ])
 
   const hours = Array.from({ length: 18 }, (_, i) => {
-    const hour = i + 6;
-    return hour.toString().padStart(2, "0") + "00";
-  });
+    const hour = i + 6
+    return hour.toString().padStart(2, "0") + "00"
+  })
 
   const result: DisposalsByHour[] = hours.map((hour) => ({
     hour,
     ...Object.fromEntries(binMaterials.map((material) => [material.name, 0])),
-  }));
+  }))
 
-  totalDisposals.forEach((disposal: { createdAt: string | number | Date; bin: { binMaterial: { name: any; }; }; }) => {
-    const utc8Time = new Date(disposal.createdAt);
-    utc8Time.setHours(utc8Time.getUTCHours() + 8);
+  totalDisposals.forEach((disposal: { createdAt: string | number | Date; bin: { binMaterial: { name: any } } }) => {
+    const utc8Time = new Date(disposal.createdAt)
+    utc8Time.setHours(utc8Time.getUTCHours() + 8)
     
-    const hour = utc8Time.getHours();
+    const hour = utc8Time.getHours()
     if (hour >= 6 && hour <= 23) {
-      const hourIndex = hour - 6;
-      const materialName = disposal.bin.binMaterial.name;
+      const hourIndex = hour - 6
+      const materialName = disposal.bin.binMaterial.name
       if (result[hourIndex]) {
         result[hourIndex][materialName] = 
-          (result[hourIndex][materialName] as number) + 1;
+          (result[hourIndex][materialName] as number) + 1
       }
     }
-  });
+  })
 
-  return result;
-};
+  return result
+}
 
 export const getDisposalsByFaculty = async (
   dateFrom?: Date,
   dateTo?: Date
 ) => {
-  const adjustedEndDate = dateTo ? new Date(dateTo) : undefined;
+  const adjustedEndDate = dateTo ? new Date(dateTo) : undefined
   if (adjustedEndDate) {
-    adjustedEndDate.setHours(23, 59, 59, 999);
+    adjustedEndDate.setHours(23, 59, 59, 999)
   }
 
   const faculties = await prisma.user.groupBy({
     by: ["faculty"],
-  });
+  })
 
   const disposalCounts = faculties.reduce(
-    (acc: Record<string, number>, faculty: { faculty: string | number; }) => {
-      acc[faculty.faculty] = 0;
-      return acc;
+    (acc: Record<string, number>, faculty: { faculty: string | number }) => {
+      acc[faculty.faculty] = 0
+      return acc
     },
     {}
-  );
+  )
 
   const disposals = await prisma.disposal.findMany({
     where: {
@@ -641,26 +641,26 @@ export const getDisposalsByFaculty = async (
         },
       },
     },
-  });
+  })
 
-  disposals.forEach((disposal: { bin: { user: { faculty: any; }; }; }) => {
-    const faculty = disposal.bin?.user?.faculty;
+  disposals.forEach((disposal: { bin: { user: { faculty: any } } }) => {
+    const faculty = disposal.bin?.user?.faculty
     if (faculty) {
-      disposalCounts[faculty]++;
+      disposalCounts[faculty]++
     }
-  });
+  })
 
   return Object.entries(disposalCounts).map(([faculty, count], index) => ({
     fac: faculty,
     count,
     fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-  }));
-};
+  }))
+}
 
 export const getDisposalDates = async (): Promise<string[]> => {
   const disposalDates = await prisma.disposal.findMany({
     select: { createdAt: true },
-  });
+  })
 
   const uniqueDateStrings = Array.from(
     // Explicitly define this as a Set of strings
@@ -669,10 +669,10 @@ export const getDisposalDates = async (): Promise<string[]> => {
         new Date(d.createdAt).toISOString().split("T")[0]
       )
     )
-  );
+  )
 
-  return uniqueDateStrings;
-};
+  return uniqueDateStrings
+}
 
 
 export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
@@ -699,10 +699,10 @@ export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
         },
       },
     },
-  });
-  const materials = await prisma.binMaterial.findMany();
-  return { bins, materials };
-};
+  })
+  const materials = await prisma.binMaterial.findMany()
+  return { bins, materials }
+}
 
 export const getUsedMaterialsForBin = async (userId: string) => {
   const usedBinMaterials = await prisma.bin.findMany({
@@ -716,26 +716,26 @@ export const getUsedMaterialsForBin = async (userId: string) => {
         },
       },
     },
-  });
-  return usedBinMaterials;
-};
+  })
+  return usedBinMaterials
+}
 
 export const listOfBinMaterialInUse = async () => {
   const binsArr = await prisma.bin.groupBy({
     by: ["binMaterialId"],
-  });
-  const binMaterialsArr = await prisma.binMaterial.findMany();
+  })
+  const binMaterialsArr = await prisma.binMaterial.findMany()
   const binMaterialsMappedArr = await Promise.all(
     binsArr.map(async (bin) => {
       return {
         name: binMaterialsArr.find(
           (material) => material.id === bin.binMaterialId
         )?.name,
-      };
+      }
     })
-  );
-  return binMaterialsMappedArr;
-};
+  )
+  return binMaterialsMappedArr
+}
 
 export const getFaultyBins = async (
   dateFrom?: Date,
@@ -765,7 +765,7 @@ export const getFaultyBins = async (
       },
       status: BinStatus.UNDER_MAINTENANCE,
     },
-  });
+  })
 
   return faultyBins.map((bin) => ({
     ...bin,
@@ -774,21 +774,21 @@ export const getFaultyBins = async (
       lat: bin.user.lat && bin.user.lat.toString(),
       long: bin.user.long && bin.user.long.toString(),
     },
-  }));
-};
+  }))
+}
 
 export const evaluateHardwareStatus = async (diag: any) => {
-  const failed: string[] = [];
+  const failed: string[] = []
 
-  if (diag.scannerOK === false) failed.push("Scanner");
-  if (diag.lidOK === false) failed.push("Lid Motor");
-  if (diag.loadcellOK === false) failed.push("Load Cell");
+  if (diag.scannerOK === false) failed.push("Scanner")
+  if (diag.lidOK === false) failed.push("Lid Motor")
+  if (diag.loadcellOK === false) failed.push("Load Cell")
 
   return {
     isCriticalFailure: failed.length > 0,
     failedComponents: failed,
-  };
-};
+  }
+}
 
 export const getHeartbeat = async () => {
   const bins = await prisma.bin.findMany({
@@ -801,60 +801,60 @@ export const getHeartbeat = async () => {
       binMaterial: { select: { name: true } },
       user: { select: { name: true } },
     },
-  });
+  })
 
-  const now = new Date();
+  const now = new Date()
 
   // STEP 1 — Find newest diagnostic timestamp per bin
   const diagnostics = await prisma.binDiagnosticLog.groupBy({
     by: ["binId"],
     _max: { timestamp: true },
-  });
+  })
 
   const latestTimestamps = new Map(
     diagnostics.map((d) => [d.binId, d._max.timestamp])
-  );
+  )
 
   const timestamps = Array.from(latestTimestamps.values()).filter(
     (t): t is Date => t !== null
-  );
+  )
 
   const latestLogs = await prisma.binDiagnosticLog.findMany({
     where: {
       timestamp: { in: timestamps },
     },
-  });
+  })
 
-  const logsByBin = new Map<string, typeof latestLogs[number]>();
-  latestLogs.forEach((log) => logsByBin.set(log.binId, log));
+  const logsByBin = new Map<string, typeof latestLogs[number]>()
+  latestLogs.forEach((log) => logsByBin.set(log.binId, log))
 
   // STEP 2 — Evaluate each bin
   const evaluated = bins.map((bin) => {
     const isOnline =
       bin.lastHeartBeat &&
-      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10;
+      now.getTime() - new Date(bin.lastHeartBeat).getTime() < 1000 * 60 * 10
 
-    let effectiveStatus: BinStatus = BinStatus.FUNCTIONAL;
+    let effectiveStatus: BinStatus = BinStatus.FUNCTIONAL
 
     if (!isOnline) {
-      effectiveStatus = BinStatus.UNDER_MAINTENANCE;
+      effectiveStatus = BinStatus.UNDER_MAINTENANCE
     } else {
-      const diag = logsByBin.get(bin.id);
+      const diag = logsByBin.get(bin.id)
       if (diag) {
-        const failed = [];
+        const failed = []
 
-        if (!diag.scannerOK) failed.push("scanner");
-        if (!diag.lidOK) failed.push("lid motor");
-        if (!diag.loadcellOK) failed.push("loadcell");
+        if (!diag.scannerOK) failed.push("scanner")
+        if (!diag.lidOK) failed.push("lid motor")
+        if (!diag.loadcellOK) failed.push("loadcell")
 
         if (failed.length > 0) {
-          effectiveStatus = BinStatus.UNDER_MAINTENANCE;
+          effectiveStatus = BinStatus.UNDER_MAINTENANCE
         }
       }
     }
 
-    return { ...bin, isOnline, effectiveStatus };
-  });
+    return { ...bin, isOnline, effectiveStatus }
+  })
 
   // STEP 3 — Sync DB statuses only if changed
   await Promise.all(
@@ -863,29 +863,29 @@ export const getHeartbeat = async () => {
         return prisma.bin.update({
           where: { id: bin.id },
           data: { status: bin.effectiveStatus },
-        });
+        })
       }
-      return null;
+      return null
     })
-  );
+  )
 
-  return evaluated;
-};
+  return evaluated
+}
 
 export const updateBinStatus = async (id: string, status: BinStatus) => {
   try {
     await prisma.bin.update({
       where: { id },
       data: { status },
-    });
+    })
 
-    revalidatePath("/admin"); // Refresh dashboard after update
-    return { success: `Bin status updated successfully (ID: ${id})` };
+    revalidatePath("/admin") // Refresh dashboard after update
+    return { success: `Bin status updated successfully (ID: ${id})` }
   } catch (error) {
-    console.error("updateBinStatus error:", error);
-    return { error: "Failed to update bin status" };
+    console.error("updateBinStatus error:", error)
+    return { error: "Failed to update bin status" }
   }
-};
+}
 
 export const getSmartAlerts = async () => {
   const bins = await prisma.bin.findMany({
@@ -899,9 +899,9 @@ export const getSmartAlerts = async () => {
       },
       binMaterial: { select: { name: true } },
     },
-  });
+  })
 
-  const now = Date.now();
+  const now = Date.now()
 
   // ============================
   // BIN DIAGNOSTICS
@@ -909,7 +909,7 @@ export const getSmartAlerts = async () => {
   const binDiags = await prisma.binDiagnosticLog.groupBy({
     by: ["binId"],
     _max: { timestamp: true },
-  });
+  })
 
   const latestBinLogs = await prisma.binDiagnosticLog.findMany({
     where: {
@@ -919,10 +919,10 @@ export const getSmartAlerts = async () => {
           .filter((t): t is Date => !!t),
       },
     },
-  });
+  })
 
-  const binLogsByBin = new Map<string, typeof latestBinLogs[number]>();
-  latestBinLogs.forEach((log) => binLogsByBin.set(log.binId, log));
+  const binLogsByBin = new Map<string, typeof latestBinLogs[number]>()
+  latestBinLogs.forEach((log) => binLogsByBin.set(log.binId, log))
 
   // ============================
   // SCANNER DIAGNOSTICS
@@ -930,7 +930,7 @@ export const getSmartAlerts = async () => {
   const scannerDiags = await prisma.scannerDiagnosticLog.groupBy({
     by: ["userId"],
     _max: { timestamp: true },
-  });
+  })
 
   const latestScannerLogs = await prisma.scannerDiagnosticLog.findMany({
     where: {
@@ -940,61 +940,61 @@ export const getSmartAlerts = async () => {
           .filter((t): t is Date => !!t),
       },
     },
-  });
+  })
 
   const scannerLogsByUser = new Map<
     string,
     typeof latestScannerLogs[number]
-  >();
+  >()
   latestScannerLogs.forEach((log: typeof latestScannerLogs[number]) =>
     scannerLogsByUser.set(log.userId, log)
-  );
+  )
 
   // ============================
   // ALERT EVALUATION
   // ============================
-  const alerts: any[] = [];
+  const alerts: any[] = []
 
   for (const bin of bins) {
     const last = bin.lastHeartBeat
       ? new Date(bin.lastHeartBeat).getTime()
-      : 0;
+      : 0
 
-    const isOnline = last && now - last < 10 * 60 * 1000;
-    const isFull = bin.currentCapacity >= 75;
+    const isOnline = last && now - last < 10 * 60 * 1000
+    const isFull = bin.currentCapacity >= 75
 
     // ----------------------------
     // BIN HARDWARE CHECK
     // ----------------------------
-    const binDiag = binLogsByBin.get(bin.id);
+    const binDiag = binLogsByBin.get(bin.id)
 
-    let binHardwareFailed = false;
-    let failedComponents: { id: string; name: string }[] = [];
-    let components: any[] = [];
+    let binHardwareFailed = false
+    let failedComponents: { id: string; name: string }[] = []
+    let components: any[] = []
 
     if (binDiag?.details && typeof binDiag.details === "object") {
-      const d = binDiag.details as any;
+      const d = binDiag.details as any
 
       if (Array.isArray(d.failedComponents) && d.failedComponents.length > 0) {
-        binHardwareFailed = true;
-        failedComponents = d.failedComponents;
+        binHardwareFailed = true
+        failedComponents = d.failedComponents
       }
 
       if (Array.isArray(d.allComponents)) {
-        components = d.allComponents;
+        components = d.allComponents
       }
     }
 
     // ----------------------------
     // PRIORITY (BIN ONLY)
     // ----------------------------
-    let level: "hardware" | "offline" | "critical" | null = null;
+    let level: "hardware" | "offline" | "critical" | null = null
 
-    if (binHardwareFailed) level = "hardware";
-    else if (!isOnline) level = "offline";
-    else if (isFull) level = "critical";
+    if (binHardwareFailed) level = "hardware"
+    else if (!isOnline) level = "offline"
+    else if (isFull) level = "critical"
 
-    if (!level) continue;
+    if (!level) continue
 
     alerts.push({
       id: bin.id,
@@ -1011,26 +1011,26 @@ export const getSmartAlerts = async () => {
       failedComponents,
       components,
       lastDiagnosticAt: binDiag?.timestamp ?? null,
-    });
+    })
   }
 
-  return alerts;
-};
+  return alerts
+}
 
 
 export const handleBinDiagnostic = async (binId: string, payload: any) => {
   try {
-    const { timestamp, results, deviceType } = payload;
+    const { timestamp, results, deviceType } = payload
 
     if (!Array.isArray(results)) {
-      console.error("❌ Diagnostic payload missing results[] array");
-      return { error: "Invalid diagnostic payload" };
+      console.error("❌ Diagnostic payload missing results[] array")
+      return { error: "Invalid diagnostic payload" }
     }
 
     // Ignore scanner diagnostics — they belong to ScannerDiagnosticLog
     if (deviceType === "scanner_unit_esp32") {
-      console.warn("⚠️ Ignored scanner_unit_esp32 diagnostic for bin:", binId);
-      return { ignored: true };
+      console.warn("⚠️ Ignored scanner_unit_esp32 diagnostic for bin:", binId)
+      return { ignored: true }
     }
 
     // Extract failed components
@@ -1039,9 +1039,9 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
       .map((r: any) => ({
         id: r.componentId,
         name: r.componentName,
-      }));
+      }))
 
-    const anyFailed = failedComponents.length > 0;
+    const anyFailed = failedComponents.length > 0
 
     // Component OK checks (only bin components)
     const lidOK = !results.some(
@@ -1050,16 +1050,16 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
           r.componentId?.includes("lid") ||
           r.componentId?.includes("ultrasonic")) &&
         r.status === "failed"
-    );
+    )
 
     const loadcellOK = !results.some(
       (r: any) => r.componentId?.includes("loadcell") && r.status === "failed"
-    );
+    )
 
     // Final bin status
     const overallStatus = anyFailed
       ? BinStatus.UNDER_MAINTENANCE
-      : BinStatus.FUNCTIONAL;
+      : BinStatus.FUNCTIONAL
 
     // Save log entry
     await prisma.binDiagnosticLog.create({
@@ -1075,13 +1075,13 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
           allComponents: results,
         },
       },
-    });
+    })
 
     // Update bin status
     await prisma.bin.update({
       where: { id: binId },
       data: { status: overallStatus },
-    });
+    })
 
     if (anyFailed) {
       return {
@@ -1090,12 +1090,61 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
           failedComponents,
           timestamp,
         },
-      };
+      }
     }
 
-    return { success: true };
+    return { success: true }
   } catch (error) {
-    console.error("❌ handleBinDiagnostic error:", error);
-    return { error: "Failed to process diagnostic" };
+    console.error("❌ handleBinDiagnostic error:", error)
+    return { error: "Failed to process diagnostic" }
   }
-};
+}
+
+// --- Add this to the very bottom of action/bin.ts ---
+
+export const fetchDashboardData = async (startDate?: Date, endDate?: Date, filter?: string) => {
+  const [totalFuncBins, totalUMBins, totalDisposalCount, totalCount] = await Promise.all([
+    getBinCountsByStatus(startDate, endDate, false, filter),
+    getBinCountsByStatus(startDate, endDate, true, filter),
+    getDisposals(startDate, endDate),
+    prisma.bin.count({
+      where: { createdAt: { gte: startDate, lte: endDate } },
+    }),
+  ])
+
+  return { totalFuncBins, totalCount, totalDisposalCount, totalUMBins }
+}
+
+export const fetchChartsData = async (startDate?: Date, endDate?: Date, filter?: string) => {
+  const [
+    DBBarChartData,
+    DBPieChartData,
+    binDisposalsTimeLine,
+  ] = await Promise.all([
+    getBarChartData(startDate, endDate, filter),
+    getPieChartData(startDate, endDate, filter),
+    getBinDisposalsByTime(startDate, endDate, filter),
+  ])
+
+  return {
+    DBBarChartData,
+    DBPieChartData,
+    binDisposalsTimeLine, 
+  }
+}
+
+export const fetchUMBinsData = async (startDate?: Date, endDate?: Date, filter?: string) => {
+  const UMBinsData = await getFaultyBins(startDate, endDate, filter)
+  return UMBinsData 
+}
+
+// 🚀 This is the main function your client component will call
+export const fetchAll = async (startDate?: Date, endDate?: Date, filter?: string) => {
+  const [dashboardData, chartsData, UMBinsData] = await Promise.all([
+    fetchDashboardData(startDate, endDate, filter),
+    fetchChartsData(startDate, endDate, filter),
+    fetchUMBinsData(startDate, endDate, filter),
+  ])
+  
+  return { dashboardData, chartsData, UMBinsData }
+}

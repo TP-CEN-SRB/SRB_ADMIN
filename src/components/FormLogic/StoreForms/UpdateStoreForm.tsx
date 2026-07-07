@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { UpdateStoreSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useRouter } from "next/navigation"
+import { UpdateStoreSchema } from "@/schemas"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -13,31 +13,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { updateStore } from "@/app/action/store";
-import Card from "@/components/Card/Card";
-import FormHeader from "@/components/FormLogic/FormHeader";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import { updateStore } from "@/app/action/store"
+import Card from "@/components/Card/Card"
+import FormHeader from "@/components/FormLogic/FormHeader"
 
 // Faculty options
-const FacultyEnum = ["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"] as const;
+const FacultyEnum = ["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"] as const
 
 interface UpdateStoreFormProps {
-  id: string;
+  id: string
   store: {
-    name: string;
-    email: string;
-    faculty: string;
-  };
+    name: string
+    email: string
+    faculty: string
+  }
 }
 
 const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
 
-  const router = useRouter();
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof UpdateStoreSchema>>({
     resolver: zodResolver(UpdateStoreSchema),
@@ -48,44 +48,44 @@ const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
       password: "",
       confirmPassword: "",
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof UpdateStoreSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
-    });
+    })
 
     startTransition(async () => {
       try {
-        const result = await updateStore(id, values);
+        const result = await updateStore(id, values)
 
         if (result?.fieldErrors) {
           for (const [field, messages] of Object.entries(result.fieldErrors)) {
             form.setError(field as keyof typeof values, {
               type: "manual",
               message: messages?.[0] || "Invalid input",
-            });
+            })
           }
         }
 
         if (result?.success) {
           toast.success("Success",{
             description: `Store updated at ${datetime}`,
-          });
-          router.push("/admin/store");
+          })
+          router.push("/admin/store")
         } else if (result?.error) {
           toast.error("Error",{
             description: result.error,
-          });
+          })
         }
       } catch (error) {
         toast.error("Error",{
           description: "Unexpected error occurred",
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -180,7 +180,7 @@ const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default UpdateStoreForm;
+export default UpdateStoreForm

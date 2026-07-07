@@ -1,32 +1,32 @@
-"use client";
+"use client"
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import Link from "next/link";
-import { FaEdit, FaTrashRestore, FaHistory } from "react-icons/fa";
-import { useState } from "react";
-import ConfirmDeleteDialog from "@/components/Dialog/ConfirmDeleteStoreDialog";
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
+import { FaEdit, FaTrashRestore, FaHistory } from "react-icons/fa"
+import { useState } from "react"
+import ConfirmDeleteDialog from "@/components/Dialog/ConfirmDeleteStoreDialog"
 
 export type Store = {
-  id: string;
-  name: string;
-  email: string;
-  faculty: string;
-  totalPoints: number;
-  lastActive: string;
-  totalPurchases: number;
-};
+  id: string
+  name: string
+  email: string
+  faculty: string
+  totalPoints: number
+  lastActive: string
+  totalPurchases: number
+}
 
 const StoreActions = ({ store }: { store: Store }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setDialogOpen] = useState(false)
 
   return (
     <div>
@@ -64,8 +64,8 @@ const StoreActions = ({ store }: { store: Store }) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
 export const columns: ColumnDef<Store>[] = [
   {
@@ -102,4 +102,4 @@ export const columns: ColumnDef<Store>[] = [
     header: "Actions",
     cell: ({ row }) => <StoreActions store={row.original} />,
   },
-];
+]

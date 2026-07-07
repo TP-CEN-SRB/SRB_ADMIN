@@ -1,16 +1,16 @@
-import { notFound } from "next/navigation";
-import { prisma } from "@/lib/db";
-import { ArrowLeftCircle, Clock4 } from "lucide-react";
-import Link from "next/link";
+import { notFound } from "next/navigation"
+import { prisma } from "@/lib/db"
+import { ArrowLeftCircle, Clock4 } from "lucide-react"
+import Link from "next/link"
 
 const RecordingDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params; 
+  const { id } = await params 
 
   const video = await prisma.video.findUnique({
     where: { id },
-  });
+  })
 
-  if (!video) return notFound();
+  if (!video) return notFound()
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
@@ -39,7 +39,7 @@ const RecordingDetailPage = async ({ params }: { params: Promise<{ id: string }>
         </video>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RecordingDetailPage;
+export default RecordingDetailPage

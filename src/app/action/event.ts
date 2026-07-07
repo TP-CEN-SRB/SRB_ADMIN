@@ -1,24 +1,24 @@
-"use server";
+"use server"
 
-import { prisma } from "@/lib/db";
-import { authClient } from "@/lib/auth-client";
-import { EventSchema, UpdateEventSchema } from "@/schemas";
-import { z } from "zod";
+import { prisma } from "@/lib/db"
+import { authClient } from "@/lib/auth-client"
+import { EventSchema, UpdateEventSchema } from "@/schemas"
+import { z } from "zod"
 
 // Event type for returned fields (can also be imported from Prisma)
 type Event = {
-  id: string;
-  title: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  createdAt: Date;
-};
+  id: string
+  title: string
+  description: string
+  startDate: Date
+  endDate: Date
+  createdAt: Date
+}
 
 type GetEventsResult = {
-  events: Event[];
-  eventCount: number;
-};
+  events: Event[]
+  eventCount: number
+}
 
 export const createEvent = async (data: z.infer<typeof EventSchema>) => {
 
@@ -26,7 +26,7 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
   const user = session?.user
 
   if (user?.role !== "ADMIN") {
-    return { error: "Unauthorized" };
+    return { error: "Unauthorized" }
   }
 
   try {
@@ -37,7 +37,7 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
         startDate: data.startDate,
         endDate: data.endDate,
       },
-    });
+    })
 
     const students = await prisma.user.findMany({
       where: {
@@ -45,27 +45,27 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
         emailVerified: true,
       },
       select: { id: true },
-    });
+    })
 
     const userEvents = students.map((u) => ({
       userId: u.id,
       eventId: event.id,
       points: 0,
-    }));
+    }))
 
     await prisma.userEvent.createMany({
       data: userEvents,
       skipDuplicates: true,
-    });
+    })
 
-    return { success: "Event created and assigned to all students", event };
+    return { success: "Event created and assigned to all students", event }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      return { error: error.message };
+      return { error: error.message }
     }
-    return { error: "Failed to create event" };
+    return { error: "Failed to create event" }
   }
-};
+}
 
 export const updateEvent = async (
   id: string,
@@ -73,7 +73,7 @@ export const updateEvent = async (
 ) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" };
+  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
 
   try {
     const updated = await prisma.event.update({
@@ -85,28 +85,28 @@ export const updateEvent = async (
         endDate: data.endDate,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return { success: "Event updated successfully", event: updated };
+    return { success: "Event updated successfully", event: updated }
   } catch (error) {
-    const err = error as Error;
-    return { error: err.message || "Failed to update event" };
+    const err = error as Error
+    return { error: err.message || "Failed to update event" }
   }
-};
+}
 
 export const deleteEvent = async (eventId: string) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" };
+  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
 
   try {
-    await prisma.event.delete({ where: { id: eventId } });
-    return { success: "Event deleted successfully" };
+    await prisma.event.delete({ where: { id: eventId } })
+    return { success: "Event deleted successfully" }
   } catch (error) {
-    const err = error as Error;
-    return { error: err.message || "Failed to delete event" };
+    const err = error as Error
+    return { error: err.message || "Failed to delete event" }
   }
-};
+}
 
 export const getEventById = async (id: string) => {
   return await prisma.event.findUnique({
@@ -119,23 +119,23 @@ export const getEventById = async (id: string) => {
       endDate: true,
       createdAt: true,
     },
-  });
-};
+  })
+}
 
 type UserInEvent = {
-  points: number;
+  points: number
   user: {
-    id: string;
-    name: string | null;
-    email: string;
-    faculty: string;
-  };
-};
+    id: string
+    name: string | null
+    email: string
+    faculty: string
+  }
+}
 
 export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]> => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return [];
+  if (user?.role !== "ADMIN") return []
 
   const userEvents = await prisma.userEvent.findMany({
     where: { eventId },
@@ -150,10 +150,10 @@ export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]>
         },
       },
     },
-  });
+  })
 
-  return userEvents;
-};
+  return userEvents
+}
 
 export const getEvents = async (
   page: number | null,
@@ -162,15 +162,15 @@ export const getEvents = async (
 ): Promise<GetEventsResult> => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return { eventCount: 0, events: [] };
+  if (user?.role !== "ADMIN") return { eventCount: 0, events: [] }
 
-  const sortableItems = ["title", "startDate", "endDate", "createdAt"];
-  const isInvalidPage = page != null && page < 0;
-  const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder);
-  const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem);
+  const sortableItems = ["title", "startDate", "endDate", "createdAt"]
+  const isInvalidPage = page != null && page < 0
+  const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder)
+  const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem)
 
   if (isInvalidPage || isInvalidSortOrder || isInvalidSortItem) {
-    return { eventCount: 0, events: [] };
+    return { eventCount: 0, events: [] }
   }
 
   const [eventCount, events] = await Promise.all([
@@ -190,7 +190,7 @@ export const getEvents = async (
         createdAt: true,
       },
     }),
-  ]);
+  ])
 
-  return { eventCount, events };
-};
+  return { eventCount, events }
+}

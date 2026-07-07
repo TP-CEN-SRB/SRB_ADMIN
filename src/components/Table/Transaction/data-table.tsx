@@ -1,10 +1,10 @@
-"use client";
+"use client"
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from "@tanstack/react-table"
 import {
   Table,
   TableBody,
@@ -12,19 +12,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import TableFilter from "./filter";
-import SortByFilter from "./sortBy";
-import ExportCSV from "./export-csv";
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
+import { useSearchParams, useRouter, usePathname } from "next/navigation"
+import TableFilter from "./filter"
+import SortByFilter from "./sortBy"
+import ExportCSV from "./export-csv"
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  count: number;
-  userId: string;
-  name: string;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  count: number
+  userId: string
+  name: string
 }
 
 export function DataTable<TData, TValue>({
@@ -38,66 +38,66 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  });
+  })
 
-  const searchParams = useSearchParams();
-  const path = usePathname();
-  const page = Number(searchParams.get("page")) || 1;
-  const router = useRouter();
+  const searchParams = useSearchParams()
+  const path = usePathname()
+  const page = Number(searchParams.get("page")) || 1
+  const router = useRouter()
 
   const handlePreviousClick = () => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (page > Math.ceil(count / 10)) {
-      params.set("page", "1");
+      params.set("page", "1")
     } else if (!isNaN(page)) {
-      params.set("page", `${page - 1}`);
+      params.set("page", `${page - 1}`)
     }
-    router.push(`${path}?${params.toString()}`);
-  };
+    router.push(`${path}?${params.toString()}`)
+  }
 
   const handleNextClick = () => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (!isNaN(page)) {
-      params.set("page", `${page + 1}`);
+      params.set("page", `${page + 1}`)
     } else {
-      params.set("page", "2");
+      params.set("page", "2")
     }
-    router.push(`${path}?${params.toString()}`);
-  };
+    router.push(`${path}?${params.toString()}`)
+  }
 
   const handleApplySortBy = (sortOrder: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     if (sortOrder !== undefined) {
-      params.set("sortOrder", `${sortOrder}`);
+      params.set("sortOrder", `${sortOrder}`)
     } else {
-      params.delete("sortOrder");
+      params.delete("sortOrder")
     }
-    router.replace(`${path}?${params.toString()}`);
-  };
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleResetSortBy = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("sortOrder");
-    router.replace(`${path}?${params.toString()}`);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.delete("sortOrder")
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleApplyFilter = (filters: Record<string, string[]>) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams)
     Object.entries(filters).forEach(([key, value]) => {
       if (value.length > 0) {
-        params.set(key, `${value.join(",")}`);
+        params.set(key, `${value.join(",")}`)
       } else {
-        params.delete(key);
+        params.delete(key)
       }
-    });
-    router.replace(`${path}?${params.toString()}`);
-  };
+    })
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   const handleResetFilter = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("transactionType");
-    router.replace(`${path}?${params.toString()}`);
-  };
+    const params = new URLSearchParams(searchParams)
+    params.delete("transactionType")
+    router.replace(`${path}?${params.toString()}`)
+  }
 
   return (
     <div className="px-4">
@@ -132,7 +132,7 @@ export function DataTable<TData, TValue>({
                             header.getContext()
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -192,5 +192,5 @@ export function DataTable<TData, TValue>({
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/db"
 
 export const generateRandomQuests = async () => {
-  const templates = await prisma.questTemplate.findMany();
+  const templates = await prisma.questTemplate.findMany()
 
   const questsToCreate = templates
     .sort(() => Math.random() - 0.5)
@@ -13,11 +13,11 @@ export const generateRandomQuests = async () => {
       rewardPoints: template.rewardPoints,
       materialType: template.materialType,
       duration: 7,
-    }));
+    }))
 
   const created = await prisma.questDetails.createMany({
     data: questsToCreate,
-  });
+  })
 
-  return questsToCreate;
-};
+  return questsToCreate
+}

@@ -1,21 +1,19 @@
-import EditSubscriptionForm from "@/components/FormLogic/SubscriptionForms/EditSubscriptionForm";
-import { prisma } from "@/lib/db";
-import { notFound } from "next/navigation";
-import React from "react";
+import EditSubscriptionForm from "@/components/FormLogic/SubscriptionForms/EditSubscriptionForm"
+import { prisma } from "@/lib/db"
+import { notFound } from "next/navigation"
 
-const EditSubscriptionPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { id } = await params; 
+export default async function EditSubscriptionPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params 
   const subscription = await prisma.subscription.findUnique({
     where: { id },
-  });
+  })
   if (!subscription) {
-    notFound();
+    notFound()
   }
   return (
     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
       <EditSubscriptionForm id={subscription.id} email={subscription.email} />
     </div>
-  );
-};
+  )
+}
 
-export default EditSubscriptionPage;

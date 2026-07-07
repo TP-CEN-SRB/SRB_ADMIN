@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { useRouter } from "next/navigation";
-import { BinMaterialSchema, UpdateBinSchema } from "@/schemas";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useTransition, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useRouter } from "next/navigation"
+import { BinMaterialSchema, UpdateBinSchema } from "@/schemas"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useTransition, useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -14,25 +14,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "../../ui/button";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import Card from "@/components/Card/Card";
-import FormHeader from "../FormHeader";
-import { updateBinMaterial } from "@/app/action/binMaterial";
-import { BinMaterial } from "@/generated/prisma";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Button } from "../../ui/button"
+import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
+import Card from "@/components/Card/Card"
+import FormHeader from "../FormHeader"
+import { updateBinMaterial } from "@/app/action/binMaterial"
+import { BinMaterial } from "@/generated/prisma"
 
 interface UpdateBinFormProps {
-  id: string;
-  binMaterial: BinMaterial;
+  id: string
+  binMaterial: BinMaterial
 }
 
 const UpdateBinMaterialForm = ({ id, binMaterial }: UpdateBinFormProps) => {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
 
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter() // Initialize useRouter
 
   const form = useForm<z.infer<typeof BinMaterialSchema>>({
     resolver: zodResolver(BinMaterialSchema),
@@ -40,37 +40,37 @@ const UpdateBinMaterialForm = ({ id, binMaterial }: UpdateBinFormProps) => {
       name: binMaterial.name,
       multiplier: binMaterial.multiplier,
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof BinMaterialSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
-    });
+    })
 
     startTransition(async () => {
       try {
-        const result = await updateBinMaterial(id, values);
+        const result = await updateBinMaterial(id, values)
         if (result?.success) {
           toast.success("Success",{
             description: `Bin Material updated at ${datetime}`,
-          });
-          router.push("/admin/bin/material");
+          })
+          router.push("/admin/bin/material")
         } else if (result?.error) {
           toast.error("Error",{
             description: result.error || "Failed to update material",
             duration: 2000,
-          });
+          })
         }
       } catch (error) {
-        console.error("Update error:", error);
+        console.error("Update error:", error)
         toast.error("Error",{
           description: "An unexpected error occurred",
           duration: 2000,
-        });
+        })
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -129,7 +129,7 @@ const UpdateBinMaterialForm = ({ id, binMaterial }: UpdateBinFormProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default UpdateBinMaterialForm;
+export default UpdateBinMaterialForm

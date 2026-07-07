@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react"
 import {
   Command,
   CommandEmpty,
@@ -6,30 +6,30 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from "@/components/ui/command"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Faculty } from "@/generated/prisma";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { ControllerRenderProps, FieldValues } from "react-hook-form";
-import { z } from "zod";
+} from "@/components/ui/popover"
+import { Button } from "@/components/ui/button"
+import { Faculty } from "@/generated/prisma"
+import { useState } from "react"
+import { cn } from "@/lib/utils"
+import { ControllerRenderProps, FieldValues } from "react-hook-form"
+import { z } from "zod"
 
 type FacultyComboBoxProps<T extends z.ZodTypeAny> = {
-  field: ControllerRenderProps<z.infer<T> extends FieldValues ? z.infer<T> : FieldValues>;
-  disabled: boolean;
-};
+  field: ControllerRenderProps<z.infer<T> extends FieldValues ? z.infer<T> : FieldValues>
+  disabled: boolean
+}
 
 const FacultyComboBox = <T extends z.ZodTypeAny>({
   field,
   disabled,
 }: FacultyComboBoxProps<T>) => {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(field.value || "");
+  const [open, setOpen] = useState(false)
+  const [value, setValue] = useState(field.value || "")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -58,9 +58,9 @@ const FacultyComboBox = <T extends z.ZodTypeAny>({
                   key={idx}
                   value={faculty}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                    field.onChange(currentValue);
+                    setValue(currentValue === value ? "" : currentValue)
+                    setOpen(false)
+                    field.onChange(currentValue)
                   }}
                 >
                   <Check
@@ -77,7 +77,7 @@ const FacultyComboBox = <T extends z.ZodTypeAny>({
         </Command>
       </PopoverContent>
     </Popover>
-  );
-};
+  )
+}
 
-export default FacultyComboBox;
+export default FacultyComboBox

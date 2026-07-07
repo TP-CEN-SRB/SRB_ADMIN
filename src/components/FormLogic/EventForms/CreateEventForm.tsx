@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import Card from "@/components/Card/Card";
-import React, { useState, useTransition } from "react";
-import FormHeader from "../FormHeader";
+import Card from "@/components/Card/Card"
+import React, { useState, useTransition } from "react"
+import FormHeader from "../FormHeader"
 import {
   Form,
   FormControl,
@@ -10,23 +10,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../CustomFormMessage";
-import { createEvent } from "@/app/action/event";
-import { EventSchema } from "@/schemas";
+} from "@/components/ui/form"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../CustomFormMessage"
+import { createEvent } from "@/app/action/event"
+import { EventSchema } from "@/schemas"
 
 const CreateEventForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
 
   const form = useForm<z.infer<typeof EventSchema>>({
@@ -37,30 +37,30 @@ const CreateEventForm = () => {
       startDate: new Date(),
       endDate: new Date(),
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof EventSchema>) => {
     startTransition(async () => {
       try {
-        setError("");
-        setSuccess("");
-        const result = await createEvent(values);
+        setError("")
+        setSuccess("")
+        const result = await createEvent(values)
         if (result?.success) {
           const timestamp = new Date().toLocaleString("en-SG", {
             timeZone: "Asia/Singapore",
             hour12: false,
-          });
-          setSuccess("Event created successfully at " + timestamp);
-          form.reset();
+          })
+          setSuccess("Event created successfully at " + timestamp)
+          form.reset()
         } else {
-          setError(result?.error || "Unknown error");
+          setError(result?.error || "Unknown error")
         }
       } catch (err) {
-        console.error("createEvent error:", err);
-        setError("An unexpected error occurred.");
+        console.error("createEvent error:", err)
+        setError("An unexpected error occurred.")
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -153,7 +153,7 @@ const CreateEventForm = () => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default CreateEventForm;
+export default CreateEventForm

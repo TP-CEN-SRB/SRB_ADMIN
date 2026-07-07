@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { prisma } from "@/lib/db";
-import { Role } from "@/generated/prisma";
+import { NextRequest, NextResponse } from "next/server"
+import jwt from "jsonwebtoken"
+import { prisma } from "@/lib/db"
+import { Role } from "@/generated/prisma"
 
 export const GET = async (req: NextRequest) => {
   try {
@@ -166,9 +166,9 @@ export const GET = async (req: NextRequest) => {
       return NextResponse.json(
         { message: "Token is invalid!" },
         { status: 401 }
-      );
+      )
     } else if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
+      return NextResponse.json({ message: error.message }, { status: 500 })
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
@@ -192,26 +192,26 @@ export const GET = async (req: NextRequest) => {
 //       role: "BIN" as Role,
 //     }
 //   }
-// });
+// })
 
 //   const faculties = await prisma.user.groupBy({
 //   by: ["faculty"],
-// });
+// })
 
 // const binsByFaculty = faculties.reduce((acc: Record<string, number>, faculty) => {
-//   acc[faculty.faculty] = 0;
-//   return acc;
-// }, {});
+//   acc[faculty.faculty] = 0
+//   return acc
+// }, {})
 
 // binsWithFaculty.forEach(bin => {
 //   if (bin.user.faculty) {
-//     binsByFaculty[bin.user.faculty]++;
+//     binsByFaculty[bin.user.faculty]++
 //   }
-// });
+// })
 
 //   return NextResponse.json(Object.keys(binsByFaculty).map((faculty, index) => ({
 //   fac: faculty,
 //   count: binsByFaculty[faculty],
 //   fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-// })), { status: 200 });
+// })), { status: 200 })
 // }

@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import { Button } from "@/components/ui/button"
+import React, { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,32 +9,32 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuRadioGroup,
   DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu";
-import { TbArrowsSort } from "react-icons/tb";
-import { HiSortAscending, HiSortDescending } from "react-icons/hi";
-import { FaCheck } from "react-icons/fa";
-import { RxCross1 } from "react-icons/rx";
-import { useSearchParams } from "next/navigation";
+} from "@/components/ui/dropdown-menu"
+import { TbArrowsSort } from "react-icons/tb"
+import { HiSortAscending, HiSortDescending } from "react-icons/hi"
+import { FaCheck } from "react-icons/fa"
+import { RxCross1 } from "react-icons/rx"
+import { useSearchParams } from "next/navigation"
 
 interface SortByFilterProps {
-  onApplySortBy: (sortOrder: string) => void;
-  onResetSortBy: () => void;
+  onApplySortBy: (sortOrder: string) => void
+  onResetSortBy: () => void
 }
 const SortByFilter = ({ onApplySortBy, onResetSortBy }: SortByFilterProps) => {
-  const [filterOpen, setFilterOpen] = useState(false);
-  const searchParams = useSearchParams();
-  const [sortOrder, setSortOrder] = useState(searchParams.get("sortOrder"));
+  const [filterOpen, setFilterOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const [sortOrder, setSortOrder] = useState(searchParams.get("sortOrder"))
 
   const handleResetSortBy = () => {
-    setSortOrder("");
-    onResetSortBy();
-    setFilterOpen(false);
-  };
+    setSortOrder("")
+    onResetSortBy()
+    setFilterOpen(false)
+  }
 
   const handleApplySortBy = () => {
-    onApplySortBy(sortOrder as string);
-    setFilterOpen(false);
-  };
+    onApplySortBy(sortOrder as string)
+    setFilterOpen(false)
+  }
   return (
     <DropdownMenu open={filterOpen} onOpenChange={setFilterOpen}>
       <DropdownMenuTrigger className="bg-emerald-600 hover:bg-emerald-700 rounded-lg p-2 text-gray-50 flex items-center gap-x-1 text-sm">
@@ -81,7 +81,7 @@ const SortByFilter = ({ onApplySortBy, onResetSortBy }: SortByFilterProps) => {
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default SortByFilter;
+export default SortByFilter

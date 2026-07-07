@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import Card from "@/components/Card/Card";
-import React, { useState, useTransition } from "react";
-import FormHeader from "../FormHeader";
+import Card from "@/components/Card/Card"
+import React, { useState, useTransition } from "react"
+import FormHeader from "../FormHeader"
 import {
   Form,
   FormControl,
@@ -11,18 +11,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { QuestSchema } from "@/schemas";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "../CustomFormMessage";
-import { createQuest } from "@/app/action/quest";
+} from "@/components/ui/form"
+import { QuestSchema } from "@/schemas"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "../CustomFormMessage"
+import { createQuest } from "@/app/action/quest"
 
 const materialOptions = [
   { label: "Plastic", value: "PLASTIC" },
@@ -30,12 +30,12 @@ const materialOptions = [
   { label: "Paper", value: "PAPER" },
   { label: "E-Waste", value: "E_WASTE" },
   { label: "General", value: "GENERAL" },
-];
+]
 
 const CreateQuestForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
 
   const form = useForm<z.infer<typeof QuestSchema>>({
@@ -48,31 +48,31 @@ const CreateQuestForm = () => {
       rewardPoints: 10,
       duration: 7,
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof QuestSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
       hour12: false,
-    });
+    })
 
     startTransition(async () => {
       try {
-        setError("");
-        setSuccess("");
-        const result = await createQuest(values);
+        setError("")
+        setSuccess("")
+        const result = await createQuest(values)
         if (result?.success) {
-          setSuccess("Quest created successfully at " + datetime);
-          form.reset();
+          setSuccess("Quest created successfully at " + datetime)
+          form.reset()
         } else {
-          setError(result?.error || "Unknown error");
+          setError(result?.error || "Unknown error")
         }
       } catch (err) {
-        console.error("createQuest threw an error:", err);
-        setError("An unexpected error occurred.");
+        console.error("createQuest threw an error:", err)
+        setError("An unexpected error occurred.")
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -200,7 +200,7 @@ const CreateQuestForm = () => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default CreateQuestForm;
+export default CreateQuestForm

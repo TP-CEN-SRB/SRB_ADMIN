@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import React from 'react'
-import { Label, Legend, Pie, PieChart } from 'recharts';
+import { Label, Legend, Pie, PieChart } from 'recharts'
 
 interface BinsDeployedFacultyProps {
-    data: { fac: string; count: number; fill: string; }[];
+    data: { fac: string; count: number; fill: string }[]
 }
 
 const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
@@ -13,11 +13,11 @@ const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
     acc[bin.fac] = {
       label: bin.fac,
       color: bin.fill,
-    };
-    return acc;
-  }, {} as ChartConfig);
-  const totalBins = data.reduce((acc, bin) => acc + bin.count, 0);
-  // console.log(chartConfig);
+    }
+    return acc
+  }, {} as ChartConfig)
+  const totalBins = data.reduce((acc, bin) => acc + bin.count, 0)
+  // console.log(chartConfig)
   return (
     <>
     <ChartContainer config={chartConfig} className="w-full h-full">
@@ -55,7 +55,7 @@ const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
                   Disposals
                 </tspan>
               </text>
-            );
+            )
           }
         }}
       />
@@ -120,7 +120,7 @@ export default BinsDeployedFaculty
                                 Bins Deployed
                               </tspan>
                             </text>
-                          );
+                          )
                         }
                       }}
                     />

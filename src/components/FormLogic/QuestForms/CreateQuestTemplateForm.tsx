@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import { useState, useTransition } from "react";
-import { QuestTemplateSchema } from "@/schemas";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState, useTransition } from "react"
+import { QuestTemplateSchema } from "@/schemas"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 
-import Card from "@/components/Card/Card";
-import FormHeader from "../FormHeader";
+import Card from "@/components/Card/Card"
+import FormHeader from "../FormHeader"
 
 import {
   Form,
@@ -17,15 +17,15 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 
-import { createQuestTemplate } from "@/app/action/questTemplate";
-import CustomFormMessage from "../CustomFormMessage";
+import { createQuestTemplate } from "@/app/action/questTemplate"
+import CustomFormMessage from "../CustomFormMessage"
 
 const materialOptions = [
   { label: "Plastic", value: "PLASTIC" },
@@ -33,13 +33,13 @@ const materialOptions = [
   { label: "Paper", value: "PAPER" },
   { label: "E-Waste", value: "E_WASTE" },
   { label: "General", value: "GENERAL" },
-];
+]
 
 export default function CreateQuestTemplateForm() {
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition()
 
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
 
   const form = useForm<z.infer<typeof QuestTemplateSchema>>({
     resolver: zodResolver(QuestTemplateSchema),
@@ -51,23 +51,23 @@ export default function CreateQuestTemplateForm() {
       materialType: "PLASTIC",
       duration: 7,
     },
-  });
+  })
 
   const onSubmit = (values: z.infer<typeof QuestTemplateSchema>) => {
     startTransition(async () => {
-      setError("");
-      setSuccess("");
+      setError("")
+      setSuccess("")
 
-      const result = await createQuestTemplate(values);
+      const result = await createQuestTemplate(values)
 
       if (result?.success) {
-        setSuccess("Quest Template created successfully!");
-        form.reset();
+        setSuccess("Quest Template created successfully!")
+        form.reset()
       } else {
-        setError(result?.error || "An unexpected error occurred.");
+        setError(result?.error || "An unexpected error occurred.")
       }
-    });
-  };
+    })
+  }
 
   return (
     <Card isAdmin rounded fullWidth>
@@ -203,5 +203,5 @@ export default function CreateQuestTemplateForm() {
         </form>
       </Form>
     </Card>
-  );
+  )
 }

@@ -1,18 +1,18 @@
-import React from "react";
-import RewardStatsGrid from "../components/rewardStatsGrid";
-import { prisma } from "@/lib/db";
-import RewardCard from "@/components/Card/RewardCard";
-import Image from "next/image";
-import RewardMore from "@/components/Dropdown/RewardMore";
-import { FaCircleDot } from "react-icons/fa6";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+
+import RewardStatsGrid from "../components/rewardStatsGrid"
+import { prisma } from "@/lib/db"
+import RewardCard from "@/components/Card/RewardCard"
+import Image from "next/image"
+import RewardMore from "@/components/Dropdown/RewardMore"
+import { FaCircleDot } from "react-icons/fa6"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 const RewardPage = async () => {
   const rewards = await prisma.reward.findMany({
     take: 6,
     orderBy: { updatedAt: "desc" },
-  });
+  })
   return (
     <div className="mx-auto p-4">
       <RewardStatsGrid />
@@ -71,7 +71,7 @@ const RewardPage = async () => {
         <h1 className="mt-3 text-slate-800">No rewards found</h1>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default RewardPage;
+export default RewardPage

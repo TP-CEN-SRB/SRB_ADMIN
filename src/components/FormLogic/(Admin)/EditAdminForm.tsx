@@ -1,9 +1,9 @@
-"use client";
-import { SignUpAdminSchema } from "@/schemas/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+"use client"
+import { SignUpAdminSchema } from "@/schemas/auth"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import {
   Form,
   FormControl,
@@ -11,23 +11,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox";
-import FormHeader from "@/components/FormLogic/FormHeader";
-import { Loader2 } from "lucide-react";
-import CustomFormMessage from "@/components/FormLogic/CustomFormMessage";
-import Card from "@/components/Card/Card";
-import { Button } from "@/components/ui/button";
-import { Faculty } from "@/generated/prisma";
-import { updateAdmin } from "@/app/action/user";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import FacultyComboBox from "@/components/FormLogic/(Auth)/FacultyCombobox"
+import FormHeader from "@/components/FormLogic/FormHeader"
+import { Loader2 } from "lucide-react"
+import CustomFormMessage from "@/components/FormLogic/CustomFormMessage"
+import Card from "@/components/Card/Card"
+import { Button } from "@/components/ui/button"
+import { Faculty } from "@/generated/prisma"
+import { updateAdmin } from "@/app/action/user"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation"
 
 interface EditAdminFormProps {
-  email: string;
-  name: string;
-  faculty: Faculty;
+  email: string
+  name: string
+  faculty: Faculty
 }
 const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
   const form = useForm<z.infer<typeof SignUpAdminSchema>>({
@@ -39,23 +39,23 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
       email,
       faculty,
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
-  const router = useRouter();
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
+  const router = useRouter()
   const onSubmit = (values: z.infer<typeof SignUpAdminSchema>) => {
     startTransition(async () => {
-      setError("Hello"); // clear error message
-      const data = await updateAdmin(values);
-      setError(data?.error as string);
+      setError("Hello") // clear error message
+      const data = await updateAdmin(values)
+      setError(data?.error as string)
       if (!data?.error && data?.success !== undefined) {
-        router.push("/admin/profile");
+        router.push("/admin/profile")
         toast.success("success!",{
           description: `Your profile has been updated!`,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   return (
     <Card isAdmin rounded fullWidth>
       <FormHeader>Update profile</FormHeader>
@@ -126,7 +126,7 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
         </form>
       </Form>
     </Card>
-  );
-};
+  )
+}
 
-export default EditAdminForm;
+export default EditAdminForm

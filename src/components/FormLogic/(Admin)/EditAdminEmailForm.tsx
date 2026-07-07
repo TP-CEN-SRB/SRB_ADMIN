@@ -1,6 +1,6 @@
-"use client";
-import { updateAdminEmail } from "@/app/action/user";
-import { Button } from "@/components/ui/button";
+"use client"
+import { updateAdminEmail } from "@/app/action/user"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -9,43 +9,43 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { UpdateAdminEmailSchema } from "@/schemas/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import CustomFormMessage from "../CustomFormMessage";
-import { Loader2 } from "lucide-react";
+import { UpdateAdminEmailSchema } from "@/schemas/auth"
+import { zodResolver } from "@hookform/resolvers/zod"
+import React, { useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import CustomFormMessage from "../CustomFormMessage"
+import { Loader2 } from "lucide-react"
 
 const EditAdminEmailForm = ({
   handleDialogOpen,
 }: {
-  handleDialogOpen: () => void;
+  handleDialogOpen: () => void
 }) => {
   const form = useForm<z.infer<typeof UpdateAdminEmailSchema>>({
     resolver: zodResolver(UpdateAdminEmailSchema),
     defaultValues: {
       email: "",
     },
-  });
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState("");
+  })
+  const [isPending, startTransition] = useTransition()
+  const [error, setError] = useState("")
   const onSubmit = (values: z.infer<typeof UpdateAdminEmailSchema>) => {
     startTransition(async () => {
-      setError(""); // clear error message
-      const data = await updateAdminEmail(values);
-      setError(data?.error as string);
+      setError("") // clear error message
+      const data = await updateAdminEmail(values)
+      setError(data?.error as string)
       if (!data?.error && data?.success !== undefined) {
-        handleDialogOpen();
+        handleDialogOpen()
         toast.success("success!",{
           description: `A verification email has been sent to ${values.email.toLowerCase()}`,
-        });
+        })
       }
-    });
-  };
+    })
+  }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -103,7 +103,7 @@ const EditAdminEmailForm = ({
         </Button>
       </form>
     </Form>
-  );
-};
+  )
+}
 
-export default EditAdminEmailForm;
+export default EditAdminEmailForm

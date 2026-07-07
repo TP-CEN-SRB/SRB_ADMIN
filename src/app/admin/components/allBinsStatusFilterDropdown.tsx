@@ -1,8 +1,8 @@
-"use client";
-import React from "react";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+
+import { Button } from "@/components/ui/button"
+import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,35 +10,36 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FaPlusCircle } from "react-icons/fa";
+} from "@/components/ui/dropdown-menu"
+import { FaPlusCircle } from "react-icons/fa"
+import React
 
-type Checked = DropdownMenuCheckboxItemProps["checked"];
+type Checked = DropdownMenuCheckboxItemProps["checked"]
 
 const AllBinsTableStatusDropdown = () => {
-  const [showFunctional, setShowFunctional] = React.useState<Checked>(true);
+  const [showFunctional, setShowFunctional] = React.useState<Checked>(true)
   const [showUnderMaintenance, setShowUnderMaintenance] =
-    React.useState<Checked>(false);
+    React.useState<Checked>(false)
   // const handleFilterChange = (status, checked) => {
   //   if (status === "FUNCTIONAL") {
-  //     setShowFunctional(checked);
+  //     setShowFunctional(checked)
   //   } else if (status === "UNDER_MAINTENANCE") {
-  //     setShowUnderMaintenance(checked);
+  //     setShowUnderMaintenance(checked)
   //   }
 
-  //   const selectedStatuses = [];
+  //   const selectedStatuses = []
   //   if (checked && status === "FUNCTIONAL")
-  //     selectedStatuses.push("FUNCTIONAL");
+  //     selectedStatuses.push("FUNCTIONAL")
   //   if (checked && status === "UNDER_MAINTENANCE")
-  //     selectedStatuses.push("UNDER_MAINTENANCE");
+  //     selectedStatuses.push("UNDER_MAINTENANCE")
 
   //   // If both or none are selected, show all
   //   if (selectedStatuses.length === 0 || selectedStatuses.length === 2) {
-  //     table.getColumn("status")?.setFilterValue(undefined);
+  //     table.getColumn("status")?.setFilterValue(undefined)
   //   } else {
-  //     table.getColumn("status")?.setFilterValue(selectedStatuses);
+  //     table.getColumn("status")?.setFilterValue(selectedStatuses)
   //   }
-  // };
+  // }
 
   return (
     <DropdownMenu>
@@ -65,7 +66,7 @@ const AllBinsTableStatusDropdown = () => {
         </DropdownMenuCheckboxItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
-};
+  )
+}
 
-export default AllBinsTableStatusDropdown;
+export default AllBinsTableStatusDropdown
