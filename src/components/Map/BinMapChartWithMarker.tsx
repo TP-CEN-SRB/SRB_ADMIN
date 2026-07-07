@@ -1,88 +1,87 @@
-"use client"
-import { maxBound } from "@/utils/map"
-import { Faculty } from "@/generated/prisma"
-import Map, {
-  AttributionControl,
-  FullscreenControl,
-  Marker,
-  MarkerDragEvent,
-  NavigationControl,
-  Popup,
-  ScaleControl,
-} from "react-map-gl"
-import { useCallback, useState } from "react"
-import { IoLocationSharp } from "react-icons/io5"
+  "use client"
+  import { maxBound } from "@/utils/map"
+  import { Faculty } from "@/generated/prisma"
+  import Map, {
+    AttributionControl,
+    FullscreenControl,
+    Marker,
+    MarkerDragEvent,
+    NavigationControl,
+    Popup,
+    ScaleControl,
+  } from "react-map-gl"
+  import { useCallback, useState } from "react"
+  import { IoLocationSharp } from "react-icons/io5"
 
-interface MapChartProps {
-  data: {
+  interface MapChartProps {
+    data: {
+      id: string
+      name: string
+      email: string
+      faculty: Faculty
+      _count: { bins: number }
+      lat: number | undefined
+      long: number | undefined
+    }[]
+    latLng: { lat: number; lng: number }
+    initialLatLng: { lat: number; lng: number }
+    onLatLngChange: (latLng: { lat: number; lng: number }) => void
+  }
+  type PopupInfo = {
     id: string
     name: string
-    email: string
     faculty: Faculty
+    lat: number
+    long: number
     _count: { bins: number }
-    lat: number | undefined
-    long: number | undefined
-  }[]
-  latLng: { lat: number; lng: number }
-  initialLatLng: { lat: number; lng: number }
-  onLatLngChange: (latLng: { lat: number; lng: number }) => void
-}
-type PopupInfo = {
-  id: string
-  name: string
-  faculty: Faculty
-  lat: number
-  long: number
-  _count: { bins: number }
-}
-export default function BinMapChartWithMarker({
-  data,
-  onLatLngChange,
-  initialLatLng,
-  latLng,
-}: MapChartProps) {
-  const { minLat, maxLat, minLong, maxLong } = maxBound
-  const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
-  const [showMarkerPopUp, setShowMarkerPopUp] = useState(true)
+  }
+  export default function BinMapChartWithMarker({
+    data,
+    onLatLngChange,
+    initialLatLng,
+    latLng,
+  }: MapChartProps) {
+    const { minLat, maxLat, minLong, maxLong } = maxBound
+    const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
+    const [showMarkerPopUp, setShowMarkerPopUp] = useState(true)
 
-  const onMarkerDrag = useCallback(
-    (event: MarkerDragEvent) => {
-      // round to 7 dp
-      onLatLngChange({
-        lat: parseFloat(event.lngLat.lat.toFixed(7)),
-        lng: parseFloat(event.lngLat.lng.toFixed(7)),
-      })
-    },
-    [onLatLngChange]
-  )
-  return (
-    <div className="relative h-full w-full">
-      <Map
-        attributionControl={false}
-        maxBounds={[minLong, minLat, maxLong, maxLat]}
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-        initialViewState={{
-          longitude: initialLatLng.lng,
-          latitude: initialLatLng.lat,
-          zoom: 17,
-        }}
-        style={{
-          width: "100%",
-          maxHeight: "100%",
-        }}
-        mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
-      >
-        <FullscreenControl />
-        <NavigationControl />
-        <ScaleControl />
-        <AttributionControl
-          position="bottom-right"
-          customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20pxwidth:20px"/>&nbsp<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp&copy&nbspcontributors&nbsp&#124&nbsp<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
-        />
-        {data
-          // 1. Filter out any items missing valid coordinates
-          .filter((binManager) => typeof binManager.lat === 'number' && typeof binManager.long === 'number')
-          // 2. Map over the clean data
+    const onMarkerDrag = useCallback(
+      (event: MarkerDragEvent) => {
+        // round to 7 dp
+        onLatLngChange({
+          lat: parseFloat(event.lngLat.lat.toFixed(7)),
+          lng: parseFloat(event.lngLat.lng.toFixed(7)),
+        })
+      },
+      [onLatLngChange]
+    )
+    return (
+      <div className="relative h-full w-full">
+        <Map
+          attributionControl={false}
+          maxBounds={[minLong, minLat, maxLong, maxLat]}
+          mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+          initialViewState={{
+            longitude: initialLatLng.lng,
+            latitude: initialLatLng.lat,
+            zoom: 17,
+          }}
+          style={{
+            width: "100%",
+            maxHeight: "100%",
+          }}
+          mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
+        >
+          <FullscreenControl />
+          <NavigationControl />
+          <ScaleControl />
+          <AttributionControl
+            position="bottom-right"
+            customAttribution={`<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20pxwidth:20px"/>&nbsp<Link href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp&copy&nbspcontributors&nbsp&#124&nbsp<Link href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>`}
+          />
+          {data
+          // Improved filter: Safely checks for actual numbers, rejecting NaN or Infinity
+          .filter((binManager) => Number.isFinite(binManager.lat) && Number.isFinite(binManager.long))
           .map((binManager) => (
           <Marker
             onClick={(e) => {
@@ -109,57 +108,64 @@ export default function BinMapChartWithMarker({
             />
           </Marker>
         ))}
-        <Marker
-          longitude={latLng.lng}
-          latitude={latLng.lat}
-          anchor="bottom"
-          draggable
-          onDrag={onMarkerDrag}
-          onClick={(e) => {
-            e.originalEvent.stopPropagation()
-            setShowMarkerPopUp(true)
-          }}
-        >
-          <IoLocationSharp
-            stroke="black"
-            strokeWidth={20}
-            className="text-green-500"
-            size={40}
-          />
-        </Marker>
-        {popupInfo && (
-          <Popup
-            focusAfterOpen={false}
-            anchor="top"
-            longitude={Number(popupInfo.long)}
-            latitude={Number(popupInfo.lat)}
-            onClose={() => setPopupInfo(null)}
+        
+        {/* Guard: Only render if lat and lng are valid finite numbers */}
+        {Number.isFinite(latLng?.lat) && Number.isFinite(latLng?.lng) && (
+          <Marker
+            longitude={latLng.lng}
+            latitude={latLng.lat}
+            anchor="bottom"
+            draggable
+            onDrag={onMarkerDrag}
+            onClick={(e) => {
+              e.originalEvent.stopPropagation()
+              setShowMarkerPopUp(true)
+            }}
           >
-            <div className="flex flex-col">
-              <div>
-                <span className="font-bold">Name: </span>
-                {popupInfo.name}
-              </div>
-              <div>
-                <span className="font-bold">Faculty: </span>
-                {popupInfo.faculty}
-              </div>
-              <div>
-                <span className="font-bold">Latitude: </span>
-                {popupInfo.lat}&deg
-              </div>
-              <div>
-                <span className="font-bold">Longitude: </span>
-                {popupInfo.long}&deg
-              </div>
-              <div>
-                <span className="font-bold">No. of bins: </span>
-                {popupInfo._count.bins}
-              </div>
-            </div>
-          </Popup>
+            <IoLocationSharp
+              stroke="black"
+              strokeWidth={20}
+              className="text-green-500"
+              size={40}
+            />
+          </Marker>
         )}
-        {showMarkerPopUp && (
+
+                  {popupInfo && (
+            <Popup
+              focusAfterOpen={false}
+              anchor="top"
+              longitude={Number(popupInfo.long)}
+              latitude={Number(popupInfo.lat)}
+              onClose={() => setPopupInfo(null)}
+            >
+              <div className="flex flex-col">
+                <div>
+                  <span className="font-bold">Name: </span>
+                  {popupInfo.name}
+                </div>
+                <div>
+                  <span className="font-bold">Faculty: </span>
+                  {popupInfo.faculty}
+                </div>
+                <div>
+                  <span className="font-bold">Latitude: </span>
+                  {popupInfo.lat}&deg
+                </div>
+                <div>
+                  <span className="font-bold">Longitude: </span>
+                  {popupInfo.long}&deg
+                </div>
+                <div>
+                  <span className="font-bold">No. of bins: </span>
+                  {popupInfo._count.bins}
+                </div>
+              </div>
+            </Popup>
+          )}
+
+        {/* Guard: Ensure valid numbers before trying to render the marker popup */}
+        {showMarkerPopUp && Number.isFinite(latLng?.lat) && Number.isFinite(latLng?.lng) && (
           <Popup
             focusAfterOpen={false}
             anchor="top-left"
@@ -170,11 +176,11 @@ export default function BinMapChartWithMarker({
             <div className="flex flex-col">
               <div>
                 <span className="font-bold">Latitude: </span>
-                {latLng.lat}&deg
+                {latLng.lat}&deg;
               </div>
               <div>
                 <span className="font-bold">Longitude: </span>
-                {latLng.lng}&deg
+                {latLng.lng}&deg;
               </div>
             </div>
           </Popup>

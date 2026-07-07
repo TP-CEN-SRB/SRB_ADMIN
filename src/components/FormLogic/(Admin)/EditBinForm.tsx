@@ -120,7 +120,26 @@ export function EditBinForm({
           {form.formState.errors.password && <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>}
         </Field>
 
-        {/* ... (Add back your faculty, location, and lat/long fields here) ... */}
+        <Field>
+          <FieldLabel htmlFor="faculty">Faculty</FieldLabel>
+          <Input id="faculty" type="text" disabled={isPending} className="bg-background" {...form.register("faculty")} />
+          {form.formState.errors.faculty && <p className="text-sm text-destructive">{form.formState.errors.faculty.message}</p>}
+        </Field>
+
+        <Field className="grid grid-cols-2 gap-4">
+          <Field>
+            <FieldLabel htmlFor="lat">Latitude</FieldLabel>
+            <Input id="lat" type="text" disabled={isPending} className="bg-background" {...form.register("lat", { valueAsNumber: true })} />
+            {form.formState.errors.lat && <p className="text-sm text-destructive">{form.formState.errors.lat.message}</p>}
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="long">Longitude</FieldLabel>
+            <Input id="long" type="text" disabled={isPending} className="bg-background" {...form.register("long", { valueAsNumber: true })} />
+            {form.formState.errors.long && <p className="text-sm text-destructive">{form.formState.errors.long.message}</p>}
+          </Field>
+
+        </Field>
 
         <Field>
           <Button type="submit" disabled={isPending} className="w-full">
