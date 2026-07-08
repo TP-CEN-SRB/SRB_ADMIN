@@ -3,12 +3,16 @@
 import { prisma } from "@/lib/db"
 import { Faculty, Role } from "@/generated/prisma"
 import { hash } from "bcrypt"
-import { getSessionUser } from "@/utils/getAuth"
-import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { StoreSchema, UpdateStoreSchema } from "@/schemas"
 import { z } from "zod"
 
+function capitalizeFirstLetter(str: string): string {
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
 // Create Store
 const createStore = async (values: z.infer<typeof StoreSchema>) => {
   const validated = StoreSchema.safeParse(values)
@@ -173,7 +177,10 @@ const getStoreById = async (id: string) => {
 
 // Delete Store
 const deleteStore = async (storeId: string) => {
-  const user = await getSessionUser()
+    const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
 
   if (user?.role !== Role.ADMIN) {
     return { error: "Unauthorized" }

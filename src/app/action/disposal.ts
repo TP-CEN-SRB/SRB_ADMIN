@@ -1,6 +1,7 @@
 "use server"
 import { prisma } from "@/lib/db"
-import { getSessionUser } from "@/utils/getAuth"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 
 const getDisposalByBinId = async (
   binId: string,
@@ -8,7 +9,10 @@ const getDisposalByBinId = async (
   sortOrder: string | undefined,
   sortItem: string | undefined
 ) => {
-  const user = await getSessionUser()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (user?.role !== "ADMIN") {
     return { error: "Permission denied!" }
   }

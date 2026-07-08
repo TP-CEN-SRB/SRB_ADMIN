@@ -1,7 +1,8 @@
 "use server"
 
 import { prisma } from "@/lib/db"
-import { getSessionUser } from "@/utils/getAuth"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { z } from "zod"
 import { QuestSchema } from "@/schemas"
 
@@ -19,7 +20,10 @@ const TemplateSchema = QuestSchema.pick({
 export const createQuestTemplate = async (
   data: z.infer<typeof TemplateSchema>
 ) => {
-  const user = await getSessionUser()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (user?.role !== "ADMIN") return { error: "Unauthorized" }
 
   try {
@@ -42,7 +46,10 @@ export const createQuestTemplate = async (
 
 // ---------- GET ALL TEMPLATES ----------
 export const getQuestTemplates = async () => {
-  const user = await getSessionUser()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (user?.role !== "ADMIN") return []
 
   return prisma.questTemplate.findMany({
@@ -62,7 +69,10 @@ export const updateQuestTemplate = async (
   id: string,
   data: z.infer<typeof TemplateSchema>
 ) => {
-  const user = await getSessionUser()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (user?.role !== "ADMIN") return { error: "Unauthorized" }
 
   try {
@@ -87,7 +97,10 @@ export const updateQuestTemplate = async (
 
 // ---------- DELETE TEMPLATE ----------
 export const deleteQuestTemplate = async (id: string) => {
-  const user = await getSessionUser()
+    const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (user?.role !== "ADMIN") return { error: "Unauthorized" }
 
   try {

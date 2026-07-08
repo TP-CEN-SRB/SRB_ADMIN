@@ -33,13 +33,13 @@ interface UpdateBinFormProps {
   binMaterialName: string
 }
 
-const UpdateBinForm = ({
+export default function UpdateBinForm({
   id,
   initialData,
   materials,
   location,
   binMaterialName,
-}: UpdateBinFormProps) => {
+}: UpdateBinFormProps){
   const [isPending, startTransition] = useTransition()
 
   const router = useRouter()
@@ -156,4 +156,4 @@ const UpdateBinForm = ({
   )
 }
 
-export default UpdateBinForm
+

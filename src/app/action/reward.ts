@@ -2,12 +2,16 @@
 import { prisma } from "@/lib/db"
 import { RewardSchema } from "@/schemas"
 import { utapi } from "@/server/uploadthing"
-import { getSessionUser } from "@/utils/getAuth"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 
 // form action needed to pass file type as a parameter to server action
 const createReward = async (formData: FormData) => {
-  const user = await getSessionUser()
+    const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (!user || user.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
@@ -70,7 +74,10 @@ const createReward = async (formData: FormData) => {
 }
 
 const updateReward = async (id: string, formData: FormData) => {
-  const user = await getSessionUser()
+    const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (!user || user.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
@@ -163,7 +170,10 @@ const updateReward = async (id: string, formData: FormData) => {
 }
 
 const deleteReward = async (id: string) => {
-  const user = await getSessionUser()
+    const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
   if (!user || user.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }

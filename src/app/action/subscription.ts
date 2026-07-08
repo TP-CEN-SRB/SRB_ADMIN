@@ -1,13 +1,17 @@
 "use server"
 import { prisma } from "@/lib/db"
 import { SubscriptionSchema } from "@/schemas"
-import { getSessionUser } from "@/utils/getAuth"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 
 const getSubscriptionByUserId = async (userId: string) => {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (!user || user?.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
   const subscriptions = await prisma.subscription.findMany({
@@ -28,8 +32,11 @@ const createSubscription = async (
   values: z.infer<typeof SubscriptionSchema>,
   userId: string
 ) => {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (!user || user?.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
   const validatedFields = SubscriptionSchema.safeParse(values)
@@ -63,8 +70,11 @@ const updateSubscription = async (
   values: z.infer<typeof SubscriptionSchema>,
   subscriptionId: string
 ) => {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (!user || user?.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
   const validatedFields = SubscriptionSchema.safeParse(values)
@@ -90,8 +100,11 @@ const updateSubscription = async (
 }
 
 const deleteSubscription = async (subscriptionId: string) => {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (!user || user?.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
   const subscription = await prisma.subscription.findUnique({

@@ -1,6 +1,7 @@
 "use server"
 import { prisma } from "@/lib/db"
-import { getSessionUser } from "@/utils/getAuth"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { TransactionType } from "@/generated/prisma"
 
 const getTransactionByUserId = async (
@@ -9,8 +10,11 @@ const getTransactionByUserId = async (
   sortOrder: string | undefined,
   transactionType: string | null
 ) => {
-  const sessionUser = await getSessionUser()
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const sessionUser = session?.user
+  if (!sessionUser || sessionUser?.role !== "ADMIN") {
     return { error: "Unauthorized access!" }
   }
   const pageCondition = page != null && page < 0
