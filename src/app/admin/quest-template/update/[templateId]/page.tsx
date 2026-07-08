@@ -1,20 +1,25 @@
-import { getQuestTemplateById } from "@/app/action/questTemplate"
-import UpdateQuestTemplateForm from "@/components/FormLogic/(Quest)/UpdateQuestTemplateForm"
-import { notFound } from "next/navigation"
+// import { getQuestTemplateById } from "@/app/action/questTemplate"
+// import UpdateQuestTemplateForm from "@/components/FormLogic/(Quest)/UpdateQuestTemplateForm"
+// import { notFound } from "next/navigation"
 
-export default async function UpdateQuestTemplatePage({
-  params,
-}: {
-  params: Promise<{ templateId: string }>
-}) {
-  const { templateId } = await params 
-  const template = await getQuestTemplateById(templateId)
+// export default async function UpdateQuestTemplatePage({
+//   params,
+// }: {
+//   params: Promise<{ templateId: string }>
+// }) {
+//   const { templateId } = await params 
+//   const template = await getQuestTemplateById(templateId)
 
-  if (!template) return notFound()
+//   if (!template) return notFound()
 
-  return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <UpdateQuestTemplateForm id={templateId} template={template} />
-    </div>
+//   return (
+//     <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
+//       <UpdateQuestTemplateForm id={templateId} template={template} />
+//     </div>
+//   )
+// }
+export default function UpdateQuestTemplatePage() {
+  return(
+    <div>UpdateQuestTemplatePage</div>
   )
 }

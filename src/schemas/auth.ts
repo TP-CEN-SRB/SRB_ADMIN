@@ -33,10 +33,6 @@ const SignUpAdminSchema = z.object({
   confirmPassword: z.string().min(1, "Confirm Password is required"),
 })
 
-const UpdateAdminEmailSchema = SignUpAdminSchema.pick({
-  email: true,
-}).merge(z.object({ password: z.string().min(1, "Password is required") }))
-
 /**
  * Students + Admins
  */
@@ -182,7 +178,6 @@ const NewStudentPasswordSchema = SignUpStudentSchema.pick({
 export {
   LoginSchema,
   SignUpAdminSchema,
-  UpdateAdminEmailSchema,
   SignUpBinSchema,
   SignUpStudentSchema,
   UpdateStudentSchema,

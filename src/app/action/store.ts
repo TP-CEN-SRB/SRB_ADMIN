@@ -25,47 +25,31 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
 
   const { name, email, password, faculty } = validated.data
 
-  const existing = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { name: name.toLowerCase() },
-        { email: email.toLowerCase() },
-      ],
-    },
-  })
+  try {
+    // Better Auth handles the User record AND the Account record (password)
+    const user = await auth.api.signUpEmail({
+      body: {
+        name: capitalizeFirstLetter(name),
+        email: email.toLowerCase(),
+        password: password, // Better Auth hashes this for you
+        faculty: faculty as Faculty,
+        role: Role.STORE,
+        diploma: "N/A",
+      },
+      headers: await headers()
+    })
 
-  if (existing) {
-    const fieldErrors: Record<string, string[]> = {}
-    if (existing.name === name.toLowerCase()) {
-      fieldErrors.name = ["A store with that name already exists."]
-    }
-    if (existing.email === email.toLowerCase()) {
-      fieldErrors.email = ["A store with that email already exists."]
-    }
+    // Auto-verify as requested earlier
+    await prisma.user.update({
+        where: { email: email.toLowerCase() },
+        data: { emailVerified: true }
+    })
 
-    return {
-      error: "Duplicate store",
-      fieldErrors,
-    }
+    revalidatePath("/admin/store")
+    return { success: "Store created successfully", user }
+  } catch (error) {
+    return { error: "Failed to create store" }
   }
-
-  const hashedPassword = await hash(password, 10)
-
-  const user = await prisma.user.create({
-    data: {
-      name: capitalizeFirstLetter(name),
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      faculty: faculty as Faculty,
-      diploma: "N/A",
-      role: Role.STORE,
-      emailVerified: true,
-      point: { create: {} },
-    },
-  })
-
-  revalidatePath("/admin/store")
-  return { success: "Store created successfully", user }
 }
 
 // Update Store

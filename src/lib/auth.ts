@@ -38,6 +38,10 @@ export const auth = betterAuth({
                 type: "number",
                 required: false,
             },
+            diploma: {
+                type: "string",
+                required: false,
+            },
             
         },
         deleteUser: { 

@@ -1,23 +1,26 @@
-import { getBinMaterialById } from "@/app/action/binMaterial"
-import UpdateBinMaterialForm from "@/components/FormLogic/(Bins)/UpdateBinMaterialForm"
-import { notFound } from "next/navigation"
+// import { getBinMaterialById } from "@/app/action/binMaterial"
+// import UpdateBinMaterialForm from "@/components/FormLogic/(Bins)/UpdateBinMaterialForm"
+// import { notFound } from "next/navigation"
 
 
-export default async function UpdateBinMaterialPage({
-  params,
-}: {
-  params: { binMaterialId: string }
-}){
-  const binMaterial = await getBinMaterialById(params.binMaterialId)
-  if (!binMaterial) {
-    notFound()
-  }
+export default async function UpdateBinMaterialPage(
+//     {
+//   params,
+// }: {
+//   params: { binMaterialId: string }
+// }
+){
+//   const binMaterial = await getBinMaterialById(params.binMaterialId)
+//   if (!binMaterial) {
+//     notFound()
+//   }
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
-      <UpdateBinMaterialForm
-        id={params.binMaterialId}
-        binMaterial={binMaterial}
-      />
-    </div>
+    // <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
+    //   <UpdateBinMaterialForm
+    //     id={params.binMaterialId}
+    //     binMaterial={binMaterial}
+    //   />
+    // </div>
+    <div>UpdateBinMaterialPage</div>
   )
 }
