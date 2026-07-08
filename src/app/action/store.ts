@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/db"
 import { Faculty, Role } from "@/generated/prisma"
-import { hash } from "bcryptjs"
+import { hash } from "bcrypt"
 import { getSessionUser } from "@/utils/getAuth"
 import { capitalizeFirstLetter } from "@/utils/capitalizeFirstLetter"
 import { revalidatePath } from "next/cache"

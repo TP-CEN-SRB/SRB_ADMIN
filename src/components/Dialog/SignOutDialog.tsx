@@ -1,4 +1,4 @@
-import React, { useState, useTransition } from "react"
+import { useState, useTransition } from "react"
 import {
   Dialog,
   DialogContent,
@@ -25,16 +25,24 @@ interface DialogProps {
   handleDialogOpen: () => void
 }
 const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const logOut = () => {
-    startTransition(async () => {
-      handleDialogOpen()
-      await logout()
-    })
-  }
+
   const isDesktop = useMediaQuery({
     query: "(min-width: 768px)",
   })
+  
+  async function logOut() {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/login");
+        },
+      },
+    });
+  }
+      
+
   return isDesktop ? (
     <Dialog open={isOpen} onOpenChange={handleDialogOpen}>
       <DialogContent>

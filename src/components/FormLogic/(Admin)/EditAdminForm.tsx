@@ -63,7 +63,7 @@ const EditAdminForm = ({ email, name, faculty }: EditAdminFormProps) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="name"
+            name="name" 
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-bold text-slate-700">Name</FormLabel>

@@ -52,8 +52,8 @@ export const GET = async (req: NextRequest) => {
       status: bin.status,
       location: bin.user.location,
       userId: bin.user.id,
-      lat: bin.user.lat?.toNumber(),
-      long: bin.user.long?.toNumber(),
+      lat: bin.user.lat?? undefined,
+      long: bin.user.long?? undefined,
     }))
     type GroupedBins = {
       [location: string]: {

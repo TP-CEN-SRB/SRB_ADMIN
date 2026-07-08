@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  /*async headers() {
+  async headers() {
     return [
       {
         source: "/api/:path*",
@@ -34,7 +34,7 @@ const nextConfig: NextConfig = {
         ],
       },
     ]
-  },*/
+  },
   
 }
 
