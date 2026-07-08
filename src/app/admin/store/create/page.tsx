@@ -1,12 +1,10 @@
-import CreateStoreForm from "@/components/FormLogic/StoreForms/CreateStoreForm"
+import { CreateStoreForm } from "@/components/FormLogic/(Misc)/CreateStoreForm"
 
 
-const CreateStorePage = () => {
+export default function CreateStorePage(){
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
+    <div>
       <CreateStoreForm />
     </div>
   )
 }
-
-export default CreateStorePage

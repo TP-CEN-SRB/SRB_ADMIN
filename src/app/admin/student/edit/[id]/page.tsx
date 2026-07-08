@@ -1,4 +1,4 @@
-import EditStudentForm from "@/components/FormLogic/StudentForms/EditStudentForm"
+import EditStudentForm from "@/components/FormLogic/(Admin)/EditStudentForm"
 import { prisma } from "@/lib/db"
 import { Faculty } from "@/generated/prisma"
 import { notFound } from "next/navigation"

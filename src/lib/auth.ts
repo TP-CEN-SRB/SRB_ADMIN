@@ -38,7 +38,11 @@ export const auth = betterAuth({
                 type: "number",
                 required: false,
             },
-        }
+            
+        },
+        deleteUser: { 
+            enabled: true
+        } 
      },
 
     emailAndPassword: { 

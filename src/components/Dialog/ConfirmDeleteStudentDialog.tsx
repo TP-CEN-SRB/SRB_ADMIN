@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
-import { deleteStudent } from "@/app/action/user"
+import { deleteStudent } from "@/lib/auth-server"
 import { Loader2 } from "lucide-react"
 import CustomFormMessage from "../FormLogic/CustomFormMessage"
 import { useRouter } from "next/navigation"

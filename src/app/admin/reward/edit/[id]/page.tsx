@@ -1,4 +1,4 @@
-import EditRewardForm from "@/components/FormLogic/RewardForms/EditRewardForm"
+import EditRewardForm from "@/components/FormLogic/(Misc)/EditRewardForm"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 

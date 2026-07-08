@@ -1,4 +1,4 @@
-import CreateSubscriptionForm from "@/components/FormLogic/SubscriptionForms/CreateSubscriptionForm"
+import CreateSubscriptionForm from "@/components/FormLogic/(Misc)/CreateSubscriptionForm"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 

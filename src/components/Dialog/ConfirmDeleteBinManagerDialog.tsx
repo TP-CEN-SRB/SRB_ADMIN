@@ -1,6 +1,5 @@
 "use client"
 
-import { deleteBinUser } from "@/app/action/user"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import React, { useState, useTransition } from "react"
@@ -24,7 +23,7 @@ import {
 import { Button } from "../ui/button"
 import CustomFormMessage from "../FormLogic/CustomFormMessage"
 import { Loader2, AlertTriangle } from "lucide-react"
-
+import { deleteBinUser } from "@/lib/auth-server"
 interface DeleteBinManagerDialogProps {
   userId: string
   isOpen: boolean

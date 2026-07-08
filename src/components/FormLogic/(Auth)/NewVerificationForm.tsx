@@ -6,9 +6,6 @@ import { MdVerified, MdError } from "react-icons/md"
 import { Loader2 } from "lucide-react"
 import Confetti from "react-confetti"
 import { MdAccessTime } from "react-icons/md"
-
-
-import { verifyToken } from "@/app/action/verification-tokens"
 import { Button } from "@/components/ui/button"
 import Card from "@/components/Card/Card"
 import CardHeader from "@/components/Card/CardHeader"
@@ -44,19 +41,34 @@ const NewVerificationForm = ({
   const [clockCooldown, setClockCooldown] = useState(0)
 
 
-  /* -------------------------------- VERIFY -------------------------------- */
+/* -------------------------------- VERIFY -------------------------------- */
 
   const handleVerify = () => {
     startTransition(async () => {
       setError(undefined)
       setInfo(undefined)
 
-      const res = await verifyToken(token)
+      try {
+        // We hit Better Auth's built-in endpoint directly. 
+        // It automatically handles the Prisma DB updates and token cleanup!
+        const res = await fetch(`/api/auth/verify-email?token=${token}`, {
+          method: 'GET',
+          // 'follow' allows the fetch to resolve successfully even if 
+          // Better Auth responds with a 302 redirect internally.
+          redirect: 'follow', 
+        })
 
-      if (res?.success) {
-        setView("success")
-      } else {
-        setError(res?.error || "Invalid or expired verification link.")
+        // If the response is successful, Better Auth verified the email
+        if (res.ok) {
+          setView("success")
+        } else {
+          // If it fails (e.g., 400 Bad Request), the token was invalid or expired
+          setError("Invalid or expired verification link.")
+          setView("error")
+        }
+      } catch (err) {
+        console.error(err)
+        setError("An unexpected error occurred. Please try again.")
         setView("error")
       }
     })

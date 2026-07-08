@@ -1,5 +1,5 @@
 import { getQuestTemplateById } from "@/app/action/questTemplate"
-import UpdateQuestTemplateForm from "@/components/FormLogic/QuestForms/UpdateQuestTemplateForm"
+import UpdateQuestTemplateForm from "@/components/FormLogic/(Quest)/UpdateQuestTemplateForm"
 import { notFound } from "next/navigation"
 
 export default async function UpdateQuestTemplatePage({

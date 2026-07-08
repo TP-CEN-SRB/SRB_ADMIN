@@ -124,8 +124,8 @@ const CreateBinForm = ({
                 <FormControl>
                   <BinMaterialCheckBox
                     materials={materials}
-                    field={field}
                     usedBinMaterials={usedBinMaterials}
+                    field={field} // ✅ Added this
                   />
                 </FormControl>
                 <FormMessage />

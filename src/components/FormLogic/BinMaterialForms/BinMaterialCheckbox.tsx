@@ -1,20 +1,14 @@
 "use client"
 
-import { ControllerRenderProps } from "react-hook-form"
 import { Checkbox } from "@/components/ui/checkbox"
 import { BinMaterial } from "@/generated/prisma"
+import { ControllerRenderProps } from "react-hook-form";
 
 interface BinMaterialCheckBoxProps {
-  materials: BinMaterial[] // Array of material strings
-  field: ControllerRenderProps<
-    {
-      location: string
-      status: "FUNCTIONAL" | "UNDER_MAINTENANCE"
-      materialIds: [string, ...string[]]
-    },
-    "materialIds"
-  >
-  usedBinMaterials: { id: string; name: string }[]
+  materials: BinMaterial[];
+  usedBinMaterials: { id: string; name: string }[];
+  // Use the generic type: ControllerRenderProps<FormValues, FieldName>
+  field: ControllerRenderProps<any, "materialIds">; 
 }
 
 const BinMaterialCheckBox = ({

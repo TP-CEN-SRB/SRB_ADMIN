@@ -1,4 +1,4 @@
-import CreateRewardForm from "@/components/FormLogic/RewardForms/CreateRewardForm"
+import CreateRewardForm from "@/components/FormLogic/(Misc)/CreateRewardForm"
 
 
 const RewardsCreatePage = () => {
