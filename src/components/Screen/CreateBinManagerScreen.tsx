@@ -37,9 +37,11 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
   function handleLatLngChange(latLng: { lat: number; lng: number }){
     setLatLng(latLng)
   }
-  return (
-    <div className="flex w-full h-full md:max-h-screen md:overflow-hidden">
-      <div className="overflow-y-auto flex-1">
+return (
+    <div className="flex w-full h-screen md:max-h-screen md:overflow-hidden">
+      
+      {/* Left Side: Form */}
+      <div className="overflow-y-auto flex-1 h-full">
         <SignUpBinForm
           onLatLngChange={handleLatLngChange}
           initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
@@ -47,8 +49,10 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
           latLng={latLng}
         />
       </div>
+
+      {/* Right Side: Desktop Map - ADDED relative AND h-full */}
       {isDesktop && (
-        <div className="flex-1">
+        <div className="flex-1 relative h-full w-full">
           <BinMapChartWithMarker
             initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
             latLng={latLng}
@@ -57,24 +61,28 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
           />
         </div>
       )}
+
+      {/* Mobile Map - Ensure the map inside can stretch */}
       {showMobileMap && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black">
+        <div className="fixed top-0 left-0 w-full h-full bg-black z-50">
           <Button
             className="absolute top-4 left-4 p-3 bg-red-500 hover:bg-red-600 rounded-md z-50 shadow-xl"
             onClick={() => setShowMobileMap(false)}
           >
             <IoMdClose stroke="white" strokeWidth={40} /> Close
           </Button>
-          <BinMapChartWithMarker
-            initialLatLng={latLng}
-            latLng={latLng}
-            onLatLngChange={handleLatLngChange}
-            data={data}
-          />
+          
+          <div className="relative w-full h-full pt-20"> {/* Wrapper for mobile map */}
+            <BinMapChartWithMarker
+              initialLatLng={latLng}
+              latLng={latLng}
+              onLatLngChange={handleLatLngChange}
+              data={data}
+            />
+          </div>
         </div>
       )}
     </div>
   )
 }
-
 export default CreateBinManagerScreen

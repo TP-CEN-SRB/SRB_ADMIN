@@ -1,5 +1,12 @@
-import HomeScreen from "@/components/Screen/HomeScreen"
+import HeroSection from '@/components/(Front-Facing)/landing-page'
 
-export default async function Home() {
-  return <HomeScreen />
+export default function Home(){
+  return (
+    <div className='overflow-x-hidden'>
+      <main className='flex flex-col'>
+        <HeroSection/>
+      </main>
+    </div>
+  )
 }
+
