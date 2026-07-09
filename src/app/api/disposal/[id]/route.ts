@@ -4,6 +4,10 @@ import jwt from "jsonwebtoken"
 import { TransactionType } from "@/generated/prisma"
 import { pusherServer } from "@/lib/pusher"
 
+// Give Vercel more headroom for the bulk-redeem transaction below
+// (backlogs of unredeemed disposals can take a while to process).
+export const maxDuration = 30
+
 // Safely extract userId from a decoded JWT without using `any`
 const extractUserId = (decoded: unknown): string | null => {
   if (typeof decoded !== "object" || decoded === null) return null
@@ -231,16 +235,22 @@ export const PUT = async (
 
     // --- Transaction ---
     await prisma.$transaction(async (tx) => {
-      for (const d of disposals) {
-        await tx.disposal.update({
-          where: { id: d.id },
-          data: {
-            userId,
-            isRedeemed: true,
-            carbonprint: carbonById[d.id],
-          },
-        })
-      }
+      // Fire these concurrently instead of one at a time - with dozens of
+      // disposals queued up, awaiting each update sequentially multiplies
+      // network round-trip latency (Vercel<->Neon are in different regions)
+      // and blows past Prisma's 5s default interactive-transaction timeout.
+      await Promise.all(
+        disposals.map((d) =>
+          tx.disposal.update({
+            where: { id: d.id },
+            data: {
+              userId,
+              isRedeemed: true,
+              carbonprint: carbonById[d.id],
+            },
+          })
+        )
+      )
 
       await tx.point.upsert({
         where: { userId },
@@ -266,7 +276,7 @@ export const PUT = async (
           userId,
         },
       })
-    })
+    }, { timeout: 20000 })
     console.log("Transaction committed")
 
     // --- Quest updates ---
@@ -336,7 +346,10 @@ export const PUT = async (
     } else if (error instanceof jwt.JsonWebTokenError) {
       return NextResponse.json({ message: "Token is invalid!" }, { status: 401 })
     } else if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 })
+      return NextResponse.json(
+        { message: error.message, error: error.message },
+        { status: 500 }
+      )
     }
     return NextResponse.json({ message: "An unknown error occurred" }, { status: 500 })
   }
