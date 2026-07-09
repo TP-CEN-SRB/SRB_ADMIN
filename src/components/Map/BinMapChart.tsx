@@ -16,15 +16,16 @@ import Map, {
   NavigationControl,
   Popup,
   ScaleControl,
+  MapRef,
 } from "react-map-gl"
-import { useState } from "react"
+
 import { FaEdit, FaPlus } from "react-icons/fa"
 import Link from "next/link"
 import { IoLocationSharp } from "react-icons/io5"
 import { Checkbox } from "@/components/ui/checkbox"
 import MapLayer from "@/components/Map/MapLayer"
 import { useSearchParams } from "next/navigation"
-
+import { useState, useEffect, useRef } from "react"
 interface MapChartProps {
   data: {
     id: string
@@ -51,8 +52,31 @@ export default function MapChart({ data }: MapChartProps) {
   const searchParams = useSearchParams()
   const Binlat = searchParams.get('lat')
   const Binlong = searchParams.get('long')
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<MapRef>(null)
+
+  // 2. Setup ResizeObserver to force map to fill space when sidebar toggles
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver(() => {
+      // requestAnimationFrame prevents "ResizeObserver loop limit exceeded" errors
+      window.requestAnimationFrame(() => {
+        if (mapRef.current) {
+          mapRef.current.resize();
+        }
+      });
+    });
+
+    observer.observe(containerRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
   return (
-    <div className="relative h-full w-full">
+    <div ref={containerRef} className="relative h-full w-full">
       <div className="absolute z-10 top-4 left-4 bg-white p-2 rounded shadow-sm">
         <label className="flex items-center gap-2">
           <Checkbox
@@ -63,6 +87,7 @@ export default function MapChart({ data }: MapChartProps) {
         </label>
       </div>
       <Map
+        ref={mapRef}
         attributionControl={false}
         maxBounds={[minLong, minLat, maxLong, maxLat]}
         mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}

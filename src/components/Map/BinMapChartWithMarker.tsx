@@ -1,17 +1,18 @@
   "use client"
-  import { maxBound } from "@/utils/map"
-  import { Faculty } from "@/generated/prisma"
-  import Map, {
-    AttributionControl,
-    FullscreenControl,
-    Marker,
-    MarkerDragEvent,
-    NavigationControl,
-    Popup,
-    ScaleControl,
-  } from "react-map-gl"
-  import { useCallback, useState } from "react"
-  import { IoLocationSharp } from "react-icons/io5"
+import { maxBound } from "@/utils/map"
+import { Faculty } from "@/generated/prisma"
+import Map, {
+  AttributionControl,
+  FullscreenControl,
+  Marker,
+  MarkerDragEvent,
+  MapRef,
+  NavigationControl,
+  Popup,
+  ScaleControl,
+} from "react-map-gl"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { IoLocationSharp } from "react-icons/io5"
 
   interface MapChartProps {
     data: {
@@ -36,15 +37,35 @@
     _count: { bins: number }
   }
   export default function BinMapChartWithMarker({
-    data,
-    onLatLngChange,
-    initialLatLng,
-    latLng,
-  }: MapChartProps) {
-    const { minLat, maxLat, minLong, maxLong } = maxBound
-    const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
-    const [showMarkerPopUp, setShowMarkerPopUp] = useState(true)
+  data,
+  onLatLngChange,
+  initialLatLng,
+  latLng,
+}: MapChartProps) {
+  const { minLat, maxLat, minLong, maxLong } = maxBound
+  const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
+  const [showMarkerPopUp, setShowMarkerPopUp] = useState(true)
 
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mapRef = useRef<MapRef>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const observer = new ResizeObserver(() => {
+      window.requestAnimationFrame(() => {
+        if (mapRef.current) {
+          mapRef.current.resize()
+        }
+      })
+    })
+
+    observer.observe(containerRef.current)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
     const onMarkerDrag = useCallback(
       (event: MarkerDragEvent) => {
         // round to 7 dp
@@ -56,8 +77,9 @@
       [onLatLngChange]
     )
     return (
-      <div className="relative h-full w-full">
+      <div ref={containerRef} className="relative h-full w-full">
         <Map
+          ref={mapRef}
           attributionControl={false}
           maxBounds={[minLong, minLat, maxLong, maxLat]}
           mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
@@ -68,7 +90,7 @@
           }}
           style={{
             width: "100%",
-            maxHeight: "100%",
+            height: "100%", // Change this from maxHeight to height
           }}
           mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
         >

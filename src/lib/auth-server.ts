@@ -5,6 +5,19 @@ import { prisma } from "./db"
 import { signupSchema, SignupFormValue } from "@/lib/zod-schema"
 import { redirect } from "next/navigation"
 
+export async function getSession(){
+    return await auth.api.getSession({
+    headers: await headers()
+  });
+}
+
+export async function getSignOut(){
+    await auth.api.signOut({
+        headers: await headers(),
+    });
+    redirect("/login")
+}
+
 export async function getSignUp(payload: SignupFormValue){
     const parsedData = signupSchema.safeParse(payload)
 
