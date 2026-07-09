@@ -19,6 +19,7 @@ export const POST = async (req: NextRequest) => {
 
     const signInResult = await auth.api.signInEmail({
       body: { email: data.email, password: data.password },
+      headers: req.headers,
     })
 
     const role = (signInResult.user as { role?: string }).role

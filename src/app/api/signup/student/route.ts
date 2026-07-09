@@ -70,6 +70,7 @@ export const POST = async (req: NextRequest) => {
         // role is never taken from client input - always STUDENT here.
         role: "STUDENT",
       },
+      headers: req.headers,
     })
 
     // better-auth's adapter doesn't know about our Point relation, so it
