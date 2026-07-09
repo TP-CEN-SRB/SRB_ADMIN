@@ -70,7 +70,7 @@ export const POST = async (req: NextRequest) => {
       )
     }
     if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 })
+      return NextResponse.json({ message: error.message, error: error.message }, { status: 500 })
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
