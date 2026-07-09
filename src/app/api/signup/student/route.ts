@@ -70,6 +70,7 @@ export const POST = async (req: NextRequest) => {
         // role is never taken from client input - always STUDENT here.
         role: "STUDENT",
       },
+      headers: req.headers,
     })
 
     // better-auth's adapter doesn't know about our Point relation, so it
@@ -89,7 +90,7 @@ export const POST = async (req: NextRequest) => {
       )
     }
     if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 })
+      return NextResponse.json({ message: error.message, error: error.message }, { status: 500 })
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },

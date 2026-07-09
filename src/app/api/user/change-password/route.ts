@@ -69,7 +69,7 @@ export const POST = async (req: NextRequest) => {
     } else if (error instanceof jwt.JsonWebTokenError) {
       return NextResponse.json({ message: "Token is invalid!" }, { status: 401 })
     } else if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 })
+      return NextResponse.json({ message: error.message, error: error.message }, { status: 500 })
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },

@@ -32,6 +32,7 @@ export const POST = async (req: NextRequest) => {
     // mobile client.
     const signInResult = await auth.api.signInEmail({
       body: { email: data.email, password: data.password },
+      headers: req.headers,
     })
 
     const role = (signInResult.user as { role?: string }).role
@@ -70,7 +71,7 @@ export const POST = async (req: NextRequest) => {
       )
     }
     if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 })
+      return NextResponse.json({ message: error.message, error: error.message }, { status: 500 })
     }
     return NextResponse.json(
       { message: "An unknown error occurred" },
