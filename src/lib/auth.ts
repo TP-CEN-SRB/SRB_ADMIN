@@ -8,6 +8,16 @@ import { apiKey } from "@better-auth/api-key"
 import { nextCookies } from "better-auth/next-js"
 
 export const auth = betterAuth({
+    baseURL: {
+        allowedHosts: [
+        "localhost:3000",
+        "cen-smart-bin.vercel.app",
+        ],
+        protocol: process.env.NODE_ENV === "production" ? "https" : "http",
+    },
+    
+    trustedOrigins: ["https://cen-smart-bin.vercel.app"],
+
     database: prismaAdapter(prisma, {
         provider: "postgresql"
     }),

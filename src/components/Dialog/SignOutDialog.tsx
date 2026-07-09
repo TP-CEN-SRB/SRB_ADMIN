@@ -49,7 +49,7 @@ const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
         <DialogHeader>
           <DialogTitle className="text-3xl">Are you sure?</DialogTitle>
           <DialogDescription className="text-slate-500 mt-4 text-md">
-            You&aposre about to sign out from your account. Any unsaved changes
+            You're about to sign out from your account. Any unsaved changes
             will be <span className="font-bold text-black">lost</span>.
           </DialogDescription>
         </DialogHeader>
@@ -72,7 +72,7 @@ const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
         <DrawerHeader className="text-left">
           <DrawerTitle className="text-2xl">Are you sure?</DrawerTitle>
           <DrawerDescription className="text-slate-500 text-md">
-            You&aposre about to sign out from your account. Any unsaved changes
+            You're about to sign out from your account. Any unsaved changes
             will be <span className="font-bold text-black">lost</span>.
           </DrawerDescription>
         </DrawerHeader>

@@ -13,7 +13,7 @@ export default function NotFoundPage() {
               Oops! Page not found
             </h2>
             <p className="mt-4 text-slate-500">
-              Sorry, the page you&aposre looking for doesn&apost exist or has
+              Sorry, the page you're looking for doesn't exist or has
               been moved.
             </p>
             <ButtonRedirect href="/" rounded color="slate" variant="outline">
