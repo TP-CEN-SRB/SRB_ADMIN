@@ -276,6 +276,16 @@ export const PUT = async (
           userId,
         },
       })
+
+      // Close the queue now that everything in it has been redeemed - the
+      // next createDisposal call will open a fresh queue instead of this
+      // one accumulating every session's disposals forever (which was
+      // making both the kiosk's QR total and the app's "points added"
+      // screen show the user's entire historical backlog every time).
+      await tx.disposalQueue.update({
+        where: { id: queue.id },
+        data: { status: "CLOSED" },
+      })
     }, { timeout: 20000 })
     console.log("Transaction committed")
 
