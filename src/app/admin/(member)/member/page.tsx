@@ -1,30 +1,67 @@
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { prisma } from "@/lib/db"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
-async function getAllMembers(){
+const LIMIT = 20
+async function getAllMembers(page: number){
   const allMember = await prisma.user.findMany({
+
+    skip: (page - 1) * LIMIT,
+    take: LIMIT,
+
     where: {
       role: {
         in: ["ADMIN", "STUDENT", "STAFF"]
       }
     },
+
     orderBy: {
-      createdAt: "asc"
+      createdAt: "desc",
     },
+
     include: {
       point: true 
     }
   })
-  return allMember
+
+  const allMemberCount = await prisma.user.count({
+    where: {
+      role: {
+        in: ["ADMIN", "STUDENT", "STAFF"]
+      }
+    }
+  })
+
+  const totalPages = Math.ceil(allMemberCount / LIMIT)
+
+  return {allMember, allMemberCount, totalPages} 
 }
 
-export default async function ViewStudent(){
-  const members = await getAllMembers()
+export default async function ViewStudent({searchParams} : {searchParams: Promise<{page?: string}>}){
+
+  const currentPage = Number((await searchParams).page) || 1
+  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage)
+
   return(
     <div className="flex flex-col h-full overflow-hidden">
-      <header className="z-40 bg-muted p-2">
-        Members Table
+      <header className="z-40 flex items-center justify-between bg-muted p-2">
+        <span>Members Table</span>
+        <div className="flex items-center gap-2">
+          <Button disabled={currentPage < 2}>
+            <Link href={`?page=${currentPage - 1}`}>
+              Prev
+            </Link>
+          </Button>
+          <div>showing {Math.min(currentPage * LIMIT, allMemberCount)} / {allMemberCount}</div>
+          <Button disabled={currentPage > (totalPages - 1)}>
+            <Link href={`?page=${currentPage + 1}`}>
+              Next
+            </Link>
+          </Button>
+        </div>
       </header>
+
       <Table>
         <colgroup>
             <col style={{ width: '5%' }} />
@@ -66,7 +103,7 @@ export default async function ViewStudent(){
             <col style={{ width: '10%' }} />
           </colgroup>
           <TableBody>
-            {members.map((member, i) => (
+            {allMember.map((member, i) => (
               <TableRow key={member.id}>
                 <TableCell className="text-center"><span className="text-xs">{i + 1}</span></TableCell>
                 <TableCell><span className="text-xs">{member.name}</span></TableCell>
