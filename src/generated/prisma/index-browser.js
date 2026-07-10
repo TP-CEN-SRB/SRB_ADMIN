@@ -217,7 +217,8 @@ exports.Prisma.DisposalScalarFieldEnum = {
   queueId: 'queueId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  carbonprint: 'carbonprint'
+  carbonprint: 'carbonprint',
+  imageUrl: 'imageUrl'
 };
 
 exports.Prisma.PointScalarFieldEnum = {

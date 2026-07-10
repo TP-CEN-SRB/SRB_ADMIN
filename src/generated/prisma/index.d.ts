@@ -11988,6 +11988,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     carbonprint: number | null
+    imageUrl: string | null
   }
 
   export type DisposalMaxAggregateOutputType = {
@@ -12001,6 +12002,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     carbonprint: number | null
+    imageUrl: string | null
   }
 
   export type DisposalCountAggregateOutputType = {
@@ -12014,6 +12016,7 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     carbonprint: number
+    imageUrl: number
     _all: number
   }
 
@@ -12041,6 +12044,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     carbonprint?: true
+    imageUrl?: true
   }
 
   export type DisposalMaxAggregateInputType = {
@@ -12054,6 +12058,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     carbonprint?: true
+    imageUrl?: true
   }
 
   export type DisposalCountAggregateInputType = {
@@ -12067,6 +12072,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     carbonprint?: true
+    imageUrl?: true
     _all?: true
   }
 
@@ -12167,6 +12173,7 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     carbonprint: number
+    imageUrl: string | null
     _count: DisposalCountAggregateOutputType | null
     _avg: DisposalAvgAggregateOutputType | null
     _sum: DisposalSumAggregateOutputType | null
@@ -12199,6 +12206,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     carbonprint?: boolean
+    imageUrl?: boolean
     bin?: boolean | BinDefaultArgs<ExtArgs>
     user?: boolean | Disposal$userArgs<ExtArgs>
     queue?: boolean | Disposal$queueArgs<ExtArgs>
@@ -12215,6 +12223,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     carbonprint?: boolean
+    imageUrl?: boolean
     bin?: boolean | BinDefaultArgs<ExtArgs>
     user?: boolean | Disposal$userArgs<ExtArgs>
     queue?: boolean | Disposal$queueArgs<ExtArgs>
@@ -12231,6 +12240,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     carbonprint?: boolean
+    imageUrl?: boolean
     bin?: boolean | BinDefaultArgs<ExtArgs>
     user?: boolean | Disposal$userArgs<ExtArgs>
     queue?: boolean | Disposal$queueArgs<ExtArgs>
@@ -12247,9 +12257,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     carbonprint?: boolean
+    imageUrl?: boolean
   }
 
-  export type DisposalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weightInGrams" | "binId" | "isRedeemed" | "pointsAwarded" | "userId" | "queueId" | "createdAt" | "updatedAt" | "carbonprint", ExtArgs["result"]["disposal"]>
+  export type DisposalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weightInGrams" | "binId" | "isRedeemed" | "pointsAwarded" | "userId" | "queueId" | "createdAt" | "updatedAt" | "carbonprint" | "imageUrl", ExtArgs["result"]["disposal"]>
   export type DisposalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     bin?: boolean | BinDefaultArgs<ExtArgs>
     user?: boolean | Disposal$userArgs<ExtArgs>
@@ -12284,6 +12295,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       carbonprint: number
+      imageUrl: string | null
     }, ExtArgs["result"]["disposal"]>
     composites: {}
   }
@@ -12720,6 +12732,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"Disposal", 'DateTime'>
     readonly updatedAt: FieldRef<"Disposal", 'DateTime'>
     readonly carbonprint: FieldRef<"Disposal", 'Float'>
+    readonly imageUrl: FieldRef<"Disposal", 'String'>
   }
     
 
@@ -32132,7 +32145,8 @@ export namespace Prisma {
     queueId: 'queueId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    carbonprint: 'carbonprint'
+    carbonprint: 'carbonprint',
+    imageUrl: 'imageUrl'
   };
 
   export type DisposalScalarFieldEnum = (typeof DisposalScalarFieldEnum)[keyof typeof DisposalScalarFieldEnum]
@@ -33200,6 +33214,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Disposal"> | Date | string
     updatedAt?: DateTimeFilter<"Disposal"> | Date | string
     carbonprint?: FloatFilter<"Disposal"> | number
+    imageUrl?: StringNullableFilter<"Disposal"> | string | null
     bin?: XOR<BinScalarRelationFilter, BinWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     queue?: XOR<DisposalQueueNullableScalarRelationFilter, DisposalQueueWhereInput> | null
@@ -33216,6 +33231,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     carbonprint?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     bin?: BinOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
     queue?: DisposalQueueOrderByWithRelationInput
@@ -33235,6 +33251,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Disposal"> | Date | string
     updatedAt?: DateTimeFilter<"Disposal"> | Date | string
     carbonprint?: FloatFilter<"Disposal"> | number
+    imageUrl?: StringNullableFilter<"Disposal"> | string | null
     bin?: XOR<BinScalarRelationFilter, BinWhereInput>
     user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     queue?: XOR<DisposalQueueNullableScalarRelationFilter, DisposalQueueWhereInput> | null
@@ -33251,6 +33268,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     carbonprint?: SortOrder
+    imageUrl?: SortOrderInput | SortOrder
     _count?: DisposalCountOrderByAggregateInput
     _avg?: DisposalAvgOrderByAggregateInput
     _max?: DisposalMaxOrderByAggregateInput
@@ -33272,6 +33290,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Disposal"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Disposal"> | Date | string
     carbonprint?: FloatWithAggregatesFilter<"Disposal"> | number
+    imageUrl?: StringNullableWithAggregatesFilter<"Disposal"> | string | null
   }
 
   export type PointWhereInput = {
@@ -35106,6 +35125,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
     bin: BinCreateNestedOneWithoutDisposalsInput
     user?: UserCreateNestedOneWithoutDisposalsInput
     queue?: DisposalQueueCreateNestedOneWithoutDisposalsInput
@@ -35122,6 +35142,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalUpdateInput = {
@@ -35132,6 +35153,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bin?: BinUpdateOneRequiredWithoutDisposalsNestedInput
     user?: UserUpdateOneWithoutDisposalsNestedInput
     queue?: DisposalQueueUpdateOneWithoutDisposalsNestedInput
@@ -35148,6 +35170,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DisposalCreateManyInput = {
@@ -35161,6 +35184,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalUpdateManyMutationInput = {
@@ -35171,6 +35195,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DisposalUncheckedUpdateManyInput = {
@@ -35184,6 +35209,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type PointCreateInput = {
@@ -37164,6 +37190,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     carbonprint?: SortOrder
+    imageUrl?: SortOrder
   }
 
   export type DisposalAvgOrderByAggregateInput = {
@@ -37183,6 +37210,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     carbonprint?: SortOrder
+    imageUrl?: SortOrder
   }
 
   export type DisposalMinOrderByAggregateInput = {
@@ -37196,6 +37224,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     carbonprint?: SortOrder
+    imageUrl?: SortOrder
   }
 
   export type DisposalSumOrderByAggregateInput = {
@@ -39788,6 +39817,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
     bin: BinCreateNestedOneWithoutDisposalsInput
     queue?: DisposalQueueCreateNestedOneWithoutDisposalsInput
   }
@@ -39802,6 +39832,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalCreateOrConnectWithoutUserInput = {
@@ -40269,6 +40300,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Disposal"> | Date | string
     updatedAt?: DateTimeFilter<"Disposal"> | Date | string
     carbonprint?: FloatFilter<"Disposal"> | number
+    imageUrl?: StringNullableFilter<"Disposal"> | string | null
   }
 
   export type DisposalQueueUpsertWithWhereUniqueWithoutUserInput = {
@@ -41035,6 +41067,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
     user?: UserCreateNestedOneWithoutDisposalsInput
     queue?: DisposalQueueCreateNestedOneWithoutDisposalsInput
   }
@@ -41049,6 +41082,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalCreateOrConnectWithoutBinInput = {
@@ -41311,6 +41345,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
     bin: BinCreateNestedOneWithoutDisposalsInput
     user?: UserCreateNestedOneWithoutDisposalsInput
   }
@@ -41325,6 +41360,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalCreateOrConnectWithoutQueueInput = {
@@ -44045,6 +44081,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalQueueCreateManyUserInput = {
@@ -44271,6 +44308,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bin?: BinUpdateOneRequiredWithoutDisposalsNestedInput
     queue?: DisposalQueueUpdateOneWithoutDisposalsNestedInput
   }
@@ -44285,6 +44323,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DisposalUncheckedUpdateManyWithoutUserInput = {
@@ -44297,6 +44336,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DisposalQueueUpdateWithoutUserInput = {
@@ -44605,6 +44645,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type BinDiagnosticLogCreateManyBinInput = {
@@ -44625,6 +44666,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneWithoutDisposalsNestedInput
     queue?: DisposalQueueUpdateOneWithoutDisposalsNestedInput
   }
@@ -44639,6 +44681,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DisposalUncheckedUpdateManyWithoutBinInput = {
@@ -44651,6 +44694,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type BinDiagnosticLogUpdateWithoutBinInput = {
@@ -44749,6 +44793,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     carbonprint?: number
+    imageUrl?: string | null
   }
 
   export type DisposalUpdateWithoutQueueInput = {
@@ -44759,6 +44804,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bin?: BinUpdateOneRequiredWithoutDisposalsNestedInput
     user?: UserUpdateOneWithoutDisposalsNestedInput
   }
@@ -44773,6 +44819,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type DisposalUncheckedUpdateManyWithoutQueueInput = {
@@ -44785,6 +44832,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     carbonprint?: FloatFieldUpdateOperationsInput | number
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type RedemptionCreateManyRewardInput = {

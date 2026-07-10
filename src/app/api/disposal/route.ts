@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { DisposalSchema } from "@/schemas"
 import jwt from "jsonwebtoken"
 import { prisma } from "@/lib/db"
-import { utapi } from "@/server/uploadthing"
+import { utapi } from "@/lib/uploadthing"
 
 type Body = {
   userId: string
