@@ -183,7 +183,7 @@ const handleDelete = async () => {
   })
 
   return (
-    <Card isAdmin rounded fullWidth className="p-6">
+    <Card isAdmin rounded fullWidth className="h-full w-full overflow-y-auto pb-8">
       <FormHeader>User Feedback</FormHeader>
 
       {/* Filter */}

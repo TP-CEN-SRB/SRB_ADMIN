@@ -6,6 +6,9 @@ export default async function AllBinManagersPage(){
   const binManagers = await listOfBinManagersUsed()
 
   return (
-  <BinManagerDataTable data={binManagers} />
+    <div className="h-full w-full overflow-y-auto pb-8">
+        <BinManagerDataTable data={binManagers} />
+    </div>
+
   )
 }

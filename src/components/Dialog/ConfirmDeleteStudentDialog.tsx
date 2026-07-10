@@ -44,7 +44,7 @@ const ConfirmDeleteStudentDialog = ({
         toast.success("success!",{
           description: data.success,
         })
-        router.push("/admin/student")
+        router.push("/admin/member")
       }
     })
   }

@@ -16,7 +16,11 @@ async function getData(){
 export default async function AllBinMaterialsPage(){
   const data = await getData()
   const binMaterialInUse = await listOfBinMaterialInUse()
-  return <MaterialDataTable data={data} allBinMaterials={binMaterialInUse} />
+  return(
+    <div className="h-full w-full overflow-y-auto pb-8">
+      <MaterialDataTable data={data} allBinMaterials={binMaterialInUse} />
+    </div>
+  )
 }
 
 

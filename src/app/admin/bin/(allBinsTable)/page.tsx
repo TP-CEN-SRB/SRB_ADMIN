@@ -5,5 +5,9 @@ import { DataTable } from "./data-table"
 
 export default async function AllBinsPage() {
   const { bins, materials } = await getAllBinsWithUserAndMaterial()
-  return <DataTable columns={columns} data={bins} materials={materials} />
+  return(
+    <div className="h-full w-full overflow-y-auto pb-8">
+      <DataTable columns={columns} data={bins} materials={materials} />
+    </div>
+  ) 
 }

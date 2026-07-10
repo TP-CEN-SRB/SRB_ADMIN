@@ -149,7 +149,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
       cell: ({ row }) => (
         <button
           className="flex bg-blue-500 hover:bg-blue-300 justify-center items-center text-white font-bold py-2 px-4 rounded-lg w-auto h-full"
-          onClick={() => router.push(`/admin/student/${row.original.userId}`)}
+          onClick={() => router.push(`/admin/member/${row.original.userId}`)}
         >
           View Profile
           <FaArrowRight className="ml-2" />
@@ -214,7 +214,7 @@ const columns: ColumnDef<User>[] = useMemo(() => [
             key={item.userId}
             user={item}
             rank={index}
-            onViewProfile={() => router.push(`/admin/student/${item.userId}`)}
+            onViewProfile={() => router.push(`/admin/member/${item.userId}`)}
           />
         ))}
       </div>
@@ -299,6 +299,8 @@ const TopUserCard = ({
         <Image
           src={icons[rank]}
           alt={`Icon ${rank + 1}`}
+          width={112} 
+          height={128}
           className="h-24 w-20 md:h-32 md:w-28"
         />
       </div>

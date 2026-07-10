@@ -31,7 +31,7 @@ const UserProfileMore = ({ id }: { id: string }) => {
           side="bottom"
           align="end"
         >
-          <Link href={`/admin/student/edit/${id}`}>
+          <Link href={`/admin/member/edit/${id}`}>
             <DropdownMenuItem className="cursor-pointer">
               <FaEdit />
               <span>Edit student</span>

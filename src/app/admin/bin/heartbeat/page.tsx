@@ -100,7 +100,8 @@ export default function SmartBinDashboard() {
       : binsWithUser.filter((bin) => bin.userId === selectedUserId)
 
   return (
-    <div className="p-6">
+
+    <div className="h-full w-full overflow-y-auto pb-8">
       <h1 className="text-2xl font-bold mb-6">Smart Bin Dashboard</h1>
 
       <div className="mb-4">

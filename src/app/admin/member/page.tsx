@@ -28,11 +28,10 @@ const ViewStudentPage = async ({
     faculty
   )
   return (
-    <DataTable
-      columns={columns}
-      data={students === undefined ? [] : (students as any[])}
-      count={studentCount === undefined ? 0 : studentCount}
-    />
+    <div className="h-full w-full overflow-y-auto pb-8">
+      <DataTable columns={columns} data={students === undefined ? [] : (students as any[])} count={studentCount === undefined ? 0 : studentCount}/>
+    </div>
+
   )
 }
 export default ViewStudentPage

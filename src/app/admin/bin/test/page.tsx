@@ -137,7 +137,7 @@ const TestBinPage = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto mt-10 space-y-6">
+    <div className="h-full w-full overflow-y-auto pb-8">
       <h1 className="text-2xl font-bold">QOL Bin Test Dashboard</h1>
 
       <input

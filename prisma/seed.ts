@@ -7,13 +7,13 @@ import { randomUUID } from "crypto"
 
 const prisma = new PrismaClient()
 
-async function withPassword(password: string) {
+async function withPassword(password: string, email: string) {
   return {
     accounts: {
       create: {
         id: randomUUID(),
-        accountId: randomUUID(), // Better Auth uses this as the credential-account identifier
-        providerId: "credential", // required by Better Auth for email/password accounts
+        accountId: email, // <-- FIX: Set this to the user's email
+        providerId: "credential", 
         password: await hashPassword(password),
       },
     },
@@ -221,7 +221,8 @@ async function main() {
   }
  
   for (const { _password, ...data } of userData) {
-    const passwordExtra = _password ? await withPassword(_password) : undefined
+    // Pass data.email as the second argument
+    const passwordExtra = _password ? await withPassword(_password, data.email) : undefined
  
     const user = await prisma.user.create({
       data: {

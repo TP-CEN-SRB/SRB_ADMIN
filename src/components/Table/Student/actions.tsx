@@ -50,7 +50,7 @@ const Actions = ({ data }: { data: Student }) => {
             </>
           )}
           <DropdownMenuItem
-            onClick={() => router.push(`/admin/student/${data.id}`)}
+            onClick={() => router.push(`/admin/member/${data.id}`)}
           >
             <FaEye />
             View student profile
@@ -60,7 +60,7 @@ const Actions = ({ data }: { data: Student }) => {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => router.push(`/admin/student/transaction/${data.id}`)}
+            onClick={() => router.push(`/admin/member/transaction/${data.id}`)}
           >
             <IoReceipt /> View transactions
           </DropdownMenuItem>
