@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { DisposalSchema } from "@/schemas"
 import jwt from "jsonwebtoken"
 import { prisma } from "@/lib/db"
+import { utapi } from "@/server/uploadthing"
 
 type Body = {
   userId: string
@@ -89,11 +90,14 @@ export const POST = async (req: NextRequest) => {
     const userId: string = raw.userId
 
     // Normalize to items[]
-    type Item = { material: string; weightInGrams: number }
+    // imageBase64 is optional and used for low-confidence detections that
+    // need a human to eyeball them later - uploaded to UploadThing (not
+    // stored in Postgres) since Vercel has no persistent local disk.
+    type Item = { material: string; weightInGrams: number; imageBase64?: string }
     const items: Item[] =
       Array.isArray(raw.items) && raw.items.length > 0
         ? raw.items
-        : [{ material: raw.material, weightInGrams: raw.weightInGrams }]
+        : [{ material: raw.material, weightInGrams: raw.weightInGrams, imageBase64: raw.imageBase64 }]
 
     // Validate each item
     for (const it of items) {
@@ -103,13 +107,34 @@ export const POST = async (req: NextRequest) => {
       }
     }
 
+    // Upload any images ahead of the transaction - an external HTTP call
+    // has no business running inside a DB transaction/holding row locks.
+    const imageUrls: (string | undefined)[] = await Promise.all(
+      items.map(async (item) => {
+        if (!item.imageBase64) return undefined
+        try {
+          const buffer = Buffer.from(item.imageBase64, "base64")
+          const file = new File([buffer], `disposal-${Date.now()}-${item.material}.jpg`, {
+            type: "image/jpeg",
+          })
+          const result = await utapi.uploadFiles(file)
+          return result.data?.url
+        } catch (e) {
+          console.error("[disposal] image upload failed:", e)
+          return undefined
+        }
+      })
+    )
+
     // Transaction: create one or many disposals
     const { ids, points, carbonprints } = await prisma.$transaction(async (tx) => {
       const ids: string[] = []
       const points: number[] = []
       const carbonprints: number[] = []
 
-      for (const { material: mRaw, weightInGrams } of items) {
+      for (let i = 0; i < items.length; i++) {
+        const { material: mRaw, weightInGrams } = items[i]
+        const imageUrl = imageUrls[i]
         const material = (mRaw ?? "").toUpperCase()
 
         const [bin, binMaterial] = await Promise.all([
@@ -151,6 +176,7 @@ export const POST = async (req: NextRequest) => {
             binId: bin.id,
             carbonprint: carbonPrint,
             pointsAwarded,
+            imageUrl,
           },
           select: { id: true, pointsAwarded: true, carbonprint: true },
         })

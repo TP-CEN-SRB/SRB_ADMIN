@@ -47,6 +47,7 @@ const getDisposalByBinId = async (
         pointsAwarded: true,
         userId: true,
         createdAt: true,
+        imageUrl: true,
       },
     }),
     prisma.bin.findUnique({

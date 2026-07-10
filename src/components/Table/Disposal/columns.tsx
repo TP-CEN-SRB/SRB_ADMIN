@@ -9,6 +9,7 @@ export type Disposal = {
   pointsAwarded: number
   userId: string | null
   createdAt: Date
+  imageUrl: string | null
 }
 
 export const columns: ColumnDef<Disposal>[] = [
@@ -51,5 +52,23 @@ export const columns: ColumnDef<Disposal>[] = [
   {
     accessorKey: "pointsAwarded",
     header: "Points Awarded",
+  },
+  {
+    accessorKey: "imageUrl",
+    header: "Image",
+    cell: ({ row }) => {
+      const url = row.original.imageUrl
+      if (!url) return <span className="text-muted-foreground">—</span>
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={url}
+            alt="Detected item"
+            className="h-10 w-10 rounded object-cover hover:opacity-80"
+          />
+        </a>
+      )
+    },
   },
 ]
