@@ -27,51 +27,55 @@ export default async function ViewStudent(){
       </header>
       <Table>
         <colgroup>
-          <col style={{ width: '5%' }} />
-          <col style={{ width: '10%' }} />
-          <col style={{ width: '20%' }} />
-          <col style={{ width: '15%' }} />
-          <col style={{ width: '15%' }} />
-          <col style={{ width: '15%' }} />
-          <col style={{ width: '10%' }} />
-          <col style={{ width: '10%' }} />
+            <col style={{ width: '5%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
         </colgroup>
         <TableHeader>
           <TableRow>
             <TableHead className="text-center">s/n</TableHead>
-            <TableHead>User</TableHead>
+            <TableHead>Member</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Email Verified</TableHead>
             <TableHead>Joined Date</TableHead>
             <TableHead>Faculty</TableHead>
-            <TableHead>Points</TableHead>
+            <TableHead>Diploma</TableHead>
+            <TableHead className="text-center">Points</TableHead>
             <TableHead className="text-center">Role</TableHead>
           </TableRow>
         </TableHeader>
       </Table>
-      <div className="overflow-auto p-6">
+      <div className="overflow-auto">
         <Table>
           <colgroup>
             <col style={{ width: '5%' }} />
-            <col style={{ width: '10%' }} />
+            <col style={{ width: '15%' }} />
             <col style={{ width: '20%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '15%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
             <col style={{ width: '10%' }} />
             <col style={{ width: '10%' }} />
           </colgroup>
           <TableBody>
-            {members.map((member) => (
+            {members.map((member, i) => (
               <TableRow key={member.id}>
-                <TableCell><span className="text-xs">1</span></TableCell>
+                <TableCell className="text-center"><span className="text-xs">{i + 1}</span></TableCell>
                 <TableCell><span className="text-xs">{member.name}</span></TableCell>
                 <TableCell><span className="text-xs">{member.email}</span></TableCell>
                 <TableCell><span className="text-xs">{member.emailVerified == true? "True" : "False"}</span></TableCell>
                 <TableCell><span className="text-xs">{new Date(member.createdAt).toLocaleDateString()}</span></TableCell>
                 <TableCell><span className="text-xs">{member.faculty}</span></TableCell>
-                <TableCell><span className="text-xs">{member.point?.balance || 0}</span></TableCell>
-                <TableCell><span className="text-xs">{member.role}</span></TableCell>
+                <TableCell><span className="text-xs">{member.diploma || "N/A"}</span></TableCell>
+                <TableCell className="text-center"><span className="text-xs">{member.point?.balance || 0}</span></TableCell>
+                <TableCell className="text-center"><span className="text-xs">{member.role}</span></TableCell>
               </TableRow>
             ))}
 
