@@ -127,9 +127,11 @@ export const POST = async (req: NextRequest) => {
             })
             .jpeg({ quality: DISPOSAL_IMAGE_JPEG_QUALITY })
             .toBuffer()
-          const file = new File([resizedBuffer], `disposal-${Date.now()}-${item.material}.jpg`, {
-            type: "image/jpeg",
-          })
+          const file = new File(
+            [new Uint8Array(resizedBuffer)], 
+            `disposal-${Date.now()}-${item.material}.jpg`, 
+            { type: "image/jpeg" }
+          )
           const result = await utapi.uploadFiles(file)
           return result.data?.url
         } catch (e) {
