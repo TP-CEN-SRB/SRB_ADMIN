@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 import { DisposalSchema } from "@/schemas"
 import jwt from "jsonwebtoken"
+import sharp from "sharp"
 import { prisma } from "@/lib/db"
 import { utapi } from "@/lib/uploadthing"
+
+// Cap stored disposal images well below the raw camera capture size -
+// this is a thumbnail for admin review, not a forensic record.
+const DISPOSAL_IMAGE_MAX_DIMENSION = 480
+const DISPOSAL_IMAGE_JPEG_QUALITY = 70
 
 type Body = {
   userId: string
@@ -113,8 +119,15 @@ export const POST = async (req: NextRequest) => {
       items.map(async (item) => {
         if (!item.imageBase64) return undefined
         try {
-          const buffer = Buffer.from(item.imageBase64, "base64")
-          const file = new File([buffer], `disposal-${Date.now()}-${item.material}.jpg`, {
+          const rawBuffer = Buffer.from(item.imageBase64, "base64")
+          const resizedBuffer = await sharp(rawBuffer)
+            .resize(DISPOSAL_IMAGE_MAX_DIMENSION, DISPOSAL_IMAGE_MAX_DIMENSION, {
+              fit: "inside",
+              withoutEnlargement: true,
+            })
+            .jpeg({ quality: DISPOSAL_IMAGE_JPEG_QUALITY })
+            .toBuffer()
+          const file = new File([resizedBuffer], `disposal-${Date.now()}-${item.material}.jpg`, {
             type: "image/jpeg",
           })
           const result = await utapi.uploadFiles(file)

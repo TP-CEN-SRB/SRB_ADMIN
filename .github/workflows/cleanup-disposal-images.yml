@@ -1,0 +1,17 @@
+name: Cleanup old disposal images
+
+on:
+  schedule:
+    # 18:00 UTC = 02:00 SGT - daily, off-peak
+    - cron: "0 18 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call cleanup-disposal-images cron endpoint
+        run: |
+          curl --fail-with-body -sS -X DELETE \
+            "https://cen-smart-bin.vercel.app/api/cron/cleanup-disposal-images" \
+            -H "x-api-key: ${{ secrets.API_KEY }}"
