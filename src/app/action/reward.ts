@@ -1,7 +1,7 @@
 "use server"
 import { prisma } from "@/lib/db"
 import { RewardSchema } from "@/schemas"
-import { utapi } from "@/server/uploadthing"
+import { utapi } from "@/lib/uploadthing"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"

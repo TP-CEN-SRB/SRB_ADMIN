@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth"
-import { LoginSchema } from "@/schemas/auth"
+import { loginSchema } from "@/components/FormLogic/(Auth)/auth-schema"
 import { APIError } from "better-auth"
 import { NextRequest, NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
@@ -10,7 +10,7 @@ export const POST = async (req: NextRequest) => {
     const email = String(body.email).toLowerCase().trim()
     const password = body.password
 
-    const validatedFields = LoginSchema.safeParse({ email, password })
+    const validatedFields = loginSchema.safeParse({ email, password })
     if (!validatedFields.success) {
       return NextResponse.json({ message: "Invalid fields!" }, { status: 400 })
     }

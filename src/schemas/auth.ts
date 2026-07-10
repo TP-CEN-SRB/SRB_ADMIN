@@ -6,10 +6,6 @@ import * as z from "zod"
  * All
  */
 const { minLat, maxLat, minLong, maxLong } = maxBound
-const LoginSchema = z.object({
-  email: z.string().email("Please enter a valid email address").toLowerCase(),
-  password: z.string().min(1, "Password is required"),
-})
 
 /**
  * Admins
@@ -176,7 +172,6 @@ const NewStudentPasswordSchema = SignUpStudentSchema.pick({
 })
 
 export {
-  LoginSchema,
   SignUpAdminSchema,
   SignUpBinSchema,
   SignUpStudentSchema,
