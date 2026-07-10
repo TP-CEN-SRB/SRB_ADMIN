@@ -1,6 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import Image from "next/image"
 import { BsPersonFillCheck, BsPersonFillX } from "react-icons/bs"
 export type Disposal = {
   id: string
@@ -61,10 +62,11 @@ export const columns: ColumnDef<Disposal>[] = [
       if (!url) return <span className="text-muted-foreground">—</span>
       return (
         <a href={url} target="_blank" rel="noopener noreferrer">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={url}
             alt="Detected item"
+            width={40}
+            height={40}
             className="h-10 w-10 rounded object-cover hover:opacity-80"
           />
         </a>
