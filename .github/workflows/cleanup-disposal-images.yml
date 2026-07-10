@@ -1,9 +1,9 @@
-name: Cleanup old disposal images
+name: Cleanup old disposal images (manual fallback)
 
+# Actual daily schedule is Vercel's own Cron Jobs feature - see
+# vercel.json. This workflow is just a manual escape hatch in case
+# Vercel Cron is ever paused/misconfigured; it is not scheduled itself.
 on:
-  schedule:
-    # 18:00 UTC = 02:00 SGT - daily, off-peak
-    - cron: "0 18 * * *"
   workflow_dispatch: {}
 
 jobs:
