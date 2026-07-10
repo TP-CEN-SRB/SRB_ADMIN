@@ -21,7 +21,7 @@ async function getAllMembers(){
 export default async function ViewStudent(){
   const members = await getAllMembers()
   return(
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-full overflow-hidden">
       <header className="z-40 bg-muted p-2">
         Members Table
       </header>
@@ -51,7 +51,8 @@ export default async function ViewStudent(){
           </TableRow>
         </TableHeader>
       </Table>
-      <div className="overflow-auto">
+
+      <div className="flex-1 overflow-auto">
         <Table>
           <colgroup>
             <col style={{ width: '5%' }} />
