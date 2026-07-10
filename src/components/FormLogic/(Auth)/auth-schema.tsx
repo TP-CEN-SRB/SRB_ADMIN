@@ -23,8 +23,7 @@ export type SignupFormValue = z.infer<typeof signupSchema>
 
 export const loginSchema = z.object({
 
-  email: z.email({ error: "Email is required." })
-    .endsWith("tp.edu.sg", { error: "Please use an approved TP staff email" }),
+  email: z.email({ error: "Email is required." }),
 
   password: z.string()
     .min(8, { error: "Password must be at least 8 characters long." }),
