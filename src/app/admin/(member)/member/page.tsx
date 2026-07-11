@@ -1,14 +1,12 @@
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { prisma } from "@/lib/db"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+import { PageinationHeader } from "./header"
 
-const LIMIT = 20
-async function getAllMembers(page: number){
+async function getAllMembers(page: number = 1, limit: number = 10){
   const allMember = await prisma.user.findMany({
 
-    skip: (page - 1) * LIMIT,
-    take: LIMIT,
+    skip: (page - 1) * limit,
+    take: limit,
 
     where: {
       role: {
@@ -33,34 +31,21 @@ async function getAllMembers(page: number){
     }
   })
 
-  const totalPages = Math.ceil(allMemberCount / LIMIT)
+  const totalPages = Math.ceil(allMemberCount / limit)
 
   return {allMember, allMemberCount, totalPages} 
 }
 
-export default async function ViewStudent({searchParams} : {searchParams: Promise<{page?: string}>}){
+export default async function ViewStudent({searchParams} : {searchParams: Promise<{page?: string, limit?: string}>}){
 
   const currentPage = Number((await searchParams).page) || 1
-  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage)
+  const currentLimit = Number((await searchParams).limit) || 10
+  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit)
 
   return(
     <div className="flex flex-col h-full overflow-hidden">
-      <header className="z-40 flex items-center justify-between bg-muted p-2">
-        <span>Members Table</span>
-        <div className="flex items-center gap-2">
-          <Button disabled={currentPage < 2}>
-            <Link href={`?page=${currentPage - 1}`}>
-              Prev
-            </Link>
-          </Button>
-          <div>showing {Math.min(currentPage * LIMIT, allMemberCount)} / {allMemberCount}</div>
-          <Button disabled={currentPage > (totalPages - 1)}>
-            <Link href={`?page=${currentPage + 1}`}>
-              Next
-            </Link>
-          </Button>
-        </div>
-      </header>
+
+      <PageinationHeader currentPage={currentPage} currentLimit={currentLimit} totalPages={totalPages} allMemberCount={allMemberCount}/>
 
       <Table>
         <colgroup>
@@ -105,7 +90,7 @@ export default async function ViewStudent({searchParams} : {searchParams: Promis
           <TableBody>
             {allMember.map((member, i) => (
               <TableRow key={member.id}>
-                <TableCell className="text-center"><span className="text-xs">{i + 1}</span></TableCell>
+                <TableCell className="text-center"><span className="text-xs">{(i + 1) + ((currentPage - 1) * currentLimit)}</span></TableCell>
                 <TableCell><span className="text-xs">{member.name}</span></TableCell>
                 <TableCell><span className="text-xs">{member.email}</span></TableCell>
                 <TableCell><span className="text-xs">{member.emailVerified == true? "True" : "False"}</span></TableCell>
