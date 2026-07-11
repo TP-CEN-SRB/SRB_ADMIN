@@ -87,6 +87,7 @@ function DropdownMenuCheckboxItem({
   checked,
   inset,
   ...props
+  
 }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> & {
   inset?: boolean
 }) {

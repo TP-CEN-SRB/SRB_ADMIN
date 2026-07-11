@@ -2,7 +2,15 @@ import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@
 import { prisma } from "@/lib/db"
 import { PageinationHeader } from "./header"
 
-async function getAllMembers(page: number = 1, limit: number = 10){
+type Role = "ADMIN" | "STUDENT" | "STAFF"
+type Sort = "asc" | "desc" | undefined
+
+async function getAllMembers(
+  page: number, 
+  limit: number, 
+  roles: Role[], 
+  sort: Sort[])
+  {
   const allMember = await prisma.user.findMany({
 
     skip: (page - 1) * limit,
@@ -10,12 +18,13 @@ async function getAllMembers(page: number = 1, limit: number = 10){
 
     where: {
       role: {
-        in: ["ADMIN", "STUDENT", "STAFF"]
+        in: roles
       }
     },
 
     orderBy: {
-      createdAt: "desc",
+      createdAt: sort[0],
+      name: sort[1]
     },
 
     include: {
@@ -26,7 +35,7 @@ async function getAllMembers(page: number = 1, limit: number = 10){
   const allMemberCount = await prisma.user.count({
     where: {
       role: {
-        in: ["ADMIN", "STUDENT", "STAFF"]
+        in: roles
       }
     }
   })
@@ -36,16 +45,43 @@ async function getAllMembers(page: number = 1, limit: number = 10){
   return {allMember, allMemberCount, totalPages} 
 }
 
-export default async function ViewStudent({searchParams} : {searchParams: Promise<{page?: string, limit?: string}>}){
+export default async function ViewStudent({searchParams} : {searchParams: Promise<{page?: string, limit?: string, roles?: string, sort?: string}>}){
 
-  const currentPage = Number((await searchParams).page) || 1
-  const currentLimit = Number((await searchParams).limit) || 10
-  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit)
+  const params = await searchParams
+  const currentPage = Number(params.page) || 1
+  const currentLimit = Number(params.limit) || 10
+  
+  const currentRoles = params.roles ? (params.roles.split(",") as Role[]) : ["ADMIN", "STUDENT", "STAFF"] as Role[]
+  
+  let currentSort = ["desc", undefined] as Sort[]
+  const sortString = params.sort || "dateDesc"
+  switch(sortString){
+    case "dateAsc":
+      currentSort = ["asc", undefined] as Sort[]
+      break
+    case "dateDesc":
+      currentSort = ["desc", undefined] as Sort[]
+      break
+    case "nameAsc":
+      currentSort = [undefined, "asc"] as Sort[]
+      break
+    case "nameDesc":
+      currentSort = [undefined, "desc"] as Sort[]
+      break
+  }
+
+
+  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentSort)
 
   return(
     <div className="flex flex-col h-full overflow-hidden">
 
-      <PageinationHeader currentPage={currentPage} currentLimit={currentLimit} totalPages={totalPages} allMemberCount={allMemberCount}/>
+      <PageinationHeader 
+      currentPage={currentPage} 
+      currentLimit={currentLimit} 
+      totalPages={totalPages} 
+      allMemberCount={allMemberCount}
+      />
 
       <Table>
         <colgroup>
