@@ -3,25 +3,36 @@ import { prisma } from "@/lib/db"
 import { PageinationHeader } from "./header"
 
 type Role = "ADMIN" | "STUDENT" | "STAFF"
+type Faculty = "ENG" | "BUS" | "DES" | "ASC" | "IIT" | "HSS" | "EXT" | "OTHERS"
 type Sort = "asc" | "desc" | undefined
 
 async function getAllMembers(
   page: number, 
   limit: number, 
   roles: Role[], 
-  sort: Sort[])
+  faculty: Faculty[], 
+  sort: Sort[],
+  email: string
+  )
   {
+
+  const whereClause = {
+    role: {
+      in: roles
+    },
+    faculty: {
+      in: faculty
+    },
+    email: {
+      contains: email
+    }
+  }
+
   const allMember = await prisma.user.findMany({
 
     skip: (page - 1) * limit,
     take: limit,
-
-    where: {
-      role: {
-        in: roles
-      }
-    },
-
+    where: whereClause,
     orderBy: {
       createdAt: sort[0],
       name: sort[1]
@@ -33,11 +44,7 @@ async function getAllMembers(
   })
 
   const allMemberCount = await prisma.user.count({
-    where: {
-      role: {
-        in: roles
-      }
-    }
+    where: whereClause
   })
 
   const totalPages = Math.ceil(allMemberCount / limit)
@@ -45,14 +52,29 @@ async function getAllMembers(
   return {allMember, allMemberCount, totalPages} 
 }
 
-export default async function ViewStudent({searchParams} : {searchParams: Promise<{page?: string, limit?: string, roles?: string, sort?: string}>}){
+export default async function ViewStudent(
+  {
+    searchParams
+  } : {
+    searchParams: Promise<{
+    page?: string, 
+    limit?: string, 
+    roles?: string, 
+    faculty?: string, 
+    sort?: string,
+    email?: string,
+    }>
+      })
+
+  {
 
   const params = await searchParams
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   
   const currentRoles = params.roles ? (params.roles.split(",") as Role[]) : ["ADMIN", "STUDENT", "STAFF"] as Role[]
-  
+  const currentFaculty = params.faculty ? (params.faculty.split(",") as Faculty[]) : ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"] as Faculty[]
+
   let currentSort = ["desc", undefined] as Sort[]
   const sortString = params.sort || "dateDesc"
   switch(sortString){
@@ -70,8 +92,9 @@ export default async function ViewStudent({searchParams} : {searchParams: Promis
       break
   }
 
+  const currentEmail = params.email || ""
 
-  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentSort)
+  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentFaculty, currentSort, currentEmail)
 
   return(
     <div className="flex flex-col h-full overflow-hidden">

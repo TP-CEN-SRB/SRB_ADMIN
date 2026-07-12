@@ -16,7 +16,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
+  DropdownMenuCheckboxItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 
 import { Input } from "@/components/ui/input"
@@ -25,7 +29,7 @@ import { ChevronLeft, ChevronRight, ChevronsLeft,  ChevronsRight, ListFilter} fr
 import { Button } from "@/components/ui/button"
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { useTransition } from "react"
+import { act, useTransition } from "react"
 
 const limits = [
   { label: "10 rows", value: "10" },
@@ -46,6 +50,18 @@ const checkedRoles = [
     {label:"Student", value: "STUDENT"}, 
     {label:"Staff", value: "STAFF"}
 ]
+
+const checkedFaculties = [
+  { label: "Engineering", value: "ENG" },
+  { label: "Business", value: "BUS" },
+  { label: "Design", value: "DES" },
+  { label: "Applied Science", value: "ASC" },
+  { label: "Informatics & IT", value: "IIT" },
+  { label: "Humanities & Social Sciences", value: "HSS" },
+  { label: "External", value: "EXT" },
+  { label: "Others", value: "OTHERS" }
+]
+
 interface PaginationHeaderProps {
     currentPage: number,
     currentLimit: number,
@@ -61,7 +77,9 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
     const searchParams = useSearchParams() 
 
     const rolesParam = searchParams.get("roles")
+    const facultyParam = searchParams.get("faculty")
     const activeRoles = rolesParam ? rolesParam.split(",") : ["ADMIN", "STUDENT", "STAFF"]
+    const activeFaculty = facultyParam ? facultyParam.split(",") : ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"]
 
     const currentSort = searchParams.get("sort") || "dateDesc"
 
@@ -107,7 +125,23 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
         } else {
             newRoles = newRoles.filter(function(role) { return role !== roleValue })
         }
-        params.set("roles", newRoles.join(",")) // MUST match the "roles" spelling expected by the server
+        params.set("roles", newRoles.join(","))
+        params.set("page", "1")
+        startTransition(function(){
+            router.push(`${pathname}?${params.toString()}`)
+        }) 
+    }
+
+    function onCheckedFaculty(facultyValue: string, isChecked: boolean){
+        const params = new URLSearchParams(searchParams.toString())
+        let newFaculty = [...activeFaculty]
+        
+        if (isChecked) {
+            newFaculty.push(facultyValue)
+        } else {
+            newFaculty = newFaculty.filter(function(faculty) { return faculty !== facultyValue })
+        }
+        params.set("faculty", newFaculty.join(","))
         params.set("page", "1")
         startTransition(function(){
             router.push(`${pathname}?${params.toString()}`)
@@ -120,6 +154,15 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
             params.set("sort", sortValue)
             params.set("page", "1")
         }
+        startTransition(function(){
+            router.push(`${pathname}?${params.toString()}`)
+        }) 
+    }
+
+    function onEmailSearch(email: string){
+        const params = new URLSearchParams(searchParams.toString())
+        params.set("email", email)
+        params.set("page", "1")
         startTransition(function(){
             router.push(`${pathname}?${params.toString()}`)
         }) 
@@ -168,10 +211,36 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
                                 </DropdownMenuCheckboxItem>
                             ))}
                         </DropdownMenuGroup>
+
+                        <DropdownMenuSeparator/>
+                        
+                        <DropdownMenuGroup>
+                            <DropdownMenuLabel>Faculty</DropdownMenuLabel>
+                            <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>Select Faculty</DropdownMenuSubTrigger>
+                                <DropdownMenuPortal>
+                                    <DropdownMenuSubContent>
+                                        {checkedFaculties.map((faculty)=>(
+                                            <DropdownMenuCheckboxItem 
+                                            key={faculty.value} 
+                                            checked={activeFaculty.includes(faculty.value)} 
+                                            onCheckedChange={function(checked){onCheckedFaculty(faculty.value, checked)}}
+                                            onSelect={function(event) {event.preventDefault()}}
+                                            >
+                                                {faculty.label}
+                                            </DropdownMenuCheckboxItem>
+                                        ))}
+
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuPortal>
+                            </DropdownMenuSub>
+  
+                        </DropdownMenuGroup>
+
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Input placeholder="search email..." className="text-sm w-40"/>
+                <Input placeholder="search email..." className="text-sm w-40" onChange={function(e) { onEmailSearch(e.target.value) }}/>
             </div>
 
             <div className="flex items-center gap-2">
