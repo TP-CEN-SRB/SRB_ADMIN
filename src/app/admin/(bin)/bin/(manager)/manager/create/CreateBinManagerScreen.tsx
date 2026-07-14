@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react"
-import { SignUpBinForm } from "@/components/FormLogic/(Admin)/SignUpBinForm"
+import { SignUpBinForm } from "./SignUpBinForm"
 import BinMapChartWithMarker from "@/components/Map/BinMapChartWithMarker"
 import { Faculty } from "@/generated/prisma"
 import { Button } from "@/components/ui/button"

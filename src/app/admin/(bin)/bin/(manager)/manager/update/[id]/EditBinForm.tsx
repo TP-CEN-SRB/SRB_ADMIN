@@ -44,14 +44,13 @@ export function EditBinForm({
   const form = useForm<EditBinFormValue>({
     resolver: zodResolver(editBinSchema), 
     defaultValues: {
-      // 👈 CRITICAL: Populate the existing data!
       name: name,
       email: email,
       faculty: faculty,
       location: location,
       lat: initialLatLng.lat,
       long: initialLatLng.lng,
-      password: "", // Leave blank by default
+      password: "", 
       confirmPassword: ""
   }})
 
@@ -66,20 +65,15 @@ export function EditBinForm({
     setIsPending(true)
     setServerError(null)
 
-    // 👇 1. Tell TypeScript this is a Partial object, making all keys optional
     const payload: Partial<EditBinFormValue> = { ...editBinData }
     
-    // 👇 2. Now you can safely delete the passwords without TS complaining!
     if (!payload.password || payload.password === "") {
         delete payload.password
         delete payload.confirmPassword
     }
 
     try {
-      // (Since your server action updateBin expects a Partial<EditBinFormValue>, 
-      // this matches perfectly!)
       const result = await updateBin(payload, id)
-
       router.push("/admin/bin")
     } catch (error) {
       setServerError("Failed to update bin")
@@ -89,14 +83,20 @@ export function EditBinForm({
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col gap-6", className)} {...props}>
+    <form 
+      onSubmit={form.handleSubmit(onSubmit)} 
+      // 👇 Applied the layout constraint classes here
+      className={cn("flex flex-col gap-6 w-full max-w-md mx-auto p-6 py-12", className)} 
+      {...props}
+    >
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex flex-col items-center gap-1 text-center mb-4">
           <h1 className="text-2xl font-bold">Edit Bin Manager</h1>
         </div>
 
         {serverError && (
-          <div className="text-sm text-red-500 text-center font-medium">
+          // 👇 Swapped text-red-500 for text-destructive
+          <div className="text-sm text-destructive text-center font-medium">
             {serverError}
           </div>
         )}
@@ -122,26 +122,55 @@ export function EditBinForm({
 
         <Field>
           <FieldLabel htmlFor="faculty">Faculty</FieldLabel>
-          <Input id="faculty" type="text" disabled={isPending} className="bg-background" {...form.register("faculty")} />
+          {/* 👇 Swapped generic Input for the styled Select to enforce type safety */}
+          <select
+            id="faculty"
+            disabled={isPending}
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+            {...form.register("faculty")}
+          >
+            <option value="" disabled>Select Faculty</option>
+            <option value="ENG">ENG</option>
+            <option value="BUS">BUS</option>
+            <option value="ASC">ASC</option>
+            <option value="DES">DES</option>
+            <option value="HSS">HSS</option>
+            <option value="IIT">IIT</option>
+            <option value="OTHERS">OTHERS</option>
+            <option value="EXT">EXTERNAL</option>
+          </select>
           {form.formState.errors.faculty && <p className="text-sm text-destructive">{form.formState.errors.faculty.message}</p>}
+        </Field>
+        
+        <Field>
+          <FieldLabel htmlFor="location">Location</FieldLabel>
+          <Input
+            id="location"
+            type="text"
+            className="bg-background"
+            disabled={isPending}
+            {...form.register("location")}
+          />
+          {form.formState.errors.location && (<p className="text-sm text-destructive">{form.formState.errors.location.message}</p>)}
         </Field>
 
         <Field className="grid grid-cols-2 gap-4">
           <Field>
             <FieldLabel htmlFor="lat">Latitude</FieldLabel>
-            <Input id="lat" type="text" disabled={isPending} className="bg-background" {...form.register("lat", { valueAsNumber: true })} />
+            {/* 👇 Changed type="text" to type="number" and added step="any" */}
+            <Input id="lat" type="number" step="any" disabled={isPending} className="bg-background" {...form.register("lat", { valueAsNumber: true })} />
             {form.formState.errors.lat && <p className="text-sm text-destructive">{form.formState.errors.lat.message}</p>}
           </Field>
 
           <Field>
             <FieldLabel htmlFor="long">Longitude</FieldLabel>
-            <Input id="long" type="text" disabled={isPending} className="bg-background" {...form.register("long", { valueAsNumber: true })} />
+            {/* 👇 Changed type="text" to type="number" and added step="any" */}
+            <Input id="long" type="number" step="any" disabled={isPending} className="bg-background" {...form.register("long", { valueAsNumber: true })} />
             {form.formState.errors.long && <p className="text-sm text-destructive">{form.formState.errors.long.message}</p>}
           </Field>
-
         </Field>
 
-        <Field>
+        <Field className="mt-2">
           <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? "Updating..." : "Update Bin Manager"}
           </Button>

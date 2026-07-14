@@ -3,13 +3,13 @@ import CreateBinForm from "@/components/FormLogic/(Bins)/CreateBinForm"
 import { prisma } from "@/lib/db"
 
 
-export default async function CreateBinFormPageWithBinUser({ params }: { params: Promise<{ binUserId: string }> }) {
-  const { binUserId } = await params 
+export default async function CreateBinFormPageWithBinUser({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params 
   const [getAllMaterials, getBinLocation, getUnavailableMaterialsForBin] =
     await Promise.all([
       prisma.binMaterial.findMany(),
       prisma.user.findUnique({
-        where: { id: binUserId },
+        where: { id: id },
         select: { location: true },
       }),
       prisma.bin.findMany({
@@ -17,7 +17,7 @@ export default async function CreateBinFormPageWithBinUser({ params }: { params:
           binMaterial: true,
         },
         where: {
-          userId: binUserId,
+          userId: id,
         },
       }),
     ])
@@ -27,7 +27,7 @@ export default async function CreateBinFormPageWithBinUser({ params }: { params:
         <div className="container mx-auto max-w-lg py-8">
           <CreateBinForm
             materials={getAllMaterials}
-            binUserId={binUserId}
+            binUserId={id}
             binLocation={getBinLocation?.location}
             usedBinMaterials={getUnavailableMaterialsForBin.map((bin) => bin.binMaterial)}
           />

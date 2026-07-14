@@ -32,17 +32,19 @@ export function SignUpBinForm({
   onLatLngChange,
   className,
   ...props
-}: SignUpBinFormProps){
+}: SignUpBinFormProps) {
 
   const router = useRouter()
   const [isPending, setIsPending] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   
-  const form = useForm<SignupBinFormValue>({resolver: zodResolver(signupBinSchema), defaultValues: {
+  const form = useForm<SignupBinFormValue>({
+    resolver: zodResolver(signupBinSchema), 
+    defaultValues: {
       latitude: latLng.lat,
       longitude: latLng.lng,
-  }})
-
+    }
+  })
 
   useEffect(() => {
     if (latLng) {
@@ -51,7 +53,7 @@ export function SignUpBinForm({
     }
   }, [latLng, form])
   
-  async function onSubmit(signupBinData: SignupBinFormValue){
+  async function onSubmit(signupBinData: SignupBinFormValue) {
     setIsPending(true)
     setServerError(null)
 
@@ -75,15 +77,20 @@ export function SignUpBinForm({
     router.push("/admin/bin/manager/map")
   }
 
-return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col gap-6", className)} {...props}>
+  return (
+    <form 
+      onSubmit={form.handleSubmit(onSubmit)} 
+      // 👇 Added max-w-md, mx-auto, w-full, and padding to constrain and center the form
+      className={cn("flex flex-col gap-6 w-full max-w-md mx-auto p-6 py-12", className)} 
+      {...props}
+    >
       <FieldGroup>
-        <div className="flex flex-col items-center gap-1 text-center">
+        <div className="flex flex-col items-center gap-1 text-center mb-4">
           <h1 className="text-2xl font-bold">Create your account</h1>
         </div>
 
         {serverError && (
-          <div className="text-sm text-red-500 text-center font-medium">
+          <div className="text-sm text-destructive text-center font-medium">
             {serverError}
           </div>
         )}
@@ -99,7 +106,6 @@ return (
           />
           {form.formState.errors.name && (<p className="text-sm text-destructive">{form.formState.errors.name.message}</p>)}
         </Field>
-
 
         <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -118,10 +124,11 @@ return (
           <select
             id="faculty"
             defaultValue=""
-            className="text-xs text-muted-foreground bg-background rounded-md border h-6 px-2"
+            // 👇 Styled to perfectly match the shadcn <Input /> component
+            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             {...form.register("faculty")}
           >
-            <option value="" disabled >Select Faculty</option>
+            <option value="" disabled>Select Faculty</option>
             <option value="ENG">ENG</option>
             <option value="BUS">BUS</option>
             <option value="ASC">ASC</option>
@@ -157,7 +164,6 @@ return (
           {form.formState.errors.confirmPassword && (<p className="text-sm text-destructive">{form.formState.errors.confirmPassword.message}</p>)}
         </Field>
 
-
         <Field>
           <FieldLabel htmlFor="location">Location</FieldLabel>
           <Input
@@ -171,15 +177,13 @@ return (
         </Field>
 
         <Field className="grid grid-cols-2 gap-4">
-
           <Field>
             <FieldLabel htmlFor="latitude">Latitude</FieldLabel>
             <Input
               id="latitude"
               type="number"
-              step="any" // <-- Allows decimals in the number input
+              step="any"
               className="bg-background"
-              // 👇 MUST use valueAsNumber so Zod gets a number, not a string
               {...form.register("latitude", { valueAsNumber: true })} 
             />
             {form.formState.errors.latitude && (<p className="text-sm text-destructive">{form.formState.errors.latitude.message}</p>)}
@@ -190,20 +194,16 @@ return (
             <Input
               id="longitude"
               type="number"
-              step="any" // <-- Allows decimals
+              step="any"
               className="bg-background"
-              // 👇 MUST use valueAsNumber
               {...form.register("longitude", { valueAsNumber: true })}
             />
             {form.formState.errors.longitude && (<p className="text-sm text-destructive">{form.formState.errors.longitude.message}</p>)}
           </Field>
-          
         </Field>
 
-
-
-        <Field>
-          <Button type="submit" disabled={isPending}>
+        <Field className="mt-2">
+          <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? "Creating account..." : "Create Account"}
           </Button>
         </Field>

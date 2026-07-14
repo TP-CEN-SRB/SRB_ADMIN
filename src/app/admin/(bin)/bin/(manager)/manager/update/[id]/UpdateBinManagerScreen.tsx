@@ -4,7 +4,7 @@ import BinMapChartWithMarker from "@/components/Map/BinMapChartWithMarker"
 import { Faculty } from "@/generated/prisma"
 import { Button } from "@/components/ui/button"
 import { IoMdClose } from "react-icons/io"
-import { EditBinForm } from "@/components/FormLogic/(Admin)/EditBinForm"
+import { EditBinForm } from "./EditBinForm"
 
 interface ScreenProps {
   binManager: {
