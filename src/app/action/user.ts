@@ -12,7 +12,7 @@ function capitalizeFirstLetter(name: string): string {
   return trimmedName[0].toUpperCase() + trimmedName.slice(1)
 }
 
-export async function getAllBinUsers(){
+export async function getAllBins(){
   const result = await prisma.user.findMany({
     where: {
       role: "BIN",

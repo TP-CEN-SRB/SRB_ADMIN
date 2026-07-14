@@ -1,15 +1,15 @@
-import { getAllBinUsers } from "@/app/action/user"
+import { getAllBins } from "@/app/action/user"
 import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 
 
-export default async function UpdateBinManagersPage({ params }: { params: Promise<{ binUserID: string }> }) {
-  const { binUserID } = await params 
+export default async function UpdateBinManagersPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params 
   const [binUser, binManagers] = await Promise.all([
     prisma.user.findUnique({
       where: {
-        id: binUserID,
+        id: id,
       },
       select: {
         id: true,
@@ -21,7 +21,7 @@ export default async function UpdateBinManagersPage({ params }: { params: Promis
         long: true,
       },
     }),
-    getAllBinUsers(),
+    getAllBins(),
   ])
   if (!binUser) {
     notFound()

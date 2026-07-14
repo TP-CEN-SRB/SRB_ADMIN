@@ -17,7 +17,6 @@ import Link from "next/link"
 const col_widths = ["5%", "10%", "15%", "10%", "10%", "10%", "10%", "10%", "10%", "10%"]
 const see_more = [
   {label: "View Profile", value: "/admin/member"},
-  {label: "Edit Profile", value: "/admin/member/edit"}
 ]
 
 const verified = [

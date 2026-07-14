@@ -2,10 +2,10 @@ import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import ViewBinManagerScreen from "@/components/Screen/ViewBinManagerScreen"
 
-export default async function ViewBinManagerPage({ params }: { params: Promise<{ binUserID: string }> }) {
-  const { binUserID } = await params 
+export default async function ViewBinManagerPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params 
   const bins = await prisma.bin.findMany({
-    where: { userId: binUserID },
+    where: { userId: id },
     include: { binMaterial: true, disposals: true },
   })
 
@@ -25,7 +25,7 @@ export default async function ViewBinManagerPage({ params }: { params: Promise<{
   }))
 
   const manager = await prisma.user.findUnique({
-    where: { id: binUserID },
+    where: { id: id },
     select: {
       id: true,
       name: true,
