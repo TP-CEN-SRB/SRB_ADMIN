@@ -6,14 +6,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Smartphone, LayoutDashboard, Database, ExternalLink, LogOut } from "lucide-react"
+import { Menu, LayoutDashboard, ExternalLink, LogOut } from "lucide-react"
 
-export function RedirectPopover({ isAdmin, isBin, username, email, signOut }: { isAdmin: boolean, isBin: boolean, username: string, email: string, signOut: () => Promise<void> }) {
+export function RedirectPopover({ isAdmin, username, email, signOut }: { isAdmin: boolean, username: string, email: string, signOut: () => Promise<void> }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="icon" className="gap-2">
-            <Smartphone className="size-4" />
+        <Button variant="outline" className="gap-2">  
+            <Menu className="size-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={10} className="w-64 p-0">
@@ -34,15 +34,6 @@ export function RedirectPopover({ isAdmin, isBin, username, email, signOut }: { 
 
 
         <div className="flex flex-col">
-
-          {(isAdmin || isBin) && (
-            <Button asChild variant="ghost" className="justify-start gap-2">
-              <Link href="/local/video">
-                <Database className="size-4" />
-                Local Bin
-              </Link>
-            </Button>
-          )}
 
           {isAdmin && (
             <Button asChild variant="ghost" className="justify-start gap-2">

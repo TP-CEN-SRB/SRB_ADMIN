@@ -1,10 +1,11 @@
 "use client"
 import React, { useEffect, useState } from "react"
 import { SignUpBinForm } from "@/components/FormLogic/(Admin)/SignUpBinForm"
-import BinMapChartWithMarker from "../Map/BinMapChartWithMarker"
+import BinMapChartWithMarker from "@/components/Map/BinMapChartWithMarker"
 import { Faculty } from "@/generated/prisma"
-import { Button } from "../ui/button"
+import { Button } from "@/components/ui/button"
 import { IoMdClose } from "react-icons/io"
+
 interface ScreenProps {
   data: {
     id: string
@@ -20,6 +21,7 @@ interface ScreenProps {
 const CreateBinManagerScreen = ({ data }: ScreenProps) => {
   const [isDesktop, setIsDesktop] = useState(false)
   const [showMobileMap, setShowMobileMap] = useState(false)
+
   useEffect(() => {
     const mediaQuery = window.matchMedia("(min-width: 768px)")
     const handleChange = () => setIsDesktop(mediaQuery.matches)
@@ -34,14 +36,15 @@ const CreateBinManagerScreen = ({ data }: ScreenProps) => {
     lng: 103.9327236,
   })
 
-  function handleLatLngChange(latLng: { lat: number; lng: number }){
+  function handleLatLngChange(latLng: { lat: number; lng: number }) {
     setLatLng(latLng)
   }
-return (
-    <div className="flex w-full h-screen md:max-h-screen md:overflow-hidden">
+
+  return (
+    <div className="flex w-full h-screen md:max-h-screen md:overflow-hidden bg-background text-foreground">
       
       {/* Left Side: Form */}
-      <div className="overflow-y-auto flex-1 h-full">
+      <div className="overflow-y-auto flex-1 h-full border-r border-border">
         <SignUpBinForm
           onLatLngChange={handleLatLngChange}
           initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
@@ -50,9 +53,9 @@ return (
         />
       </div>
 
-      {/* Right Side: Desktop Map - ADDED relative AND h-full */}
+      {/* Right Side: Desktop Map */}
       {isDesktop && (
-        <div className="flex-1 relative h-full w-full">
+        <div className="flex-1 relative h-full w-full bg-muted/20">
           <BinMapChartWithMarker
             initialLatLng={{ lat: 1.3456618, lng: 103.9327236 }}
             latLng={latLng}
@@ -62,17 +65,20 @@ return (
         </div>
       )}
 
-      {/* Mobile Map - Ensure the map inside can stretch */}
+      {/* Mobile Map - Updated to support light/dark mode seamlessly */}
       {showMobileMap && (
-        <div className="fixed top-0 left-0 w-full h-full bg-black z-50">
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+          {/* Changed to use shadcn's destructive variant */}
           <Button
-            className="absolute top-4 left-4 p-3 bg-red-500 hover:bg-red-600 rounded-md z-50 shadow-xl"
+            variant="destructive"
+            className="absolute top-4 left-4 z-50 shadow-md gap-1"
             onClick={() => setShowMobileMap(false)}
           >
-            <IoMdClose stroke="white" strokeWidth={40} /> Close
+            <IoMdClose className="size-5" /> 
+            Close
           </Button>
           
-          <div className="relative w-full h-full pt-20"> {/* Wrapper for mobile map */}
+          <div className="relative w-full h-full pt-16">
             <BinMapChartWithMarker
               initialLatLng={latLng}
               latLng={latLng}
@@ -85,4 +91,5 @@ return (
     </div>
   )
 }
+
 export default CreateBinManagerScreen

@@ -26,6 +26,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import MapLayer from "@/components/Map/MapLayer"
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
+import { useTheme } from "next-themes" // <-- 1. Import useTheme
+
 interface MapChartProps {
   data: {
     id: string
@@ -37,6 +39,7 @@ interface MapChartProps {
     long: number | undefined
   }[]
 }
+
 type PopupInfo = {
   id: string
   name: string
@@ -45,6 +48,7 @@ type PopupInfo = {
   long: number
   _count: { bins: number }
 }
+
 export default function MapChart({ data }: MapChartProps) {
   const { minLat, maxLat, minLong, maxLong } = maxBound
   const [popupInfo, setPopupInfo] = useState<PopupInfo | null>(null)
@@ -55,13 +59,20 @@ export default function MapChart({ data }: MapChartProps) {
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapRef>(null)
+  
+  // 2. Setup next-themes and mounted state for hydration safety
+  const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
 
-  // 2. Setup ResizeObserver to force map to fill space when sidebar toggles
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // 3. Setup ResizeObserver to force map to fill space when sidebar toggles
   useEffect(() => {
     if (!containerRef.current) return;
 
     const observer = new ResizeObserver(() => {
-      // requestAnimationFrame prevents "ResizeObserver loop limit exceeded" errors
       window.requestAnimationFrame(() => {
         if (mapRef.current) {
           mapRef.current.resize();
@@ -75,17 +86,25 @@ export default function MapChart({ data }: MapChartProps) {
       observer.disconnect();
     };
   }, []);
+
+  // 4. Dynamically set map style based on theme
+  const currentMapStyle = mounted && resolvedTheme === "dark"
+    ? "https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
+    : "https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
+
   return (
     <div ref={containerRef} className="relative h-full w-full">
-      <div className="absolute z-10 top-4 left-4 bg-white p-2 rounded shadow-sm">
-        <label className="flex items-center gap-2">
+      {/* 5. Update standard bg-white to shadcn theme variables (bg-background, text-foreground, etc.) */}
+      <div className="absolute z-10 top-4 left-4 bg-background text-foreground border p-2 rounded-md shadow-sm">
+        <label className="flex items-center gap-2 cursor-pointer">
           <Checkbox
             checked={showLayer}
             onCheckedChange={() => setShowLayer(!showLayer)}
           />
-          Show school buildings
+          <span className="text-sm font-medium">Show school buildings</span>
         </label>
       </div>
+      
       <Map
         ref={mapRef}
         attributionControl={false}
@@ -100,7 +119,7 @@ export default function MapChart({ data }: MapChartProps) {
           width: "100%",
           height: "100%",
         }}
-        mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
+        mapStyle={currentMapStyle} // Apply dynamic style here
       >
         <FullscreenControl />
         <NavigationControl />
@@ -161,21 +180,19 @@ export default function MapChart({ data }: MapChartProps) {
             />
           </>
         )}
+        
         {data.map((binManager) => {
-          // 1. If this user has no coordinates, don't render a marker at all
           if (binManager.lat === undefined || binManager.long === undefined) return null;
 
           const binLat = parseFloat(searchParams.get('lat') || '');
           const binLong = parseFloat(searchParams.get('long') || '');
 
-          // 2. If it exactly matches the URL params, skip it
           if (binManager.lat === binLat && binManager.long === binLong) return null;
 
-          // 3. Otherwise, render the marker safely
           return (
             <Marker
               key={binManager.id}
-              latitude={binManager.lat} // No need for "as number" anymore!
+              latitude={binManager.lat}
               longitude={binManager.long}
               anchor="bottom"
               onClick={(e) => {
@@ -199,6 +216,7 @@ export default function MapChart({ data }: MapChartProps) {
             </Marker>
           );
         })}
+        
         {searchParams && (
           <Marker
             latitude={Binlat ? parseFloat(Binlat) : 0}
@@ -214,6 +232,7 @@ export default function MapChart({ data }: MapChartProps) {
             />
           </Marker>
         )}
+
         {popupInfo && (
           <Popup
             focusAfterOpen={false}
@@ -222,7 +241,8 @@ export default function MapChart({ data }: MapChartProps) {
             latitude={Number(popupInfo.lat)}
             onClose={() => setPopupInfo(null)}
           >
-            <div className="flex flex-col">
+            {/* Kept text-slate-900 to ensure readability against Mapbox's default white popup background */}
+            <div className="flex flex-col text-slate-900 text-sm">
               <div>
                 <span className="font-bold">Name: </span>
                 {popupInfo.name}
@@ -233,35 +253,35 @@ export default function MapChart({ data }: MapChartProps) {
               </div>
               <div>
                 <span className="font-bold">Latitude: </span>
-                {popupInfo.lat}&deg
+                {popupInfo.lat}&deg;
               </div>
               <div>
                 <span className="font-bold">Longitude: </span>
-                {popupInfo.long}&deg
+                {popupInfo.long}&deg;
               </div>
               <div>
                 <span className="font-bold">No. of bins: </span>
                 {popupInfo._count.bins}
               </div>
-              <div className="flex items-center gap-1 flex-wrap mt-1">
+              <div className="flex items-center gap-2 flex-wrap mt-2 pt-2 border-t border-slate-200">
                 <Link
                   href={`/admin/bin/manager/update/${popupInfo.id}`}
-                  className="flex gap-1 items-center text-blue-600 hover:underline text-sm"
+                  className="flex gap-1 items-center text-blue-600 hover:underline"
                 >
                   <FaEdit /> Edit
                 </Link>
                 <Link
                   href={`/admin/bin/create/${popupInfo.id}`}
-                  className="flex gap-1 items-center text-green-600 hover:underline text-sm"
+                  className="flex gap-1 items-center text-green-600 hover:underline"
                 >
                   <FaPlus /> Add bin
                 </Link>
                 <Link
                   href={`/admin/bin/manager/view/${popupInfo.id}`}
-                  className="flex gap-1 items-center text-purple-600 hover:underline text-sm"
+                  className="flex gap-1 items-center text-purple-600 hover:underline"
                 >
                   <IoLocationSharp /> View bins
-              </Link>
+                </Link>
               </div>
             </div>
           </Popup>

@@ -17,8 +17,6 @@ import { Button } from "@/components/ui/button"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import SortByFilter from "./sortBy"
 import ExportCSV from "./export-csv"
-// import SortByFilter from "./sortBy"
-// import ExportCSV from "./export-csv"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -29,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   location: string
 }
 
-function capitalizeFirstLetter(str: string){
+function capitalizeFirstLetter(str: string) {
   if (!str) return ""
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
@@ -50,34 +48,33 @@ export function DataTable<TData, TValue>({
 
   const searchParams = useSearchParams()
   const path = usePathname()
+  // Because of the '|| 1' fallback, 'page' is guaranteed to be a number >= 1
   const page = Number(searchParams.get("page")) || 1
   const router = useRouter()
 
+  const maxPage = Math.max(Math.ceil(count / 10), 1)
+
   const handlePreviousClick = () => {
     const params = new URLSearchParams(searchParams)
-    if (page > Math.ceil(count / 10)) {
-      params.set("page", "1")
-    } else if (!isNaN(page)) {
-      params.set("page", `${page - 1}`)
+    if (page > 1) {
+      params.set("page", String(page - 1))
+      router.push(`${path}?${params.toString()}`)
     }
-    router.push(`${path}?${params.toString()}`)
   }
 
   const handleNextClick = () => {
     const params = new URLSearchParams(searchParams)
-    if (!isNaN(page)) {
-      params.set("page", `${page + 1}`)
-    } else {
-      params.set("page", "2")
+    if (page < maxPage) {
+      params.set("page", String(page + 1))
+      router.push(`${path}?${params.toString()}`)
     }
-    router.push(`${path}?${params.toString()}`)
   }
 
   const handleApplySortBy = (sortItem: string, sortOrder: string) => {
     const params = new URLSearchParams(searchParams)
     if (sortItem && sortOrder) {
-      params.set("sortItem", `${sortItem}`)
-      params.set("sortOrder", `${sortOrder}`)
+      params.set("sortItem", sortItem)
+      params.set("sortOrder", sortOrder)
     } else {
       params.delete("sortItem")
       params.delete("sortOrder")
@@ -93,22 +90,24 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="px-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-slate-800 line-clamp-1 flex-1">
-          <span className="font-normal">Showing results for: </span>
+    <div className="px-4 text-foreground overflow-auto">
+      {/* Made the header responsive so it stacks on small screens */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4">
+        {/* Changed text-slate-800 to text-foreground for dark mode compatibility */}
+        <h2 className="text-foreground line-clamp-1 flex-1 font-medium text-lg">
+          <span className="font-normal text-muted-foreground">Showing results for: </span>
           {capitalizeFirstLetter(material.toLowerCase())} bin @ {location}
         </h2>
-        <div className="flex flex-wrap items-center gap-3 py-3">
+        <div className="flex flex-wrap items-center gap-3">
           <SortByFilter
             onResetSortBy={handleResetSortBy}
             onApplySortBy={handleApplySortBy}
           />
-
           <ExportCSV data={data} binId={binId} />
         </div>
       </div>
-      <div className="rounded-md border">
+      
+      <div className="rounded-md border border-border bg-card text-card-foreground">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -149,7 +148,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-24 text-center text-muted-foreground"
                 >
                   No results.
                 </TableCell>
@@ -158,28 +157,30 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="p-4 flex justify-end items-center">
-        <div className="flex items-center space-x-2">
-          <p>
-            Page {isNaN(page) ? "1" : page} of{" "}
-            {Math.max(Math.ceil(count / 10), 1)}
+      
+      <div className="py-4 flex justify-end items-center">
+        <div className="flex items-center space-x-4">
+          <p className="text-sm text-muted-foreground">
+            Page {page} of {maxPage}
           </p>
-          <Button
-            disabled={page === 1 || isNaN(page)}
-            onClick={handlePreviousClick}
-            variant="outline"
-            size="sm"
-          >
-            {"<"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={page >= Math.ceil(count / 10)}
-            onClick={handleNextClick}
-          >
-            {">"}
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              disabled={page <= 1}
+              onClick={handlePreviousClick}
+              variant="outline"
+              size="sm"
+            >
+              {"<"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= maxPage}
+              onClick={handleNextClick}
+            >
+              {">"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { getAllBins } from "@/app/action/user"
-import UpdateBinManagerScreen from "@/components/Screen/UpdateBinManagerScreen"
+import UpdateBinManagerScreen from "./UpdateBinManagerScreen"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 
