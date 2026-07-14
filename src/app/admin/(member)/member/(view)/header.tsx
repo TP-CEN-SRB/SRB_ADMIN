@@ -29,7 +29,8 @@ import { ChevronLeft, ChevronRight, ChevronsLeft,  ChevronsRight, ListFilter} fr
 import { Button } from "@/components/ui/button"
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { act, useTransition } from "react"
+import { useTransition } from "react"
+import { checkedRoles, checkedFaculties } from "./constants"
 
 const limits = [
   { label: "10 rows", value: "10" },
@@ -43,23 +44,6 @@ const filters = [
   { label: "Z-A", value: "nameDesc" },
   { label: "Date Asc", value: "dateAsc" },
   { label: "Date Desc", value: "dateDesc" },
-]
-
-const checkedRoles = [
-    {label:"Admin", value: "ADMIN"},
-    {label:"Student", value: "STUDENT"}, 
-    {label:"Staff", value: "STAFF"}
-]
-
-const checkedFaculties = [
-  { label: "Engineering", value: "ENG" },
-  { label: "Business", value: "BUS" },
-  { label: "Design", value: "DES" },
-  { label: "Applied Science", value: "ASC" },
-  { label: "Informatics & IT", value: "IIT" },
-  { label: "Humanities & Social Sciences", value: "HSS" },
-  { label: "External", value: "EXT" },
-  { label: "Others", value: "OTHERS" }
 ]
 
 interface PaginationHeaderProps {

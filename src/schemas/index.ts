@@ -99,20 +99,20 @@ const RewardSchema = z
   })
   .and(DateRangeSchema)
   .and(ImageSchema)
-const BinMaterialSchema = z.object({
+
+export const BinMaterialSchema = z.object({
   name: z
     .string()
     .trim()
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
-  multiplier: z.coerce
-    .number()
+  multiplier: z
+    .number({ 
+      message: "Multiplier is required"
+    })
     .gte(0, "Multiplier cannot be negative")
-    .lte(
-      1.7976931348623157e308,
-      "Multiplier exceeds the maximum limit for a float"
-    )
-    .multipleOf(0.1, "Multipler can only be set to 1 d.p."),
+    .lte(1.7976931348623157e308, "Multiplier exceeds the maximum limit")
+    .multipleOf(0.1, "Multiplier can only be set to 1 d.p."),
 })
 
 const SubscriptionSchema = z.object({
@@ -212,7 +212,6 @@ export {
   BinSchema,
   DisposalSchema,
   RewardSchema,
-  BinMaterialSchema,
   UpdateBinSchema,
   SubscriptionSchema,
   QuestSchema,
