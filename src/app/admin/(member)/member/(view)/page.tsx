@@ -1,23 +1,13 @@
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { PageinationHeader } from "./header"
-import { checkedFaculties } from "./constants"
 import { Role, Faculty, Sort, getAllMembers } from "./allMembers"
 import { SelectRole } from "./selector"
+import { SeeMore } from "./seeMore"
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import Link from "next/link"
+
+
 
 const col_widths = ["5%", "10%", "15%", "10%", "10%", "10%", "10%", "10%", "10%", "10%"]
-const see_more = [
-  {label: "View Profile", value: "/admin/member"},
-]
 
 const verified = [
   {label: "True", value: true},
@@ -120,24 +110,7 @@ export default async function ViewStudent(
               <TableCell className="text-center"><span className="text-xs">{member.point?.balance || 0}</span></TableCell>
               <TableCell className="text-center"><SelectRole role={member.role}/></TableCell>
 
-              <TableCell className="text-center">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">More</Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuGroup>
-                      {see_more.map((more) => (
-                        <DropdownMenuItem key={more.value} asChild>
-                          <Link href={`${more.value}/${member.id}`}>
-                            {more.label}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuGroup>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
+              <TableCell className="text-center"><SeeMore memberId={member.id} memberName={member.name} memberEmail={member.email}/></TableCell>
               
             </TableRow>
           ))}

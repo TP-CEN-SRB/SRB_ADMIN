@@ -13,6 +13,7 @@ import { ModeToggle } from "@/components/(nav)/mode-toggle";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/(Admin)/admin-sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
             </header>
 
             {children}
+            <Toaster />
           </div>
           </ThemeProvider>
         </SidebarProvider>

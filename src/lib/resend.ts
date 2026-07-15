@@ -16,7 +16,7 @@ export function emailTemplate(link: string, type: "VERIFY" | "RESET") {
   const actionText = type === "RESET" ? "Reset Password" : "Verify Email"
   const actionInstruction = type === "RESET" ? "reset your password" : "verify your email address"
 
-  return`
+  return `
   <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -25,41 +25,41 @@ export function emailTemplate(link: string, type: "VERIFY" | "RESET") {
       <title>${actionText}</title>
       <style>
         body {
-          font-family: Arial, sans-serif
-          background-color: #f4f4f4
-          margin: 0
-          padding: 0
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          margin: 0;
+          padding: 0;
         }
         .container {
-          max-width: 600px
-          margin: 0 auto
-          background-color: #ffffff
-          padding: 20px
-          border-radius: 8px
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
+          max-width: 600px;
+          margin: 0 auto;
+          background-color: #ffffff;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        h1 { color: #333333 }
-        p { color: #555555 }
+        h1 { color: #333333; }
+        p { color: #555555; }
         .btn {
-          display: inline-block
-          padding: 12px 24px
-          background-color: #007BFF
-          color: #ffffff
-          text-decoration: none
-          border-radius: 5px
-          font-weight: bold
-          margin-top: 20px
+          display: inline-block;
+          padding: 12px 24px;
+          background-color: #007BFF;
+          color: #ffffff;
+          text-decoration: none;
+          border-radius: 5px;
+          font-weight: bold;
+          margin-top: 20px;
         }
-        .btn:hover { background-color: #0056b3 }
+        .btn:hover { background-color: #0056b3; }
         .footer {
-          margin-top: 20px
-          font-size: 12px
-          color: #999999
+          margin-top: 20px;
+          font-size: 12px;
+          color: #999999;
         }
         .raw-link {
-          margin-top: 20px
-          word-break: break-all
-          color: #007BFF
+          margin-top: 20px;
+          word-break: break-all;
+          color: #007BFF;
         }
       </style>
     </head>
@@ -67,7 +67,7 @@ export function emailTemplate(link: string, type: "VERIFY" | "RESET") {
       <div class="container">
         <h1>Hello,</h1>
         <p>We received a request to <strong>${actionInstruction}</strong>. If you made this request, please click the button below:</p>
-        <Link href="${link}" class="btn">${actionText}</a>
+        <a href="${link}" class="btn">${actionText}</a>
         <p>If the button doesn’t work, copy and paste this link into your browser:</p>
         <p class="raw-link">${link}</p>
         <div class="footer">

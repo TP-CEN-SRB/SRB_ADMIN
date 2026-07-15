@@ -1,5 +1,6 @@
 "use server"
 import { prisma } from "@/lib/db"
+import { revalidatePath } from "next/cache"
 
 export type Role = "ADMIN" | "STUDENT" | "STAFF"
 export type Faculty = "ENG" | "BUS" | "DES" | "ASC" | "IIT" | "HSS" | "EXT" | "OTHERS"
@@ -50,3 +51,17 @@ export async function getAllMembers(
 
   return {allMember, allMemberCount, totalPages} 
 }
+
+  export async function deleteMember(id: string){
+    try{
+      await prisma.user.delete({
+        where: { id },
+      })
+
+      revalidatePath("/admin/member")
+      return { success: true }
+
+    } catch(error){
+      return { success: false, error: "Failed to delete member" }
+    }
+  }

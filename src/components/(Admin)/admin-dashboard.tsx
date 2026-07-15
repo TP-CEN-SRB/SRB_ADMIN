@@ -76,6 +76,15 @@ export default function AdminDashboard() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/manager/create'}>
+                  <Link href="/admin/bin/manager/create" className="flex items-center gap-3">
+                    <UserPlus className="h-4 w-4" />
+                    Create Bin Manager
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === '/admin/bin/manager'}>
                   <Link href="/admin/bin/manager" className="flex items-center gap-3">
                     <UserCog className="h-4 w-4" />
@@ -84,14 +93,6 @@ export default function AdminDashboard() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/manager/create'}>
-                  <Link href="/admin/bin/manager/create" className="flex items-center gap-3">
-                    <UserPlus className="h-4 w-4" />
-                    Create Bin Manager
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
