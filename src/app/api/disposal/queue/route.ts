@@ -21,14 +21,28 @@ export const POST = async (req: NextRequest) => {
       )
     }
 
-    // Check for an existing OPEN queue for this user
+    // A kiosk session's throws land seconds apart, so an OPEN queue much
+    // older than that is a leftover from a session nobody scanned. Reusing
+    // it hands the entire backlog to the next person who scans (27 stale
+    // disposals -> 1720 points on one scan), so close it and start fresh.
+    const QUEUE_REUSE_WINDOW_MS = 10 * 60 * 1000
+
     const existingQueue = await prisma.disposalQueue.findFirst({
       where: { userId, status: "OPEN" },
+      orderBy: { createdAt: "desc" },
     })
 
     if (existingQueue) {
-      console.log("Reusing existing OPEN queue:", existingQueue.id)
-      return NextResponse.json({ queue: existingQueue }, { status: 200 })
+      const ageMs = Date.now() - existingQueue.createdAt.getTime()
+      if (ageMs <= QUEUE_REUSE_WINDOW_MS) {
+        console.log("Reusing existing OPEN queue:", existingQueue.id)
+        return NextResponse.json({ queue: existingQueue }, { status: 200 })
+      }
+      await prisma.disposalQueue.update({
+        where: { id: existingQueue.id },
+        data: { status: "CLOSED" },
+      })
+      console.log("Closed stale OPEN queue:", existingQueue.id)
     }
 
     // Create a new queue if none found
