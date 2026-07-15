@@ -21,14 +21,13 @@ import { notFound } from "next/navigation"
 import Link from "next/link";
 
 async function getMemberId(id: string){
-  // ADDED AWAIT: This is required to resolve the promise
+
   const member = await prisma.user.findUnique({
     where: {
       id: id
     },
     include: {
       point: true,
-      // NEW: Fetch all the related counts efficiently
       _count: {
         select: {
           disposals: true,
@@ -36,7 +35,7 @@ async function getMemberId(id: string){
           FaultReport: true,
           user_event: true,
           user_quest: {
-            where: { isCompleted: true } // Only count completed quests
+            where: { isCompleted: true }
           }
         }
       }
@@ -45,7 +44,6 @@ async function getMemberId(id: string){
   return member
 }
 
-// Renamed to MemberPage (React components must start with a capital letter)
 export default async function MemberPage({ params } : { params : Promise<{id: string}>}){
   const { id } = await params
   const member = await getMemberId(id)

@@ -6,6 +6,7 @@ import { resend, emailTemplate } from "./resend"
 
 import { apiKey } from "@better-auth/api-key"
 import { nextCookies } from "better-auth/next-js"
+import { admin } from "better-auth/plugins"
 
 export const auth = betterAuth({
     baseURL: {
@@ -77,5 +78,6 @@ export const auth = betterAuth({
     
     plugins:[
       apiKey(),
+      admin(),
       nextCookies()]
 })
