@@ -1,11 +1,7 @@
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { PageinationHeader } from "./header"
 import { Role, Faculty, Sort, getAllMembers } from "./allMembers"
-import { SelectRole } from "./selector"
 import { SeeMore } from "./seeMore"
-
-
-
 
 const col_widths = ["5%", "10%", "15%", "10%", "10%", "10%", "10%", "10%", "10%", "10%"]
 
@@ -108,7 +104,7 @@ export default async function ViewStudent(
               <TableCell className="text-center"><span className="text-xs">{member.faculty}</span></TableCell>
               <TableCell className="text-center"><span className="text-xs">{member.diploma || "N/A"}</span></TableCell>
               <TableCell className="text-center"><span className="text-xs">{member.point?.balance || 0}</span></TableCell>
-              <TableCell className="text-center"><SelectRole role={member.role}/></TableCell>
+              <TableCell className="text-center"><span className="text-xs">{member.role === "admin"? "ADMIN" : member.role}</span></TableCell>
 
               <TableCell className="text-center"><SeeMore memberId={member.id} memberName={member.name} memberEmail={member.email}/></TableCell>
               

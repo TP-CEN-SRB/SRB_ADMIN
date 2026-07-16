@@ -13,7 +13,8 @@ import {
   Calendar, 
   Recycle, 
   Gift, 
-  AlertTriangle 
+  AlertTriangle,
+  Edit
 } from "lucide-react";
 
 import { prisma } from "@/lib/db"
@@ -61,6 +62,13 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
       <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row">
         <h1 className="text-2xl font-semibold">Profile</h1>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/admin/member/edit/${member.id}`}>
+              <Edit className="mr-2 size-4" />
+              Edit Member
+            </Link>
+          </Button>
+
           <Button variant="outline" size="sm" asChild>
             <Link href={`/admin/member`}>
               <Undo2 className="mr-2 size-4" />
