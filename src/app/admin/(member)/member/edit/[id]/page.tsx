@@ -7,14 +7,9 @@
     Undo2, 
     Star, 
     TreePine, 
-    TrendingUp, 
     Leaf, 
     Trophy, 
-    Calendar, 
     Recycle, 
-    Gift, 
-    AlertTriangle,
-    Save
   } from "lucide-react";
 
   import { getMemberId } from "./updateMember";
@@ -66,6 +61,7 @@
                     email: member.email ?? "",
                     faculty: member.faculty,
                     role: member.role,
+                    emailVerified: member.emailVerified,
                   }}
                 />
               </CardContent>

@@ -34,7 +34,7 @@ export default async function ViewStudent(
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   
-  const currentRoles = params.roles ? (params.roles.split(",") as Role[]) : ["ADMIN", "STUDENT", "STAFF"] as Role[]
+  const currentRoles = params.roles ? (params.roles.split(",") as Role[]) : ["admin", "STUDENT", "STAFF"] as Role[]
   const currentFaculty = params.faculty ? (params.faculty.split(",") as Faculty[]) : ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"] as Faculty[]
 
   let currentSort = ["desc", undefined] as Sort[]

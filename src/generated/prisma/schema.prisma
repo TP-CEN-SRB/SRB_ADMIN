@@ -44,6 +44,10 @@ model User {
   Feedback             Feedback[]
   FaultReport          FaultReport[]
 
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
+
   @@map("users")
 }
 
@@ -57,6 +61,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@index([userId])
   @@map("session")
@@ -130,7 +136,7 @@ model DisposalQueue {
   status    QueueStatus @default(OPEN)
   userId    String?
   createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt()
+  updatedAt DateTime    @updatedAt
 
   disposals Disposal[]
   user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -412,7 +418,7 @@ enum BinStatus {
 
 enum Role {
   STUDENT
-  ADMIN
+  admin
   BIN
   STAFF
   STORE
@@ -430,4 +436,34 @@ enum TransactionType {
 enum QueueStatus {
   OPEN
   CLOSED
+}
+
+model Apikey {
+  id                  String    @id
+  configId            String    @default("default")
+  name                String?
+  start               String?
+  referenceId         String
+  prefix              String?
+  key                 String
+  refillInterval      Int?
+  refillAmount        Int?
+  lastRefillAt        DateTime?
+  enabled             Boolean?  @default(true)
+  rateLimitEnabled    Boolean?  @default(true)
+  rateLimitTimeWindow Int?      @default(86400000)
+  rateLimitMax        Int?      @default(10)
+  requestCount        Int?      @default(0)
+  remaining           Int?
+  lastRequest         DateTime?
+  expiresAt           DateTime?
+  createdAt           DateTime
+  updatedAt           DateTime
+  permissions         String?
+  metadata            String?
+
+  @@index([configId])
+  @@index([referenceId])
+  @@index([key])
+  @@map("apikey")
 }

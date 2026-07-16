@@ -3,7 +3,6 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { EditMemberFormValue, EditMemberSchema } from "./schema";
-import { EditBinFormValue } from "@/components/FormLogic/(Admin)/admin-schema";
 
 export async function getMemberId(id: string) {
   const member = await prisma.user.findUnique({
@@ -40,39 +39,54 @@ export async function updateMember(id: string, payload: EditMemberFormValue) {
         return { error: "ID not found" }
     }
 
-    const { name, email, faculty, role, password,} = parsedData.data
+    const { name, email, emailVerified, faculty, role, password,} = parsedData.data
     const header = await headers();
 
     try {
+        
+    const existingUser = await prisma.user.findUnique({
+                            where: {
+                                email: email
+                            }
+                        });
+
+    if (existingUser && existingUser.id !== id) {
+        return { error: "This email is already in use by another member." };
+    }
+
     await prisma.user.update({
             where: { 
                 id: id 
             },
             data: { 
                 name: name, 
-                email: email, 
+                email: email,
+                emailVerified: emailVerified, 
                 faculty: faculty, 
                 role: role 
             } 
         });
-
-    if (password) {
-        await auth.api.setUserPassword({
-            body: { 
-                userId: id, 
-                newPassword: password 
-            },
-            headers: header,
-        });
-    }
 } catch(error) {
-    // 🔥 ADD THIS CONSOLE.LOG TO SEE THE REAL ERROR IN YOUR TERMINAL
-    console.error("FAILED TO UPDATE MEMBER:", error); 
-    
-    // Optional: You can return the error message directly for debugging
-    // return { error: error instanceof Error ? error.message : "Unknown error occurred" }
-    
+    console.error("updateMember failed:", error);
     return { error: "Something went wrong when updating, please try again later." }
 }
     return { success: true }
+}   
+
+export async function sendPasswordResetEmail(email: string) {
+    const header = await headers();
+    
+    try {
+        await auth.api.requestPasswordReset({
+            body: {
+                email: email,
+                redirectTo: "/reset-password", 
+            },
+            headers: header
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to send reset email:", error);
+        return { error: "Failed to send reset email. Please try again." };
+    }
 }

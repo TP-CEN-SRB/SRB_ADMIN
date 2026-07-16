@@ -140,7 +140,7 @@ const userData: (Prisma.UserCreateInput & { _password?: string })[] = [
     name: "Test Admin",
     email: "testadmin@tp.edu.sg",
     emailVerified: true,
-    role: "ADMIN",
+    role: "admin",
     faculty: "ENG",
     _password: "password123",
   },

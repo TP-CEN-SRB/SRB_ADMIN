@@ -14,7 +14,7 @@ const getTransactionByUserId = async (
     headers: await headers()
   })
   const sessionUser = session?.user
-  if (!sessionUser || sessionUser?.role !== "ADMIN") {
+  if (!sessionUser || sessionUser?.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const pageCondition = page != null && page < 0

@@ -12,7 +12,7 @@ const createReward = async (formData: FormData) => {
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user.role !== "ADMIN") {
+  if (!user || user.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const data: Record<string, string | number | boolean | File> =
@@ -78,7 +78,7 @@ const updateReward = async (id: string, formData: FormData) => {
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user.role !== "ADMIN") {
+  if (!user || user.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const data: Record<string, string | number | boolean | File> =
@@ -174,7 +174,7 @@ const deleteReward = async (id: string) => {
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user.role !== "ADMIN") {
+  if (!user || user.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const reward = await prisma.reward.findUnique({

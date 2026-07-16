@@ -13,7 +13,7 @@ const getDisposalByBinId = async (
     headers: await headers()
   })
   const user = session?.user
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "admin") {
     return { error: "Permission denied!" }
   }
   const sortableItems = ["weight", "point", "createdAt"]

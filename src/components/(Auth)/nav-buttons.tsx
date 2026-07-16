@@ -20,7 +20,7 @@ export async function ButtonSessions(){
     }
     return(
         <div className="text-sm flex items-center gap-2">
-            <RedirectPopover isAdmin={session.user.role === "ADMIN"} username={session.user.name} email={session.user.email} signOut={getSignOut}/>
+            <RedirectPopover isAdmin={session.user.role === "admin"} username={session.user.name} email={session.user.email} signOut={getSignOut}/>
         </div>
 
     )

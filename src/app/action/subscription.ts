@@ -11,7 +11,7 @@ const getSubscriptionByUserId = async (userId: string) => {
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user?.role !== "ADMIN") {
+  if (!user || user?.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const subscriptions = await prisma.subscription.findMany({
@@ -36,7 +36,7 @@ const createSubscription = async (
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user?.role !== "ADMIN") {
+  if (!user || user?.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const validatedFields = SubscriptionSchema.safeParse(values)
@@ -74,7 +74,7 @@ const updateSubscription = async (
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user?.role !== "ADMIN") {
+  if (!user || user?.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const validatedFields = SubscriptionSchema.safeParse(values)
@@ -104,7 +104,7 @@ const deleteSubscription = async (subscriptionId: string) => {
     headers: await headers()
   })
   const user = session?.user
-  if (!user || user?.role !== "ADMIN") {
+  if (!user || user?.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const subscription = await prisma.subscription.findUnique({

@@ -63,6 +63,14 @@ export const auth = betterAuth({
     emailAndPassword: { 
         enabled: true, 
         requireEmailVerification: true,
+        sendResetPassword: async ({ user, url }) => {
+            await resend.emails.send({
+                from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`, 
+                to: user.email,
+                subject: "[Smart Bin System] Reset Your Password",
+                html: emailTemplate(url, "RESET"), 
+            })
+        },
     },
 
     emailVerification: {

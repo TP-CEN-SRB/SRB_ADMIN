@@ -1,4 +1,5 @@
 "use client"
+import { useState } from "react" // <-- Added useState
 import { EditMemberSchema, EditMemberFormValue } from "./schema"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -6,9 +7,25 @@ import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-import { updateMember } from "./updateMember"
+// Import your new server action
+import { updateMember, sendPasswordResetEmail } from "./updateMember" 
+import { Save, Mail, CheckCircle } from "lucide-react"
 
 interface EditMemberFormProps extends React.ComponentProps<"form"> {
   id: string
@@ -21,92 +38,193 @@ export default function EditMemberForm({
   className,
   ...props
 }: EditMemberFormProps) {
-    const { 
-          register,
-          handleSubmit,
-          setError, 
-          formState: { errors, isSubmitting }
-        } = useForm<EditMemberFormValue>({
-          resolver: zodResolver(EditMemberSchema),
-          defaultValues,
-        })
-        const router = useRouter()
+  // Added states for the reset button
+  const [isSendingReset, setIsSendingReset] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
-    async function onSubmitUpdate(data: EditMemberFormValue){
+  const form = useForm<EditMemberFormValue>({
+    resolver: zodResolver(EditMemberSchema),
+    defaultValues: {
+      ...defaultValues,
+      emailVerified: defaultValues.emailVerified ?? false,
+    }
+  })
+  
+  const router = useRouter()
+  const { isSubmitting } = form.formState
+
+  async function onSubmitUpdate(data: EditMemberFormValue) {
+    const result = await updateMember(id, data)
+
+    if (result.error) {
+      form.setError("root", { message: result.error })
+    }
+    if (result.success) {
+      router.push("/admin/member")
+    }
+  }
+
+  // New function to handle the button click
+  async function handleSendReset() {
+    const currentEmail = form.getValues("email");
+    if (!currentEmail) return;
+
+    setIsSendingReset(true);
+    const result = await sendPasswordResetEmail(currentEmail);
     
-            const result = await updateMember(id, data)
-    
-            if (result.error){
-            setError("root", { message: result.error })
-            }
-            if (result.success){
-            router.push("/admin/member")
-            }
-        }
+    if (result.error) {
+      form.setError("root", { message: result.error });
+    } else {
+      setResetSent(true);
+      // Optional: reset the success message after 3 seconds
+      setTimeout(() => setResetSent(false), 3000); 
+    }
+    setIsSendingReset(false);
+  }
 
-    return (
-    <form
-      onSubmit={handleSubmit(onSubmitUpdate)}
-      className={className}
-      {...props}
-    >
-      <div className="space-y-2">
-        <Label htmlFor="name">Full Name</Label>
-        <Input id="name" {...register("name")} />
-        {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-      </div>
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmitUpdate)}
+        className={`space-y-4 ${className || ""}`}
+        {...props}
+      >
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full Name</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" {...register("email")} />
-        {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-      </div>
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Password (leave blank for unchanged)</Label>
-        <Input id="password" type="password" {...register("password")} />
-        {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
-      </div>
+        {/* Updated Reset Password Button */}
+        <div className="py-2">
+            <Button 
+                type="button" // CRITICAL: Prevents standard form submission
+                variant="secondary" 
+                onClick={handleSendReset}
+                disabled={isSendingReset || resetSent || !form.watch("email")}
+            >
+                {isSendingReset ? (
+                  "Sending..."
+                ) : resetSent ? (
+                  <><CheckCircle className="mr-2 size-4 text-green-500" /> Sent Successfully</>
+                ) : (
+                  <><Mail className="mr-2 size-4" /> Send password reset to user</>
+                )}
+            </Button>
+        </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
-        <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
-        {errors.confirmPassword && (
-          <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="faculty"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Faculty</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Faculty" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="ENG">ENG</SelectItem>
+                    <SelectItem value="BUS">BUS</SelectItem>
+                    <SelectItem value="ASC">ASC</SelectItem>
+                    <SelectItem value="DES">DES</SelectItem>
+                    <SelectItem value="HSS">HSS</SelectItem>
+                    <SelectItem value="IIT">IIT</SelectItem>
+                    <SelectItem value="OTHERS">OTHERS</SelectItem>
+                    <SelectItem value="EXT">EXTERNAL</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Role</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Role" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="STUDENT">Student</SelectItem>
+                    <SelectItem value="STAFF">Staff</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="emailVerified"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Verified</FormLabel>
+                <Select 
+                  onValueChange={(val) => field.onChange(val === "true")} 
+                  value={field.value ? "true" : "false"}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Verification Status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="true">True</SelectItem>
+                    <SelectItem value="false">False</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
+        {/* Added root form message display in case of errors */}
+        {form.formState.errors.root && (
+            <p className="text-sm font-medium text-destructive">
+                {form.formState.errors.root.message}
+            </p>
         )}
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="faculty">Faculty</Label>
-        <select id="faculty" {...register("faculty")} className="...">
-          <option value="ENG">ENG</option>
-          <option value="BUS">BUS</option>
-          <option value="ASC">ASC</option>
-          <option value="DES">DES</option>
-          <option value="HSS">HSS</option>
-          <option value="IIT">IIT</option>
-          <option value="OTHERS">OTHERS</option>
-          <option value="EXT">EXTERNAL</option>
-        </select>
-        {errors.faculty && <p className="text-sm text-destructive">{errors.faculty.message}</p>}
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="role">System Role</Label>
-        <select id="role" {...register("role")} className="...">
-            <option value="STUDENT">Student</option>
-            <option value="STAFF">Staff</option>
-            <option value="ADMIN">Admin</option>
-        </select>
-        {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
-      </div>
-
-      {errors.root && <p className="text-sm text-destructive">{errors.root.message}</p>}
-
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Saving..." : "Save Changes"}
-      </Button>
-    </form>
-
-    )
+        <Button type="submit" disabled={isSubmitting}>
+          <Save className="mr-2 size-4" />
+          {isSubmitting ? "Saving..." : "Save Changes"}
+        </Button>
+      </form>
+    </Form>
+  )
 }

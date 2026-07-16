@@ -27,7 +27,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "admin") {
     return { error: "Unauthorized" }
   }
 
@@ -81,7 +81,7 @@ export const deleteQuest = async (questId: string) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "admin") {
     return { error: "Unauthorized" }
   }
 
@@ -124,7 +124,7 @@ export const updateQuest = async (
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "admin") {
     return { error: "Unauthorized" }
   }
 
@@ -177,7 +177,7 @@ export const getQuests = async (
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "admin") {
     return { questCount: 0, quests: [] }
   }
 

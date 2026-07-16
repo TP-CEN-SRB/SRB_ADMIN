@@ -46,7 +46,7 @@ export async function getAllStudentUsers(
   })
 
   const sessionUser = sessionData?.user
-  if (!sessionUser || sessionUser.role !== "ADMIN") {
+  if (!sessionUser || sessionUser.role !== "admin") {
     return { error: "Unauthorized access!" }
   }
   const sortableItems = ["disposal", "point", "redemption"]

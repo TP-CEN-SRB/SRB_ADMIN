@@ -62,7 +62,7 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
 
     const rolesParam = searchParams.get("roles")
     const facultyParam = searchParams.get("faculty")
-    const activeRoles = rolesParam ? rolesParam.split(",") : ["ADMIN", "STUDENT", "STAFF"]
+    const activeRoles = rolesParam ? rolesParam.split(",") : ["admin", "STUDENT", "STAFF"]
     const activeFaculty = facultyParam ? facultyParam.split(",") : ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"]
 
     const currentSort = searchParams.get("sort") || "dateDesc"

@@ -138,6 +138,11 @@ export type BinDiagnosticLog = $Result.DefaultSelection<Prisma.$BinDiagnosticLog
  * 
  */
 export type ScannerDiagnosticLog = $Result.DefaultSelection<Prisma.$ScannerDiagnosticLogPayload>
+/**
+ * Model Apikey
+ * 
+ */
+export type Apikey = $Result.DefaultSelection<Prisma.$ApikeyPayload>
 
 /**
  * Enums
@@ -176,7 +181,7 @@ export type BinStatus = (typeof BinStatus)[keyof typeof BinStatus]
 
 export const Role: {
   STUDENT: 'STUDENT',
-  ADMIN: 'ADMIN',
+  admin: 'admin',
   BIN: 'BIN',
   STAFF: 'STAFF',
   STORE: 'STORE'
@@ -600,6 +605,16 @@ export class PrismaClient<
     * ```
     */
   get scannerDiagnosticLog(): Prisma.ScannerDiagnosticLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.apikey`: Exposes CRUD operations for the **Apikey** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Apikeys
+    * const apikeys = await prisma.apikey.findMany()
+    * ```
+    */
+  get apikey(): Prisma.ApikeyDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -1058,7 +1073,8 @@ export namespace Prisma {
     Feedback: 'Feedback',
     FaultReport: 'FaultReport',
     BinDiagnosticLog: 'BinDiagnosticLog',
-    ScannerDiagnosticLog: 'ScannerDiagnosticLog'
+    ScannerDiagnosticLog: 'ScannerDiagnosticLog',
+    Apikey: 'Apikey'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1074,7 +1090,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "bin" | "binMaterial" | "disposalQueue" | "disposal" | "point" | "reward" | "redemption" | "subscription" | "transaction" | "questDetails" | "userQuest" | "transferSession" | "video" | "crashlog" | "questTemplate" | "event" | "userEvent" | "feedback" | "faultReport" | "binDiagnosticLog" | "scannerDiagnosticLog"
+      modelProps: "user" | "session" | "account" | "verification" | "bin" | "binMaterial" | "disposalQueue" | "disposal" | "point" | "reward" | "redemption" | "subscription" | "transaction" | "questDetails" | "userQuest" | "transferSession" | "video" | "crashlog" | "questTemplate" | "event" | "userEvent" | "feedback" | "faultReport" | "binDiagnosticLog" | "scannerDiagnosticLog" | "apikey"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2928,6 +2944,80 @@ export namespace Prisma {
           }
         }
       }
+      Apikey: {
+        payload: Prisma.$ApikeyPayload<ExtArgs>
+        fields: Prisma.ApikeyFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ApikeyFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ApikeyFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>
+          }
+          findFirst: {
+            args: Prisma.ApikeyFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ApikeyFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>
+          }
+          findMany: {
+            args: Prisma.ApikeyFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>[]
+          }
+          create: {
+            args: Prisma.ApikeyCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>
+          }
+          createMany: {
+            args: Prisma.ApikeyCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ApikeyCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>[]
+          }
+          delete: {
+            args: Prisma.ApikeyDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>
+          }
+          update: {
+            args: Prisma.ApikeyUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>
+          }
+          deleteMany: {
+            args: Prisma.ApikeyDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ApikeyUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ApikeyUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>[]
+          }
+          upsert: {
+            args: Prisma.ApikeyUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApikeyPayload>
+          }
+          aggregate: {
+            args: Prisma.ApikeyAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApikey>
+          }
+          groupBy: {
+            args: Prisma.ApikeyGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ApikeyGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ApikeyCountArgs<ExtArgs>
+            result: $Utils.Optional<ApikeyCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3061,6 +3151,7 @@ export namespace Prisma {
     faultReport?: FaultReportOmit
     binDiagnosticLog?: BinDiagnosticLogOmit
     scannerDiagnosticLog?: ScannerDiagnosticLogOmit
+    apikey?: ApikeyOmit
   }
 
   /* Types for Logging */
@@ -3540,6 +3631,9 @@ export namespace Prisma {
     carbonprint: number | null
     image: string | null
     scannerAlertActive: boolean | null
+    banned: boolean | null
+    banReason: string | null
+    banExpires: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -3562,6 +3656,9 @@ export namespace Prisma {
     carbonprint: number | null
     image: string | null
     scannerAlertActive: boolean | null
+    banned: boolean | null
+    banReason: string | null
+    banExpires: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -3584,6 +3681,9 @@ export namespace Prisma {
     carbonprint: number
     image: number
     scannerAlertActive: number
+    banned: number
+    banReason: number
+    banExpires: number
     _all: number
   }
 
@@ -3624,6 +3724,9 @@ export namespace Prisma {
     carbonprint?: true
     image?: true
     scannerAlertActive?: true
+    banned?: true
+    banReason?: true
+    banExpires?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -3646,6 +3749,9 @@ export namespace Prisma {
     carbonprint?: true
     image?: true
     scannerAlertActive?: true
+    banned?: true
+    banReason?: true
+    banExpires?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -3668,6 +3774,9 @@ export namespace Prisma {
     carbonprint?: true
     image?: true
     scannerAlertActive?: true
+    banned?: true
+    banReason?: true
+    banExpires?: true
     _all?: true
   }
 
@@ -3777,6 +3886,9 @@ export namespace Prisma {
     carbonprint: number
     image: string | null
     scannerAlertActive: boolean
+    banned: boolean | null
+    banReason: string | null
+    banExpires: Date | null
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -3818,6 +3930,9 @@ export namespace Prisma {
     carbonprint?: boolean
     image?: boolean
     scannerAlertActive?: boolean
+    banned?: boolean
+    banReason?: boolean
+    banExpires?: boolean
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
     bins?: boolean | User$binsArgs<ExtArgs>
@@ -3857,6 +3972,9 @@ export namespace Prisma {
     carbonprint?: boolean
     image?: boolean
     scannerAlertActive?: boolean
+    banned?: boolean
+    banReason?: boolean
+    banExpires?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3879,6 +3997,9 @@ export namespace Prisma {
     carbonprint?: boolean
     image?: boolean
     scannerAlertActive?: boolean
+    banned?: boolean
+    banReason?: boolean
+    banExpires?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -3901,9 +4022,12 @@ export namespace Prisma {
     carbonprint?: boolean
     image?: boolean
     scannerAlertActive?: boolean
+    banned?: boolean
+    banReason?: boolean
+    banExpires?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "profileImageUrl" | "email" | "emailVerified" | "name" | "diploma" | "faculty" | "role" | "lat" | "long" | "location" | "commandUpdatedAt" | "createdAt" | "updatedAt" | "treesaved" | "treeprogress" | "carbonprint" | "image" | "scannerAlertActive", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "profileImageUrl" | "email" | "emailVerified" | "name" | "diploma" | "faculty" | "role" | "lat" | "long" | "location" | "commandUpdatedAt" | "createdAt" | "updatedAt" | "treesaved" | "treeprogress" | "carbonprint" | "image" | "scannerAlertActive" | "banned" | "banReason" | "banExpires", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -3966,6 +4090,9 @@ export namespace Prisma {
       carbonprint: number
       image: string | null
       scannerAlertActive: boolean
+      banned: boolean | null
+      banReason: string | null
+      banExpires: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -4424,6 +4551,9 @@ export namespace Prisma {
     readonly carbonprint: FieldRef<"User", 'Float'>
     readonly image: FieldRef<"User", 'String'>
     readonly scannerAlertActive: FieldRef<"User", 'Boolean'>
+    readonly banned: FieldRef<"User", 'Boolean'>
+    readonly banReason: FieldRef<"User", 'String'>
+    readonly banExpires: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -5233,6 +5363,7 @@ export namespace Prisma {
     ipAddress: string | null
     userAgent: string | null
     userId: string | null
+    impersonatedBy: string | null
   }
 
   export type SessionMaxAggregateOutputType = {
@@ -5244,6 +5375,7 @@ export namespace Prisma {
     ipAddress: string | null
     userAgent: string | null
     userId: string | null
+    impersonatedBy: string | null
   }
 
   export type SessionCountAggregateOutputType = {
@@ -5255,6 +5387,7 @@ export namespace Prisma {
     ipAddress: number
     userAgent: number
     userId: number
+    impersonatedBy: number
     _all: number
   }
 
@@ -5268,6 +5401,7 @@ export namespace Prisma {
     ipAddress?: true
     userAgent?: true
     userId?: true
+    impersonatedBy?: true
   }
 
   export type SessionMaxAggregateInputType = {
@@ -5279,6 +5413,7 @@ export namespace Prisma {
     ipAddress?: true
     userAgent?: true
     userId?: true
+    impersonatedBy?: true
   }
 
   export type SessionCountAggregateInputType = {
@@ -5290,6 +5425,7 @@ export namespace Prisma {
     ipAddress?: true
     userAgent?: true
     userId?: true
+    impersonatedBy?: true
     _all?: true
   }
 
@@ -5374,6 +5510,7 @@ export namespace Prisma {
     ipAddress: string | null
     userAgent: string | null
     userId: string
+    impersonatedBy: string | null
     _count: SessionCountAggregateOutputType | null
     _min: SessionMinAggregateOutputType | null
     _max: SessionMaxAggregateOutputType | null
@@ -5402,6 +5539,7 @@ export namespace Prisma {
     ipAddress?: boolean
     userAgent?: boolean
     userId?: boolean
+    impersonatedBy?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
 
@@ -5414,6 +5552,7 @@ export namespace Prisma {
     ipAddress?: boolean
     userAgent?: boolean
     userId?: boolean
+    impersonatedBy?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
 
@@ -5426,6 +5565,7 @@ export namespace Prisma {
     ipAddress?: boolean
     userAgent?: boolean
     userId?: boolean
+    impersonatedBy?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["session"]>
 
@@ -5438,9 +5578,10 @@ export namespace Prisma {
     ipAddress?: boolean
     userAgent?: boolean
     userId?: boolean
+    impersonatedBy?: boolean
   }
 
-  export type SessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "expiresAt" | "token" | "createdAt" | "updatedAt" | "ipAddress" | "userAgent" | "userId", ExtArgs["result"]["session"]>
+  export type SessionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "expiresAt" | "token" | "createdAt" | "updatedAt" | "ipAddress" | "userAgent" | "userId" | "impersonatedBy", ExtArgs["result"]["session"]>
   export type SessionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -5465,6 +5606,7 @@ export namespace Prisma {
       ipAddress: string | null
       userAgent: string | null
       userId: string
+      impersonatedBy: string | null
     }, ExtArgs["result"]["session"]>
     composites: {}
   }
@@ -5897,6 +6039,7 @@ export namespace Prisma {
     readonly ipAddress: FieldRef<"Session", 'String'>
     readonly userAgent: FieldRef<"Session", 'String'>
     readonly userId: FieldRef<"Session", 'String'>
+    readonly impersonatedBy: FieldRef<"Session", 'String'>
   }
     
 
@@ -32014,6 +32157,1281 @@ export namespace Prisma {
 
 
   /**
+   * Model Apikey
+   */
+
+  export type AggregateApikey = {
+    _count: ApikeyCountAggregateOutputType | null
+    _avg: ApikeyAvgAggregateOutputType | null
+    _sum: ApikeySumAggregateOutputType | null
+    _min: ApikeyMinAggregateOutputType | null
+    _max: ApikeyMaxAggregateOutputType | null
+  }
+
+  export type ApikeyAvgAggregateOutputType = {
+    refillInterval: number | null
+    refillAmount: number | null
+    rateLimitTimeWindow: number | null
+    rateLimitMax: number | null
+    requestCount: number | null
+    remaining: number | null
+  }
+
+  export type ApikeySumAggregateOutputType = {
+    refillInterval: number | null
+    refillAmount: number | null
+    rateLimitTimeWindow: number | null
+    rateLimitMax: number | null
+    requestCount: number | null
+    remaining: number | null
+  }
+
+  export type ApikeyMinAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    name: string | null
+    start: string | null
+    referenceId: string | null
+    prefix: string | null
+    key: string | null
+    refillInterval: number | null
+    refillAmount: number | null
+    lastRefillAt: Date | null
+    enabled: boolean | null
+    rateLimitEnabled: boolean | null
+    rateLimitTimeWindow: number | null
+    rateLimitMax: number | null
+    requestCount: number | null
+    remaining: number | null
+    lastRequest: Date | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    permissions: string | null
+    metadata: string | null
+  }
+
+  export type ApikeyMaxAggregateOutputType = {
+    id: string | null
+    configId: string | null
+    name: string | null
+    start: string | null
+    referenceId: string | null
+    prefix: string | null
+    key: string | null
+    refillInterval: number | null
+    refillAmount: number | null
+    lastRefillAt: Date | null
+    enabled: boolean | null
+    rateLimitEnabled: boolean | null
+    rateLimitTimeWindow: number | null
+    rateLimitMax: number | null
+    requestCount: number | null
+    remaining: number | null
+    lastRequest: Date | null
+    expiresAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+    permissions: string | null
+    metadata: string | null
+  }
+
+  export type ApikeyCountAggregateOutputType = {
+    id: number
+    configId: number
+    name: number
+    start: number
+    referenceId: number
+    prefix: number
+    key: number
+    refillInterval: number
+    refillAmount: number
+    lastRefillAt: number
+    enabled: number
+    rateLimitEnabled: number
+    rateLimitTimeWindow: number
+    rateLimitMax: number
+    requestCount: number
+    remaining: number
+    lastRequest: number
+    expiresAt: number
+    createdAt: number
+    updatedAt: number
+    permissions: number
+    metadata: number
+    _all: number
+  }
+
+
+  export type ApikeyAvgAggregateInputType = {
+    refillInterval?: true
+    refillAmount?: true
+    rateLimitTimeWindow?: true
+    rateLimitMax?: true
+    requestCount?: true
+    remaining?: true
+  }
+
+  export type ApikeySumAggregateInputType = {
+    refillInterval?: true
+    refillAmount?: true
+    rateLimitTimeWindow?: true
+    rateLimitMax?: true
+    requestCount?: true
+    remaining?: true
+  }
+
+  export type ApikeyMinAggregateInputType = {
+    id?: true
+    configId?: true
+    name?: true
+    start?: true
+    referenceId?: true
+    prefix?: true
+    key?: true
+    refillInterval?: true
+    refillAmount?: true
+    lastRefillAt?: true
+    enabled?: true
+    rateLimitEnabled?: true
+    rateLimitTimeWindow?: true
+    rateLimitMax?: true
+    requestCount?: true
+    remaining?: true
+    lastRequest?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    permissions?: true
+    metadata?: true
+  }
+
+  export type ApikeyMaxAggregateInputType = {
+    id?: true
+    configId?: true
+    name?: true
+    start?: true
+    referenceId?: true
+    prefix?: true
+    key?: true
+    refillInterval?: true
+    refillAmount?: true
+    lastRefillAt?: true
+    enabled?: true
+    rateLimitEnabled?: true
+    rateLimitTimeWindow?: true
+    rateLimitMax?: true
+    requestCount?: true
+    remaining?: true
+    lastRequest?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    permissions?: true
+    metadata?: true
+  }
+
+  export type ApikeyCountAggregateInputType = {
+    id?: true
+    configId?: true
+    name?: true
+    start?: true
+    referenceId?: true
+    prefix?: true
+    key?: true
+    refillInterval?: true
+    refillAmount?: true
+    lastRefillAt?: true
+    enabled?: true
+    rateLimitEnabled?: true
+    rateLimitTimeWindow?: true
+    rateLimitMax?: true
+    requestCount?: true
+    remaining?: true
+    lastRequest?: true
+    expiresAt?: true
+    createdAt?: true
+    updatedAt?: true
+    permissions?: true
+    metadata?: true
+    _all?: true
+  }
+
+  export type ApikeyAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Apikey to aggregate.
+     */
+    where?: ApikeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Apikeys to fetch.
+     */
+    orderBy?: ApikeyOrderByWithRelationInput | ApikeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ApikeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Apikeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Apikeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Apikeys
+    **/
+    _count?: true | ApikeyCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ApikeyAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ApikeySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ApikeyMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ApikeyMaxAggregateInputType
+  }
+
+  export type GetApikeyAggregateType<T extends ApikeyAggregateArgs> = {
+        [P in keyof T & keyof AggregateApikey]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApikey[P]>
+      : GetScalarType<T[P], AggregateApikey[P]>
+  }
+
+
+
+
+  export type ApikeyGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApikeyWhereInput
+    orderBy?: ApikeyOrderByWithAggregationInput | ApikeyOrderByWithAggregationInput[]
+    by: ApikeyScalarFieldEnum[] | ApikeyScalarFieldEnum
+    having?: ApikeyScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ApikeyCountAggregateInputType | true
+    _avg?: ApikeyAvgAggregateInputType
+    _sum?: ApikeySumAggregateInputType
+    _min?: ApikeyMinAggregateInputType
+    _max?: ApikeyMaxAggregateInputType
+  }
+
+  export type ApikeyGroupByOutputType = {
+    id: string
+    configId: string
+    name: string | null
+    start: string | null
+    referenceId: string
+    prefix: string | null
+    key: string
+    refillInterval: number | null
+    refillAmount: number | null
+    lastRefillAt: Date | null
+    enabled: boolean | null
+    rateLimitEnabled: boolean | null
+    rateLimitTimeWindow: number | null
+    rateLimitMax: number | null
+    requestCount: number | null
+    remaining: number | null
+    lastRequest: Date | null
+    expiresAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    permissions: string | null
+    metadata: string | null
+    _count: ApikeyCountAggregateOutputType | null
+    _avg: ApikeyAvgAggregateOutputType | null
+    _sum: ApikeySumAggregateOutputType | null
+    _min: ApikeyMinAggregateOutputType | null
+    _max: ApikeyMaxAggregateOutputType | null
+  }
+
+  type GetApikeyGroupByPayload<T extends ApikeyGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ApikeyGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ApikeyGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ApikeyGroupByOutputType[P]>
+            : GetScalarType<T[P], ApikeyGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ApikeySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    start?: boolean
+    referenceId?: boolean
+    prefix?: boolean
+    key?: boolean
+    refillInterval?: boolean
+    refillAmount?: boolean
+    lastRefillAt?: boolean
+    enabled?: boolean
+    rateLimitEnabled?: boolean
+    rateLimitTimeWindow?: boolean
+    rateLimitMax?: boolean
+    requestCount?: boolean
+    remaining?: boolean
+    lastRequest?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    permissions?: boolean
+    metadata?: boolean
+  }, ExtArgs["result"]["apikey"]>
+
+  export type ApikeySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    start?: boolean
+    referenceId?: boolean
+    prefix?: boolean
+    key?: boolean
+    refillInterval?: boolean
+    refillAmount?: boolean
+    lastRefillAt?: boolean
+    enabled?: boolean
+    rateLimitEnabled?: boolean
+    rateLimitTimeWindow?: boolean
+    rateLimitMax?: boolean
+    requestCount?: boolean
+    remaining?: boolean
+    lastRequest?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    permissions?: boolean
+    metadata?: boolean
+  }, ExtArgs["result"]["apikey"]>
+
+  export type ApikeySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    start?: boolean
+    referenceId?: boolean
+    prefix?: boolean
+    key?: boolean
+    refillInterval?: boolean
+    refillAmount?: boolean
+    lastRefillAt?: boolean
+    enabled?: boolean
+    rateLimitEnabled?: boolean
+    rateLimitTimeWindow?: boolean
+    rateLimitMax?: boolean
+    requestCount?: boolean
+    remaining?: boolean
+    lastRequest?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    permissions?: boolean
+    metadata?: boolean
+  }, ExtArgs["result"]["apikey"]>
+
+  export type ApikeySelectScalar = {
+    id?: boolean
+    configId?: boolean
+    name?: boolean
+    start?: boolean
+    referenceId?: boolean
+    prefix?: boolean
+    key?: boolean
+    refillInterval?: boolean
+    refillAmount?: boolean
+    lastRefillAt?: boolean
+    enabled?: boolean
+    rateLimitEnabled?: boolean
+    rateLimitTimeWindow?: boolean
+    rateLimitMax?: boolean
+    requestCount?: boolean
+    remaining?: boolean
+    lastRequest?: boolean
+    expiresAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    permissions?: boolean
+    metadata?: boolean
+  }
+
+  export type ApikeyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "configId" | "name" | "start" | "referenceId" | "prefix" | "key" | "refillInterval" | "refillAmount" | "lastRefillAt" | "enabled" | "rateLimitEnabled" | "rateLimitTimeWindow" | "rateLimitMax" | "requestCount" | "remaining" | "lastRequest" | "expiresAt" | "createdAt" | "updatedAt" | "permissions" | "metadata", ExtArgs["result"]["apikey"]>
+
+  export type $ApikeyPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Apikey"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      configId: string
+      name: string | null
+      start: string | null
+      referenceId: string
+      prefix: string | null
+      key: string
+      refillInterval: number | null
+      refillAmount: number | null
+      lastRefillAt: Date | null
+      enabled: boolean | null
+      rateLimitEnabled: boolean | null
+      rateLimitTimeWindow: number | null
+      rateLimitMax: number | null
+      requestCount: number | null
+      remaining: number | null
+      lastRequest: Date | null
+      expiresAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+      permissions: string | null
+      metadata: string | null
+    }, ExtArgs["result"]["apikey"]>
+    composites: {}
+  }
+
+  type ApikeyGetPayload<S extends boolean | null | undefined | ApikeyDefaultArgs> = $Result.GetResult<Prisma.$ApikeyPayload, S>
+
+  type ApikeyCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ApikeyFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ApikeyCountAggregateInputType | true
+    }
+
+  export interface ApikeyDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Apikey'], meta: { name: 'Apikey' } }
+    /**
+     * Find zero or one Apikey that matches the filter.
+     * @param {ApikeyFindUniqueArgs} args - Arguments to find a Apikey
+     * @example
+     * // Get one Apikey
+     * const apikey = await prisma.apikey.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ApikeyFindUniqueArgs>(args: SelectSubset<T, ApikeyFindUniqueArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Apikey that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ApikeyFindUniqueOrThrowArgs} args - Arguments to find a Apikey
+     * @example
+     * // Get one Apikey
+     * const apikey = await prisma.apikey.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ApikeyFindUniqueOrThrowArgs>(args: SelectSubset<T, ApikeyFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Apikey that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyFindFirstArgs} args - Arguments to find a Apikey
+     * @example
+     * // Get one Apikey
+     * const apikey = await prisma.apikey.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ApikeyFindFirstArgs>(args?: SelectSubset<T, ApikeyFindFirstArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Apikey that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyFindFirstOrThrowArgs} args - Arguments to find a Apikey
+     * @example
+     * // Get one Apikey
+     * const apikey = await prisma.apikey.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ApikeyFindFirstOrThrowArgs>(args?: SelectSubset<T, ApikeyFindFirstOrThrowArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Apikeys that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Apikeys
+     * const apikeys = await prisma.apikey.findMany()
+     * 
+     * // Get first 10 Apikeys
+     * const apikeys = await prisma.apikey.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const apikeyWithIdOnly = await prisma.apikey.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ApikeyFindManyArgs>(args?: SelectSubset<T, ApikeyFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Apikey.
+     * @param {ApikeyCreateArgs} args - Arguments to create a Apikey.
+     * @example
+     * // Create one Apikey
+     * const Apikey = await prisma.apikey.create({
+     *   data: {
+     *     // ... data to create a Apikey
+     *   }
+     * })
+     * 
+     */
+    create<T extends ApikeyCreateArgs>(args: SelectSubset<T, ApikeyCreateArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Apikeys.
+     * @param {ApikeyCreateManyArgs} args - Arguments to create many Apikeys.
+     * @example
+     * // Create many Apikeys
+     * const apikey = await prisma.apikey.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ApikeyCreateManyArgs>(args?: SelectSubset<T, ApikeyCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Apikeys and returns the data saved in the database.
+     * @param {ApikeyCreateManyAndReturnArgs} args - Arguments to create many Apikeys.
+     * @example
+     * // Create many Apikeys
+     * const apikey = await prisma.apikey.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Apikeys and only return the `id`
+     * const apikeyWithIdOnly = await prisma.apikey.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ApikeyCreateManyAndReturnArgs>(args?: SelectSubset<T, ApikeyCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Apikey.
+     * @param {ApikeyDeleteArgs} args - Arguments to delete one Apikey.
+     * @example
+     * // Delete one Apikey
+     * const Apikey = await prisma.apikey.delete({
+     *   where: {
+     *     // ... filter to delete one Apikey
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ApikeyDeleteArgs>(args: SelectSubset<T, ApikeyDeleteArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Apikey.
+     * @param {ApikeyUpdateArgs} args - Arguments to update one Apikey.
+     * @example
+     * // Update one Apikey
+     * const apikey = await prisma.apikey.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ApikeyUpdateArgs>(args: SelectSubset<T, ApikeyUpdateArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Apikeys.
+     * @param {ApikeyDeleteManyArgs} args - Arguments to filter Apikeys to delete.
+     * @example
+     * // Delete a few Apikeys
+     * const { count } = await prisma.apikey.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ApikeyDeleteManyArgs>(args?: SelectSubset<T, ApikeyDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Apikeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Apikeys
+     * const apikey = await prisma.apikey.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ApikeyUpdateManyArgs>(args: SelectSubset<T, ApikeyUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Apikeys and returns the data updated in the database.
+     * @param {ApikeyUpdateManyAndReturnArgs} args - Arguments to update many Apikeys.
+     * @example
+     * // Update many Apikeys
+     * const apikey = await prisma.apikey.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Apikeys and only return the `id`
+     * const apikeyWithIdOnly = await prisma.apikey.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ApikeyUpdateManyAndReturnArgs>(args: SelectSubset<T, ApikeyUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Apikey.
+     * @param {ApikeyUpsertArgs} args - Arguments to update or create a Apikey.
+     * @example
+     * // Update or create a Apikey
+     * const apikey = await prisma.apikey.upsert({
+     *   create: {
+     *     // ... data to create a Apikey
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Apikey we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ApikeyUpsertArgs>(args: SelectSubset<T, ApikeyUpsertArgs<ExtArgs>>): Prisma__ApikeyClient<$Result.GetResult<Prisma.$ApikeyPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Apikeys.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyCountArgs} args - Arguments to filter Apikeys to count.
+     * @example
+     * // Count the number of Apikeys
+     * const count = await prisma.apikey.count({
+     *   where: {
+     *     // ... the filter for the Apikeys we want to count
+     *   }
+     * })
+    **/
+    count<T extends ApikeyCountArgs>(
+      args?: Subset<T, ApikeyCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ApikeyCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Apikey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ApikeyAggregateArgs>(args: Subset<T, ApikeyAggregateArgs>): Prisma.PrismaPromise<GetApikeyAggregateType<T>>
+
+    /**
+     * Group by Apikey.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApikeyGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ApikeyGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ApikeyGroupByArgs['orderBy'] }
+        : { orderBy?: ApikeyGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ApikeyGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApikeyGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Apikey model
+   */
+  readonly fields: ApikeyFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Apikey.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ApikeyClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Apikey model
+   */
+  interface ApikeyFieldRefs {
+    readonly id: FieldRef<"Apikey", 'String'>
+    readonly configId: FieldRef<"Apikey", 'String'>
+    readonly name: FieldRef<"Apikey", 'String'>
+    readonly start: FieldRef<"Apikey", 'String'>
+    readonly referenceId: FieldRef<"Apikey", 'String'>
+    readonly prefix: FieldRef<"Apikey", 'String'>
+    readonly key: FieldRef<"Apikey", 'String'>
+    readonly refillInterval: FieldRef<"Apikey", 'Int'>
+    readonly refillAmount: FieldRef<"Apikey", 'Int'>
+    readonly lastRefillAt: FieldRef<"Apikey", 'DateTime'>
+    readonly enabled: FieldRef<"Apikey", 'Boolean'>
+    readonly rateLimitEnabled: FieldRef<"Apikey", 'Boolean'>
+    readonly rateLimitTimeWindow: FieldRef<"Apikey", 'Int'>
+    readonly rateLimitMax: FieldRef<"Apikey", 'Int'>
+    readonly requestCount: FieldRef<"Apikey", 'Int'>
+    readonly remaining: FieldRef<"Apikey", 'Int'>
+    readonly lastRequest: FieldRef<"Apikey", 'DateTime'>
+    readonly expiresAt: FieldRef<"Apikey", 'DateTime'>
+    readonly createdAt: FieldRef<"Apikey", 'DateTime'>
+    readonly updatedAt: FieldRef<"Apikey", 'DateTime'>
+    readonly permissions: FieldRef<"Apikey", 'String'>
+    readonly metadata: FieldRef<"Apikey", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Apikey findUnique
+   */
+  export type ApikeyFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * Filter, which Apikey to fetch.
+     */
+    where: ApikeyWhereUniqueInput
+  }
+
+  /**
+   * Apikey findUniqueOrThrow
+   */
+  export type ApikeyFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * Filter, which Apikey to fetch.
+     */
+    where: ApikeyWhereUniqueInput
+  }
+
+  /**
+   * Apikey findFirst
+   */
+  export type ApikeyFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * Filter, which Apikey to fetch.
+     */
+    where?: ApikeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Apikeys to fetch.
+     */
+    orderBy?: ApikeyOrderByWithRelationInput | ApikeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Apikeys.
+     */
+    cursor?: ApikeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Apikeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Apikeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Apikeys.
+     */
+    distinct?: ApikeyScalarFieldEnum | ApikeyScalarFieldEnum[]
+  }
+
+  /**
+   * Apikey findFirstOrThrow
+   */
+  export type ApikeyFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * Filter, which Apikey to fetch.
+     */
+    where?: ApikeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Apikeys to fetch.
+     */
+    orderBy?: ApikeyOrderByWithRelationInput | ApikeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Apikeys.
+     */
+    cursor?: ApikeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Apikeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Apikeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Apikeys.
+     */
+    distinct?: ApikeyScalarFieldEnum | ApikeyScalarFieldEnum[]
+  }
+
+  /**
+   * Apikey findMany
+   */
+  export type ApikeyFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * Filter, which Apikeys to fetch.
+     */
+    where?: ApikeyWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Apikeys to fetch.
+     */
+    orderBy?: ApikeyOrderByWithRelationInput | ApikeyOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Apikeys.
+     */
+    cursor?: ApikeyWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Apikeys from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Apikeys.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Apikeys.
+     */
+    distinct?: ApikeyScalarFieldEnum | ApikeyScalarFieldEnum[]
+  }
+
+  /**
+   * Apikey create
+   */
+  export type ApikeyCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Apikey.
+     */
+    data: XOR<ApikeyCreateInput, ApikeyUncheckedCreateInput>
+  }
+
+  /**
+   * Apikey createMany
+   */
+  export type ApikeyCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Apikeys.
+     */
+    data: ApikeyCreateManyInput | ApikeyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Apikey createManyAndReturn
+   */
+  export type ApikeyCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * The data used to create many Apikeys.
+     */
+    data: ApikeyCreateManyInput | ApikeyCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Apikey update
+   */
+  export type ApikeyUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Apikey.
+     */
+    data: XOR<ApikeyUpdateInput, ApikeyUncheckedUpdateInput>
+    /**
+     * Choose, which Apikey to update.
+     */
+    where: ApikeyWhereUniqueInput
+  }
+
+  /**
+   * Apikey updateMany
+   */
+  export type ApikeyUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Apikeys.
+     */
+    data: XOR<ApikeyUpdateManyMutationInput, ApikeyUncheckedUpdateManyInput>
+    /**
+     * Filter which Apikeys to update
+     */
+    where?: ApikeyWhereInput
+    /**
+     * Limit how many Apikeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Apikey updateManyAndReturn
+   */
+  export type ApikeyUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * The data used to update Apikeys.
+     */
+    data: XOR<ApikeyUpdateManyMutationInput, ApikeyUncheckedUpdateManyInput>
+    /**
+     * Filter which Apikeys to update
+     */
+    where?: ApikeyWhereInput
+    /**
+     * Limit how many Apikeys to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Apikey upsert
+   */
+  export type ApikeyUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Apikey to update in case it exists.
+     */
+    where: ApikeyWhereUniqueInput
+    /**
+     * In case the Apikey found by the `where` argument doesn't exist, create a new Apikey with this data.
+     */
+    create: XOR<ApikeyCreateInput, ApikeyUncheckedCreateInput>
+    /**
+     * In case the Apikey was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ApikeyUpdateInput, ApikeyUncheckedUpdateInput>
+  }
+
+  /**
+   * Apikey delete
+   */
+  export type ApikeyDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+    /**
+     * Filter which Apikey to delete.
+     */
+    where: ApikeyWhereUniqueInput
+  }
+
+  /**
+   * Apikey deleteMany
+   */
+  export type ApikeyDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Apikeys to delete
+     */
+    where?: ApikeyWhereInput
+    /**
+     * Limit how many Apikeys to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Apikey without action
+   */
+  export type ApikeyDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Apikey
+     */
+    select?: ApikeySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Apikey
+     */
+    omit?: ApikeyOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -32046,7 +33464,10 @@ export namespace Prisma {
     treeprogress: 'treeprogress',
     carbonprint: 'carbonprint',
     image: 'image',
-    scannerAlertActive: 'scannerAlertActive'
+    scannerAlertActive: 'scannerAlertActive',
+    banned: 'banned',
+    banReason: 'banReason',
+    banExpires: 'banExpires'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -32060,7 +33481,8 @@ export namespace Prisma {
     updatedAt: 'updatedAt',
     ipAddress: 'ipAddress',
     userAgent: 'userAgent',
-    userId: 'userId'
+    userId: 'userId',
+    impersonatedBy: 'impersonatedBy'
   };
 
   export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
@@ -32375,6 +33797,34 @@ export namespace Prisma {
   export type ScannerDiagnosticLogScalarFieldEnum = (typeof ScannerDiagnosticLogScalarFieldEnum)[keyof typeof ScannerDiagnosticLogScalarFieldEnum]
 
 
+  export const ApikeyScalarFieldEnum: {
+    id: 'id',
+    configId: 'configId',
+    name: 'name',
+    start: 'start',
+    referenceId: 'referenceId',
+    prefix: 'prefix',
+    key: 'key',
+    refillInterval: 'refillInterval',
+    refillAmount: 'refillAmount',
+    lastRefillAt: 'lastRefillAt',
+    enabled: 'enabled',
+    rateLimitEnabled: 'rateLimitEnabled',
+    rateLimitTimeWindow: 'rateLimitTimeWindow',
+    rateLimitMax: 'rateLimitMax',
+    requestCount: 'requestCount',
+    remaining: 'remaining',
+    lastRequest: 'lastRequest',
+    expiresAt: 'expiresAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    permissions: 'permissions',
+    metadata: 'metadata'
+  };
+
+  export type ApikeyScalarFieldEnum = (typeof ApikeyScalarFieldEnum)[keyof typeof ApikeyScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -32622,6 +34072,9 @@ export namespace Prisma {
     carbonprint?: FloatFilter<"User"> | number
     image?: StringNullableFilter<"User"> | string | null
     scannerAlertActive?: BoolFilter<"User"> | boolean
+    banned?: BoolNullableFilter<"User"> | boolean | null
+    banReason?: StringNullableFilter<"User"> | string | null
+    banExpires?: DateTimeNullableFilter<"User"> | Date | string | null
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     bins?: BinListRelationFilter
@@ -32660,6 +34113,9 @@ export namespace Prisma {
     carbonprint?: SortOrder
     image?: SortOrderInput | SortOrder
     scannerAlertActive?: SortOrder
+    banned?: SortOrderInput | SortOrder
+    banReason?: SortOrderInput | SortOrder
+    banExpires?: SortOrderInput | SortOrder
     sessions?: SessionOrderByRelationAggregateInput
     accounts?: AccountOrderByRelationAggregateInput
     bins?: BinOrderByRelationAggregateInput
@@ -32701,6 +34157,9 @@ export namespace Prisma {
     carbonprint?: FloatFilter<"User"> | number
     image?: StringNullableFilter<"User"> | string | null
     scannerAlertActive?: BoolFilter<"User"> | boolean
+    banned?: BoolNullableFilter<"User"> | boolean | null
+    banReason?: StringNullableFilter<"User"> | string | null
+    banExpires?: DateTimeNullableFilter<"User"> | Date | string | null
     sessions?: SessionListRelationFilter
     accounts?: AccountListRelationFilter
     bins?: BinListRelationFilter
@@ -32739,6 +34198,9 @@ export namespace Prisma {
     carbonprint?: SortOrder
     image?: SortOrderInput | SortOrder
     scannerAlertActive?: SortOrder
+    banned?: SortOrderInput | SortOrder
+    banReason?: SortOrderInput | SortOrder
+    banExpires?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
@@ -32769,6 +34231,9 @@ export namespace Prisma {
     carbonprint?: FloatWithAggregatesFilter<"User"> | number
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
     scannerAlertActive?: BoolWithAggregatesFilter<"User"> | boolean
+    banned?: BoolNullableWithAggregatesFilter<"User"> | boolean | null
+    banReason?: StringNullableWithAggregatesFilter<"User"> | string | null
+    banExpires?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   }
 
   export type SessionWhereInput = {
@@ -32783,6 +34248,7 @@ export namespace Prisma {
     ipAddress?: StringNullableFilter<"Session"> | string | null
     userAgent?: StringNullableFilter<"Session"> | string | null
     userId?: StringFilter<"Session"> | string
+    impersonatedBy?: StringNullableFilter<"Session"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -32795,6 +34261,7 @@ export namespace Prisma {
     ipAddress?: SortOrderInput | SortOrder
     userAgent?: SortOrderInput | SortOrder
     userId?: SortOrder
+    impersonatedBy?: SortOrderInput | SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -32810,6 +34277,7 @@ export namespace Prisma {
     ipAddress?: StringNullableFilter<"Session"> | string | null
     userAgent?: StringNullableFilter<"Session"> | string | null
     userId?: StringFilter<"Session"> | string
+    impersonatedBy?: StringNullableFilter<"Session"> | string | null
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id" | "token">
 
@@ -32822,6 +34290,7 @@ export namespace Prisma {
     ipAddress?: SortOrderInput | SortOrder
     userAgent?: SortOrderInput | SortOrder
     userId?: SortOrder
+    impersonatedBy?: SortOrderInput | SortOrder
     _count?: SessionCountOrderByAggregateInput
     _max?: SessionMaxOrderByAggregateInput
     _min?: SessionMinOrderByAggregateInput
@@ -32839,6 +34308,7 @@ export namespace Prisma {
     ipAddress?: StringNullableWithAggregatesFilter<"Session"> | string | null
     userAgent?: StringNullableWithAggregatesFilter<"Session"> | string | null
     userId?: StringWithAggregatesFilter<"Session"> | string
+    impersonatedBy?: StringNullableWithAggregatesFilter<"Session"> | string | null
   }
 
   export type AccountWhereInput = {
@@ -34433,6 +35903,145 @@ export namespace Prisma {
     details?: JsonNullableWithAggregatesFilter<"ScannerDiagnosticLog">
   }
 
+  export type ApikeyWhereInput = {
+    AND?: ApikeyWhereInput | ApikeyWhereInput[]
+    OR?: ApikeyWhereInput[]
+    NOT?: ApikeyWhereInput | ApikeyWhereInput[]
+    id?: StringFilter<"Apikey"> | string
+    configId?: StringFilter<"Apikey"> | string
+    name?: StringNullableFilter<"Apikey"> | string | null
+    start?: StringNullableFilter<"Apikey"> | string | null
+    referenceId?: StringFilter<"Apikey"> | string
+    prefix?: StringNullableFilter<"Apikey"> | string | null
+    key?: StringFilter<"Apikey"> | string
+    refillInterval?: IntNullableFilter<"Apikey"> | number | null
+    refillAmount?: IntNullableFilter<"Apikey"> | number | null
+    lastRefillAt?: DateTimeNullableFilter<"Apikey"> | Date | string | null
+    enabled?: BoolNullableFilter<"Apikey"> | boolean | null
+    rateLimitEnabled?: BoolNullableFilter<"Apikey"> | boolean | null
+    rateLimitTimeWindow?: IntNullableFilter<"Apikey"> | number | null
+    rateLimitMax?: IntNullableFilter<"Apikey"> | number | null
+    requestCount?: IntNullableFilter<"Apikey"> | number | null
+    remaining?: IntNullableFilter<"Apikey"> | number | null
+    lastRequest?: DateTimeNullableFilter<"Apikey"> | Date | string | null
+    expiresAt?: DateTimeNullableFilter<"Apikey"> | Date | string | null
+    createdAt?: DateTimeFilter<"Apikey"> | Date | string
+    updatedAt?: DateTimeFilter<"Apikey"> | Date | string
+    permissions?: StringNullableFilter<"Apikey"> | string | null
+    metadata?: StringNullableFilter<"Apikey"> | string | null
+  }
+
+  export type ApikeyOrderByWithRelationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrderInput | SortOrder
+    start?: SortOrderInput | SortOrder
+    referenceId?: SortOrder
+    prefix?: SortOrderInput | SortOrder
+    key?: SortOrder
+    refillInterval?: SortOrderInput | SortOrder
+    refillAmount?: SortOrderInput | SortOrder
+    lastRefillAt?: SortOrderInput | SortOrder
+    enabled?: SortOrderInput | SortOrder
+    rateLimitEnabled?: SortOrderInput | SortOrder
+    rateLimitTimeWindow?: SortOrderInput | SortOrder
+    rateLimitMax?: SortOrderInput | SortOrder
+    requestCount?: SortOrderInput | SortOrder
+    remaining?: SortOrderInput | SortOrder
+    lastRequest?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    permissions?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+  }
+
+  export type ApikeyWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ApikeyWhereInput | ApikeyWhereInput[]
+    OR?: ApikeyWhereInput[]
+    NOT?: ApikeyWhereInput | ApikeyWhereInput[]
+    configId?: StringFilter<"Apikey"> | string
+    name?: StringNullableFilter<"Apikey"> | string | null
+    start?: StringNullableFilter<"Apikey"> | string | null
+    referenceId?: StringFilter<"Apikey"> | string
+    prefix?: StringNullableFilter<"Apikey"> | string | null
+    key?: StringFilter<"Apikey"> | string
+    refillInterval?: IntNullableFilter<"Apikey"> | number | null
+    refillAmount?: IntNullableFilter<"Apikey"> | number | null
+    lastRefillAt?: DateTimeNullableFilter<"Apikey"> | Date | string | null
+    enabled?: BoolNullableFilter<"Apikey"> | boolean | null
+    rateLimitEnabled?: BoolNullableFilter<"Apikey"> | boolean | null
+    rateLimitTimeWindow?: IntNullableFilter<"Apikey"> | number | null
+    rateLimitMax?: IntNullableFilter<"Apikey"> | number | null
+    requestCount?: IntNullableFilter<"Apikey"> | number | null
+    remaining?: IntNullableFilter<"Apikey"> | number | null
+    lastRequest?: DateTimeNullableFilter<"Apikey"> | Date | string | null
+    expiresAt?: DateTimeNullableFilter<"Apikey"> | Date | string | null
+    createdAt?: DateTimeFilter<"Apikey"> | Date | string
+    updatedAt?: DateTimeFilter<"Apikey"> | Date | string
+    permissions?: StringNullableFilter<"Apikey"> | string | null
+    metadata?: StringNullableFilter<"Apikey"> | string | null
+  }, "id">
+
+  export type ApikeyOrderByWithAggregationInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrderInput | SortOrder
+    start?: SortOrderInput | SortOrder
+    referenceId?: SortOrder
+    prefix?: SortOrderInput | SortOrder
+    key?: SortOrder
+    refillInterval?: SortOrderInput | SortOrder
+    refillAmount?: SortOrderInput | SortOrder
+    lastRefillAt?: SortOrderInput | SortOrder
+    enabled?: SortOrderInput | SortOrder
+    rateLimitEnabled?: SortOrderInput | SortOrder
+    rateLimitTimeWindow?: SortOrderInput | SortOrder
+    rateLimitMax?: SortOrderInput | SortOrder
+    requestCount?: SortOrderInput | SortOrder
+    remaining?: SortOrderInput | SortOrder
+    lastRequest?: SortOrderInput | SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    permissions?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    _count?: ApikeyCountOrderByAggregateInput
+    _avg?: ApikeyAvgOrderByAggregateInput
+    _max?: ApikeyMaxOrderByAggregateInput
+    _min?: ApikeyMinOrderByAggregateInput
+    _sum?: ApikeySumOrderByAggregateInput
+  }
+
+  export type ApikeyScalarWhereWithAggregatesInput = {
+    AND?: ApikeyScalarWhereWithAggregatesInput | ApikeyScalarWhereWithAggregatesInput[]
+    OR?: ApikeyScalarWhereWithAggregatesInput[]
+    NOT?: ApikeyScalarWhereWithAggregatesInput | ApikeyScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Apikey"> | string
+    configId?: StringWithAggregatesFilter<"Apikey"> | string
+    name?: StringNullableWithAggregatesFilter<"Apikey"> | string | null
+    start?: StringNullableWithAggregatesFilter<"Apikey"> | string | null
+    referenceId?: StringWithAggregatesFilter<"Apikey"> | string
+    prefix?: StringNullableWithAggregatesFilter<"Apikey"> | string | null
+    key?: StringWithAggregatesFilter<"Apikey"> | string
+    refillInterval?: IntNullableWithAggregatesFilter<"Apikey"> | number | null
+    refillAmount?: IntNullableWithAggregatesFilter<"Apikey"> | number | null
+    lastRefillAt?: DateTimeNullableWithAggregatesFilter<"Apikey"> | Date | string | null
+    enabled?: BoolNullableWithAggregatesFilter<"Apikey"> | boolean | null
+    rateLimitEnabled?: BoolNullableWithAggregatesFilter<"Apikey"> | boolean | null
+    rateLimitTimeWindow?: IntNullableWithAggregatesFilter<"Apikey"> | number | null
+    rateLimitMax?: IntNullableWithAggregatesFilter<"Apikey"> | number | null
+    requestCount?: IntNullableWithAggregatesFilter<"Apikey"> | number | null
+    remaining?: IntNullableWithAggregatesFilter<"Apikey"> | number | null
+    lastRequest?: DateTimeNullableWithAggregatesFilter<"Apikey"> | Date | string | null
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"Apikey"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Apikey"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Apikey"> | Date | string
+    permissions?: StringNullableWithAggregatesFilter<"Apikey"> | string | null
+    metadata?: StringNullableWithAggregatesFilter<"Apikey"> | string | null
+  }
+
   export type UserCreateInput = {
     id?: string
     profileImageUrl?: string | null
@@ -34453,6 +36062,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -34491,6 +36103,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -34529,6 +36144,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -34567,6 +36185,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -34605,6 +36226,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -34627,6 +36251,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -34649,6 +36276,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type SessionCreateInput = {
@@ -34659,6 +36289,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
+    impersonatedBy?: string | null
     user: UserCreateNestedOneWithoutSessionsInput
   }
 
@@ -34671,6 +36302,7 @@ export namespace Prisma {
     ipAddress?: string | null
     userAgent?: string | null
     userId: string
+    impersonatedBy?: string | null
   }
 
   export type SessionUpdateInput = {
@@ -34681,6 +36313,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
     user?: UserUpdateOneRequiredWithoutSessionsNestedInput
   }
 
@@ -34693,6 +36326,7 @@ export namespace Prisma {
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SessionCreateManyInput = {
@@ -34704,6 +36338,7 @@ export namespace Prisma {
     ipAddress?: string | null
     userAgent?: string | null
     userId: string
+    impersonatedBy?: string | null
   }
 
   export type SessionUpdateManyMutationInput = {
@@ -34714,6 +36349,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SessionUncheckedUpdateManyInput = {
@@ -34725,6 +36361,7 @@ export namespace Prisma {
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     userId?: StringFieldUpdateOperationsInput | string
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AccountCreateInput = {
@@ -36413,6 +38050,181 @@ export namespace Prisma {
     details?: NullableJsonNullValueInput | InputJsonValue
   }
 
+  export type ApikeyCreateInput = {
+    id: string
+    configId?: string
+    name?: string | null
+    start?: string | null
+    referenceId: string
+    prefix?: string | null
+    key: string
+    refillInterval?: number | null
+    refillAmount?: number | null
+    lastRefillAt?: Date | string | null
+    enabled?: boolean | null
+    rateLimitEnabled?: boolean | null
+    rateLimitTimeWindow?: number | null
+    rateLimitMax?: number | null
+    requestCount?: number | null
+    remaining?: number | null
+    lastRequest?: Date | string | null
+    expiresAt?: Date | string | null
+    createdAt: Date | string
+    updatedAt: Date | string
+    permissions?: string | null
+    metadata?: string | null
+  }
+
+  export type ApikeyUncheckedCreateInput = {
+    id: string
+    configId?: string
+    name?: string | null
+    start?: string | null
+    referenceId: string
+    prefix?: string | null
+    key: string
+    refillInterval?: number | null
+    refillAmount?: number | null
+    lastRefillAt?: Date | string | null
+    enabled?: boolean | null
+    rateLimitEnabled?: boolean | null
+    rateLimitTimeWindow?: number | null
+    rateLimitMax?: number | null
+    requestCount?: number | null
+    remaining?: number | null
+    lastRequest?: Date | string | null
+    expiresAt?: Date | string | null
+    createdAt: Date | string
+    updatedAt: Date | string
+    permissions?: string | null
+    metadata?: string | null
+  }
+
+  export type ApikeyUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    start?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: StringFieldUpdateOperationsInput | string
+    prefix?: NullableStringFieldUpdateOperationsInput | string | null
+    key?: StringFieldUpdateOperationsInput | string
+    refillInterval?: NullableIntFieldUpdateOperationsInput | number | null
+    refillAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRefillAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitEnabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitTimeWindow?: NullableIntFieldUpdateOperationsInput | number | null
+    rateLimitMax?: NullableIntFieldUpdateOperationsInput | number | null
+    requestCount?: NullableIntFieldUpdateOperationsInput | number | null
+    remaining?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRequest?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ApikeyUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    start?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: StringFieldUpdateOperationsInput | string
+    prefix?: NullableStringFieldUpdateOperationsInput | string | null
+    key?: StringFieldUpdateOperationsInput | string
+    refillInterval?: NullableIntFieldUpdateOperationsInput | number | null
+    refillAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRefillAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitEnabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitTimeWindow?: NullableIntFieldUpdateOperationsInput | number | null
+    rateLimitMax?: NullableIntFieldUpdateOperationsInput | number | null
+    requestCount?: NullableIntFieldUpdateOperationsInput | number | null
+    remaining?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRequest?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ApikeyCreateManyInput = {
+    id: string
+    configId?: string
+    name?: string | null
+    start?: string | null
+    referenceId: string
+    prefix?: string | null
+    key: string
+    refillInterval?: number | null
+    refillAmount?: number | null
+    lastRefillAt?: Date | string | null
+    enabled?: boolean | null
+    rateLimitEnabled?: boolean | null
+    rateLimitTimeWindow?: number | null
+    rateLimitMax?: number | null
+    requestCount?: number | null
+    remaining?: number | null
+    lastRequest?: Date | string | null
+    expiresAt?: Date | string | null
+    createdAt: Date | string
+    updatedAt: Date | string
+    permissions?: string | null
+    metadata?: string | null
+  }
+
+  export type ApikeyUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    start?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: StringFieldUpdateOperationsInput | string
+    prefix?: NullableStringFieldUpdateOperationsInput | string | null
+    key?: StringFieldUpdateOperationsInput | string
+    refillInterval?: NullableIntFieldUpdateOperationsInput | number | null
+    refillAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRefillAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitEnabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitTimeWindow?: NullableIntFieldUpdateOperationsInput | number | null
+    rateLimitMax?: NullableIntFieldUpdateOperationsInput | number | null
+    requestCount?: NullableIntFieldUpdateOperationsInput | number | null
+    remaining?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRequest?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ApikeyUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    configId?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    start?: NullableStringFieldUpdateOperationsInput | string | null
+    referenceId?: StringFieldUpdateOperationsInput | string
+    prefix?: NullableStringFieldUpdateOperationsInput | string | null
+    key?: StringFieldUpdateOperationsInput | string
+    refillInterval?: NullableIntFieldUpdateOperationsInput | number | null
+    refillAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRefillAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    enabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitEnabled?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    rateLimitTimeWindow?: NullableIntFieldUpdateOperationsInput | number | null
+    rateLimitMax?: NullableIntFieldUpdateOperationsInput | number | null
+    requestCount?: NullableIntFieldUpdateOperationsInput | number | null
+    remaining?: NullableIntFieldUpdateOperationsInput | number | null
+    lastRequest?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    permissions?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -36515,6 +38327,11 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type SessionListRelationFilter = {
@@ -36687,6 +38504,9 @@ export namespace Prisma {
     carbonprint?: SortOrder
     image?: SortOrder
     scannerAlertActive?: SortOrder
+    banned?: SortOrder
+    banReason?: SortOrder
+    banExpires?: SortOrder
   }
 
   export type UserAvgOrderByAggregateInput = {
@@ -36717,6 +38537,9 @@ export namespace Prisma {
     carbonprint?: SortOrder
     image?: SortOrder
     scannerAlertActive?: SortOrder
+    banned?: SortOrder
+    banReason?: SortOrder
+    banExpires?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -36739,6 +38562,9 @@ export namespace Prisma {
     carbonprint?: SortOrder
     image?: SortOrder
     scannerAlertActive?: SortOrder
+    banned?: SortOrder
+    banReason?: SortOrder
+    banExpires?: SortOrder
   }
 
   export type UserSumOrderByAggregateInput = {
@@ -36889,6 +38715,14 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -36903,6 +38737,7 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
     userId?: SortOrder
+    impersonatedBy?: SortOrder
   }
 
   export type SessionMaxOrderByAggregateInput = {
@@ -36914,6 +38749,7 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
     userId?: SortOrder
+    impersonatedBy?: SortOrder
   }
 
   export type SessionMinOrderByAggregateInput = {
@@ -36925,6 +38761,7 @@ export namespace Prisma {
     ipAddress?: SortOrder
     userAgent?: SortOrder
     userId?: SortOrder
+    impersonatedBy?: SortOrder
   }
 
   export type AccountCountOrderByAggregateInput = {
@@ -37968,6 +39805,126 @@ export namespace Prisma {
     overallStatus?: SortOrder
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type ApikeyCountOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    start?: SortOrder
+    referenceId?: SortOrder
+    prefix?: SortOrder
+    key?: SortOrder
+    refillInterval?: SortOrder
+    refillAmount?: SortOrder
+    lastRefillAt?: SortOrder
+    enabled?: SortOrder
+    rateLimitEnabled?: SortOrder
+    rateLimitTimeWindow?: SortOrder
+    rateLimitMax?: SortOrder
+    requestCount?: SortOrder
+    remaining?: SortOrder
+    lastRequest?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    permissions?: SortOrder
+    metadata?: SortOrder
+  }
+
+  export type ApikeyAvgOrderByAggregateInput = {
+    refillInterval?: SortOrder
+    refillAmount?: SortOrder
+    rateLimitTimeWindow?: SortOrder
+    rateLimitMax?: SortOrder
+    requestCount?: SortOrder
+    remaining?: SortOrder
+  }
+
+  export type ApikeyMaxOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    start?: SortOrder
+    referenceId?: SortOrder
+    prefix?: SortOrder
+    key?: SortOrder
+    refillInterval?: SortOrder
+    refillAmount?: SortOrder
+    lastRefillAt?: SortOrder
+    enabled?: SortOrder
+    rateLimitEnabled?: SortOrder
+    rateLimitTimeWindow?: SortOrder
+    rateLimitMax?: SortOrder
+    requestCount?: SortOrder
+    remaining?: SortOrder
+    lastRequest?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    permissions?: SortOrder
+    metadata?: SortOrder
+  }
+
+  export type ApikeyMinOrderByAggregateInput = {
+    id?: SortOrder
+    configId?: SortOrder
+    name?: SortOrder
+    start?: SortOrder
+    referenceId?: SortOrder
+    prefix?: SortOrder
+    key?: SortOrder
+    refillInterval?: SortOrder
+    refillAmount?: SortOrder
+    lastRefillAt?: SortOrder
+    enabled?: SortOrder
+    rateLimitEnabled?: SortOrder
+    rateLimitTimeWindow?: SortOrder
+    rateLimitMax?: SortOrder
+    requestCount?: SortOrder
+    remaining?: SortOrder
+    lastRequest?: SortOrder
+    expiresAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    permissions?: SortOrder
+    metadata?: SortOrder
+  }
+
+  export type ApikeySumOrderByAggregateInput = {
+    refillInterval?: SortOrder
+    refillAmount?: SortOrder
+    rateLimitTimeWindow?: SortOrder
+    rateLimitMax?: SortOrder
+    requestCount?: SortOrder
+    remaining?: SortOrder
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type SessionCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -38240,6 +40197,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
   }
 
   export type SessionUpdateManyWithoutUserNestedInput = {
@@ -39330,6 +41291,14 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutScannerDiagnosticLogInput, UserUpdateWithoutScannerDiagnosticLogInput>, UserUncheckedUpdateWithoutScannerDiagnosticLogInput>
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -39430,6 +41399,11 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -39581,6 +41555,14 @@ export namespace Prisma {
     _max?: NestedFloatFilter<$PrismaModel>
   }
 
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumBinStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.BinStatus | EnumBinStatusFieldRefInput<$PrismaModel>
     in?: $Enums.BinStatus[] | ListEnumBinStatusFieldRefInput<$PrismaModel>
@@ -39699,6 +41681,22 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type SessionCreateWithoutUserInput = {
     id: string
     expiresAt: Date | string
@@ -39707,6 +41705,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
+    impersonatedBy?: string | null
   }
 
   export type SessionUncheckedCreateWithoutUserInput = {
@@ -39717,6 +41716,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
+    impersonatedBy?: string | null
   }
 
   export type SessionCreateOrConnectWithoutUserInput = {
@@ -40200,6 +42200,7 @@ export namespace Prisma {
     ipAddress?: StringNullableFilter<"Session"> | string | null
     userAgent?: StringNullableFilter<"Session"> | string | null
     userId?: StringFilter<"Session"> | string
+    impersonatedBy?: StringNullableFilter<"Session"> | string | null
   }
 
   export type AccountUpsertWithWhereUniqueWithoutUserInput = {
@@ -40653,6 +42654,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
     disposals?: DisposalCreateNestedManyWithoutUserInput
@@ -40690,6 +42694,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
     disposals?: DisposalUncheckedCreateNestedManyWithoutUserInput
@@ -40743,6 +42750,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
     disposals?: DisposalUpdateManyWithoutUserNestedInput
@@ -40780,6 +42790,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
     disposals?: DisposalUncheckedUpdateManyWithoutUserNestedInput
@@ -40817,6 +42830,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
     disposals?: DisposalCreateNestedManyWithoutUserInput
@@ -40854,6 +42870,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
     disposals?: DisposalUncheckedCreateNestedManyWithoutUserInput
@@ -40907,6 +42926,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
     disposals?: DisposalUpdateManyWithoutUserNestedInput
@@ -40944,6 +42966,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
     disposals?: DisposalUncheckedUpdateManyWithoutUserNestedInput
@@ -41000,6 +43025,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     disposals?: DisposalCreateNestedManyWithoutUserInput
@@ -41037,6 +43065,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     disposals?: DisposalUncheckedCreateNestedManyWithoutUserInput
@@ -41181,6 +43212,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     disposals?: DisposalUpdateManyWithoutUserNestedInput
@@ -41218,6 +43252,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     disposals?: DisposalUncheckedUpdateManyWithoutUserNestedInput
@@ -41393,6 +43430,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -41430,6 +43470,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -41499,6 +43542,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -41536,6 +43582,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -41608,6 +43657,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -41645,6 +43697,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -41760,6 +43815,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -41797,6 +43855,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -41861,6 +43922,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -41898,6 +43962,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -41951,6 +44018,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -41988,6 +44058,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -42096,6 +44169,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -42133,6 +44209,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -42223,6 +44302,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -42260,6 +44342,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -42297,6 +44382,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -42334,6 +44422,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -42387,6 +44478,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -42424,6 +44518,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -42461,6 +44558,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -42498,6 +44598,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -42551,6 +44654,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -42588,6 +44694,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -42698,6 +44807,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -42735,6 +44847,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -42825,6 +44940,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -42862,6 +44980,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -42899,6 +45020,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -42936,6 +45060,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -42978,6 +45105,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -43015,6 +45145,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -43068,6 +45201,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -43105,6 +45241,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -43153,6 +45292,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -43190,6 +45332,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -43265,6 +45410,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -43302,6 +45450,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -43380,6 +45531,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -43417,6 +45571,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -43485,6 +45642,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -43522,6 +45682,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -43575,6 +45738,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -43612,6 +45778,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -43649,6 +45818,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -43686,6 +45858,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -43739,6 +45914,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -43776,6 +45954,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -43889,6 +46070,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionCreateNestedManyWithoutUserInput
     accounts?: AccountCreateNestedManyWithoutUserInput
     bins?: BinCreateNestedManyWithoutUserInput
@@ -43926,6 +46110,9 @@ export namespace Prisma {
     carbonprint?: number
     image?: string | null
     scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
     sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
     accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
     bins?: BinUncheckedCreateNestedManyWithoutUserInput
@@ -43979,6 +46166,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUpdateManyWithoutUserNestedInput
     accounts?: AccountUpdateManyWithoutUserNestedInput
     bins?: BinUpdateManyWithoutUserNestedInput
@@ -44016,6 +46206,9 @@ export namespace Prisma {
     carbonprint?: FloatFieldUpdateOperationsInput | number
     image?: NullableStringFieldUpdateOperationsInput | string | null
     scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
     accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
     bins?: BinUncheckedUpdateManyWithoutUserNestedInput
@@ -44041,6 +46234,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     ipAddress?: string | null
     userAgent?: string | null
+    impersonatedBy?: string | null
   }
 
   export type AccountCreateManyUserInput = {
@@ -44190,6 +46384,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SessionUncheckedUpdateWithoutUserInput = {
@@ -44200,6 +46395,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type SessionUncheckedUpdateManyWithoutUserInput = {
@@ -44210,6 +46406,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    impersonatedBy?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type AccountUpdateWithoutUserInput = {

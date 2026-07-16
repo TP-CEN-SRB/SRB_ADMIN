@@ -139,7 +139,10 @@ exports.Prisma.UserScalarFieldEnum = {
   treeprogress: 'treeprogress',
   carbonprint: 'carbonprint',
   image: 'image',
-  scannerAlertActive: 'scannerAlertActive'
+  scannerAlertActive: 'scannerAlertActive',
+  banned: 'banned',
+  banReason: 'banReason',
+  banExpires: 'banExpires'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
@@ -150,7 +153,8 @@ exports.Prisma.SessionScalarFieldEnum = {
   updatedAt: 'updatedAt',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
-  userId: 'userId'
+  userId: 'userId',
+  impersonatedBy: 'impersonatedBy'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
@@ -393,6 +397,31 @@ exports.Prisma.ScannerDiagnosticLogScalarFieldEnum = {
   details: 'details'
 };
 
+exports.Prisma.ApikeyScalarFieldEnum = {
+  id: 'id',
+  configId: 'configId',
+  name: 'name',
+  start: 'start',
+  referenceId: 'referenceId',
+  prefix: 'prefix',
+  key: 'key',
+  refillInterval: 'refillInterval',
+  refillAmount: 'refillAmount',
+  lastRefillAt: 'lastRefillAt',
+  enabled: 'enabled',
+  rateLimitEnabled: 'rateLimitEnabled',
+  rateLimitTimeWindow: 'rateLimitTimeWindow',
+  rateLimitMax: 'rateLimitMax',
+  requestCount: 'requestCount',
+  remaining: 'remaining',
+  lastRequest: 'lastRequest',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  permissions: 'permissions',
+  metadata: 'metadata'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -431,7 +460,7 @@ exports.Faculty = exports.$Enums.Faculty = {
 
 exports.Role = exports.$Enums.Role = {
   STUDENT: 'STUDENT',
-  ADMIN: 'ADMIN',
+  admin: 'admin',
   BIN: 'BIN',
   STAFF: 'STAFF',
   STORE: 'STORE'
@@ -487,7 +516,8 @@ exports.Prisma.ModelName = {
   Feedback: 'Feedback',
   FaultReport: 'FaultReport',
   BinDiagnosticLog: 'BinDiagnosticLog',
-  ScannerDiagnosticLog: 'ScannerDiagnosticLog'
+  ScannerDiagnosticLog: 'ScannerDiagnosticLog',
+  Apikey: 'Apikey'
 };
 
 /**

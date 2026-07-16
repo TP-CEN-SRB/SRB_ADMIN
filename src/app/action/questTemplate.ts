@@ -24,7 +24,7 @@ export const createQuestTemplate = async (
     headers: await headers()
   })
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
+  if (user?.role !== "admin") return { error: "Unauthorized" }
 
   try {
     const template = await prisma.questTemplate.create({
@@ -50,7 +50,7 @@ export const getQuestTemplates = async () => {
     headers: await headers()
   })
   const user = session?.user
-  if (user?.role !== "ADMIN") return []
+  if (user?.role !== "admin") return []
 
   return prisma.questTemplate.findMany({
     orderBy: { createdAt: "desc" },
@@ -73,7 +73,7 @@ export const updateQuestTemplate = async (
     headers: await headers()
   })
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
+  if (user?.role !== "admin") return { error: "Unauthorized" }
 
   try {
     const updated = await prisma.questTemplate.update({
@@ -101,7 +101,7 @@ export const deleteQuestTemplate = async (id: string) => {
     headers: await headers()
   })
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
+  if (user?.role !== "admin") return { error: "Unauthorized" }
 
   try {
     await prisma.questTemplate.delete({ where: { id } })

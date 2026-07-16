@@ -4,7 +4,7 @@ import { APIError } from "better-auth"
 import { NextRequest, NextResponse } from "next/server"
 import jwt from "jsonwebtoken"
 
-// Roles allowed to sign in through the mobile app. ADMIN/BIN use their own
+// Roles allowed to sign in through the mobile app. admin/BIN use their own
 // portals - matches the restriction the old NextAuth-era route enforced.
 const MOBILE_ROLES = ["STUDENT", "STORE", "STAFF"]
 

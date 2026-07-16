@@ -1,5 +1,5 @@
 export const checkedRoles = [
-    {label:"Admin", value: "ADMIN"},
+    {label:"Admin", value: "admin"},
     {label:"Student", value: "STUDENT"}, 
     {label:"Staff", value: "STAFF"}
 ]

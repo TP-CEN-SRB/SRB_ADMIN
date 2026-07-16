@@ -166,7 +166,7 @@ const deleteStore = async (storeId: string) => {
   })
   const user = session?.user
 
-  if (user?.role !== Role.ADMIN) {
+  if (user?.role !== Role.admin) {
     return { error: "Unauthorized" }
   }
 

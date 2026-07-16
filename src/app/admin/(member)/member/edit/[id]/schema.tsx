@@ -7,12 +7,14 @@ export const EditMemberSchema = z.object({
 
   email: z.email({ error: "Email is required." }),
 
+  emailVerified: z.boolean(),
+
   password: z.string().min(8, { error: "Password must be at least 8 characters long." }).optional().or(z.literal("")),
   confirmPassword: z.string().optional().or(z.literal("")),
   
   faculty: z.enum(["ENG", "BUS", "ASC", "DES", "HSS", "IIT", "OTHERS", "EXT"], { error: "Please select a faculty." }),
 
-  role: z.enum(["ADMIN", "STUDENT", "STAFF", "STORE", "BIN"], { 
+  role: z.enum(["admin", "STUDENT", "STAFF", "STORE", "BIN"], { 
     error: "Please select a role." 
   }),
 }).refine(function(data){ return data.password === data.confirmPassword}, {error: "Passwords do not match.",path: ["confirmPassword"],})

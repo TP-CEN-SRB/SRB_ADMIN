@@ -58,7 +58,7 @@ export async function deleteBinUser(userId: string){
             headers: await headers()
         })
 
-        if ( !session?.user || session.user.role !== "ADMIN") {
+        if ( !session?.user || session.user.role !== "admin") {
             return { error: "Unauthorized access" }
         }
 
@@ -82,7 +82,7 @@ export async function deleteStudent(userId: string){
             headers: await headers()
         })
 
-        if ( !session?.user || session.user.role !== "ADMIN") {
+        if ( !session?.user || session.user.role !== "admin") {
             return { error: "Unauthorized access" }
         }
 

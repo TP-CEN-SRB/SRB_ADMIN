@@ -25,7 +25,7 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
 
-  if (user?.role !== "ADMIN") {
+  if (user?.role !== "admin") {
     return { error: "Unauthorized" }
   }
 
@@ -73,7 +73,7 @@ export const updateEvent = async (
 ) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
+  if (user?.role !== "admin") return { error: "Unauthorized" }
 
   try {
     const updated = await prisma.event.update({
@@ -97,7 +97,7 @@ export const updateEvent = async (
 export const deleteEvent = async (eventId: string) => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return { error: "Unauthorized" }
+  if (user?.role !== "admin") return { error: "Unauthorized" }
 
   try {
     await prisma.event.delete({ where: { id: eventId } })
@@ -135,7 +135,7 @@ type UserInEvent = {
 export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]> => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return []
+  if (user?.role !== "admin") return []
 
   const userEvents = await prisma.userEvent.findMany({
     where: { eventId },
@@ -162,7 +162,7 @@ export const getEvents = async (
 ): Promise<GetEventsResult> => {
   const { data: session } = await authClient.getSession()
   const user = session?.user
-  if (user?.role !== "ADMIN") return { eventCount: 0, events: [] }
+  if (user?.role !== "admin") return { eventCount: 0, events: [] }
 
   const sortableItems = ["title", "startDate", "endDate", "createdAt"]
   const isInvalidPage = page != null && page < 0

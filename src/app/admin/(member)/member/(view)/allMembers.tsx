@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/db"
 import { revalidatePath } from "next/cache"
 
-export type Role = "ADMIN" | "STUDENT" | "STAFF"
+export type Role = "admin" | "STUDENT" | "STAFF"
 export type Faculty = "ENG" | "BUS" | "DES" | "ASC" | "IIT" | "HSS" | "EXT" | "OTHERS"
 export type Sort = "asc" | "desc" | undefined
 

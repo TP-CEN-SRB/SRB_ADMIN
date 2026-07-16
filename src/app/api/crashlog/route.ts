@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db"
 
 const allowedOrigins = [
   "http://localhost:3000",              // SRB_LOCAL dev      
-  "https://cen-smart-bin.vercel.app",   // SRB_ADMIN itself
+  "https://cen-smart-bin.vercel.app",   // SRB_admin itself
 ]
 
 export const POST = async (req: NextRequest) => {
