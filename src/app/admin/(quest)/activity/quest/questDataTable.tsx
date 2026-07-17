@@ -75,7 +75,7 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-          <Link href={`/admin/quest/update/${quest.id}`} passHref>
+          <Link href={`/admin/activity/quest/update/${quest.id}`} passHref>
             <DropdownMenuItem>
               <FaEdit className="mr-2" /> Edit Quest
             </DropdownMenuItem>
@@ -85,7 +85,7 @@ const QuestActions = ({ quest }: { quest: Quest }) => {
             <FaTrashRestore className="mr-2" /> Delete Quest
           </DropdownMenuItem>
 
-          <Link href={`/admin/quest/${quest.id}/users`} passHref>
+          <Link href={`/admin/activity/quest/${quest.id}/users`} passHref>
             <DropdownMenuItem>
               <FaTrashRestore className="mr-2" /> View Users
             </DropdownMenuItem>

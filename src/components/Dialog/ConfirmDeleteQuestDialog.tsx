@@ -57,7 +57,7 @@ const ConfirmDeleteQuestDialog = ({
           ),
           duration: 2000,
         })
-        router.push("/admin/quest")
+        router.push("/admin/activity/quest")
       }
     })
   }

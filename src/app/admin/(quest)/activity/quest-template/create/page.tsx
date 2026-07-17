@@ -1,14 +1,9 @@
-// import CreateQuestTemplateForm from "@/components/FormLogic/(Quest)/CreateQuestTemplateForm"
+import CreateQuestTemplateForm from "@/components/FormLogic/(Quest)/CreateQuestTemplateForm"
 
-// export default function CreateQuestTemplatePage() {
-//   return (
-//     <div className="min-h-screen flex justify-center items-center p-4">
-//       <CreateQuestTemplateForm />
-//     </div>
-//   )
-// }
 export default function CreateQuestTemplatePage() {
-  return(
-    <div>CreateQuestTemplatePage</div>
+  return (
+    <div className="min-h-screen flex justify-center items-center p-4">
+      <CreateQuestTemplateForm />
+    </div>
   )
 }
