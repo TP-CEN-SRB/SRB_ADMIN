@@ -60,6 +60,9 @@ export const POST = async (req: NextRequest) => {
     // better-auth creates the user + credential account and, since
     // requireEmailVerification is on, automatically sends the verification
     // email via the sendVerificationEmail hook configured in auth.ts.
+    // role is never taken from client input here - the databaseHooks.user.create.before
+    // hook in auth.ts defaults every role-less signup to STUDENT (the admin
+    // plugin rejects `role` outright if it's included in this body at all).
     const signUpResult = await auth.api.signUpEmail({
       body: {
         name: capitalizeFirstLetter(data.name),
@@ -67,8 +70,6 @@ export const POST = async (req: NextRequest) => {
         password: data.password,
         faculty: data.faculty,
         diploma: data.diploma,
-        // role is never taken from client input - always STUDENT here.
-        role: "STUDENT",
       },
       headers: req.headers,
     })

@@ -76,15 +76,26 @@ export const auth = betterAuth({
     emailVerification: {
         sendVerificationEmail: async ({ user, url }) => {
             await resend.emails.send({
-                from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`, 
+                from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
                 to: user.email,
                 subject: "[Smart Bin System] Account Verification",
                 html: emailTemplate(url, "VERIFY"),
             })
         }
     },
-    
+
     plugins:[
       apiKey(),
+      // The admin plugin reserves `role` as an admin-only field: any
+      // signUpEmail caller that includes a `role` key in its body gets
+      // rejected outright ("role is not allowed to be set"), even
+      // server-side (api/signup/student no longer passes it). defaultRole
+      // is what the plugin substitutes for role instead - it defaults to
+      // "user", which isn't a valid value in our Role enum, so it has to be
+      // set explicitly here. Admin-initiated account creation
+      // (auth.api.createUser, used for stores/bin managers) goes through a
+      // different, admin-only endpoint that sets role explicitly and isn't
+      // affected by this default.
+      admin({ defaultRole: "STUDENT" }),
       nextCookies()]
 })
