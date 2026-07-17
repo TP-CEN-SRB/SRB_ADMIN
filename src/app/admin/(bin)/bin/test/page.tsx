@@ -1,187 +1,138 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { MqttClient } from "mqtt"
-import { publishMqtt, connectMqtt } from "@/lib/mqtt"
+import { useState } from "react"
+import { publishMqtt } from "@/lib/mqtt"
 import {
   ableToPublishMqttMessage,
   updateCommandUpdatedAt,
   resetCommandCooldown,
 } from "@/utils/mqttPublisher"
 import { toast } from "sonner"
-import clsx from "clsx"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Loader2 } from "lucide-react"
 
 const materials = ["plastic", "general", "paper"] as const
-type Status = "ready" | "testing" | "success" | "failed"
+type Material = (typeof materials)[number]
 
-const TestBinPage = () => {
+const commands = [
+  { label: "Open Lid", value: "open" },
+  { label: "Close Lid", value: "close" },
+  { label: "Raise Bin", value: "up" },
+  { label: "Lower Bin", value: "down" },
+  { label: "Read Fill Level", value: "ultrasound" },
+  { label: "Open Detection", value: "opendetection" },
+  { label: "Close Detection", value: "closedetection" },
+  { label: "Detect", value: "detect" },
+  { label: "Multi-Detect", value: "multi-detect" },
+] as const
+
+const materialLabels: Record<Material, string> = {
+  plastic: "Plastic",
+  general: "General",
+  paper: "Paper",
+}
+
+export default function TestBinPage() {
   const [binId, setBinId] = useState("")
-  const [mqttClient, setMqttClient] = useState<MqttClient | null>(null)
-  const [statuses, setStatuses] = useState<Record<string, Status>>({
-    plastic: "ready",
-    general: "ready",
-    paper: "ready",
-  })
+  const [pendingCommand, setPendingCommand] = useState<string | null>(null)
 
-  useEffect(() => {
-    const init = async () => {
-      const client = await connectMqtt()
-      setMqttClient(client)
-    }
-    init()
-  }, [])
-
-  const waitForReadOnce = (material: string): Promise<boolean> => {
-    return new Promise((resolve) => {
-      const topic = `srb/${material}/${binId}`
-      const timeout = setTimeout(() => {
-        mqttClient?.off("message", onMessage)
-        resolve(false)
-      }, 60000)
-
-      const onMessage = (topicReceived: string, message: Buffer) => {
-        if (topicReceived === topic) {
-          const payload = JSON.parse(message.toString())
-          if (payload.command === "readonce") {
-            clearTimeout(timeout)
-            mqttClient?.off("message", onMessage)
-            resolve(true)
-          }
-        }
-      }
-
-      mqttClient?.on("message", onMessage)
-    })
-  }
-
-  const updateStatus = (material: string, status: Status) => {
-    setStatuses((prev) => ({ ...prev, [material]: status }))
-  }
-
-  const handleMaterialTest = async (material: string) => {
+  const sendCommand = async (material: Material, command: string) => {
     if (!binId) {
-      toast("Missing Bin ID")
-      return
-    }
-    if (!mqttClient) {
-      toast("MQTT not connected")
+      toast.error("Missing Bin ID")
       return
     }
 
-    updateStatus(material, "testing")
-
-    const topic = `srb/${material}/${binId}`
-    const payload = JSON.stringify({ command: "detect" })
-
-    toast(`Testing ${material} bin...`)
-
-    await mqttClient.subscribe(topic)
+    const key = `${material}:${command}`
+    setPendingCommand(key)
 
     const canPublish = await ableToPublishMqttMessage(binId)
     if (!canPublish) {
-      toast( "Cooldown not finished",{
-        description: `Wait before retrying ${material}`,
+      toast.error("Cooldown active", {
+        description: `Wait before sending another command to ${materialLabels[material]}`,
       })
-      updateStatus(material, "failed")
+      setPendingCommand(null)
       return
     }
 
-    const success = await publishMqtt(topic, payload)
+    const topic = `srb/${material}/${binId}`
+    const success = await publishMqtt(topic, JSON.stringify({ command }))
+
     if (success) {
       await updateCommandUpdatedAt(binId)
-      const acknowledged = await waitForReadOnce(material)
-      if (acknowledged) {
-        updateStatus(material, "success")
-        toast(`${material} bin responded ✅`)
-      } else {
-        updateStatus(material, "failed")
-        toast(`${material} bin did not respond ❌`)
-      }
+      toast.success(`Sent "${command}" to ${materialLabels[material]}`)
     } else {
-      updateStatus(material, "failed")
-      toast("Failed to send",{
-        description: `Could not send to ${material}`,
+      toast.error("Failed to send command", {
+        description: `Could not reach the ${materialLabels[material]} bin`,
       })
     }
+
+    setPendingCommand(null)
   }
 
   const handleResetCooldown = async () => {
     if (!binId) {
-      toast("Missing Bin ID")
+      toast.error("Missing Bin ID")
       return
     }
     await resetCommandCooldown(binId)
-    toast("Cooldown reset",{
-      description: "You can now test again immediately",
+    toast.success("Cooldown reset", {
+      description: "You can now send commands immediately",
     })
   }
 
-  const statusStyle = {
-    ready: "border-l-gray-400 text-gray-700",
-    testing: "border-l-yellow-500 text-yellow-800",
-    success: "border-l-green-500 text-green-700",
-    failed: "border-l-red-500 text-red-700",
-  }
-
-  const statusLabel = (status: Status) => {
-    switch (status) {
-      case "ready":
-        return "🕓 Ready to test"
-      case "testing":
-        return "⏳ Testing..."
-      case "success":
-        return "✅ Test passed"
-      case "failed":
-        return "❌ Test failed"
-    }
-  }
-
   return (
-    <div className="h-full w-full overflow-y-auto pb-8">
-      <h1 className="text-2xl font-bold">QOL Bin Test Dashboard</h1>
+    <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold">Bin Test Panel</h1>
+        <p className="text-sm text-muted-foreground">
+          Send commands directly to a bin&apos;s materials over the same MQTT
+          topics the Pi bridge listens on.
+        </p>
+      </div>
 
-      <input
-        type="text"
-        placeholder="Enter Bin ID"
-        value={binId}
-        onChange={(e) => setBinId(e.target.value)}
-        className="w-full px-4 py-2 border border-gray-300 rounded-md"
-      />
+      <div className="flex flex-col sm:flex-row gap-3 mb-6 max-w-xl">
+        <Input
+          placeholder="Enter Bin ID"
+          value={binId}
+          onChange={(e) => setBinId(e.target.value)}
+        />
+        <Button variant="outline" onClick={handleResetCooldown}>
+          Reset Cooldown
+        </Button>
+      </div>
 
-      <button
-        onClick={handleResetCooldown}
-        className="bg-gray-600 text-white px-6 py-2 rounded-md"
-      >
-        Reset Cooldown
-      </button>
-
-      <div className="mt-6">
-        <h2 className="text-lg font-semibold mb-2">Click to Test Bin</h2>
-        <div className="space-y-3">
-          {materials.map((mat) => (
-            <div
-              key={mat}
-              onClick={() => handleMaterialTest(mat)}
-              className={clsx(
-                "cursor-pointer border-l-8 rounded-md p-4 bg-white shadow-sm flex justify-between items-center transition-all hover:shadow-md",
-                statusStyle[statuses[mat]]
-              )}
-            >
-              <div>
-                <p className="font-bold capitalize">{mat}</p>
-                <p className="text-sm">
-                  {statusLabel(statuses[mat]).replace(/^[^\s]+\s/, "")}
-                </p>
-              </div>
-              <span className="text-2xl">
-                {statusLabel(statuses[mat]).split(" ")[0]}
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {materials.map((material) => (
+          <Card key={material}>
+            <CardHeader>
+              <CardTitle>{materialLabels[material]}</CardTitle>
+              <CardDescription>
+                Topic: srb/{material}/{binId || "<binId>"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2">
+              {commands.map((command) => {
+                const key = `${material}:${command.value}`
+                const isPending = pendingCommand === key
+                return (
+                  <Button
+                    key={command.value}
+                    variant="outline"
+                    size="sm"
+                    disabled={isPending}
+                    onClick={() => sendCommand(material, command.value)}
+                  >
+                    {isPending && <Loader2 className="mr-2 size-3 animate-spin" />}
+                    {command.label}
+                  </Button>
+                )
+              })}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   )
 }
-
-export default TestBinPage

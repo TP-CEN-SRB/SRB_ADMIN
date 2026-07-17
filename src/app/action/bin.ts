@@ -706,33 +706,81 @@ export const getDisposalDates = async (): Promise<string[]> => cached(
 )
 
 
-export const getAllBinsWithUserAndMaterial = async (userId?: string) => {
-  const bins = await prisma.bin.findMany({
-    where: userId ? { userId } : undefined,
-    select: {
-      id: true,
-      status: true,
-      currentCapacity: true,
-      clearCount: true,
-      createdAt: true,
-      updatedAt: true,
-      _count: { select: { disposals: true } },
-      userId: true,
-      user: {
-        select: {
-          name: true,
-          location: true,
+export const getAllBinsWithUserAndMaterial = async (
+  page: number,
+  limit: number,
+  sort: string,
+  search: string,
+  statuses: string[],
+  materials: string[]
+) => {
+  const whereClause = {
+    status: { in: statuses as BinStatus[] },
+    binMaterial: { name: { in: materials } },
+    user: search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { location: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : undefined,
+  }
+
+  const orderBy = (() => {
+    switch (sort) {
+      case "nameAsc":
+        return { user: { name: "asc" as const } }
+      case "nameDesc":
+        return { user: { name: "desc" as const } }
+      case "capacityAsc":
+        return { currentCapacity: "asc" as const }
+      case "capacityDesc":
+        return { currentCapacity: "desc" as const }
+      case "dateAsc":
+        return { createdAt: "asc" as const }
+      case "dateDesc":
+      default:
+        return { createdAt: "desc" as const }
+    }
+  })()
+
+  const [binCount, bins] = await Promise.all([
+    prisma.bin.count({ where: whereClause }),
+    prisma.bin.findMany({
+      where: whereClause,
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        status: true,
+        currentCapacity: true,
+        clearCount: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: { select: { disposals: true } },
+        userId: true,
+        user: {
+          select: {
+            name: true,
+            location: true,
+          },
+        },
+        binMaterial: {
+          select: {
+            name: true,
+          },
         },
       },
-      binMaterial: {
-        select: {
-          name: true,
-        },
-      },
-    },
-  })
-  const materials = await prisma.binMaterial.findMany()
-  return { bins, materials }
+    }),
+  ])
+
+  return {
+    bins,
+    binCount,
+    totalPages: Math.max(1, Math.ceil(binCount / limit)),
+  }
 }
 
 export const getUsedMaterialsForBin = async (userId: string) => {

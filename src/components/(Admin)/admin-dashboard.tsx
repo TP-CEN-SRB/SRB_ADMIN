@@ -21,20 +21,17 @@ import {
   Trash2, 
   TestTube, 
   Wifi, 
-  Recycle, 
-  PackagePlus, 
-  Users, 
+  Recycle,
+  Users,
   Trophy, 
-  MessageSquare, 
-  AlertTriangle, 
-  Target, 
+  MessageSquare,
+  Target,
   Calendar, 
   ClipboardList, 
   FilePlus, 
   CalendarPlus, 
-  Store, 
-  ShoppingBag, 
-  Bug 
+  Store,
+  Bug
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -141,16 +138,7 @@ export default function AdminDashboard() {
                 <SidebarMenuButton asChild isActive={pathname === '/admin/bin/material'}>
                   <Link href="/admin/bin/material" className="flex items-center gap-3">
                     <Recycle className="h-4 w-4" />
-                    View Materials
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/material/create'}>
-                  <Link href="/admin/bin/material/create" className="flex items-center gap-3">
-                    <PackagePlus className="h-4 w-4" />
-                    Create Material
+                    Materials
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -173,8 +161,8 @@ export default function AdminDashboard() {
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/member/dashboard'}>
-                  <Link href="/admin/member/dashboard" className="flex items-center gap-3">
+                <SidebarMenuButton asChild isActive={pathname === '/admin/member/leaderboard'}>
+                  <Link href="/admin/member/leaderboard" className="flex items-center gap-3">
                     <Trophy className="h-4 w-4" />
                     Leaderboard
                   </Link>
@@ -185,16 +173,7 @@ export default function AdminDashboard() {
                 <SidebarMenuButton asChild isActive={pathname === '/admin/member/feedback'}>
                   <Link href="/admin/member/feedback" className="flex items-center gap-3">
                     <MessageSquare className="h-4 w-4" />
-                    Feedback
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/member/fault-reports'}>
-                  <Link href="/admin/member/fault-reports" className="flex items-center gap-3">
-                    <AlertTriangle className="h-4 w-4" />
-                    Fault Reports
+                    Feedback & Reports
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -264,16 +243,7 @@ export default function AdminDashboard() {
                 <SidebarMenuButton asChild isActive={pathname === '/admin/store'}>
                   <Link href="/admin/store" className="flex items-center gap-3">
                     <Store className="h-4 w-4" />
-                    View Stores
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/store/create'}>
-                  <Link href="/admin/store/create" className="flex items-center gap-3">
-                    <ShoppingBag className="h-4 w-4" />
-                    Create Store
+                    Stores
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

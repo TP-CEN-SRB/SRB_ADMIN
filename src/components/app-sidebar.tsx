@@ -19,7 +19,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { MdReportProblem } from "react-icons/md"
 import { BsFillBarChartFill } from "react-icons/bs"
 import { CgProfile } from "react-icons/cg"
 import { RiRecycleFill } from "react-icons/ri"
@@ -73,9 +72,8 @@ export const collaspeItems = [
     title: "Students",
     icon: PiStudentFill,
     child: [
-      { title: "Leaderboard", icon: PiRankingBold, url: "/admin/member/dashboard" },
-      { title: "Feedbacks", icon: FaCommentDots, url: "/admin/feedback" },
-      { title: "Fault Reports", icon: MdReportProblem, url: "/admin/fault-reports" },
+      { title: "Leaderboard", icon: PiRankingBold, url: "/admin/member/leaderboard" },
+      { title: "Feedback & Reports", icon: FaCommentDots, url: "/admin/member/feedback" },
       { title: "View Students", icon: FaEye, url: "/admin/member" },
     ],
   },

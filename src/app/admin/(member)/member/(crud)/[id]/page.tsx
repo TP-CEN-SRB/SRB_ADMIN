@@ -1,18 +1,19 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Undo2, 
-  Star, 
-  Users, 
-  TreePine, 
-  TrendingUp, 
-  Leaf, 
-  Trophy, 
-  Calendar, 
-  Recycle, 
-  Gift, 
+import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Undo2,
+  Star,
+  Users,
+  TreePine,
+  TrendingUp,
+  Leaf,
+  Trophy,
+  Calendar,
+  Recycle,
+  Gift,
   AlertTriangle,
   Edit
 } from "lucide-react";
@@ -20,6 +21,23 @@ import {
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import Link from "next/link";
+import { getFeedbacksForUser, getFaultReportsForUser } from "@/app/action/feedback";
+
+const statusStyles: Record<string, string> = {
+  OPEN: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
+  IN_PROGRESS: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400",
+  RESOLVED: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
+}
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className={`size-3.5 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+      ))}
+    </div>
+  )
+}
 
 async function getMemberId(id: string){
 
@@ -47,7 +65,11 @@ async function getMemberId(id: string){
 
 export default async function MemberPage({ params } : { params : Promise<{id: string}>}){
   const { id } = await params
-  const member = await getMemberId(id)
+  const [member, feedbacks, faultReports] = await Promise.all([
+    getMemberId(id),
+    getFeedbacksForUser(id),
+    getFaultReportsForUser(id),
+  ])
 
   if (!member){
     notFound()
@@ -253,6 +275,92 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
               </CardContent>
             </Card>
 
+          </div>
+
+          {/* Feedback & Fault Reports */}
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Feedback</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <colgroup>
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "55%" }} />
+                    <col style={{ width: "25%" }} />
+                  </colgroup>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-center">Rating</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead className="text-center">Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {feedbacks.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="h-20 text-center text-muted-foreground">
+                          No feedback submitted.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      feedbacks.map((feedback) => (
+                        <TableRow key={feedback.id}>
+                          <TableCell className="text-center"><div className="flex justify-center"><StarRating rating={feedback.rating} /></div></TableCell>
+                          <TableCell><span className="text-xs">{feedback.message || "—"}</span></TableCell>
+                          <TableCell className="text-center"><span className="text-xs">{new Date(feedback.createdAt).toLocaleDateString("en-SG")}</span></TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Fault Reports</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Table>
+                  <colgroup>
+                    <col style={{ width: "30%" }} />
+                    <col style={{ width: "25%" }} />
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "25%" }} />
+                  </colgroup>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Location</TableHead>
+                      <TableHead className="text-center">Category</TableHead>
+                      <TableHead className="text-center">Date</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {faultReports.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
+                          No fault reports submitted.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      faultReports.map((report) => (
+                        <TableRow key={report.id}>
+                          <TableCell><span className="text-xs">{report.location}</span></TableCell>
+                          <TableCell className="text-center"><Badge variant="secondary" className="text-xs">{report.category}</Badge></TableCell>
+                          <TableCell className="text-center"><span className="text-xs">{new Date(report.createdAt).toLocaleDateString("en-SG")}</span></TableCell>
+                          <TableCell className="text-center">
+                            <Badge className={statusStyles[report.status]}>{report.status.replace("_", " ")}</Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
