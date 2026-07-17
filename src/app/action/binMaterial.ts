@@ -1,6 +1,8 @@
 "use server"
 
 import { prisma } from "@/lib/db"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
 import { BinMaterialSchema } from "@/schemas"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
@@ -138,8 +140,53 @@ export const getAllBinsWithMaterial = async (id: string) => {
   return bins
 }
 
-export const getAllMaterials = async () => {
-  return cached(`${CACHE_PREFIX}list`, CATALOG_TTL, () =>
-    prisma.binMaterial.findMany()
+export const getAllMaterials = async (
+  page: number,
+  limit: number,
+  sort: string,
+  search: string
+) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== "admin") {
+    return { materials: [], materialCount: 0, totalPages: 1 }
+  }
+
+  const whereClause = {
+    name: { contains: search, mode: "insensitive" as const },
+  }
+
+  const orderBy = (() => {
+    switch (sort) {
+      case "nameAsc":
+        return { name: "asc" as const }
+      case "nameDesc":
+        return { name: "desc" as const }
+      case "multiplierAsc":
+        return { multiplier: "asc" as const }
+      case "multiplierDesc":
+        return { multiplier: "desc" as const }
+      default:
+        return { name: "asc" as const }
+    }
+  })()
+
+  return cached(
+    `${CACHE_PREFIX}list:${page}:${limit}:${sort}:${search}`,
+    CATALOG_TTL,
+    async () => {
+      const [materialCount, materials] = await Promise.all([
+        prisma.binMaterial.count({ where: whereClause }),
+        prisma.binMaterial.findMany({
+          where: whereClause,
+          orderBy,
+          skip: (page - 1) * limit,
+          take: limit,
+        }),
+      ])
+      return { materials, materialCount, totalPages: Math.max(1, Math.ceil(materialCount / limit)) }
+    }
   )
 }

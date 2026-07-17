@@ -1,26 +1,91 @@
-
+import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { MaterialHeader } from "./header"
+import { MaterialActions } from "./materialActions"
 import { getAllMaterials } from "@/app/action/binMaterial"
 import { listOfBinMaterialInUse } from "@/app/action/bin"
-import MaterialDataTable from "./materialDataTable"
 
-async function getData(){
-  const allBinMaterials = await getAllMaterials()
-  return allBinMaterials.map((binMat) => ({
-    id: binMat.id as string,
-    name: binMat.name as string,
-    multiplier: binMat.multiplier as number,
-    carbon_multiplier: binMat.carbon_multiplier as number,
-  }))
-}
+const col_widths = ["35%", "20%", "25%", "20%"]
 
-export default async function AllBinMaterialsPage(){
-  const data = await getData()
-  const binMaterialInUse = await listOfBinMaterialInUse()
-  return(
-    <div className="h-full w-full overflow-y-auto pb-8">
-      <MaterialDataTable data={data} allBinMaterials={binMaterialInUse} />
+export default async function AllBinMaterialsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    page?: string
+    limit?: string
+    sort?: string
+    search?: string
+  }>
+}) {
+  const params = await searchParams
+  const currentPage = Number(params.page) || 1
+  const currentLimit = Number(params.limit) || 10
+  const currentSort = params.sort || "nameAsc"
+  const currentSearch = params.search || ""
+
+  const [{ materials, materialCount, totalPages }, materialsInUse] = await Promise.all([
+    getAllMaterials(currentPage, currentLimit, currentSort, currentSearch),
+    listOfBinMaterialInUse(),
+  ])
+
+  const materialsInUseNames = new Set(materialsInUse.map((m) => m.name))
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <MaterialHeader
+        currentPage={currentPage}
+        currentLimit={currentLimit}
+        totalPages={totalPages}
+        totalCount={materialCount}
+      />
+
+      <Table>
+        <colgroup>
+          {col_widths.map((width, index) => (
+            <col key={index} style={{ width }} />
+          ))}
+        </colgroup>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Material</TableHead>
+            <TableHead className="text-center">Multiplier</TableHead>
+            <TableHead className="text-center">Carbon Multiplier</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+      </Table>
+
+      <div className="flex-1 overflow-auto">
+        <Table>
+          <colgroup>
+            {col_widths.map((width, index) => (
+              <col key={index} style={{ width }} />
+            ))}
+          </colgroup>
+          <TableBody>
+            {materials.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                  No materials found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              materials.map((material) => (
+                <TableRow key={material.id}>
+                  <TableCell><span className="text-xs">{material.name}</span></TableCell>
+                  <TableCell className="text-center"><span className="text-xs">{material.multiplier}</span></TableCell>
+                  <TableCell className="text-center"><span className="text-xs">{material.carbon_multiplier}</span></TableCell>
+                  <TableCell className="text-center">
+                    <MaterialActions
+                      materialId={material.id}
+                      hasBins={materialsInUseNames.has(material.name)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }
-
-

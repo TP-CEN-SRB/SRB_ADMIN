@@ -1,7 +1,9 @@
 "use server"
 
 import { prisma } from "@/lib/db"
-import { authClient } from "@/lib/auth-client"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
 import { QuestSchema, UpdateQuestSchema } from "@/schemas"
 import { z } from "zod"
 import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
@@ -26,7 +28,9 @@ type GetQuestsResult = {
 }
 
 export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
 
   if (user?.role !== "admin") {
@@ -71,6 +75,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
     })
 
     await invalidateByPrefix(CACHE_PREFIX)
+    revalidatePath("/admin/activity/quest")
     return { success: "Quest created and assigned to users", quest }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -81,7 +86,9 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
 }
 
 export const deleteQuest = async (questId: string) => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
 
   if (user?.role !== "admin") {
@@ -94,6 +101,7 @@ export const deleteQuest = async (questId: string) => {
     })
 
     await invalidateByPrefix(CACHE_PREFIX)
+    revalidatePath("/admin/activity/quest")
     return { success: "Quest deleted successfully" }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -125,7 +133,9 @@ export const updateQuest = async (
   id: string,
   data: z.infer<typeof UpdateQuestSchema>
 ) => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
 
   if (user?.role !== "admin") {
@@ -146,6 +156,7 @@ export const updateQuest = async (
     })
 
     await invalidateByPrefix(CACHE_PREFIX)
+    revalidatePath("/admin/activity/quest")
     return { success: "Quest updated successfully", quest: updated }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -177,11 +188,16 @@ export const getQuestById = async (id: string) => {
 }
 
 export const getQuests = async (
-  page: number | null,
+  page: number,
+  limit: number,
   sortOrder: string | undefined,
-  sortItem: string | undefined
+  sortItem: string | undefined,
+  search: string,
+  materials: string[]
 ): Promise<GetQuestsResult> => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
 
   if (user?.role !== "admin") {
@@ -189,23 +205,28 @@ export const getQuests = async (
   }
 
   const sortableItems = ["title", "materialType", "target", "rewardPoints", "createdAt"]
-  const isInvalidPage = page != null && page < 0
   const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder)
   const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem)
 
-  if (isInvalidPage || isInvalidSortOrder || isInvalidSortItem) {
+  if (isInvalidSortOrder || isInvalidSortItem) {
     return { questCount: 0, quests: [] }
   }
 
+  const whereClause = {
+    title: { contains: search, mode: "insensitive" as const },
+    materialType: { in: materials },
+  }
+
   return cached(
-    `${CACHE_PREFIX}list:${page}:${sortOrder}:${sortItem}`,
+    `${CACHE_PREFIX}list:${page}:${limit}:${sortOrder}:${sortItem}:${search}:${materials.join(",")}`,
     CATALOG_TTL,
     async () => {
       const [questCount, quests] = await Promise.all([
-        prisma.questDetails.count(),
+        prisma.questDetails.count({ where: whereClause }),
         prisma.questDetails.findMany({
-          take: page ? 10 : undefined,
-          skip: page ? (page - 1) * 10 : 0,
+          where: whereClause,
+          take: limit,
+          skip: (page - 1) * limit,
           orderBy: sortItem
             ? {
                 [sortItem]: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "desc",

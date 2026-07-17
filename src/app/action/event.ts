@@ -1,7 +1,9 @@
 "use server"
 
 import { prisma } from "@/lib/db"
-import { authClient } from "@/lib/auth-client"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
 import { EventSchema, UpdateEventSchema } from "@/schemas"
 import { z } from "zod"
 import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
@@ -25,7 +27,9 @@ type GetEventsResult = {
 
 export const createEvent = async (data: z.infer<typeof EventSchema>) => {
 
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
 
   if (user?.role !== "admin") {
@@ -62,6 +66,7 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
     })
 
     await invalidateByPrefix(CACHE_PREFIX)
+    revalidatePath("/admin/activity/event")
     return { success: "Event created and assigned to all students", event }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -75,7 +80,9 @@ export const updateEvent = async (
   id: string,
   data: z.infer<typeof UpdateEventSchema>
 ) => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
   if (user?.role !== "admin") return { error: "Unauthorized" }
 
@@ -92,6 +99,7 @@ export const updateEvent = async (
     })
 
     await invalidateByPrefix(CACHE_PREFIX)
+    revalidatePath("/admin/activity/event")
     return { success: "Event updated successfully", event: updated }
   } catch (error) {
     const err = error as Error
@@ -100,13 +108,16 @@ export const updateEvent = async (
 }
 
 export const deleteEvent = async (eventId: string) => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
   if (user?.role !== "admin") return { error: "Unauthorized" }
 
   try {
     await prisma.event.delete({ where: { id: eventId } })
     await invalidateByPrefix(CACHE_PREFIX)
+    revalidatePath("/admin/activity/event")
     return { success: "Event deleted successfully" }
   } catch (error) {
     const err = error as Error
@@ -141,7 +152,9 @@ type UserInEvent = {
 }
 
 export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]> => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
   if (user?.role !== "admin") return []
 
@@ -164,32 +177,40 @@ export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]>
 }
 
 export const getEvents = async (
-  page: number | null,
+  page: number,
+  limit: number,
   sortOrder: string | undefined,
-  sortItem: string | undefined
+  sortItem: string | undefined,
+  search: string
 ): Promise<GetEventsResult> => {
-  const { data: session } = await authClient.getSession()
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
   const user = session?.user
   if (user?.role !== "admin") return { eventCount: 0, events: [] }
 
   const sortableItems = ["title", "startDate", "endDate", "createdAt"]
-  const isInvalidPage = page != null && page < 0
   const isInvalidSortOrder = sortOrder && !["asc", "desc"].includes(sortOrder)
   const isInvalidSortItem = sortItem && !sortableItems.includes(sortItem)
 
-  if (isInvalidPage || isInvalidSortOrder || isInvalidSortItem) {
+  if (isInvalidSortOrder || isInvalidSortItem) {
     return { eventCount: 0, events: [] }
   }
 
+  const whereClause = {
+    title: { contains: search, mode: "insensitive" as const },
+  }
+
   return cached(
-    `${CACHE_PREFIX}list:${page}:${sortOrder}:${sortItem}`,
+    `${CACHE_PREFIX}list:${page}:${limit}:${sortOrder}:${sortItem}:${search}`,
     CATALOG_TTL,
     async () => {
       const [eventCount, events] = await Promise.all([
-        prisma.event.count(),
+        prisma.event.count({ where: whereClause }),
         prisma.event.findMany({
-          take: page ? 10 : undefined,
-          skip: page ? (page - 1) * 10 : 0,
+          where: whereClause,
+          take: limit,
+          skip: (page - 1) * limit,
           orderBy: sortItem
             ? { [sortItem]: sortOrder === "asc" ? "asc" : "desc" }
             : { createdAt: "desc" },

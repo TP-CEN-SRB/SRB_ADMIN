@@ -117,30 +117,77 @@ const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>
 }
 
 // Get All Stores
-const getStoreAccounts = async () => {
-  return await prisma.user.findMany({
-    where: { role: Role.STORE },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      faculty: true,
-      point: {
-        select: {
-          balance: true,
-          updatedAt: true,
-        },
-      },
-      _count: {
-        select: {
-          transactions: {
-            where: { transactionType: "PURCHASE" },
+const getStoreAccounts = async (
+  page: number,
+  limit: number,
+  sort: string,
+  search: string,
+  faculties: string[]
+) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== Role.admin) {
+    return { stores: [], storeCount: 0, totalPages: 1 }
+  }
+
+  const whereClause = {
+    role: Role.STORE,
+    faculty: { in: faculties as Faculty[] },
+    OR: search
+      ? [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+        ]
+      : undefined,
+  }
+
+  const orderBy = (() => {
+    switch (sort) {
+      case "nameAsc":
+        return { name: "asc" as const }
+      case "nameDesc":
+        return { name: "desc" as const }
+      case "dateAsc":
+        return { createdAt: "asc" as const }
+      case "dateDesc":
+      default:
+        return { createdAt: "desc" as const }
+    }
+  })()
+
+  const [storeCount, stores] = await Promise.all([
+    prisma.user.count({ where: whereClause }),
+    prisma.user.findMany({
+      where: whereClause,
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        faculty: true,
+        point: {
+          select: {
+            balance: true,
+            updatedAt: true,
           },
         },
+        _count: {
+          select: {
+            transactions: {
+              where: { transactionType: "PURCHASE" },
+            },
+          },
+        },
+        createdAt: true,
       },
-      createdAt: true,
-    },
-  })
+    }),
+  ])
+
+  return { stores, storeCount, totalPages: Math.max(1, Math.ceil(storeCount / limit)) }
 }
 
 // Get Store by ID
