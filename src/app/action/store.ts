@@ -2,12 +2,12 @@
 
 import { prisma } from "@/lib/db"
 import { Faculty, Role } from "@/generated/prisma"
-import { hash } from "bcrypt"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { StoreSchema, UpdateStoreSchema } from "@/schemas"
 import { z } from "zod"
+import { createCredentialUser, updateCredentialPassword } from "@/lib/createCredentialUser"
 
 function capitalizeFirstLetter(str: string): string {
   if (!str) return str
@@ -26,34 +26,19 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
   const { name, email, password, faculty } = validated.data
 
   try {
-    // Regular signUpEmail can't set a custom role ("role is not allowed to
-    // be set" — the admin plugin reserves that field), so this has to go
-    // through the admin plugin's own create-user endpoint instead, which is
-    // built exactly for admin-initiated accounts with a specific role.
-    const { user } = await auth.api.createUser({
-      body: {
-        name: capitalizeFirstLetter(name),
-        email: email.toLowerCase(),
-        password,
-        // better-auth's admin plugin types `role` as "admin" | "user" since
-        // we haven't configured its own `roles` option — but the endpoint
-        // accepts any string at runtime and just stores it via our custom
-        // Role enum, so this cast is safe.
-        role: Role.STORE as "admin" | "user",
-        data: {
-          faculty: faculty as Faculty,
-          diploma: "N/A",
-          emailVerified: true,
-        },
-      },
-      headers: await headers()
+    const user = await createCredentialUser({
+      name: capitalizeFirstLetter(name),
+      email,
+      password,
+      role: Role.STORE,
+      faculty: faculty as Faculty,
     })
 
     revalidatePath("/admin/store")
     return { success: "Store created successfully", user }
   } catch (error) {
     console.error("[createStore] error:", error)
-    return { error: "Failed to create store" }
+    return { error: error instanceof Error ? error.message : "Failed to create store" }
   }
 }
 
@@ -97,25 +82,20 @@ const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>
   const user = await prisma.user.findUnique({ where: { id, role: Role.STORE } })
   if (!user) return { error: "Store user not found" }
 
-  const updatedData: {
-    name: string
-    email: string
-    faculty: Faculty
-    password?: string
-  } = {
-    name: capitalizeFirstLetter(name),
-    email: email.toLowerCase(),
-    faculty: faculty as Faculty,
-  }
-
-  if (password && password.trim() !== "") {
-    updatedData.password = await hash(password, 10)
-  }
-
   const updatedUser = await prisma.user.update({
     where: { id },
-    data: updatedData,
+    data: {
+      name: capitalizeFirstLetter(name),
+      email: email.toLowerCase(),
+      faculty: faculty as Faculty,
+    },
   })
+
+  // Credential passwords live on the Account row, not User - see
+  // lib/createCredentialUser.ts.
+  if (password && password.trim() !== "") {
+    await updateCredentialPassword(id, password)
+  }
 
   revalidatePath("/admin/store")
   return { success: `Store ${updatedUser.id} updated successfully` }

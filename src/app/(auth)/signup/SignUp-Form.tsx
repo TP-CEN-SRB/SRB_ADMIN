@@ -39,7 +39,10 @@ export function SignupForm({
       password: signUpData.password,
       name: signUpData.name,
       faculty: signUpData.faculty,
-      role: signUpData.role
+      role: signUpData.role,
+      // sent to the verify-email link so clicking it lands back here, not
+      // the mobile app (which signs up through a different path).
+      callbackURL: "/login",
     })
 
     if (error) {

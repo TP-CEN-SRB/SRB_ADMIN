@@ -2,24 +2,25 @@
 
 import { prisma } from "@/lib/db"
 import { EditBinFormValue } from "@/components/FormLogic/(Admin)/admin-schema"
-import { hashPassword } from "better-auth/crypto"
+import { updateCredentialPassword } from "@/lib/createCredentialUser"
 
 export async function updateBin(formData: Partial<EditBinFormValue>, binUserID: string) {
     try {
         const { password, confirmPassword, ...safeUpdateData } = formData
 
+        // Credential passwords live on the Account row, not User - see
+        // lib/createCredentialUser.ts.
         if (password && password !== "") {
-            (safeUpdateData as any).password = await hashPassword(password)
+            await updateCredentialPassword(binUserID, password)
         }
 
-        // 3. Update the database
         const updatedUser = await prisma.user.update({
             where: { id: binUserID },
             data: safeUpdateData,
         })
-        
+
         return updatedUser
-        
+
     } catch(error) {
         console.error("Error updating bin:", error)
         throw new Error("Update failed")

@@ -14,9 +14,9 @@ import { useForm } from "react-hook-form"
 
 import { useRouter } from "next/navigation"
 
-import { authClient } from "@/lib/auth-client"
 import { signupBinSchema, SignupBinFormValue } from "@/components/FormLogic/(Admin)/admin-schema"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { createBinManager } from "./action"
 
 interface SignUpBinFormProps extends Omit<React.ComponentProps<"form">, "onSubmit"> {
   latLng: { lat: number; lng: number }
@@ -57,28 +57,18 @@ export function SignUpBinForm({
     setIsPending(true)
     setServerError(null)
 
-    // Regular signUp.email can't set a custom role ("role is not allowed to
-    // be set" — the admin plugin reserves that field), so bin accounts have
-    // to go through admin.createUser instead, same as store accounts.
-    const { data, error } = await authClient.admin.createUser({
+    const result = await createBinManager({
       name: signupBinData.name,
       email: signupBinData.email,
       password: signupBinData.password,
-      // See comment in app/action/store.ts createStore — the admin plugin's
-      // role type doesn't know about our custom roles, but accepts any
-      // string at runtime.
-      role: "BIN" as "admin" | "user",
-      data: {
-        faculty: signupBinData.faculty,
-        location: signupBinData.location,
-        lat: signupBinData.latitude,
-        long: signupBinData.longitude,
-        emailVerified: true,
-      },
+      faculty: signupBinData.faculty,
+      location: signupBinData.location,
+      lat: signupBinData.latitude,
+      long: signupBinData.longitude,
     })
 
-    if (error) {
-      setServerError(error.message || "Failed to create bin account.")
+    if (!result.success) {
+      setServerError(result.error || "Failed to create bin account.")
       setIsPending(false)
       return
     }

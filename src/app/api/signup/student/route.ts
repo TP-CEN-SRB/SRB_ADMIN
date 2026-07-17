@@ -16,6 +16,7 @@ export const POST = async (req: NextRequest) => {
       confirmPassword,
       faculty,
       diploma,
+      callbackURL,
     } = await req.json()
 
     const email = String(rawEmail).toLowerCase().trim()
@@ -60,9 +61,12 @@ export const POST = async (req: NextRequest) => {
     // better-auth creates the user + credential account and, since
     // requireEmailVerification is on, automatically sends the verification
     // email via the sendVerificationEmail hook configured in auth.ts.
-    // role is never taken from client input here - the databaseHooks.user.create.before
-    // hook in auth.ts defaults every role-less signup to STUDENT (the admin
-    // plugin rejects `role` outright if it's included in this body at all).
+    // role is never taken from client input - always STUDENT here.
+    // callbackURL controls where the verification link lands the user after
+    // confirming their email: the mobile app passes its own success page
+    // here (this endpoint is called by both the admin dashboard's signup
+    // flow via api and the mobile app), falling back to the mobile app's
+    // root if the caller doesn't specify one.
     const signUpResult = await auth.api.signUpEmail({
       body: {
         name: capitalizeFirstLetter(data.name),
@@ -70,6 +74,10 @@ export const POST = async (req: NextRequest) => {
         password: data.password,
         faculty: data.faculty,
         diploma: data.diploma,
+        role: "STUDENT",
+        callbackURL: typeof callbackURL === "string" && callbackURL
+          ? callbackURL
+          : "https://tp-cen-srb.github.io/RecycleTP/",
       },
       headers: req.headers,
     })
