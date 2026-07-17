@@ -86,6 +86,5 @@ export const auth = betterAuth({
     
     plugins:[
       apiKey(),
-      admin(),
       nextCookies()]
 })
