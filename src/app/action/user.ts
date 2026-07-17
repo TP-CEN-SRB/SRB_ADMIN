@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { Faculty, Role } from "@/generated/prisma"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { cached, DASHBOARD_TTL } from "@/lib/cache"
 
 function capitalizeFirstLetter(name: string): string {
   const trimmedName = name?.trim()
@@ -137,7 +138,10 @@ export async function getAllStudentUsers(
   return { studentCount, students }
 }
 
-export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => {
+export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => cached(
+  `cache:dashboard:top-users:${dateFrom}:${dateTo}`,
+  DASHBOARD_TTL,
+  async () => {
   // 1️⃣ Aggregate top users by points
   const aggregated = await prisma.disposal.groupBy({
     by: ["userId"],
@@ -267,7 +271,8 @@ const userIds = aggregated
   )
 
   return orderedDisposals.sort((a: { balance: number }, b: { balance: number }) => b.balance - a.balance)
-}
+  }
+)
 
 export async function listOfBinManagersUsed() {
   const binManagers = await prisma.user.findMany({

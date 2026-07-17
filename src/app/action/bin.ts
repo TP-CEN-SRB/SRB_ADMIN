@@ -6,6 +6,9 @@ import { Bin, BinStatus, Prisma, Role } from "@/generated/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { getWeeksInMonth, months, days, normalizeDate } from "@/utils/dateUtils"
+import { cached, DASHBOARD_TTL } from "@/lib/cache"
+
+const DASHBOARD_CACHE_PREFIX = "cache:dashboard:"
 
 export const getAllBins = async (dateFrom?: Date, dateTo?: Date) => {
   if (dateFrom !== undefined && dateTo !== undefined) {
@@ -278,7 +281,10 @@ export const getBarChartData = async (
   dateFrom?: Date,
   dateTo?: Date,
   filter?: string
-): Promise<MonthlyData[]> => {
+): Promise<MonthlyData[]> => cached(
+  `${DASHBOARD_CACHE_PREFIX}bar-chart:${dateFrom}:${dateTo}:${filter}`,
+  DASHBOARD_TTL,
+  async () => {
   try {
     const binMaterials = await prisma.binMaterial.findMany({
       select: { name: true },
@@ -387,7 +393,8 @@ export const getBarChartData = async (
     console.error("Error in disposal-based getBarChartData:", error)
     throw error
   }
-}
+  }
+)
 
 
 interface BinCount {
@@ -399,86 +406,94 @@ interface BinCount {
 export const getBinCountsByMaterial = async (
   dateFrom?: Date,
   dateTo?: Date
-): Promise<BinCount[]> => {
-  const binCounts = await prisma.bin.groupBy({
-    by: ["binMaterialId"],
-    where: {
-      createdAt: {
-        gte: dateFrom || undefined,
-        lte: dateTo || undefined,
+): Promise<BinCount[]> => cached(
+  `${DASHBOARD_CACHE_PREFIX}bin-counts-by-material:${dateFrom}:${dateTo}`,
+  DASHBOARD_TTL,
+  async () => {
+    const binCounts = await prisma.bin.groupBy({
+      by: ["binMaterialId"],
+      where: {
+        createdAt: {
+          gte: dateFrom || undefined,
+          lte: dateTo || undefined,
+        },
       },
-    },
-    _count: {
-      _all: true,
-    },
-  })
+      _count: {
+        _all: true,
+      },
+    })
 
-  const allMaterials = await prisma.binMaterial.findMany({
-    select: {
-      id: true,
-      name: true,
-    },
-  })
+    const allMaterials = await prisma.binMaterial.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
+    })
 
-  const countMap = new Map(
-    binCounts.map((count) => [count.binMaterialId, count._count._all])
-  )
+    const countMap = new Map(
+      binCounts.map((count) => [count.binMaterialId, count._count._all])
+    )
 
-  return allMaterials.map((material, index) => ({
-    binType: material.name,
-    binCount: countMap.get(material.id) || 0,
-    fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-  }))
-}
+    return allMaterials.map((material, index) => ({
+      binType: material.name,
+      binCount: countMap.get(material.id) || 0,
+      fill: `hsl(${170 + index * 15}, 70%, 50%)`,
+    }))
+  }
+)
 
 export const getPieChartData = async (
   dateFrom?: Date,
   dateTo?: Date,
   filter?: string
-) => {
-  const binsWithFaculty = await prisma.bin.findMany({
-    include: {
-      user: {
-        select: {
-          faculty: true,
+) => cached(
+  `${DASHBOARD_CACHE_PREFIX}pie-chart:${dateFrom}:${dateTo}:${filter}`,
+  DASHBOARD_TTL,
+  async () => {
+    const binsWithFaculty = await prisma.bin.findMany({
+      include: {
+        user: {
+          select: {
+            faculty: true,
+          },
         },
       },
-    },
-    where: {
-      user: {
-        role: "BIN" as Role,
+      where: {
+        user: {
+          role: "BIN" as Role,
+        },
+        createdAt: {
+          gte: dateFrom,
+          lte: dateTo,
+        },
       },
-      createdAt: {
-        gte: dateFrom,
-        lte: dateTo,
+    })
+
+    const faculties = await prisma.user.groupBy({
+      by: ["faculty"],
+    })
+
+    const binsByFaculty = faculties.reduce(
+      (acc: Record<string, number>, faculty: { faculty: string | number }) => {
+        acc[faculty.faculty] = 0
+      return acc
       },
-    },
-  })
+      {}
+    )
 
-  const faculties = await prisma.user.groupBy({
-    by: ["faculty"],
-  })
+    binsWithFaculty.forEach((bin) => {
+      if (bin.user.faculty) {
+        binsByFaculty[bin.user.faculty]++
+      }
+    })
 
-  const binsByFaculty = faculties.reduce(
-    (acc: Record<string, number>, faculty: { faculty: string | number }) => {
-      acc[faculty.faculty] = 0
-    return acc
-    },
-    {}
-  )
-
-  binsWithFaculty.forEach((bin) => {
-    if (bin.user.faculty) {
-      binsByFaculty[bin.user.faculty]++
-    }
-  })
-
-  return Object.keys(binsByFaculty).map((faculty, index) => ({
-    fac: faculty,
-    count: binsByFaculty[faculty],
-    fill: `hsl(${170 + index * 15}, 70%, 50%)`,
-  }))
-}
+    return Object.keys(binsByFaculty).map((faculty, index) => ({
+      fac: faculty,
+      count: binsByFaculty[faculty],
+      fill: `hsl(${170 + index * 15}, 70%, 50%)`,
+    }))
+  }
+)
 
 
 export const getBinCountsByStatus = async (
@@ -507,7 +522,10 @@ export const getBinCountsByStatus = async (
   return bins.length
 }
 
-export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
+export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => cached(
+  `${DASHBOARD_CACHE_PREFIX}disposals-count:${dateFrom}:${dateTo}`,
+  DASHBOARD_TTL,
+  async () => {
     const adjustedEndDate = dateTo ? new Date(dateTo) : undefined
     if (adjustedEndDate) {
       adjustedEndDate.setHours(23, 59, 59, 999)
@@ -524,7 +542,8 @@ export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => {
       },
     })
     return disposals.length
-}
+  }
+)
 
 type DisposalsByHour = {
   hour: string
@@ -535,10 +554,13 @@ export const getBinDisposalsByTime = async (
   dateFrom?: Date,
   dateTo?: Date,
   filter?: string
-): Promise<DisposalsByHour[]> => {
+): Promise<DisposalsByHour[]> => cached(
+  `${DASHBOARD_CACHE_PREFIX}disposals-by-time:${dateFrom}:${dateTo}:${filter}`,
+  DASHBOARD_TTL,
+  async () => {
 
   const whereClause: Prisma.DisposalWhereInput = {}
-  
+
   whereClause.createdAt = {
     gte: dateFrom,
     lte: dateTo,
@@ -582,25 +604,29 @@ export const getBinDisposalsByTime = async (
   totalDisposals.forEach((disposal: { createdAt: string | number | Date; bin: { binMaterial: { name: any } } }) => {
     const utc8Time = new Date(disposal.createdAt)
     utc8Time.setHours(utc8Time.getUTCHours() + 8)
-    
+
     const hour = utc8Time.getHours()
     if (hour >= 6 && hour <= 23) {
       const hourIndex = hour - 6
       const materialName = disposal.bin.binMaterial.name
       if (result[hourIndex]) {
-        result[hourIndex][materialName] = 
+        result[hourIndex][materialName] =
           (result[hourIndex][materialName] as number) + 1
       }
     }
   })
 
   return result
-}
+  }
+)
 
 export const getDisposalsByFaculty = async (
   dateFrom?: Date,
   dateTo?: Date
-) => {
+) => cached(
+  `${DASHBOARD_CACHE_PREFIX}disposals-by-faculty:${dateFrom}:${dateTo}`,
+  DASHBOARD_TTL,
+  async () => {
   const adjustedEndDate = dateTo ? new Date(dateTo) : undefined
   if (adjustedEndDate) {
     adjustedEndDate.setHours(23, 59, 59, 999)
@@ -655,24 +681,29 @@ export const getDisposalsByFaculty = async (
     count,
     fill: `hsl(${170 + index * 15}, 70%, 50%)`,
   }))
-}
+  }
+)
 
-export const getDisposalDates = async (): Promise<string[]> => {
-  const disposalDates = await prisma.disposal.findMany({
-    select: { createdAt: true },
-  })
+export const getDisposalDates = async (): Promise<string[]> => cached(
+  `${DASHBOARD_CACHE_PREFIX}disposal-dates`,
+  DASHBOARD_TTL,
+  async () => {
+    const disposalDates = await prisma.disposal.findMany({
+      select: { createdAt: true },
+    })
 
-  const uniqueDateStrings = Array.from(
-    // Explicitly define this as a Set of strings
-    new Set<string>(
-      disposalDates.map((d) =>
-        new Date(d.createdAt).toISOString().split("T")[0]
+    const uniqueDateStrings = Array.from(
+      // Explicitly define this as a Set of strings
+      new Set<string>(
+        disposalDates.map((d) =>
+          new Date(d.createdAt).toISOString().split("T")[0]
+        )
       )
     )
-  )
 
-  return uniqueDateStrings
-}
+    return uniqueDateStrings
+  }
+)
 
 
 export const getAllBinsWithUserAndMaterial = async (userId?: string) => {

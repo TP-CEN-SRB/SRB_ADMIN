@@ -1,8 +1,6 @@
 "use client"
 
-import Card from "@/components/Card/Card"
-import React, { useState, useTransition } from "react"
-import FormHeader from "../FormHeader"
+import { useTransition } from "react"
 import {
   Form,
   FormControl,
@@ -19,122 +17,86 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { Loader2, PlusCircle } from "lucide-react"
 import { createBinMaterial } from "@/app/action/binMaterial"
-import CustomFormMessage from "../CustomFormMessage"
 
 const CreateBinMaterialForm = () => {
   const [isPending, startTransition] = useTransition()
-  const [error, setError] = useState("")
-  const [success, setSuccess] = useState("")
   const form = useForm<z.infer<typeof BinMaterialSchema>>({
-  resolver: zodResolver(BinMaterialSchema),
+    resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
-        name: "",
-        multiplier: "" as any, // Keeps the HTML input controlled without TS complaining about the post-transform 'number' type
+      name: "",
+      multiplier: "" as any, // Keeps the HTML input controlled without TS complaining about the post-transform 'number' type
     },
-    })
-
-    // Inside onSubmit success block:
-    form.reset({
-    name: "",
-    multiplier: "" as any,
-    })
+  })
 
   const onSubmit = (values: z.infer<typeof BinMaterialSchema>) => {
     const datetime = new Date().toLocaleString("en-SG", {
       timeZone: "Asia/Singapore",
-      hour12: false, // 24-hour format, remove if 12-hour format is needed
+      hour12: false,
     })
     startTransition(async () => {
-      setError("")
-      setSuccess("")
       const result = await createBinMaterial(values)
       if (result?.success) {
-        setSuccess(result?.success)
-        // toast({
-        //   title: "Bin Material created successfully",
-        //   description: `Material created at ${datetime}`,
-        //   duration: 2000,
-        //   variant: "default",
-        // })
-        form.reset({
-          name: "",
-          multiplier: 0,
+        toast.success("Bin material created", {
+          description: `Created at ${datetime}`,
         })
-        //redirect("/admin/bin")
+        form.reset({ name: "", multiplier: "" as any })
       } else if (result?.error) {
-        setError(result?.error)
-        // toast({
-        //   title: "Error creating bin",
-        //   description: result?.error,
-        //   duration: 2000,
-        //   variant: "destructive",
-        // })
+        form.setError("root", { message: result.error })
       }
     })
   }
+
   return (
-    <Card isAdmin rounded fullWidth>
-      <FormHeader>Add a bin material</FormHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">Name</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="Plastic"
-                    {...field}
-                    type="text"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="multiplier"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Multiplier
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={isPending}
-                    placeholder="1.0"
-                    {...field}
-                    type="number"
-                  />
-                </FormControl>
-                <FormDescription>
-                  Sets the points earned per gram of material recycled
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {error && <CustomFormMessage type="Error">{error}</CustomFormMessage>}
-          {success && (
-            <CustomFormMessage type="Success">{success}</CustomFormMessage>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input disabled={isPending} placeholder="Plastic" {...field} type="text" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-          <Button
-            disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
-            type="submit"
-          >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Submit"}
-          </Button>
-        </form>
-      </Form>
-    </Card>
+        />
+        <FormField
+          control={form.control}
+          name="multiplier"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Multiplier</FormLabel>
+              <FormControl>
+                <Input disabled={isPending} placeholder="1.0" {...field} type="number" />
+              </FormControl>
+              <FormDescription>
+                Sets the points earned per gram of material recycled
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {form.formState.errors.root && (
+          <p className="text-sm font-medium text-destructive">
+            {form.formState.errors.root.message}
+          </p>
+        )}
+
+        <Button disabled={isPending} type="submit">
+          {isPending ? (
+            <Loader2 className="mr-2 size-4 animate-spin" />
+          ) : (
+            <PlusCircle className="mr-2 size-4" />
+          )}
+          {isPending ? "Creating..." : "Create Material"}
+        </Button>
+      </form>
+    </Form>
   )
 }
 

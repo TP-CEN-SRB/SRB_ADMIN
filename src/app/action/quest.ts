@@ -4,6 +4,9 @@ import { prisma } from "@/lib/db"
 import { authClient } from "@/lib/auth-client"
 import { QuestSchema, UpdateQuestSchema } from "@/schemas"
 import { z } from "zod"
+import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
+
+const CACHE_PREFIX = "cache:quests:"
 
 type Quest = {
   id: string
@@ -67,6 +70,7 @@ export const createQuest = async (data: z.infer<typeof QuestSchema>) => {
       skipDuplicates: true,
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Quest created and assigned to users", quest }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -89,6 +93,7 @@ export const deleteQuest = async (questId: string) => {
       where: { id: questId },
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Quest deleted successfully" }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -140,6 +145,7 @@ export const updateQuest = async (
       },
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Quest updated successfully", quest: updated }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -150,22 +156,24 @@ export const updateQuest = async (
 }
 
 export const getQuestById = async (id: string) => {
-  return await prisma.questDetails.findUnique({
-    where: {
-      id: id,
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      target: true,
-      materialType: true,
-      rewardPoints: true,
-      startDate: true,
-      endDate: true,
-      createdAt: true,
-    },
-  })
+  return cached(`${CACHE_PREFIX}${id}`, CATALOG_TTL, () =>
+    prisma.questDetails.findUnique({
+      where: {
+        id: id,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        target: true,
+        materialType: true,
+        rewardPoints: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+      },
+    })
+  )
 }
 
 export const getQuests = async (
@@ -189,29 +197,35 @@ export const getQuests = async (
     return { questCount: 0, quests: [] }
   }
 
-  const [questCount, quests] = await Promise.all([
-    prisma.questDetails.count(),
-    prisma.questDetails.findMany({
-      take: page ? 10 : undefined,
-      skip: page ? (page - 1) * 10 : 0,
-      orderBy: sortItem
-        ? {
-            [sortItem]: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "desc",
-          }
-        : { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        materialType: true,
-        target: true,
-        rewardPoints: true,
-        startDate: true,
-        endDate: true,
-        createdAt: true,
-      },
-    }),
-  ])
+  return cached(
+    `${CACHE_PREFIX}list:${page}:${sortOrder}:${sortItem}`,
+    CATALOG_TTL,
+    async () => {
+      const [questCount, quests] = await Promise.all([
+        prisma.questDetails.count(),
+        prisma.questDetails.findMany({
+          take: page ? 10 : undefined,
+          skip: page ? (page - 1) * 10 : 0,
+          orderBy: sortItem
+            ? {
+                [sortItem]: sortOrder === "asc" || sortOrder === "desc" ? sortOrder : "desc",
+              }
+            : { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            materialType: true,
+            target: true,
+            rewardPoints: true,
+            startDate: true,
+            endDate: true,
+            createdAt: true,
+          },
+        }),
+      ])
 
-  return { questCount, quests }
+      return { questCount, quests }
+    }
+  )
 }

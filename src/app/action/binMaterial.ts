@@ -4,19 +4,24 @@ import { prisma } from "@/lib/db"
 import { BinMaterialSchema } from "@/schemas"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
+
+const CACHE_PREFIX = "cache:bin-materials:"
 
 export const getBinMaterials = async () => {
-  const binMaterials = await prisma.binMaterial.findMany()
-  return binMaterials
+  return cached(`${CACHE_PREFIX}list`, CATALOG_TTL, () =>
+    prisma.binMaterial.findMany()
+  )
 }
 
 export const getBinMaterialById = async (id: string) => {
-  const binMaterial = await prisma.binMaterial.findUnique({
-    where: {
-      id,
-    },
-  })
-  return binMaterial
+  return cached(`${CACHE_PREFIX}${id}`, CATALOG_TTL, () =>
+    prisma.binMaterial.findUnique({
+      where: {
+        id,
+      },
+    })
+  )
 }
 
 export const createBinMaterial = async (
@@ -40,6 +45,7 @@ export const createBinMaterial = async (
           multiplier: formData.multiplier,
         },
       })
+      await invalidateByPrefix(CACHE_PREFIX)
       revalidatePath("/admin/bin/material")
       return { success: "Bin Material created successfully" }
     } catch (error) {
@@ -78,6 +84,7 @@ export const updateBinMaterial = async (
             multiplier: formData.multiplier,
           },
         })
+        await invalidateByPrefix(CACHE_PREFIX)
         revalidatePath("/admin/bin/material")
         return { success: "Bin Material updated successfully" }
       } catch (error) {
@@ -103,6 +110,7 @@ export const deleteBinMaterial = async (id: string) => {
           id,
         },
       })
+      await invalidateByPrefix(CACHE_PREFIX)
       revalidatePath("/admin/bin/material")
       return { success: "Bin Material deleted successfully" }
     } catch (error) {
@@ -131,6 +139,7 @@ export const getAllBinsWithMaterial = async (id: string) => {
 }
 
 export const getAllMaterials = async () => {
-  const mats = await prisma.binMaterial.findMany()
-  return mats
+  return cached(`${CACHE_PREFIX}list`, CATALOG_TTL, () =>
+    prisma.binMaterial.findMany()
+  )
 }

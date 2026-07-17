@@ -5,6 +5,9 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { z } from "zod"
 import { QuestSchema } from "@/schemas"
+import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
+
+const CACHE_PREFIX = "cache:quest-templates:"
 
 // Convert QuestSchema → only fields allowed for templates
 const TemplateSchema = QuestSchema.pick({
@@ -38,6 +41,7 @@ export const createQuestTemplate = async (
       },
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Quest template created!", template }
   } catch (err) {
     return { error: "Failed to create template" }
@@ -52,16 +56,20 @@ export const getQuestTemplates = async () => {
   const user = session?.user
   if (user?.role !== "admin") return []
 
-  return prisma.questTemplate.findMany({
-    orderBy: { createdAt: "desc" },
-  })
+  return cached(`${CACHE_PREFIX}list`, CATALOG_TTL, () =>
+    prisma.questTemplate.findMany({
+      orderBy: { createdAt: "desc" },
+    })
+  )
 }
 
 // ---------- GET TEMPLATE BY ID ----------
 export const getQuestTemplateById = async (id: string) => {
-  return prisma.questTemplate.findUnique({
-    where: { id },
-  })
+  return cached(`${CACHE_PREFIX}${id}`, CATALOG_TTL, () =>
+    prisma.questTemplate.findUnique({
+      where: { id },
+    })
+  )
 }
 
 // ---------- UPDATE TEMPLATE ----------
@@ -89,6 +97,7 @@ export const updateQuestTemplate = async (
       },
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Template updated!", updated }
   } catch (err) {
     return { error: "Failed to update template" }
@@ -105,6 +114,7 @@ export const deleteQuestTemplate = async (id: string) => {
 
   try {
     await prisma.questTemplate.delete({ where: { id } })
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Template deleted" }
   } catch (err) {
     return { error: "Failed to delete template" }

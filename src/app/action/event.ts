@@ -4,6 +4,9 @@ import { prisma } from "@/lib/db"
 import { authClient } from "@/lib/auth-client"
 import { EventSchema, UpdateEventSchema } from "@/schemas"
 import { z } from "zod"
+import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
+
+const CACHE_PREFIX = "cache:events:"
 
 // Event type for returned fields (can also be imported from Prisma)
 type Event = {
@@ -58,6 +61,7 @@ export const createEvent = async (data: z.infer<typeof EventSchema>) => {
       skipDuplicates: true,
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Event created and assigned to all students", event }
   } catch (error: unknown) {
     if (error instanceof Error) {
@@ -87,6 +91,7 @@ export const updateEvent = async (
       },
     })
 
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Event updated successfully", event: updated }
   } catch (error) {
     const err = error as Error
@@ -101,6 +106,7 @@ export const deleteEvent = async (eventId: string) => {
 
   try {
     await prisma.event.delete({ where: { id: eventId } })
+    await invalidateByPrefix(CACHE_PREFIX)
     return { success: "Event deleted successfully" }
   } catch (error) {
     const err = error as Error
@@ -109,17 +115,19 @@ export const deleteEvent = async (eventId: string) => {
 }
 
 export const getEventById = async (id: string) => {
-  return await prisma.event.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      startDate: true,
-      endDate: true,
-      createdAt: true,
-    },
-  })
+  return cached(`${CACHE_PREFIX}${id}`, CATALOG_TTL, () =>
+    prisma.event.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        createdAt: true,
+      },
+    })
+  )
 }
 
 type UserInEvent = {
@@ -173,24 +181,30 @@ export const getEvents = async (
     return { eventCount: 0, events: [] }
   }
 
-  const [eventCount, events] = await Promise.all([
-    prisma.event.count(),
-    prisma.event.findMany({
-      take: page ? 10 : undefined,
-      skip: page ? (page - 1) * 10 : 0,
-      orderBy: sortItem
-        ? { [sortItem]: sortOrder === "asc" ? "asc" : "desc" }
-        : { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        startDate: true,
-        endDate: true,
-        createdAt: true,
-      },
-    }),
-  ])
+  return cached(
+    `${CACHE_PREFIX}list:${page}:${sortOrder}:${sortItem}`,
+    CATALOG_TTL,
+    async () => {
+      const [eventCount, events] = await Promise.all([
+        prisma.event.count(),
+        prisma.event.findMany({
+          take: page ? 10 : undefined,
+          skip: page ? (page - 1) * 10 : 0,
+          orderBy: sortItem
+            ? { [sortItem]: sortOrder === "asc" ? "asc" : "desc" }
+            : { createdAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            startDate: true,
+            endDate: true,
+            createdAt: true,
+          },
+        }),
+      ])
 
-  return { eventCount, events }
+      return { eventCount, events }
+    }
+  )
 }
