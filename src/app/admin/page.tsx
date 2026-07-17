@@ -1,7 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Boxes, Wifi, Wrench, Recycle, Leaf, Users } from "lucide-react"
 import { DashboardPeriodToggle } from "./periodToggle"
+import { DisposalsByMaterialChart } from "./disposalsByMaterialChart"
+import BinsDeployedFaculty from "./components/binsDeployedFaculty"
 import { getDashboardStats, DashboardPeriod } from "@/app/action/dashboard"
+import { getBarChartData, getPieChartData } from "@/app/action/bin"
+import { BarChartConfig, PieChartConfig } from "./(bin)/bin/(allBinsTable)/chartConfigs"
+import { DateRange } from "@/utils/dateUtils"
 
 const periods: DashboardPeriod[] = ["day", "week", "month", "year"]
 const periodLabel: Record<DashboardPeriod, string> = {
@@ -9,6 +14,15 @@ const periodLabel: Record<DashboardPeriod, string> = {
   week: "this week",
   month: "this month",
   year: "this year",
+}
+// getBarChartData/getPieChartData only branch on "week"/"month" explicitly,
+// otherwise grouping defaults to month-across-year — close enough for "day"
+// and "year" that a dedicated day-of-day grouping isn't worth adding.
+const chartFilter: Record<DashboardPeriod, string> = {
+  day: "week",
+  week: "week",
+  month: "month",
+  year: "year",
 }
 
 function StatCard({
@@ -49,7 +63,17 @@ export default async function AdminHomePage({
     ? params.period
     : "week") as DashboardPeriod
 
-  const stats = await getDashboardStats(period)
+  const { startDate, endDate } = DateRange(period)
+  const filter = chartFilter[period]
+
+  const [stats, barChartData, pieChartData] = await Promise.all([
+    getDashboardStats(period),
+    getBarChartData(startDate, endDate, filter),
+    getPieChartData(startDate, endDate, filter),
+  ])
+
+  const { month, bin, ...materials } = barChartData[0] ?? { month: "", bin: 0 }
+  const barChartConfig = BarChartConfig({ materials })
 
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
@@ -68,6 +92,28 @@ export default async function AdminHomePage({
         <StatCard icon={Recycle} iconClassName="bg-teal-500/10 text-teal-600" value={stats.disposalsMade} label={`Disposals Made (${periodLabel[period]})`} />
         <StatCard icon={Leaf} iconClassName="bg-emerald-500/10 text-emerald-600" value={`${stats.totalCarbonOffsetKg.toFixed(1)} kg`} label={`Carbon Offset (${periodLabel[period]})`} />
         <StatCard icon={Users} iconClassName="bg-purple-500/10 text-purple-600" value={stats.activeUsers} label={`Active Users (${periodLabel[period]})`} />
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="text-base">Disposals by Material</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DisposalsByMaterialChart data={barChartData} config={barChartConfig} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Bins by Faculty</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <BinsDeployedFaculty data={pieChartData} />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

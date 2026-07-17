@@ -57,15 +57,24 @@ export function SignUpBinForm({
     setIsPending(true)
     setServerError(null)
 
-    const { data, error } = await authClient.signUp.email({
+    // Regular signUp.email can't set a custom role ("role is not allowed to
+    // be set" — the admin plugin reserves that field), so bin accounts have
+    // to go through admin.createUser instead, same as store accounts.
+    const { data, error } = await authClient.admin.createUser({
       name: signupBinData.name,
       email: signupBinData.email,
       password: signupBinData.password,
-      faculty: signupBinData.faculty,
-      location: signupBinData.location,
-      lat: signupBinData.latitude,
-      long: signupBinData.longitude,
-      role: "BIN"
+      // See comment in app/action/store.ts createStore — the admin plugin's
+      // role type doesn't know about our custom roles, but accepts any
+      // string at runtime.
+      role: "BIN" as "admin" | "user",
+      data: {
+        faculty: signupBinData.faculty,
+        location: signupBinData.location,
+        lat: signupBinData.latitude,
+        long: signupBinData.longitude,
+        emailVerified: true,
+      },
     })
 
     if (error) {

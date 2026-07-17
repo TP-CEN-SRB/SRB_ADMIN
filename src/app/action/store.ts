@@ -26,28 +26,33 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
   const { name, email, password, faculty } = validated.data
 
   try {
-    // Better Auth handles the User record AND the Account record (password)
-    const user = await auth.api.signUpEmail({
+    // Regular signUpEmail can't set a custom role ("role is not allowed to
+    // be set" — the admin plugin reserves that field), so this has to go
+    // through the admin plugin's own create-user endpoint instead, which is
+    // built exactly for admin-initiated accounts with a specific role.
+    const { user } = await auth.api.createUser({
       body: {
         name: capitalizeFirstLetter(name),
         email: email.toLowerCase(),
-        password: password, // Better Auth hashes this for you
-        faculty: faculty as Faculty,
-        role: Role.STORE,
-        diploma: "N/A",
+        password,
+        // better-auth's admin plugin types `role` as "admin" | "user" since
+        // we haven't configured its own `roles` option — but the endpoint
+        // accepts any string at runtime and just stores it via our custom
+        // Role enum, so this cast is safe.
+        role: Role.STORE as "admin" | "user",
+        data: {
+          faculty: faculty as Faculty,
+          diploma: "N/A",
+          emailVerified: true,
+        },
       },
       headers: await headers()
-    })
-
-    // Auto-verify as requested earlier
-    await prisma.user.update({
-        where: { email: email.toLowerCase() },
-        data: { emailVerified: true }
     })
 
     revalidatePath("/admin/store")
     return { success: "Store created successfully", user }
   } catch (error) {
+    console.error("[createStore] error:", error)
     return { error: "Failed to create store" }
   }
 }
