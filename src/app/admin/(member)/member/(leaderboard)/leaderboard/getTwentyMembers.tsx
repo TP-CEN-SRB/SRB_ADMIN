@@ -51,17 +51,3 @@ export async function getAllMembers(
 
   return {allMember, allMemberCount, totalPages} 
 }
-
-  export async function deleteMember(id: string){
-    try{
-      await prisma.user.delete({
-        where: { id },
-      })
-
-      revalidatePath("/admin/member")
-      return { success: true }
-
-    } catch(error){
-      return { success: false, error: "Failed to delete member" }
-    }
-  }
