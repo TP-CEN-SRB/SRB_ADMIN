@@ -1,5 +1,4 @@
-import { getUsedMaterialsForBin } from "@/app/action/bin"
-import CreateBinForm from "@/components/FormLogic/(Bins)/CreateBinForm"
+import CreateBinForm from "./CreateBinForm"
 import { prisma } from "@/lib/db"
 
 

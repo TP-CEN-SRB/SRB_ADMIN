@@ -23,7 +23,7 @@ import { FaEdit, FaPlus } from "react-icons/fa"
 import Link from "next/link"
 import { IoLocationSharp } from "react-icons/io5"
 import { Checkbox } from "@/components/ui/checkbox"
-import MapLayer from "@/components/Map/MapLayer"
+import MapLayer from "./MapLayer"
 import { useSearchParams } from "next/navigation"
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "next-themes" // <-- 1. Import useTheme

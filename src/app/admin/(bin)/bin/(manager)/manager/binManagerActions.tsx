@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ConfirmDeleteBinManagerDialog from "@/components/Dialog/ConfirmDeleteBinManagerDialog"
+import ConfirmDeleteBinManagerDialog from "./ConfirmDeleteBinManagerDialog"
 
 interface BinManagerActionsProps {
   binManagerId: string

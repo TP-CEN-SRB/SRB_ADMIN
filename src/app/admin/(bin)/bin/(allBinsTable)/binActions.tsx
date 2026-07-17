@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ConfirmDeleteBinDialog from "@/components/Dialog/ConfirmDeleteBinDialog"
+import ConfirmDeleteBinDialog from "./ConfirmDeleteBinDialog"
 import { publishMqtt } from "@/lib/mqtt"
 import { ableToPublishMqttMessage, updateCommandUpdatedAt } from "@/utils/mqttPublisher"
 import { Bin } from "./columns"

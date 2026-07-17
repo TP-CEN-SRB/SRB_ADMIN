@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
-import ViewBinManagerScreen from "@/components/Screen/ViewBinManagerScreen"
+import ViewBinManagerScreen from "./ViewBinManagerScreen"
 
 export default async function ViewBinManagerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params 

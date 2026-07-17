@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ConfirmDeleteMaterialDialog from "@/components/Dialog/ConfirmDeleteMaterialDialog"
+import ConfirmDeleteMaterialDialog from "./ConfirmDeleteMaterialDialog"
 
 export function MaterialActions({ materialId, hasBins }: { materialId: string; hasBins: boolean }) {
   const [isDialogOpen, setDialogOpen] = useState(false)

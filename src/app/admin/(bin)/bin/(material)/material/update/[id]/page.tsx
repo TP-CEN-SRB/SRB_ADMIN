@@ -1,5 +1,5 @@
-// import { getBinMaterialById } from "@/app/action/binMaterial"
-// import UpdateBinMaterialForm from "@/components/FormLogic/(Bins)/UpdateBinMaterialForm"
+// import { getBinMaterialById } from "../../action"
+// import UpdateBinMaterialForm from "./UpdateBinMaterialForm"
 // import { notFound } from "next/navigation"
 
 

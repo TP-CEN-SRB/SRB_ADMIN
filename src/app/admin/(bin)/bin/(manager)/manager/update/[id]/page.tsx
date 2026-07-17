@@ -1,4 +1,4 @@
-import { getAllBins } from "@/app/action/user"
+import { getAllBinManagers } from "../../action"
 import UpdateBinManagerScreen from "./UpdateBinManagerScreen"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
@@ -21,7 +21,7 @@ export default async function UpdateBinManagersPage({ params }: { params: Promis
         long: true,
       },
     }),
-    getAllBins(),
+    getAllBinManagers(),
   ])
   if (!binUser) {
     notFound()

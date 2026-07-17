@@ -1,8 +1,8 @@
-import { getAllBins } from "@/app/action/user"
+import { getAllBinManagers } from "../action"
 import CreateBinManagerScreen from "./CreateBinManagerScreen"
 
 export default async function CreateBinManagerPage() {
-  const binManagers = await getAllBins()
+  const binManagers = await getAllBinManagers()
   return (
     <CreateBinManagerScreen
       data={binManagers.map((user) => ({

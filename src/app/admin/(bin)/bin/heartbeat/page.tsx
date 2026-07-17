@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic"
 import { useState, useEffect } from "react"
 import { MqttClient } from "mqtt"
-import { getHeartbeat } from "@/app/action/bin"
+import { getHeartbeat } from "./action"
 import { publishMqtt, connectMqtt } from "@/lib/mqtt"
 import { toast } from "sonner"
 import {

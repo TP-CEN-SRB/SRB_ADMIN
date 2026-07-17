@@ -1,8 +1,8 @@
-import { getAllBins } from "@/app/action/user"
+import { getAllBinManagers } from "../action"
 import MapChart from "./BinMapChart"
 
 export default  async function BinManagerMap(){
-  const binManagers = await getAllBins()
+  const binManagers = await getAllBinManagers()
   return (
     <MapChart
       data={binManagers.map((user) => ({

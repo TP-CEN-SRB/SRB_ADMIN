@@ -1,6 +1,6 @@
 import { getDisposalByBinId } from "@/app/action/disposal"
-import { DataTable } from "@/components/Table/Disposal/data-table"
-import { columns } from "@/components/Table/Disposal/columns"
+import { DataTable } from "./data-table"
+import { columns } from "./columns"
 
 
 export default async function ViewBinDisposalPage({ params, searchParams }: {

@@ -1,4 +1,4 @@
-import EditSubscriptionForm from "@/components/FormLogic/(Misc)/EditSubscriptionForm"
+import EditSubscriptionForm from "./EditSubscriptionForm"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 

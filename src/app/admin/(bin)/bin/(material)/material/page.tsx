@@ -2,9 +2,9 @@ import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { MaterialHeader } from "./header"
 import { MaterialActions } from "./materialActions"
-import CreateBinMaterialForm from "@/components/FormLogic/(Bins)/CreateBinMaterialForm"
-import { getAllMaterials } from "@/app/action/binMaterial"
-import { listOfBinMaterialInUse } from "@/app/action/bin"
+import CreateBinMaterialForm from "./CreateBinMaterialForm"
+import { getAllMaterials } from "./action"
+import { listOfBinMaterialInUse } from "./action"
 
 const col_widths = ["35%", "20%", "25%", "20%"]
 

@@ -1,5 +1,5 @@
-import { getBinsByUserId } from "@/app/action/bin"
-import BinCapacityChart from "@/components/Chart/BinCapacityChart"
+import { getBinsByUserId } from "./action"
+import BinCapacityChart from "./BinCapacityChart"
 import { notFound } from "next/navigation"
 
 

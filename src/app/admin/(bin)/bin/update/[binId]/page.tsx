@@ -1,6 +1,6 @@
-import { getBinById } from "@/app/action/bin"
+import { getBinById } from "./action"
 import NotFoundPage from "@/app/not-found"
-import UpdateBinForm from "@/components/FormLogic/(Bins)/UpdateBinForm"
+import UpdateBinForm from "./UpdateBinForm"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 

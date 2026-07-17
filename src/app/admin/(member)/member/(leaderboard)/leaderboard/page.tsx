@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { getTopTwentyUsers } from "@/app/action/user"
+import { getTopTwentyUsers } from "./action"
 
 const col_widths = ["10%", "35%", "18%", "13%", "13%", "11%"]
 

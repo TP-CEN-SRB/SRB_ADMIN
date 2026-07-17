@@ -1,7 +1,7 @@
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { BinManagerHeader } from "./header"
 import { BinManagerActions } from "./binManagerActions"
-import { listOfBinManagersUsed } from "@/app/action/user"
+import { listOfBinManagersUsed } from "./action"
 
 const col_widths = ["25%", "30%", "15%", "15%", "15%"]
 const binManagerFaculties = ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"]

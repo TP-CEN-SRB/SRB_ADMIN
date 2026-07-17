@@ -1,8 +1,8 @@
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { BinHeader } from "./header"
 import { BinActions } from "./binActions"
-import { getAllBinsWithUserAndMaterial } from "@/app/action/bin"
-import { getBinMaterials } from "@/app/action/binMaterial"
+import { getAllBinsWithUserAndMaterial } from "./action"
+import { getBinMaterials } from "../binMaterialShared"
 
 const col_widths = ["18%", "18%", "13%", "13%", "11%", "17%", "10%"]
 const statuses = ["FUNCTIONAL", "UNDER_MAINTENANCE"]

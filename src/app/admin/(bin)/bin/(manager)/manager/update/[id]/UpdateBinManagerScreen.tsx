@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import BinMapChartWithMarker from "@/components/Map/BinMapChartWithMarker"
+import BinMapChartWithMarker from "../../BinMapChartWithMarker"
 import { Faculty } from "@/generated/prisma"
 import { Button } from "@/components/ui/button"
 import { IoMdClose } from "react-icons/io"
