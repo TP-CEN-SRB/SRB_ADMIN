@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { LoginForm } from "@/components/FormLogic/(Auth)/Login-Form"
+import { LoginForm } from "@/app/(auth)/login/Login-Form"
 
 export default function LoginPage() {
   return (

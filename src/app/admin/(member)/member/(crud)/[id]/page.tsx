@@ -21,7 +21,7 @@ import {
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import Link from "next/link";
-import { getFeedbacksForUser, getFaultReportsForUser } from "@/app/action/feedback";
+import { getFeedbacksForUser, getFaultReportsForUser } from "@admin/(member)/member/(response)/feedback/feedback";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",

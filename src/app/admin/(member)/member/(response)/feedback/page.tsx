@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { FeedbackHeader } from "./header"
 import { FeedbackActions } from "./feedbackActions"
 import { FaultReportActions } from "./faultReportActions"
-import { getFeedbacks, getFaultReports } from "@/app/action/feedback"
+import { getFeedbacks, getFaultReports } from "./feedback"
 
 const feedbackColWidths = ["20%", "12%", "15%", "33%", "12%", "8%"]
 const reportColWidths = ["17%", "13%", "15%", "12%", "28%", "15%"]
