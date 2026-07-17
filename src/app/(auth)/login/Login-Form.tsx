@@ -18,7 +18,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { authClient } from "@/lib/auth-client"
-import { loginSchema, LoginFormValue } from "./auth-schema"
+import { loginSchema, LoginFormValue } from "../../../components/FormLogic/(Auth)/auth-schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 export function LoginForm({

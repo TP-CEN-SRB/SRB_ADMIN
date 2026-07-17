@@ -16,7 +16,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 
 import { authClient } from "@/lib/auth-client"
-import { signupSchema, SignupFormValue } from "./auth-schema"
+import { signupSchema, SignupFormValue } from "../../../components/FormLogic/(Auth)/auth-schema"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 export function SignupForm({
