@@ -92,7 +92,7 @@ export default function QuestTemplateTable({ data }: { data: QuestTemplate[] }) 
           }}
         />
 
-        <Link href="/admin/quest-template/create">
+        <Link href="/admin/activity/quest-template/create">
           <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
             Create Template
           </Button>
@@ -148,7 +148,7 @@ export default function QuestTemplateTable({ data }: { data: QuestTemplate[] }) 
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
                         <DropdownMenuItem asChild>
-                          <Link href={`/admin/quest-template/update/${t.id}`}>
+                          <Link href={`/admin/activity/quest-template/update/${t.id}`}>
                             Edit Template
                           </Link>
                         </DropdownMenuItem>

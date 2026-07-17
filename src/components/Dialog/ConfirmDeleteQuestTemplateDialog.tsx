@@ -65,7 +65,7 @@ export default function ConfirmDeleteQuestTemplateDialog({
           duration: 2000,
         })
 
-        router.push("/admin/quest-template")
+        router.push("/admin/activity/quest-template")
       }
     })
   }
