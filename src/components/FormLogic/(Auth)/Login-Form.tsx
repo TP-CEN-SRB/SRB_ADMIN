@@ -1,4 +1,5 @@
 "use client"
+
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -8,6 +9,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { CheckCircle, Mail } from "lucide-react"
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -25,12 +27,26 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
 
   const router = useRouter()
+  
+  // Login states
   const [isPending, setIsPending] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  
+  // Password Reset states
+  const [isSendingReset, setIsSendingReset] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
-  const form = useForm<LoginFormValue>({resolver: zodResolver(loginSchema)})
+  const form = useForm<LoginFormValue>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    }
+  })
 
-  async function onSubmit(loginData: LoginFormValue){
+  // --- Handlers ---
+  
+  async function onSubmit(loginData: LoginFormValue) {
     setIsPending(true)
     setServerError(null)
 
@@ -45,8 +61,34 @@ export function LoginForm({
       setIsPending(false)
       return
     }
+    
+    // Optional: router.push('/admin') if the auth client doesn't auto-redirect
   }
-  
+
+  async function handleSendReset() {
+    const email = form.getValues("email")
+    if (!email) return
+
+    setIsSendingReset(true)
+    setServerError(null)
+
+    // Adjust this method call based on your specific authClient's API (e.g., forgetPassword, resetPasswordEmail, etc.)
+    const { error } = await authClient.requestPasswordReset({
+      email: email,
+      redirectTo: "/reset-password", 
+    })
+
+    setIsSendingReset(false)
+
+    if (error) {
+      setServerError(error.message || "Failed to send reset email.")
+    } else {
+      setResetSent(true)
+      // Optional: Reset the success state back to normal after 3 seconds
+      setTimeout(() => setResetSent(false), 3000)
+    }
+  }
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
@@ -69,18 +111,34 @@ export function LoginForm({
             className="bg-background"
             {...form.register("email")}
           />
-          {form.formState.errors.email && (<p className="text-sm text-destructive">{form.formState.errors.email.message}</p>)}
+          {form.formState.errors.email && (
+            <p className="text-sm text-destructive">{form.formState.errors.email.message}</p>
+          )}
         </Field>
 
         <Field>
-          <div className="flex items-center">
+          <div className="flex items-center justify-between">
             <FieldLabel htmlFor="password">Password</FieldLabel>
-            <Link
-              href="#"
-              className="text-xs ml-auto text-sm underline-offset-4 hover:underline"
+            <Button 
+                type="button"
+                variant="ghost" 
+                size="sm"
+                className="h-auto p-0 text-muted-foreground hover:text-foreground"
+                onClick={handleSendReset}
+                disabled={isSendingReset || resetSent || !form.watch("email")}
             >
-              Forgot your password?
-            </Link>
+                {isSendingReset ? (
+                  "Sending..."
+                ) : resetSent ? (
+                  <span className="flex items-center text-green-500">
+                    <CheckCircle className="mr-1.5 size-3.5" /> Sent to your email
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <Mail className="mr-1.5 size-3.5" /> Forgot password?
+                  </span>
+                )}
+            </Button>
           </div>
           <Input
             id="password"
@@ -89,11 +147,13 @@ export function LoginForm({
             className="bg-background"
             {...form.register("password")}
           />
-          {form.formState.errors.password && (<p className="text-sm text-destructive">{form.formState.errors.password.message}</p>)}
+          {form.formState.errors.password && (
+            <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>
+          )}
         </Field>
 
         <Field>
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" disabled={isPending} className="w-full mt-2">
             {isPending ? "Logging in..." : "Login"}
           </Button>
         </Field>
@@ -101,7 +161,7 @@ export function LoginForm({
         <Field>
           <FieldDescription className="text-center">
             Don't have an account?{" "}
-            <Link href="/signup" className="underline underline-offset-4">
+            <Link href="/signup" className="underline underline-offset-4 hover:text-primary transition-colors">
               Sign up
             </Link>
           </FieldDescription>
