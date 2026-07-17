@@ -49,7 +49,7 @@ export default async function AllBinsPage({
         exportData={bins}
       />
 
-      <Table>
+      <Table className="table-fixed">
         <colgroup>
           {col_widths.map((width, index) => (
             <col key={index} style={{ width }} />
@@ -69,7 +69,7 @@ export default async function AllBinsPage({
       </Table>
 
       <div className="flex-1 overflow-auto">
-        <Table>
+        <Table className="table-fixed">
           <colgroup>
             {col_widths.map((width, index) => (
               <col key={index} style={{ width }} />
@@ -93,7 +93,7 @@ export default async function AllBinsPage({
                 return (
                   <TableRow key={bin.id}>
                     <TableCell><span className="text-xs">{bin.user.name}</span></TableCell>
-                    <TableCell><span className="text-xs">{bin.user.location}</span></TableCell>
+                    <TableCell><span className="text-xs truncate block max-w-full">{bin.user.location}</span></TableCell>
                     <TableCell className="text-center"><span className="text-xs">{bin.binMaterial.name}</span></TableCell>
                     <TableCell className="text-center">
                       <span className="text-xs">{bin.status === "FUNCTIONAL" ? "Functional" : "Under Maintenance"}</span>

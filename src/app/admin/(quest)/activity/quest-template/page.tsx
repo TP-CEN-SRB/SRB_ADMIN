@@ -41,7 +41,7 @@ export default async function QuestTemplatePage({
         totalCount={templateCount}
       />
 
-      <Table>
+      <Table className="table-fixed">
         <colgroup>
           {col_widths.map((width, index) => (
             <col key={index} style={{ width }} />
@@ -60,7 +60,7 @@ export default async function QuestTemplatePage({
       </Table>
 
       <div className="flex-1 overflow-auto">
-        <Table>
+        <Table className="table-fixed">
           <colgroup>
             {col_widths.map((width, index) => (
               <col key={index} style={{ width }} />

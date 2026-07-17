@@ -53,7 +53,7 @@ async function FeedbackTable({ search }: { search: string }) {
 
   return (
     <>
-      <Table>
+      <Table className="table-fixed">
         <colgroup>
           {feedbackColWidths.map((width, index) => (
             <col key={index} style={{ width }} />
@@ -72,7 +72,7 @@ async function FeedbackTable({ search }: { search: string }) {
       </Table>
 
       <div className="flex-1 overflow-auto">
-        <Table>
+        <Table className="table-fixed">
           <colgroup>
             {feedbackColWidths.map((width, index) => (
               <col key={index} style={{ width }} />
@@ -109,7 +109,7 @@ async function FaultReportsTable({ search, status }: { search: string; status: s
 
   return (
     <>
-      <Table>
+      <Table className="table-fixed">
         <colgroup>
           {reportColWidths.map((width, index) => (
             <col key={index} style={{ width }} />
@@ -128,7 +128,7 @@ async function FaultReportsTable({ search, status }: { search: string; status: s
       </Table>
 
       <div className="flex-1 overflow-auto">
-        <Table>
+        <Table className="table-fixed">
           <colgroup>
             {reportColWidths.map((width, index) => (
               <col key={index} style={{ width }} />
@@ -161,7 +161,7 @@ async function FaultReportsTable({ search, status }: { search: string; status: s
                     <TableCell className="text-center">
                       <Badge variant="secondary" className="text-xs">{report.category}</Badge>
                     </TableCell>
-                    <TableCell><span className="text-xs">{report.location}</span></TableCell>
+                    <TableCell><span className="text-xs truncate block max-w-full">{report.location}</span></TableCell>
                     <TableCell className="text-center"><span className="text-xs">{new Date(report.createdAt).toLocaleDateString("en-SG")}</span></TableCell>
                     <TableCell>
                       <div className="text-xs text-muted-foreground">

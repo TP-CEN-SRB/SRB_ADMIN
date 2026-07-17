@@ -53,7 +53,7 @@ export default async function AllEventsPage({
         totalCount={eventCount}
       />
 
-      <Table>
+      <Table className="table-fixed">
         <colgroup>
           {col_widths.map((width, index) => (
             <col key={index} style={{ width }} />
@@ -72,7 +72,7 @@ export default async function AllEventsPage({
       </Table>
 
       <div className="flex-1 overflow-auto">
-        <Table>
+        <Table className="table-fixed">
           <colgroup>
             {col_widths.map((width, index) => (
               <col key={index} style={{ width }} />

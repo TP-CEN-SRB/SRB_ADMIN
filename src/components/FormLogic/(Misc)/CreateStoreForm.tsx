@@ -19,29 +19,40 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { signupSchema, SignupFormValue } from "@/lib/zod-schema"
+import { StoreSchema } from "@/schemas"
+import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-import { useRouter } from "next/navigation"
-import { getSignUp } from "@/lib/auth-server"
+import { createStore } from "@/app/action/store"
+import { toast } from "sonner"
 import { PlusCircle } from "lucide-react"
 
+type StoreFormValue = z.infer<typeof StoreSchema>
+
 export function CreateStoreForm() {
-  const form = useForm<SignupFormValue>({
-    resolver: zodResolver(signupSchema),
+  const form = useForm<StoreFormValue>({
+    resolver: zodResolver(StoreSchema),
   })
-  const router = useRouter()
   const { isSubmitting } = form.formState
 
-  async function onSubmitRegister(data: SignupFormValue) {
-    const result = await getSignUp(data)
+  async function onSubmitRegister(data: StoreFormValue) {
+    const result = await createStore(data)
 
-    if (result.error) {
+    if (result.fieldErrors) {
+      for (const [field, messages] of Object.entries(result.fieldErrors)) {
+        form.setError(field as keyof StoreFormValue, {
+          type: "manual",
+          message: messages?.[0] || "Invalid input",
+        })
+      }
+    } else if (result.error) {
       form.setError("root", { message: result.error })
     }
+
     if (result.success) {
-      router.push("/admin/store")
+      toast.success("Store created", { description: result.success })
+      form.reset({ name: "", email: "", faculty: undefined, password: "", confirmPassword: "" })
     }
   }
 
@@ -69,7 +80,7 @@ export function CreateStoreForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
+                <Input type="email" placeholder="store@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,8 +145,6 @@ export function CreateStoreForm() {
           />
         </div>
         <FormDescription>Must be at least 8 characters long.</FormDescription>
-
-        <input type="hidden" {...form.register("role")} value="STORE" />
 
         {form.formState.errors.root && (
           <p className="text-sm font-medium text-destructive">

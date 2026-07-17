@@ -125,12 +125,21 @@ export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date): Array<{ week: s
   return weeks
 }
 
-type FilterPeriod = "week" | "month" | "year" | "all time"
+type FilterPeriod = "day" | "week" | "month" | "year" | "all time"
 
 export const DateRange = (period: FilterPeriod) => {
     const now = new Date()
-    
+
     switch (period) {
+        case "day": {
+        const startDate = new Date(now)
+        startDate.setHours(0, 0, 0, 0)
+
+        const endDate = new Date(now)
+        endDate.setHours(23, 59, 59, 999)
+
+        return { startDate, endDate }
+        }
         case "week": {
         const monday = now.getDate() - ((now.getDay() + 6) % 7)
         

@@ -36,7 +36,7 @@ export default async function LeaderboardPage() {
 
           {rest.length > 0 && (
             <div className="rounded-lg border overflow-hidden">
-              <Table>
+              <Table className="table-fixed">
                 <colgroup>
                   {col_widths.map((width, index) => (
                     <col key={index} style={{ width }} />

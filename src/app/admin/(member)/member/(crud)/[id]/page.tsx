@@ -284,7 +284,7 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
                 <CardTitle className="text-base">Feedback</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Table>
+                <Table className="table-fixed">
                   <colgroup>
                     <col style={{ width: "20%" }} />
                     <col style={{ width: "55%" }} />
@@ -308,7 +308,7 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
                       feedbacks.map((feedback) => (
                         <TableRow key={feedback.id}>
                           <TableCell className="text-center"><div className="flex justify-center"><StarRating rating={feedback.rating} /></div></TableCell>
-                          <TableCell><span className="text-xs">{feedback.message || "—"}</span></TableCell>
+                          <TableCell><span className="text-xs truncate block max-w-full">{feedback.message || "—"}</span></TableCell>
                           <TableCell className="text-center"><span className="text-xs">{new Date(feedback.createdAt).toLocaleDateString("en-SG")}</span></TableCell>
                         </TableRow>
                       ))
@@ -323,7 +323,7 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
                 <CardTitle className="text-base">Fault Reports</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Table>
+                <Table className="table-fixed">
                   <colgroup>
                     <col style={{ width: "30%" }} />
                     <col style={{ width: "25%" }} />
@@ -348,7 +348,7 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
                     ) : (
                       faultReports.map((report) => (
                         <TableRow key={report.id}>
-                          <TableCell><span className="text-xs">{report.location}</span></TableCell>
+                          <TableCell><span className="text-xs truncate block max-w-full">{report.location}</span></TableCell>
                           <TableCell className="text-center"><Badge variant="secondary" className="text-xs">{report.category}</Badge></TableCell>
                           <TableCell className="text-center"><span className="text-xs">{new Date(report.createdAt).toLocaleDateString("en-SG")}</span></TableCell>
                           <TableCell className="text-center">

@@ -56,7 +56,7 @@ export default async function StoreAdminPage({
           totalCount={storeCount}
         />
 
-        <Table>
+        <Table className="table-fixed">
           <colgroup>
             {col_widths.map((width, index) => (
               <col key={index} style={{ width }} />
@@ -76,7 +76,7 @@ export default async function StoreAdminPage({
         </Table>
 
         <div className="flex-1 overflow-auto">
-          <Table>
+          <Table className="table-fixed">
             <colgroup>
               {col_widths.map((width, index) => (
                 <col key={index} style={{ width }} />
