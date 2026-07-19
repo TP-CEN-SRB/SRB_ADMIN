@@ -71,7 +71,7 @@ export default function UpdateQuestTemplateForm({ id, template }: Props) {
   })
 
   const onSubmit = (values: z.output<typeof QuestTemplateSchema>) => {
-    startTransition(async () => {
+    startTransition(async function(){
       const res = await updateQuestTemplate(id, values)
 
       if (res?.success) {

@@ -34,8 +34,8 @@ const ConfirmDeleteRewardDialog = ({
 }: DialogProps) => {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState("")
-  const handleConfirm = () => {
-    startTransition(async () => {
+  const handleConfirm = function(){
+    startTransition(async function(){
       const data = await deleteReward(rewardId)
       setError(data?.error as string)
       if (!data.error && data.success !== undefined) {

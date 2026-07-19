@@ -92,7 +92,7 @@ export async function POST(
     )
 
     /* ---------- TELEGRAM (SAFE BACKGROUND) ---------- */
-    setImmediate(async () => {
+    setImmediate(async function(){
       try {
         const timeSGT =
           new Date().toLocaleString("en-SG", {

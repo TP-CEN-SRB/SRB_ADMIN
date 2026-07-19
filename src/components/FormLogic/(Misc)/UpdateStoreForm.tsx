@@ -60,7 +60,7 @@ const UpdateStoreForm = ({ id, store }: UpdateStoreFormProps) => {
       hour12: false,
     })
 
-    startTransition(async () => {
+    startTransition(async function(){
       try {
         const result = await updateStore(id, values)
 

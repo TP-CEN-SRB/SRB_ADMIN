@@ -1,45 +1,26 @@
 "use client"
 
-import { Badge } from '@/components/ui/badge'
-import { Info } from "lucide-react"
-
 export default function About() {
   return (
-    <section className="relative overflow-hidden bg-background pt-20 pb-12 sm:pt-32 sm:pb-16 lg:pb-24 transition-colors duration-300 min-h-screen">
+    // Reduced pt-20 to pt-8, and sm:pt-32 to sm:pt-12 to pull the content higher
+    <section className="relative overflow-hidden bg-background pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pb-24 transition-colors duration-300 min-h-screen">
       {/* Background Decorative Vertical Glowing Lines (matching landing page) */}
       <div className="pointer-events-none absolute inset-0 z-0 flex justify-center overflow-hidden">
         {/* Faint background grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(16,185,129,0.05)_1px,transparent_1px)] bg-[size:40px_100%]" />
-
-        {/* Bright center glowing lines */}
-        <div className="absolute top-[-10%] bottom-[-10%] left-[30%] w-[1px] bg-emerald-500/50 shadow-[0_0_30px_5px_rgba(16,185,129,0.4)]" />
-        <div className="absolute top-[-10%] bottom-[-10%] left-[35%] w-[4px] bg-emerald-300 dark:bg-white shadow-[0_0_40px_10px_rgba(52,211,153,0.4)] dark:shadow-[0_0_40px_10px_rgba(255,255,255,0.8)]" />
-        <div className="absolute top-[-10%] bottom-[-10%] left-[38%] w-[2px] bg-emerald-400 shadow-[0_0_30px_5px_rgba(52,211,153,0.5)]" />
-        <div className="absolute top-[-10%] bottom-[-10%] left-[42%] w-[1px] bg-emerald-600/40 shadow-[0_0_20px_2px_rgba(5,150,105,0.3)]" />
-
-        {/* Top and Bottom Fade */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background opacity-90" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(16,185,129,0.2)_1px,transparent_1px),linear-gradient(to_bottom,rgba(16,185,129,0.2)_1px,transparent_1px)] bg-[size:40px_40px]" />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col items-center gap-12 px-4 sm:px-6 lg:px-8">
 
         {/* About Header - Center Aligned */}
         <div className="flex max-w-3xl flex-col items-center gap-6 text-center">
-          <Badge
-            variant="outline"
-            className="h-auto rounded-full border-border bg-muted/50 dark:bg-white/5 px-4 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 tracking-widest uppercase backdrop-blur-md"
-          >
-            <Info className="mr-2 h-3.5 w-3.5" />
-            About Computer Engineering
-          </Badge>
 
-          <h1 className="text-5xl font-medium tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-            Redefining Waste Management with <br className="hidden sm:block" />
-            <span className="font-bold text-foreground">Smart Technology.</span>
+          <h1 className='text-3xl leading-[1.29167] font-bold text-balance max-lg:text-center sm:text-4xl lg:text-5xl'>
+            About Computer Engineering <br className="hidden sm:block" />
           </h1>
 
-          <p className="max-w-2xl text-lg sm:text-xl text-muted-foreground leading-relaxed">
-            See how our AI-powered smart bins and IoT sensors work together to create a seamless, rewarding recycling experience.
+          <p className='text-muted-foreground max-w-xl text-xl max-lg:text-center'>
+            Discover the world of computer engineering behind our project, where hardware, software, and IoT come together to build innovative solutions for a sustainable future.
           </p>
         </div>
 
@@ -64,6 +45,57 @@ export default function About() {
             {/* Subtle inner gradient overlay to blend the video edges slightly */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
           </div>
+        </div>
+
+        {/* Computer Engineering Content Section */}
+        <div className="w-full max-w-5xl mx-auto flex flex-col gap-16 mt-8 sm:mt-12">
+          
+          {/* Content Block 1: Image Left, Text Right */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="relative rounded-2xl overflow-hidden border border-border shadow-lg aspect-video md:aspect-[4/3] group">
+              <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+              <img 
+                src="/MCAPP.jpeg" 
+                alt="Hardware and Microcontrollers" 
+                className="w-full h-full object-cover transition-transform duration-500"
+              />
+            </div>
+            <div className="flex flex-col gap-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+                Bridging Hardware and Software
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Computer Engineering sits at the dynamic intersection of electrical engineering and computer science. It isn’t just about writing code or building circuits in isolation; it’s about making them work seamlessly together. 
+              </p>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                From configuring microcontrollers and routing sensor data to developing the backend databases that store it all, engineers design the foundational systems that bridge the physical and digital worlds.
+              </p>
+            </div>
+          </div>
+
+          {/* Content Block 2: Text Left, Image Right */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="flex flex-col gap-4 order-2 md:order-1">
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
+                Powering the Internet of Things (IoT)
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                As our world becomes increasingly connected, the role of computer engineering has expanded heavily into IoT. By embedding intelligent sensors, machine learning algorithms, and network connectivity into everyday objects, we bring them to life.
+              </p>
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                This connectivity allows for intelligent automation, real-time analytics, and smarter decision-making. It is the exact framework we used to give our Smart Recycling Bins the ability to automatically identify waste, track fullness levels, and reward users instantly.
+              </p>
+            </div>
+            <div className="relative rounded-2xl overflow-hidden border border-border shadow-lg aspect-video md:aspect-[4/3] order-1 md:order-2 group">
+              <div className="absolute inset-0 bg-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+              <img 
+                src="/IOTP.jpeg" 
+                alt="IoT and Networking Data" 
+                className="w-full h-full object-cover transition-transform duration-500 group--105"
+              />
+            </div>
+          </div>
+
         </div>
 
       </div>

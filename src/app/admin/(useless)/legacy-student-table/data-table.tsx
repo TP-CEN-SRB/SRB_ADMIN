@@ -43,7 +43,7 @@ export function DataTable<TData, TValue>({
   const page = Number(searchParams.get("page")) || 1
   const router = useRouter()
 
-  const handlePreviousClick = () => {
+  const handlePreviousClick = function(){
     const params = new URLSearchParams(searchParams)
     if (page > Math.ceil(count / 10)) {
       params.set("page", "1")
@@ -53,7 +53,7 @@ export function DataTable<TData, TValue>({
     router.push(`${path}?${params.toString()}`)
   }
 
-  const handleNextClick = () => {
+  const handleNextClick = function(){
     const params = new URLSearchParams(searchParams)
     if (!isNaN(page)) {
       params.set("page", `${page + 1}`)
@@ -86,7 +86,7 @@ export function DataTable<TData, TValue>({
     router.replace(`${path}?${params.toString()}`)
   }
 
-  const handleResetSortBy = () => {
+  const handleResetSortBy = function(){
     const params = new URLSearchParams(searchParams)
     params.delete("sortItem")
     params.delete("sortOrder")
@@ -105,7 +105,7 @@ export function DataTable<TData, TValue>({
     router.replace(`${path}?${params.toString()}`)
   }
 
-  const handleResetFilter = () => {
+  const handleResetFilter = function(){
     const params = new URLSearchParams(searchParams)
     params.delete("emailType")
     params.delete("faculty")

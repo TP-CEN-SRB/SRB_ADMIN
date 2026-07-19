@@ -96,7 +96,7 @@ const CropRewardDialog = ({
     return new File([u8arr], filename, { type: mime ? mime[1] : "image/png" })
   }
 
-  const handleCropSave = () => {
+  const handleCropSave = function(){
     if (crop && imgRef.current && crop.width && crop.height) {
       const croppedImageUrl = getCroppedImg(imgRef.current, crop)
       const file = dataURLToFile(

@@ -37,7 +37,7 @@ const UpdateEventForm = ({ initialData }: Props) => {
   })
 
   const onSubmit = (values: z.infer<typeof UpdateEventSchema>) => {
-    startTransition(async () => {
+    startTransition(async function(){
       try {
         const result = await updateEvent(values.id, values)
         if (result?.success) {

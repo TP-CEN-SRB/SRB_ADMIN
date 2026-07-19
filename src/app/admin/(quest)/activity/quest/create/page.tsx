@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card"
 import CreateQuestForm from "@/components/FormLogic/(Quest)/CreateQuestForm"
 
-const CreateQuestPage = () => {
+const CreateQuestPage = function(){
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
       <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row">

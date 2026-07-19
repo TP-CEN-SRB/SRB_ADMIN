@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   // --------------------
   // BACKGROUND LOGIC
   // --------------------
-  (async () => {
+  (async function(){
     const report = await prisma.faultReport.findUnique({
       where: { id: faultId },
     })

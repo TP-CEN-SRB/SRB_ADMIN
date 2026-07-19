@@ -5,7 +5,7 @@ import { MdCardGiftcard } from "react-icons/md"
 import { FaFire } from "react-icons/fa"
 import { prisma } from "@/lib/db"
 
-const RewardStatsGrid = async () => {
+const RewardStatsGrid = async function(){
   const [
     totalRewards,
     totalRedemptions,

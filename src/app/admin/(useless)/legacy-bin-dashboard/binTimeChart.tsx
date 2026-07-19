@@ -68,7 +68,7 @@ const BinTimeChart = ({ chartData, binTimeLineChartConfig }: ChartProps) => {
                     <DropdownMenuCheckboxItem
                       key={index}
                       checked={activeChart === chart}
-                      onClick={() => {
+                      onClick={function(){
                         if (chart === "totalDisposals") {
                           setTotalDisposalsSelected(true)
                         } else {

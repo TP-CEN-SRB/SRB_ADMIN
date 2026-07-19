@@ -27,8 +27,8 @@ const ExportCSV = <TData,>({ data, binId }: ExportCSVProps<TData>) => {
   const [initiateDownload, setInitiateDownload] = useState(false)
   const csvLinkRef = useRef<HTMLSpanElement>(null)
 
-  const fetchAllData = () => {
-    startTransition(async () => {
+  const fetchAllData = function(){
+    startTransition(async function(){
       const sortItem = searchParams.get("sortItem")
       const sortOrder = searchParams.get("sortOrder")
       const { disposals } = await getDisposalByBinId(
@@ -42,7 +42,7 @@ const ExportCSV = <TData,>({ data, binId }: ExportCSVProps<TData>) => {
     })
   }
 
-  useEffect(() => {
+  useEffect(function(){
     if (initiateDownload && allData.length > 0) {
       csvLinkRef.current?.click()
     }

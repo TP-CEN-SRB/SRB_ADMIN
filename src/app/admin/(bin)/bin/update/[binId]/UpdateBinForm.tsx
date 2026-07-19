@@ -58,7 +58,7 @@ export default function UpdateBinForm({
       timeZone: "Asia/Singapore",
       hour12: false,
     })
-    startTransition(async () => {
+    startTransition(async function(){
       try {
         const result = await updateBin(id, values)
         if (result?.success) {

@@ -51,7 +51,7 @@ export async function listOfBinManagersUsed(
       : undefined,
   }
 
-  const orderBy = (() => {
+  const orderBy = (function(){
     switch (sort) {
       case "nameAsc":
         return { name: "asc" as const }

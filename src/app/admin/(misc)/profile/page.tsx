@@ -7,7 +7,7 @@
 // import { getNameInitials } from "@/utils/getNameInitials"
 // import AdminProfileMore from "@/components/Dropdown/AdminProfileMore"
 
-// const AdminProfilePage = async () => {
+// const AdminProfilePage = async function(){
 //   const { data: session } = await authClient.getSession()
 //   const sessionUser = session?.user
 //   if (!sessionUser) return null

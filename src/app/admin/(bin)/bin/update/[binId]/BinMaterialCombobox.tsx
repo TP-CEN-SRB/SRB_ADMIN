@@ -61,7 +61,7 @@ const BinMaterialCombobox = ({
               {materials.map((material) => (
                 <CommandItem
                   key={material.id}
-                  onSelect={() => {
+                  onSelect={function(){
                     const newValue = material.id
                     setValue(material.name)
                     setOpen(false)

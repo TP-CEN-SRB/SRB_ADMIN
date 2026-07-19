@@ -39,8 +39,8 @@ const ConfirmDeleteBinDialog = ({
   const [error, setError] = useState("")
   const router = useRouter()
   const datetime = formatDateTime(new Date())
-  const handleDelete = () => {
-    startTransition(async () => {
+  const handleDelete = function(){
+    startTransition(async function(){
       const data = await deleteBin(binId)
       setError(data?.error as string)
       if (!data.error && data.success !== undefined) {

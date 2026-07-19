@@ -2,7 +2,7 @@
 import { prisma } from "@/lib/db"
 import VideoDataTable from "./videoDataTable"
 
-const getData = async () => {
+const getData = async function(){
   const videos = await prisma.video.findMany({
     orderBy: { createdAt: "desc" },
   })
@@ -16,7 +16,7 @@ const getData = async () => {
   }))
 }
 
-const RecordingsPage = async () => {
+const RecordingsPage = async function(){
   const data = await getData()
   return <VideoDataTable data={data} />
 }

@@ -34,7 +34,7 @@ export async function getAllBins() {
 export const getTopTenUsers = async (dateFrom?: Date, dateTo?: Date) => cached(
   `cache:dashboard:top-users:${dateFrom}:${dateTo}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
   const aggregated = await prisma.disposal.groupBy({
     by: ["userId"],
     where: {
@@ -204,7 +204,7 @@ export const getBinCountsByMaterial = async (
 ): Promise<BinCount[]> => cached(
   `${DASHBOARD_CACHE_PREFIX}bin-counts-by-material:${dateFrom}:${dateTo}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
     const binCounts = await prisma.bin.groupBy({
       by: ["binMaterialId"],
       where: {
@@ -266,7 +266,7 @@ export const getBinCountsByStatus = async (
 export const getDisposals = async (dateFrom?: Date, dateTo?: Date) => cached(
   `${DASHBOARD_CACHE_PREFIX}disposals-count:${dateFrom}:${dateTo}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
     const adjustedEndDate = dateTo ? new Date(dateTo) : undefined
     if (adjustedEndDate) {
       adjustedEndDate.setHours(23, 59, 59, 999)
@@ -298,7 +298,7 @@ export const getBinDisposalsByTime = async (
 ): Promise<DisposalsByHour[]> => cached(
   `${DASHBOARD_CACHE_PREFIX}disposals-by-time:${dateFrom}:${dateTo}:${filter}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
 
   const whereClause: Prisma.DisposalWhereInput = {}
 
@@ -364,7 +364,7 @@ export const getBinDisposalsByTime = async (
 export const getDisposalDates = async (): Promise<string[]> => cached(
   `${DASHBOARD_CACHE_PREFIX}disposal-dates`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
     const disposalDates = await prisma.disposal.findMany({
       select: { createdAt: true },
     })

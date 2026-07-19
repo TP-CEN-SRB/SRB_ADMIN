@@ -25,13 +25,13 @@ const SortByFilter = ({ onApplySortBy, onResetSortBy }: SortByFilterProps) => {
   const searchParams = useSearchParams()
   const [sortOrder, setSortOrder] = useState(searchParams.get("sortOrder"))
 
-  const handleResetSortBy = () => {
+  const handleResetSortBy = function(){
     setSortOrder("")
     onResetSortBy()
     setFilterOpen(false)
   }
 
-  const handleApplySortBy = () => {
+  const handleApplySortBy = function(){
     onApplySortBy(sortOrder as string)
     setFilterOpen(false)
   }

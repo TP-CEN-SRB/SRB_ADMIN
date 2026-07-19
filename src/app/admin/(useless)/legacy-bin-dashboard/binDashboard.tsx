@@ -78,14 +78,14 @@
 //     const [sortField, setSortField] = useState<"capacity" | "lastSeen">("capacity")
 //     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
 
-//     const alertCount = useMemo(() => {
+//     const alertCount = useMemo(function(){
 //     return alertData.filter(
 //       (b) => b.alertLevel === "offline" || b.alertLevel === "critical" || b.alertLevel === "hardware"
 //     ).length
 //   }, [alertData])
     
 //     const { month, bin, ...materials }: ChartDataItem = DBBarChartData[0]
-//     const { barChartConfig, binDisposalsTimeLineConfig } = useMemo(() => {
+//     const { barChartConfig, binDisposalsTimeLineConfig } = useMemo(function(){
 //     if (!chartData[0] || chartData[0].length === 0) {
 //       return { barChartConfig: {} as ChartConfig, binDisposalsTimeLineConfig: {} as ChartConfig }
 //     }
@@ -139,8 +139,8 @@
 //         }
 //         },[getDateRange, initialStatsData, DBBarChartData, DBPieChartData, DBLineChartData])
 
-//         useEffect(() => {
-//           const fetchAlerts = async () => {
+//         useEffect(function(){
+//           const fetchAlerts = async function(){
 //             try {
 //               // =========================================
 //               // 1️⃣ FETCH BIN ALERTS
@@ -179,10 +179,10 @@
 //         }, [])
 
 //         // 🧠 Real-time MQTT listener to auto-update alerts & statuses
-//         useEffect(() => {
+//         useEffect(function(){
 //           let client: any
 
-//           const initMqtt = async () => {
+//           const initMqtt = async function(){
 //             try {
 //               client = await connectMqtt()
 //               if (client?.connected) return
@@ -190,7 +190,7 @@
 //               client.subscribe("srb/heartbeat/#")
 //               console.log("📡 Subscribed to MQTT heartbeat topic")
 
-//               client.on("close", () => {
+//               client.on("close", function(){
 //                 console.warn("⚠️ MQTT connection closed, attempting reconnect...")
 //                 setTimeout(initMqtt, 5000)
 //               })
@@ -221,7 +221,7 @@
 
 //           initMqtt()
 
-//           return () => {
+//           return function(){
 //             try {
 //               if (client) client.end(true)
 //             } catch (err) {
@@ -294,7 +294,7 @@
 //                 (period) => (
 //                   <DropdownMenuItem
 //                     key={period}
-//                     onClick={() => {
+//                     onClick={function(){
 //                       handlePeriodChange(period)
 //                       setIsActive(period)
 //                     }}
@@ -443,7 +443,7 @@
 
 //                                         {/* LAST SEEN */}
 //                                         <TableCell className="text-center text-sm text-gray-600">
-//                                           {(() => {
+//                                           {(function(){
 //                                             const lastSeen =
 //                                               item.lastDiagnosticAt ?? // scanner diagnostic timestamp
 //                                               item.lastHeartBeat ??    // bin heartbeat

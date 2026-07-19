@@ -27,7 +27,7 @@
 // import { Textarea } from "@/components/ui/textarea"
 // import { Switch } from "@/components/ui/switch"
 
-// const CreateRewardForm = () => {
+// const CreateRewardForm = function(){
 //   const form = useForm<z.infer<typeof RewardSchema>>({
 //     resolver: zodResolver(RewardSchema),
 //     defaultValues: {
@@ -51,7 +51,7 @@
 
 //   const [isDialogOpen, setDialogOpen] = useState(false)
 //   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
-//     startTransition(async () => {
+//     startTransition(async function(){
 //       const formData = new FormData()
 //       formData.append("name", values.name)
 //       formData.append("pointsRequired", values.pointsRequired.toString())

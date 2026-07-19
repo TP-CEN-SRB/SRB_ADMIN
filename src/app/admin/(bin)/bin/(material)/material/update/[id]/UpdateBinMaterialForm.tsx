@@ -48,7 +48,7 @@
 //       hour12: false,
 //     })
 
-//     startTransition(async () => {
+//     startTransition(async function(){
 //       try {
 //         const result = await updateBinMaterial(id, values)
 //         if (result?.success) {

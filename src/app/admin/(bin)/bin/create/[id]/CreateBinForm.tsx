@@ -53,7 +53,7 @@ const CreateBinForm = ({
       timeZone: "Asia/Singapore",
       hour12: false, // 24-hour format, remove if 12-hour format is needed
     })
-    startTransition(async () => {
+    startTransition(async function(){
       const result = await createBin(values, binUserId)
       if (result?.success) {
         toast("Bin created successfully",{

@@ -7,7 +7,7 @@ import { BinStatus } from "@/generated/prisma"
 // aren't tied to a single admin page: the MQTT bridge (src/lib/mqtt.ts),
 // the bin-diagnostic webhook, and the smart-alerts API route.
 
-export const getSmartAlerts = async () => {
+export const getSmartAlerts = async function(){
   const bins = await prisma.bin.findMany({
     include: {
       user: {

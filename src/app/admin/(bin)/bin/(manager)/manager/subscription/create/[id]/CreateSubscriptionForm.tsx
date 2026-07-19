@@ -34,7 +34,7 @@ const CreateSubscriptionForm = ({ id }: CreateSubscriptionFormProps) => {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const onSubmit = (values: z.infer<typeof SubscriptionSchema>) => {
-    startTransition(async () => {
+    startTransition(async function(){
       setError("") // clear error message
       const data = await createSubscription(values, id)
       setError(data?.error as string)

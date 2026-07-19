@@ -11,7 +11,7 @@ export const getDisposalsByFaculty = async (
 ) => cached(
   `${DASHBOARD_CACHE_PREFIX}disposals-by-faculty:${dateFrom}:${dateTo}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
   const adjustedEndDate = dateTo ? new Date(dateTo) : undefined
   if (adjustedEndDate) {
     adjustedEndDate.setHours(23, 59, 59, 999)

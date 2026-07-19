@@ -33,8 +33,8 @@ const ConfirmDeleteSubscriptionDialog = ({
 }: DialogProps) => {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState("")
-  const handleConfirm = () => {
-    startTransition(async () => {
+  const handleConfirm = function(){
+    startTransition(async function(){
       const data = await deleteSubscription(subscriptionId)
       setError(data?.error as string)
       if (!data.error && data.success !== undefined) {

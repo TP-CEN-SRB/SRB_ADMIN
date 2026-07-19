@@ -41,8 +41,8 @@ const ConfirmDeleteMaterialDialog = ({
     hour12: false, // 24-hour format, remove if 12-hour format is needed
   })
   const router = useRouter()
-  const handleDelete = async () => {
-    startTransition(async () => {
+  const handleDelete = async function(){
+    startTransition(async function(){
       const data = await deleteBinMaterial(materialId)
       setError(data?.error as string)
       if (!data.error && data.success !== undefined) {

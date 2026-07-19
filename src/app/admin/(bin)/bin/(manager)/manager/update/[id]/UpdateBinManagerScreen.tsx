@@ -31,7 +31,7 @@ const UpdateBinManagerScreen = ({ binManager, data }: ScreenProps) => {
   const [isDesktop, setIsDesktop] = useState(false)
   const [showMobileMap, setShowMobileMap] = useState(false)
 
-  useEffect(() => {
+  useEffect(function(){
     const mediaQuery = window.matchMedia("(min-width: 768px)")
     const handleChange = () => setIsDesktop(mediaQuery.matches)
     handleChange()

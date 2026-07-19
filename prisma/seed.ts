@@ -240,7 +240,7 @@ async function main() {
 }
  
 main()
-  .then(async () => {
+  .then(async function(){
     await prisma.$disconnect()
   })
   .catch(async (e) => {

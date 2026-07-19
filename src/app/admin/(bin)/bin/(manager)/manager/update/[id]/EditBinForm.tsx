@@ -54,7 +54,7 @@ export function EditBinForm({
       confirmPassword: ""
   }})
 
-  useEffect(() => {
+  useEffect(function(){
     if (latLng) {
       form.setValue("lat", latLng.lat, { shouldValidate: true })
       form.setValue("long", latLng.lng, { shouldValidate: true })

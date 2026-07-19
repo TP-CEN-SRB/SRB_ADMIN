@@ -10,7 +10,7 @@ const MQTT_TOPIC = "srb/cam"
 const MQTT_USER = "raspberrypi_cam"
 const MQTT_PASS = "ProjectCEN2M24378"
 
-const VideoStreamPage = () => {
+const VideoStreamPage = function(){
   const [streamUrl, setStreamUrl] = useState<string | null>(null)
   const [recording, setRecording] = useState(false)
   const [recordStart, setRecordStart] = useState<number | null>(null)
@@ -18,7 +18,7 @@ const VideoStreamPage = () => {
   const [mqttClient, setMqttClient] = useState<mqtt.MqttClient | null>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  useEffect(() => {
+  useEffect(function(){
     const client = mqtt.connect(MQTT_BROKER, {
       username: MQTT_USER,
       password: MQTT_PASS,
@@ -27,7 +27,7 @@ const VideoStreamPage = () => {
 
     setMqttClient(client)
 
-    client.on("connect", () => {
+    client.on("connect", function(){
       console.log("🔌 Connected to MQTT")
       toast("Connected to MQTT Broker ✅")
 
@@ -70,22 +70,22 @@ const VideoStreamPage = () => {
       }
     })
 
-    return () => {
+    return function(){
       client.end()
     }
   }, [])
 
-  useEffect(() => {
+  useEffect(function(){
     if (!recording || !recordStart) return
 
-    const interval = setInterval(() => {
+    const interval = setInterval(function(){
       setDuration(Math.floor((Date.now() - recordStart) / 1000))
     }, 1000)
 
     return () => clearInterval(interval)
   }, [recording, recordStart])
 
-  const handleToggleRecording = () => {
+  const handleToggleRecording = function(){
     if (!mqttClient) return
 
     const command = recording ? "stop_record" : "start_record"

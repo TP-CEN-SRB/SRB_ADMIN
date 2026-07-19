@@ -59,7 +59,7 @@ function ResetPasswordForm() {
     setSuccess(true)
     
     // Redirect to login after 3 seconds
-    setTimeout(() => {
+    setTimeout(function(){
       router.push("/login") // Adjust this to your actual login route
     }, 3000)
   }

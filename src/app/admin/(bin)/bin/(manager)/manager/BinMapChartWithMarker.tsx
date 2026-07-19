@@ -56,15 +56,15 @@ export default function BinMapChartWithMarker({
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
+  useEffect(function(){
     setMounted(true)
   }, [])
 
-  useEffect(() => {
+  useEffect(function(){
     if (!containerRef.current) return
 
-    const observer = new ResizeObserver(() => {
-      window.requestAnimationFrame(() => {
+    const observer = new ResizeObserver(function(){
+      window.requestAnimationFrame(function(){
         if (mapRef.current) {
           mapRef.current.resize()
         }
@@ -73,7 +73,7 @@ export default function BinMapChartWithMarker({
 
     observer.observe(containerRef.current)
 
-    return () => {
+    return function(){
       observer.disconnect()
     }
   }, [])

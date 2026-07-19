@@ -127,7 +127,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
     binManager.bins[0]?.id
   )
 
-  const availableYears = useMemo(() => {
+  const availableYears = useMemo(function(){
   const yearsFromData = new Set<number>()
 
   liveBins.forEach((b) => {
@@ -158,7 +158,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   // -----------------------------------------------------
   // HEALTH SCORE (% of bins online)
   // -----------------------------------------------------
-  const healthScore = useMemo(() => {
+  const healthScore = useMemo(function(){
     if (!liveBins.length) return 0
 
     const upCount = liveBins.filter(
@@ -171,7 +171,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   // -----------------------------------------------------
   // DISPOSAL TRENDS
   // -----------------------------------------------------
-  const disposals = useMemo(() => {
+  const disposals = useMemo(function(){
     const all = liveBins.flatMap((b) =>
       b.disposals.map((d) => ({ ...d, material: b.binMaterial.name }))
     )
@@ -184,7 +184,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   // -----------------------------------------------------
   // GROUP DISPOSALS BY MONTH (for Disposal Trends graph)
   // -----------------------------------------------------
- const monthData = useMemo(() => {
+ const monthData = useMemo(function(){
   // Initialize all 12 months with 0
   const months = Array.from({ length: 12 }, (_, i) => ({
     month: (i + 1).toString(),
@@ -206,8 +206,8 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   // -----------------------------------------------------
   // AUTO-REFRESH: BIN STATUS + REAL UPTIME DATA
   // -----------------------------------------------------
-  useEffect(() => {
-    const fetchData = async () => {
+  useEffect(function(){
+    const fetchData = async function(){
       try {
         // ⚡ 1. Fetch real-time bin heartbeat/status
         const binRes = await fetch(
@@ -515,7 +515,7 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
                 return (
                   <div
                     key={idx}
-                    className={`h-14 w-3 rounded-sm ${colorClass} hover:scale-105 transition`}
+                    className={`h-14 w-3 rounded-sm ${colorClass} -105 transition`}
                     title={
                         uptime === null
                           ? `${entry.timestampSGT} — No Data`

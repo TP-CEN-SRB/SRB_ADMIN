@@ -31,7 +31,7 @@ export const getDashboardStats = async (period: DashboardPeriod) => {
   return cached(
     `cache:dashboard:stats:${period}`,
     DASHBOARD_TTL,
-    async () => {
+    async function(){
       const [
         totalBins,
         functionalBins,
@@ -94,7 +94,7 @@ export const getBarChartData = async (
 ): Promise<MonthlyData[]> => cached(
   `${DASHBOARD_CACHE_PREFIX}bar-chart:${dateFrom}:${dateTo}:${filter}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
   try {
     const binMaterials = await prisma.binMaterial.findMany({
       select: { name: true },
@@ -213,7 +213,7 @@ export const getPieChartData = async (
 ) => cached(
   `${DASHBOARD_CACHE_PREFIX}pie-chart:${dateFrom}:${dateTo}:${filter}`,
   DASHBOARD_TTL,
-  async () => {
+  async function(){
     const binsWithFaculty = await prisma.bin.findMany({
       include: {
         user: {

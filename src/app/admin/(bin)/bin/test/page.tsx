@@ -71,7 +71,7 @@ export default function TestBinPage() {
     setPendingCommand(null)
   }
 
-  const handleResetCooldown = async () => {
+  const handleResetCooldown = async function(){
     if (!binId) {
       toast.error("Missing Bin ID")
       return

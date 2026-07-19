@@ -55,7 +55,7 @@ export default function CreateQuestTemplateForm() {
   })
 
   const onSubmit = (values: z.output<typeof QuestTemplateSchema>) => {
-    startTransition(async () => {
+    startTransition(async function(){
       const result = await createQuestTemplate(values)
 
       if (result?.success) {

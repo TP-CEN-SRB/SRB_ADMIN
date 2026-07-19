@@ -35,8 +35,8 @@ const ConfirmDeleteStudentDialog = ({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState("")
   const router = useRouter()
-  const handleConfirm = () => {
-    startTransition(async () => {
+  const handleConfirm = function(){
+    startTransition(async function(){
       const data = await deleteStudent(userId)
       setError(data?.error as string)
       if (!data.error && data.success !== undefined) {

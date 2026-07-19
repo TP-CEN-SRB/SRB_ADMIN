@@ -26,8 +26,8 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
   const [initiateDownload, setInitiateDownload] = useState(false)
   const csvLinkRef = useRef<HTMLSpanElement>(null)
 
-  const fetchAllData = () => {
-    startTransition(async () => {
+  const fetchAllData = function(){
+    startTransition(async function(){
       const query = searchParams.get("query")
       const sortItem = searchParams.get("sortItem")
       const sortOrder = searchParams.get("sortOrder")
@@ -46,7 +46,7 @@ const ExportCSV = <TData,>({ data }: ExportCSVProps<TData>) => {
     })
   }
 
-  useEffect(() => {
+  useEffect(function(){
     if (initiateDownload && allData.length > 0) {
       csvLinkRef.current?.click()
     }

@@ -12,7 +12,7 @@ const connectMqtt = (): Promise<MqttClient> => {
 
   if (isConnecting) {
     return new Promise((resolve) => {
-      const timer = setInterval(() => {
+      const timer = setInterval(function(){
         if (client?.connected) {
           clearInterval(timer)
           resolve(client)
@@ -31,7 +31,7 @@ const connectMqtt = (): Promise<MqttClient> => {
     connectTimeout: 10_000,
   })
 
-  client.on("connect", () => {
+  client.on("connect", function(){
     console.log("MQTT connected")
 
     if (!subscribed) {
@@ -54,7 +54,7 @@ const connectMqtt = (): Promise<MqttClient> => {
     isConnecting = false
   })
 
-  client.on("close", () => {
+  client.on("close", function(){
     console.warn("MQTT disconnected — retrying...")
     isConnecting = false
     subscribed = false

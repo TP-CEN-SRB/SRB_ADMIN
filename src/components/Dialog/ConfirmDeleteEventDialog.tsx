@@ -43,8 +43,8 @@ const ConfirmDeleteEventDialog = ({
   const datetime = formatDateTime(new Date())
   const isDesktop = useMediaQuery({ query: "(min-width: 768px)" })
 
-  const handleDelete = () => {
-    startTransition(async () => {
+  const handleDelete = function(){
+    startTransition(async function(){
       const data = await deleteEvent(eventId)
       setError(data?.error as string)
       if (!data.error && data.success !== undefined) {

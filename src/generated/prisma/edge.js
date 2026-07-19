@@ -510,7 +510,7 @@ config.parameterizationSchema = {
 }
 config.compilerWasm = {
   getRuntime: async () => require('./query_compiler_fast_bg.js'),
-  getQueryCompilerWasmModule: async () => {
+  getQueryCompilerWasmModule: async function(){
     const loader = (await import('#wasm-compiler-loader')).default
     const compiler = (await loader).default
     return compiler

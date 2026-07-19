@@ -220,7 +220,7 @@ export const getQuests = async (
   return cached(
     `${CACHE_PREFIX}list:${page}:${limit}:${sortOrder}:${sortItem}:${search}:${materials.join(",")}`,
     CATALOG_TTL,
-    async () => {
+    async function(){
       const [questCount, quests] = await Promise.all([
         prisma.questDetails.count({ where: whereClause }),
         prisma.questDetails.findMany({

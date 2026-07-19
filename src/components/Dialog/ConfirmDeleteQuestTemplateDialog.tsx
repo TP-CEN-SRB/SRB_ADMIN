@@ -45,8 +45,8 @@ export default function ConfirmDeleteQuestTemplateDialog({
   const router = useRouter()
   const datetime = formatDateTime(new Date())
 
-  const handleDelete = () => {
-    startTransition(async () => {
+  const handleDelete = function(){
+    startTransition(async function(){
       const data = await deleteQuestTemplate(templateId)
       setError(data?.error as string)
 

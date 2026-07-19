@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db"
 
-export const generateRandomQuests = async () => {
+export const generateRandomQuests = async function(){
   const templates = await prisma.questTemplate.findMany()
 
   const questsToCreate = templates

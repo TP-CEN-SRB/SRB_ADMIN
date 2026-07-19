@@ -37,7 +37,7 @@ const EditSubscriptionForm = ({ id, email }: EditSubscriptionFormProps) => {
   const [error, setError] = useState("")
   const router = useRouter()
   const onSubmit = (values: z.infer<typeof SubscriptionSchema>) => {
-    startTransition(async () => {
+    startTransition(async function(){
       setError("") // clear error message
       const data = await updateSubscription(values, id)
       setError(data?.error as string)

@@ -27,8 +27,8 @@ const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
   const [initiateDownload, setInitiateDownload] = useState(false)
   const csvLinkRef = useRef<HTMLSpanElement>(null)
 
-  const fetchAllData = () => {
-    startTransition(async () => {
+  const fetchAllData = function(){
+    startTransition(async function(){
       const sortOrder = searchParams.get("sortOrder")
       const transactionType = searchParams.get("transactionType")
       const { transactions } = await getTransactionByUserId(
@@ -42,7 +42,7 @@ const ExportCSV = <TData,>({ data, userId }: ExportCSVProps<TData>) => {
     })
   }
 
-  useEffect(() => {
+  useEffect(function(){
     if (initiateDownload && allData.length > 0) {
       csvLinkRef.current?.click()
     }

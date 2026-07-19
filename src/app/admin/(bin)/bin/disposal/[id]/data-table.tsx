@@ -54,7 +54,7 @@ export function DataTable<TData, TValue>({
 
   const maxPage = Math.max(Math.ceil(count / 10), 1)
 
-  const handlePreviousClick = () => {
+  const handlePreviousClick = function(){
     const params = new URLSearchParams(searchParams)
     if (page > 1) {
       params.set("page", String(page - 1))
@@ -62,7 +62,7 @@ export function DataTable<TData, TValue>({
     }
   }
 
-  const handleNextClick = () => {
+  const handleNextClick = function(){
     const params = new URLSearchParams(searchParams)
     if (page < maxPage) {
       params.set("page", String(page + 1))
@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({
     router.replace(`${path}?${params.toString()}`)
   }
 
-  const handleResetSortBy = () => {
+  const handleResetSortBy = function(){
     const params = new URLSearchParams(searchParams)
     params.delete("sortItem")
     params.delete("sortOrder")

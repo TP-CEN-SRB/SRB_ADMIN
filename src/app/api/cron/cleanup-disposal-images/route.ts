@@ -19,7 +19,7 @@ const BATCH_SIZE = 500
 
 const extractFileKey = (url: string) => url.split("/f/").pop()
 
-const runCleanup = async () => {
+const runCleanup = async function(){
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - DISPOSAL_IMAGE_RETENTION_DAYS)
 

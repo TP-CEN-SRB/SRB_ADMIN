@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db"
 import { BinStatus } from "@/generated/prisma"
 
-export const getHeartbeat = async () => {
+export const getHeartbeat = async function(){
   const bins = await prisma.bin.findMany({
     select: {
       id: true,

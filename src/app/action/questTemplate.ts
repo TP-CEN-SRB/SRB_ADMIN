@@ -98,7 +98,7 @@ export const getQuestTemplates = async (
   return cached(
     `${CACHE_PREFIX}list:${page}:${limit}:${sort}:${search}:${materials.join(",")}`,
     CATALOG_TTL,
-    async () => {
+    async function(){
       const [templateCount, templates] = await Promise.all([
         prisma.questTemplate.count({ where: whereClause }),
         prisma.questTemplate.findMany({

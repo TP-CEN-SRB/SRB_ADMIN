@@ -10,7 +10,7 @@ import { cached, invalidateByPrefix, CATALOG_TTL } from "@/lib/cache"
 
 const CACHE_PREFIX = "cache:bin-materials:"
 
-export const listOfBinMaterialInUse = async () => {
+export const listOfBinMaterialInUse = async function(){
   const binsArr = await prisma.bin.groupBy({
     by: ["binMaterialId"],
   })
@@ -160,7 +160,7 @@ export const getAllMaterials = async (
     name: { contains: search, mode: "insensitive" as const },
   }
 
-  const orderBy = (() => {
+  const orderBy = (function(){
     switch (sort) {
       case "nameAsc":
         return { name: "asc" as const }
@@ -178,7 +178,7 @@ export const getAllMaterials = async (
   return cached(
     `${CACHE_PREFIX}list:${page}:${limit}:${sort}:${search}`,
     CATALOG_TTL,
-    async () => {
+    async function(){
       const [materialCount, materials] = await Promise.all([
         prisma.binMaterial.count({ where: whereClause }),
         prisma.binMaterial.findMany({

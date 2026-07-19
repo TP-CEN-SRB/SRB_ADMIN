@@ -25,25 +25,25 @@ export default function SmartBinDashboard() {
   const [selectedUserId, setSelectedUserId] = useState("all")
   const [mqttClient, setMqttClient] = useState<MqttClient | null>(null)
 
-  useEffect(() => {
+  useEffect(function(){
     let client: MqttClient | null = null;
     
-    const init = async () => {
+    const init = async function(){
       client = await connectMqtt()
       setMqttClient(client)
     }
     init()
 
     // 2. Added cleanup function to prevent ghost connections when navigating away
-    return () => {
+    return function(){
       if (client) {
         client.end()
       }
     }
   }, [])
 
-  useEffect(() => {
-    const fetchData = async () => {
+  useEffect(function(){
+    const fetchData = async function(){
       try {
         const data = await getHeartbeat()
         setBins(data)

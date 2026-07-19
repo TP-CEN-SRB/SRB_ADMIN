@@ -35,7 +35,7 @@ const SignOutDialog = ({ isOpen, handleDialogOpen }: DialogProps) => {
   async function logOut() {
     await authClient.signOut({
       fetchOptions: {
-        onSuccess: () => {
+        onSuccess: function(){
           router.push("/login");
         },
       },

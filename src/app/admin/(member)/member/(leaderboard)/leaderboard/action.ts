@@ -7,7 +7,7 @@ import { cached, DASHBOARD_TTL } from "@/lib/cache"
 export const getTopTwentyUsers = async () => cached(
   "cache:dashboard:leaderboard-top20",
   DASHBOARD_TTL,
-  async () => {
+  async function(){
     const topUsers = await prisma.user.findMany({
       where: { role: Role.STUDENT },
       orderBy: { point: { balance: "desc" } },

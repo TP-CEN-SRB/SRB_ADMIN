@@ -44,8 +44,8 @@ const Chart = ({ barChartData, pieChartData, barChartConfig }: ChartProps) => {
 
   const { month, bin, ...materials } = barChartData![0]
 
-  useEffect(() => {
-    const fetchFilteredPieData = async () => {
+  useEffect(function(){
+    const fetchFilteredPieData = async function(){
 
       
       if (selectedDate) {

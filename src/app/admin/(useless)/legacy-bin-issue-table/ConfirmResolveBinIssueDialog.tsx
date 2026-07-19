@@ -37,8 +37,8 @@ const ConfirmResolveBinIssueDialog = ({binId, isOpen, handleDialogOpen, isResolv
     const [error, setError] = useState("")
     const [success, setSuccess] = useState("")
     const datetime = formatDateTime(new Date())
-    const handleUpdateBinStatus = () => {
-    startTransition(async () => {
+    const handleUpdateBinStatus = function(){
+    startTransition(async function(){
       const data = await updateBinStatus(binId, BinStatus.FUNCTIONAL)
       setError(data?.error as string)
       setSuccess(data?.success as string)

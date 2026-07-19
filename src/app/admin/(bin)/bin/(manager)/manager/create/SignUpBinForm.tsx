@@ -46,7 +46,7 @@ export function SignUpBinForm({
     }
   })
 
-  useEffect(() => {
+  useEffect(function(){
     if (latLng) {
       form.setValue("latitude", latLng.lat, { shouldValidate: true })
       form.setValue("longitude", latLng.lng, { shouldValidate: true })

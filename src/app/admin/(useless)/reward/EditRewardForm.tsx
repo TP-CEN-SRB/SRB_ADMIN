@@ -67,7 +67,7 @@
 //   const [isDialogOpen, setDialogOpen] = useState(false)
 //   const router = useRouter()
 //   const onSubmit = (values: z.infer<typeof RewardSchema>) => {
-//     startTransition(async () => {
+//     startTransition(async function(){
 //       const formData = new FormData()
 //       formData.append("name", values.name)
 //       formData.append("pointsRequired", values.pointsRequired.toString())

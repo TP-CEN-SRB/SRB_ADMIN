@@ -74,7 +74,7 @@ const UpdateQuestForm = ({ id, quest }: UpdateQuestFormProps) => {
       hour12: false,
     })
 
-    startTransition(async () => {
+    startTransition(async function(){
       try {
         const result = await updateQuest(id, values)
         if (result?.success) {

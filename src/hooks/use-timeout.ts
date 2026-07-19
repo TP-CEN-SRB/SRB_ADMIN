@@ -25,27 +25,27 @@ export const useTimeout = (
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
-      intervalRef.current = setInterval(() => {
+      intervalRef.current = setInterval(function(){
         setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0))
       }, 1000)
 
-      timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = setTimeout(function(){
         router.push(redirectPath)
       }, newDelayInMs)
     },
     [router, redirectPath, timeoutDurationInMs]
   )
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
+  useEffect(function(){
+    intervalRef.current = setInterval(function(){
       setRemainingTime((prev) => (prev > 0 ? prev - 1 : 0))
     }, 1000)
 
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = setTimeout(function(){
       router.push(redirectPath)
     }, timeoutDuration)
 
-    return () => {
+    return function(){
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }

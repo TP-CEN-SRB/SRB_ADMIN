@@ -3,7 +3,7 @@
 import CrashlogDataTable from "./crashlogTable"
 import { prisma } from "@/lib/db"
 
-const getData = async () => {
+const getData = async function(){
   const logs = await prisma.crashlog.findMany({
     orderBy: { createdAt: "desc" },
   })
@@ -15,7 +15,7 @@ const getData = async () => {
   }))
 }
 
-const CrashlogPage = async () => {
+const CrashlogPage = async function(){
   const data = await getData()
   return <CrashlogDataTable data={data} />
 }

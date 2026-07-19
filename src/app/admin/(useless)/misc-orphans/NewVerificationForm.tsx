@@ -43,8 +43,8 @@ const NewVerificationForm = ({
 
 /* -------------------------------- VERIFY -------------------------------- */
 
-  const handleVerify = () => {
-    startTransition(async () => {
+  const handleVerify = function(){
+    startTransition(async function(){
       setError(undefined)
       setInfo(undefined)
 
@@ -76,7 +76,7 @@ const NewVerificationForm = ({
 
   /* -------------------------------- RESEND -------------------------------- */
 
-  const handleResend = async () => {
+  const handleResend = async function(){
     if (isResending || resendCooldown > 0 || clockCooldown > 0) return
 
     setIsResending(true)
@@ -122,7 +122,7 @@ const NewVerificationForm = ({
 
   /* ------------------------------ COOLDOWN TIMER ------------------------------ */
 
-  useEffect(() => {
+  useEffect(function(){
     if (resendCooldown <= 0) return
 
     const timer = setInterval(
@@ -134,10 +134,10 @@ const NewVerificationForm = ({
   }, [resendCooldown])
 
 
-  useEffect(() => {
+  useEffect(function(){
   if (clockCooldown <= 0) return
 
-  const timer = setInterval(() => {
+  const timer = setInterval(function(){
     setClockCooldown((c) => c - 1)
   }, 1000)
 
@@ -147,7 +147,7 @@ const NewVerificationForm = ({
 
   /* ------------------------------ REDIRECT TIMER ------------------------------ */
 
-  useEffect(() => {
+  useEffect(function(){
     if (view !== "success") return
 
     setCountdown(REDIRECT_SECONDS)
@@ -157,11 +157,11 @@ const NewVerificationForm = ({
       1000
     )
 
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(function(){
       window.location.href = redirectUrl
     }, REDIRECT_SECONDS * 1000)
 
-    return () => {
+    return function(){
       clearInterval(interval)
       clearTimeout(timeout)
     }

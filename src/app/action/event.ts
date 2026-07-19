@@ -204,7 +204,7 @@ export const getEvents = async (
   return cached(
     `${CACHE_PREFIX}list:${page}:${limit}:${sortOrder}:${sortItem}:${search}`,
     CATALOG_TTL,
-    async () => {
+    async function(){
       const [eventCount, events] = await Promise.all([
         prisma.event.count({ where: whereClause }),
         prisma.event.findMany({

@@ -36,7 +36,7 @@ const materialOptions = [
   { label: "General", value: "GENERAL" },
 ]
 
-const CreateQuestForm = () => {
+const CreateQuestForm = function(){
   const [isPending, startTransition] = useTransition()
 
   const form = useForm<z.input<typeof QuestSchema>, unknown, z.output<typeof QuestSchema>>({
@@ -57,7 +57,7 @@ const CreateQuestForm = () => {
       hour12: false,
     })
 
-    startTransition(async () => {
+    startTransition(async function(){
       try {
         const result = await createQuest(values)
         if (result?.success) {

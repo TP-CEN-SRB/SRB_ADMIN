@@ -20,7 +20,7 @@ import { Loader2, PlusCircle } from "lucide-react"
 import { createEvent } from "@/app/action/event"
 import { EventSchema } from "@/schemas"
 
-const CreateEventForm = () => {
+const CreateEventForm = function(){
   const [isPending, startTransition] = useTransition()
 
   const form = useForm<z.infer<typeof EventSchema>>({
@@ -34,7 +34,7 @@ const CreateEventForm = () => {
   })
 
   const onSubmit = (values: z.infer<typeof EventSchema>) => {
-    startTransition(async () => {
+    startTransition(async function(){
       try {
         const result = await createEvent(values)
         if (result?.success) {

@@ -38,13 +38,13 @@ const TableFilter = ({ onApplyFilter, onResetFilter }: TableFilterProps) => {
     })
   }
 
-  const handleResetFilter = () => {
+  const handleResetFilter = function(){
     setSelectedFilters({ transactionType: [] })
     onResetFilter()
     setFilterOpen(false)
   }
 
-  const handleApplyFilter = () => {
+  const handleApplyFilter = function(){
     onApplyFilter(selectedFilters)
     setFilterOpen(false)
   }

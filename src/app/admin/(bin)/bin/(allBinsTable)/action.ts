@@ -42,7 +42,7 @@ export const getAllBinsWithUserAndMaterial = async (
       : undefined,
   }
 
-  const orderBy = (() => {
+  const orderBy = (function(){
     switch (sort) {
       case "nameAsc":
         return { user: { name: "asc" as const } }

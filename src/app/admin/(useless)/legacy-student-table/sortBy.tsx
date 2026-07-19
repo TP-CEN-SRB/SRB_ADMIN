@@ -27,13 +27,13 @@ const SortByFilter = ({ onApplySortBy, onResetSortBy }: SortByFilterProps) => {
     searchParams.get("sortItem") + "-" + searchParams.get("sortOrder")
   )
 
-  const handleResetSortBy = () => {
+  const handleResetSortBy = function(){
     setSortType("")
     onResetSortBy()
     setFilterOpen(false)
   }
 
-  const handleApplySortBy = () => {
+  const handleApplySortBy = function(){
     const [sortItem, sortOrder] = sortType.split("-")
     onApplySortBy(sortItem, sortOrder)
     setFilterOpen(false)

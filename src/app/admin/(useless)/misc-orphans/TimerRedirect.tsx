@@ -15,7 +15,7 @@ const TimerRedirect = ({
   resetCondition = false,
 }: TimerRedirectProps) => {
   const { remainingTime, resetTimer } = useTimeout(delayInMs, redirectTo)
-  useEffect(() => {
+  useEffect(function(){
     if (resetCondition) {
       resetTimer(resetTimeInMs)
     }

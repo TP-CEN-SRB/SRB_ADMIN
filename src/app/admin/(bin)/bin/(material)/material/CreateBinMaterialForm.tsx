@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Loader2, PlusCircle } from "lucide-react"
 import { createBinMaterial } from "./action"
 
-const CreateBinMaterialForm = () => {
+const CreateBinMaterialForm = function(){
   const [isPending, startTransition] = useTransition()
   const form = useForm<z.infer<typeof BinMaterialSchema>>({
     resolver: zodResolver(BinMaterialSchema),
@@ -35,7 +35,7 @@ const CreateBinMaterialForm = () => {
       timeZone: "Asia/Singapore",
       hour12: false,
     })
-    startTransition(async () => {
+    startTransition(async function(){
       const result = await createBinMaterial(values)
       if (result?.success) {
         toast.success("Bin material created", {
