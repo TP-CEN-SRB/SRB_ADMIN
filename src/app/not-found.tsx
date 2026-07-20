@@ -1,4 +1,4 @@
-import { EmptyInputGroup } from '@/components/(Front-Facing)/missing-page'
+import { EmptyInputGroup } from '@/app/(landing)/(home)/missing-page'
  
 export default function NotFound() {
   return (

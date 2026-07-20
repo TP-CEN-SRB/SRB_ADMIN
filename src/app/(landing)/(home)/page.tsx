@@ -1,4 +1,4 @@
-import HeroSection from '@/components/(Front-Facing)/landing-page'
+import HeroSection from './landing-page'
 
 export default function Home(){
   return (

@@ -1,28 +1,34 @@
+'use client'
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button"
-import { getSignOut } from "@/lib/auth-server";
-import { getSession } from "@/lib/auth-server";
+import { useSignOut, authClient } from "@/lib/auth-client";
 import { RedirectPopover } from "@/components/(nav)/redirect-popup"
-export async function ButtonSessions(){
-    const session = await getSession()
-    
+
+export function ButtonSessions(){
+    const { data: session } = authClient.useSession()
+    const handleSignOut = useSignOut()
+
     if (!session){
         return(
             <div className="flex items-center gap-2">
                 <Button asChild variant="outline">
                     <Link href="/signup">Sign Up</Link>
                 </Button>
-                <Button asChild >
+                <Button asChild>
                     <Link href="/login">Login</Link>
                 </Button>
-            </div>  
+            </div>
         )
     }
     return(
         <div className="text-sm flex items-center gap-2">
-            <RedirectPopover isAdmin={session.user.role === "admin"} username={session.user.name} email={session.user.email} signOut={getSignOut}/>
+            <RedirectPopover
+              isAdmin={session.user.role === "admin"}
+              username={session.user.name}
+              email={session.user.email}
+              signOut={handleSignOut}
+            />
         </div>
-
     )
-
 }

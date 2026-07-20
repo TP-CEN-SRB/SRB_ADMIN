@@ -3,13 +3,13 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 
 import Autoplay from 'embla-carousel-autoplay'
-import { Separator } from '@/components/ui/separator'
 
 import { Button } from '@/components/ui/button'
 import { type CarouselApi, Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel'
 import { cn } from '@/lib/utils'
-import { ArrowRightIcon } from 'lucide-react'
+import { ExternalLink, LayoutDashboard, LogIn, UserPlus } from 'lucide-react'
 import Link from 'next/link'
+import { authClient } from '@/lib/auth-client'
 
 const menudata = [
   {
@@ -40,6 +40,7 @@ export default function HeroSection(){
   const [thumbApi, setThumbApi] = useState<CarouselApi>()
   const [commentsApi, setCommentsApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
+  const { data: session } = authClient.useSession()
 
   useEffect(function(){
     if (!mainApi) {
@@ -119,18 +120,36 @@ export default function HeroSection(){
               Meet the IoT system that turns waste into rewards. Drop your items, and let our smart bins automatically identify, sort, and calculate your eco-points in real time.
             </p>
 
-            <div className='flex items-center gap-4'>
-              <Button size="lg">
+            {session && (<div className='flex items-center gap-4'>
+              <Button size="lg" asChild>
                 <Link href="https://tp-cen-srb.github.io/RecycleTP/">
-                  Admin Dashboard
+                  <ExternalLink/>
+                  Go to Mobile App
                 </Link>
               </Button>
-              <Button size="lg" variant="secondary" asChild>
+              {session.user.role == "admin" && (<Button size="lg" variant="secondary" asChild>
                 <Link href="/admin">
+                  <LayoutDashboard/>
                   Admin Dashboard
                 </Link>
+              </Button>)}
+            </div>)}
+
+            {!session && (<div className='flex items-center gap-4'>
+              <Button size="lg" variant="secondary" asChild>
+                <Link href="/signup">
+                  <UserPlus/>
+                  Sign Up
+                </Link>
               </Button>
-            </div>
+              <Button size="lg" asChild>
+                <Link href="/login">
+                  <LogIn/>
+                  Login
+                </Link>
+              </Button>
+            </div>)}
+
           </div>
 
           <Carousel
