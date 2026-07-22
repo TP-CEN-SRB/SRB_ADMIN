@@ -161,10 +161,17 @@ export const PUT = async (
     }
 
     // --- Verify disposalToken (QR token) ---
+    // Signature is still checked (so a tampered/forged token is rejected),
+    // but expiration is ignored: the real one-time-use protection is the
+    // isRedeemed flag on each disposal below, not this token's exp claim.
+    // Without this, a guest who scans the QR, signs up, and has to wait on
+    // email verification (routinely >1h) loses their points because the
+    // token expires before they ever get to log in and claim it.
     try {
       const decodedDisposalToken = jwt.verify(
         disposalToken,
-        process.env.NEXT_JWT_SECRET_KEY!
+        process.env.NEXT_JWT_SECRET_KEY!,
+        { ignoreExpiration: true }
       )
       console.log("disposalToken verified OK:", decodedDisposalToken)
     } catch (err) {
