@@ -63,10 +63,14 @@ export const POST = async (req: NextRequest) => {
     // email via the sendVerificationEmail hook configured in auth.ts.
     // role is never taken from client input - always STUDENT here.
     // callbackURL controls where the verification link lands the user after
-    // confirming their email: the mobile app passes its own success page
-    // here (this endpoint is called by both the admin dashboard's signup
-    // flow via api and the mobile app), falling back to the mobile app's
-    // root if the caller doesn't specify one.
+    // confirming their email: the admin dashboard's own signup flow passes
+    // its own page here. The mobile app doesn't pass one, so it falls back
+    // to /api/mobile-handoff (same origin as the session cookie
+    // autoSignInAfterVerification just set) instead of RecycleTP's bare
+    // root, so that redirect picks up the fresh session and forwards a
+    // handoff token to the mobile app - otherwise the user verifies and gets
+    // a session here, but the mobile app itself never sees it and still
+    // shows the login screen.
     const signUpResult = await auth.api.signUpEmail({
       body: {
         name: capitalizeFirstLetter(data.name),
@@ -77,7 +81,7 @@ export const POST = async (req: NextRequest) => {
         role: "STUDENT",
         callbackURL: typeof callbackURL === "string" && callbackURL
           ? callbackURL
-          : "https://tp-cen-srb.github.io/RecycleTP/",
+          : "https://cen-smart-bin.vercel.app/api/mobile-handoff",
       },
       headers: req.headers,
     })

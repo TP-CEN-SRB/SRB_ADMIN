@@ -2,11 +2,10 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { headers } from "next/headers"
 import { NextRequest, NextResponse } from "next/server"
-import { randomUUID } from "crypto"
+import jwt from "jsonwebtoken"
 import { generateMobileHandoffToken, verifyMobileHandoffToken } from "@/lib/jwt-tokens"
 
 const MOBILE_APP_URL = "https://tp-cen-srb.github.io/RecycleTP/"
-const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000 // 7 days, matches better-auth's default
 
 // Hit by the "Go to Mobile App" link/button for an already-logged-in user.
 // Issues a short-lived one-time token and redirects to the mobile app with
@@ -24,10 +23,11 @@ export async function GET() {
 
 // Called by the mobile app (cross-origin, see next.config.ts CORS headers)
 // to exchange a handoff token for a real session, so the user doesn't have
-// to log in again there. Creates a new Session row directly via Prisma -
-// same pattern as lib/createCredentialUser.ts - rather than going through
-// an authenticated better-auth endpoint, since the mobile app has no
-// session of its own yet at this point.
+// to log in again there. Mints the same NEXT_JWT_SECRET_KEY-signed JWT
+// /api/login/user does (userId/name/role, 7d expiry) rather than handing
+// back a better-auth session token - the mobile app's Bearer token is
+// verified with `jwt.verify` everywhere (see /api/disposal/[id] etc.), which
+// only understands this app's own JWTs, not opaque better-auth session rows.
 export async function POST(req: NextRequest) {
   try {
     const { token } = await req.json()
@@ -47,17 +47,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 })
     }
 
-    const session = await prisma.session.create({
-      data: {
-        id: randomUUID(),
-        token: randomUUID(),
-        userId: user.id,
-        expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
-      },
-    })
+    const sessionToken = jwt.sign(
+      { userId: user.id, name: user.name, role: user.role },
+      process.env.NEXT_JWT_SECRET_KEY!,
+      { expiresIn: "7d" }
+    )
 
     return NextResponse.json({
-      sessionToken: session.token,
+      sessionToken,
       user: {
         id: user.id,
         name: user.name,
