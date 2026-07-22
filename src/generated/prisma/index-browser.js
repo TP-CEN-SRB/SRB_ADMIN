@@ -32,27 +32,27 @@ Prisma.prismaVersion = {
   engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
 }
 
-Prisma.PrismaClientKnownRequestError = function(){
+Prisma.PrismaClientKnownRequestError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientKnownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )};
-Prisma.PrismaClientUnknownRequestError = function(){
+Prisma.PrismaClientUnknownRequestError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientUnknownRequestError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.PrismaClientRustPanicError = function(){
+Prisma.PrismaClientRustPanicError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientRustPanicError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.PrismaClientInitializationError = function(){
+Prisma.PrismaClientInitializationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientInitializationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.PrismaClientValidationError = function(){
+Prisma.PrismaClientValidationError = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`PrismaClientValidationError is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
@@ -62,22 +62,22 @@ Prisma.Decimal = Decimal
 /**
  * Re-export of sql-template-tag
  */
-Prisma.sql = function(){
+Prisma.sql = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`sqltag is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.empty = function(){
+Prisma.empty = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`empty is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.join = function(){
+Prisma.join = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`join is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.raw = function(){
+Prisma.raw = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`raw is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
@@ -87,12 +87,12 @@ Prisma.validator = Public.validator
 /**
 * Extensions
 */
-Prisma.getExtensionContext = function(){
+Prisma.getExtensionContext = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`Extensions.getExtensionContext is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,
 )}
-Prisma.defineExtension = function(){
+Prisma.defineExtension = () => {
   const runtimeName = getRuntime().prettyName;
   throw new Error(`Extensions.defineExtension is unable to run in this browser environment, or has been bundled for the browser (running in ${runtimeName}).
 In case this error is unexpected for you, please report it in https://pris.ly/prisma-prisma-bug-report`,

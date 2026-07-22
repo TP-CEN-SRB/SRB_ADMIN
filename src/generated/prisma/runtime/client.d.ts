@@ -1163,7 +1163,7 @@ export declare type GetPayloadResult<Base extends Record<any, any>, R extends In
 export declare type GetPayloadResultExtensionKeys<R extends InternalArgs['result'][string], KR extends keyof R = string extends keyof R ? never : keyof R> = KR;
 
 export declare type GetPayloadResultExtensionObject<R extends InternalArgs['result'][string]> = {
-    [K in GetPayloadResultExtensionKeys<R>]: R[K] extends function(){
+    [K in GetPayloadResultExtensionKeys<R>]: R[K] extends () => {
         compute: (...args: any) => infer C;
     } ? C : never;
 };

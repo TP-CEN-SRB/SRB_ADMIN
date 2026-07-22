@@ -17,7 +17,11 @@ export const auth = betterAuth({
         protocol: process.env.NODE_ENV === "production" ? "https" : "http",
     },
     
-    trustedOrigins: ["https://cen-smart-bin.vercel.app"],
+    // The RecycleTP mobile app needs to be here too, not just for CORS
+    // (next.config.ts) - better-auth separately validates any callbackURL
+    // (including the one on the email-verification link) against this list
+    // on every request, GET included, regardless of CORS.
+    trustedOrigins: ["https://cen-smart-bin.vercel.app", "https://tp-cen-srb.github.io"],
 
     database: prismaAdapter(prisma, {
         provider: "postgresql"

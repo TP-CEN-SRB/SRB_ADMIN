@@ -511,7 +511,7 @@ config.parameterizationSchema = {
 }
 config.compilerWasm = {
       getRuntime: async () => require('./query_compiler_fast_bg.js'),
-      getQueryCompilerWasmModule: async function(){
+      getQueryCompilerWasmModule: async () => {
         const { Buffer } = require('node:buffer')
         const { wasm } = require('./query_compiler_fast_bg.wasm-base64.js')
         const queryCompilerWasmFileBytes = Buffer.from(wasm, 'base64')
