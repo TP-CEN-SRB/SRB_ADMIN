@@ -45,7 +45,7 @@ export function RedirectPopover({ isAdmin, username, email, signOut }: { isAdmin
           )}
 
           <Button asChild variant="ghost" className="justify-start gap-2">
-            <Link href="https://tp-cen-srb.github.io/RecycleTP/">
+            <Link href="/api/mobile-handoff">
               <ExternalLink className="size-4" />
               Go to Mobile App
             </Link>

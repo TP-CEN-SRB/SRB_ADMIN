@@ -6,6 +6,7 @@ import { resend, emailTemplate } from "./resend"
 
 import { apiKey } from "@better-auth/api-key"
 import { nextCookies } from "better-auth/next-js"
+import { bearer } from "better-auth/plugins"
 
 export const auth = betterAuth({
     baseURL: {
@@ -85,5 +86,9 @@ export const auth = betterAuth({
 
     plugins:[
       apiKey(),
+      // Lets the mobile app (a static, cross-domain site with no cookie
+      // access to this API) authenticate with `Authorization: Bearer
+      // <sessionToken>` instead - used by the /api/mobile-handoff exchange.
+      bearer(),
       nextCookies()]
 })
