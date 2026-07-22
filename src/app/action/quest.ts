@@ -112,6 +112,15 @@ export const deleteQuest = async (questId: string) => {
 }
 
 export const getUsersByQuestId = async (questId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+
+  if (user?.role !== "admin") {
+    return []
+  }
+
   const usersInQuest = await prisma.userQuest.findMany({
     where: { questId },
     include: {

@@ -107,12 +107,26 @@ export const BinMaterialSchema = z.object({
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   multiplier: z
-    .number({ 
+    .number({
       message: "Multiplier is required"
     })
     .gte(0, "Multiplier cannot be negative")
     .lte(1.7976931348623157e308, "Multiplier exceeds the maximum limit")
     .multipleOf(0.1, "Multiplier can only be set to 1 d.p."),
+})
+
+// Shape of a single hardware self-test result reported by bin/scanner firmware
+export const DiagnosticComponentResultSchema = z.object({
+  componentId: z.string(),
+  componentName: z.string(),
+  status: z.enum(["passed", "failed"]),
+})
+
+// Payload posted to /api/bin-diagnostic and published to the srb/health/<binId> MQTT topic
+export const DiagnosticPayloadSchema = z.object({
+  timestamp: z.union([z.string(), z.number()]),
+  deviceType: z.string().optional(),
+  results: z.array(DiagnosticComponentResultSchema),
 })
 
 const SubscriptionSchema = z.object({

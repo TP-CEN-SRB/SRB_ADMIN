@@ -26,7 +26,7 @@ const CreateBinMaterialForm = function(){
     resolver: zodResolver(BinMaterialSchema),
     defaultValues: {
       name: "",
-      multiplier: "" as any, // Keeps the HTML input controlled without TS complaining about the post-transform 'number' type
+      multiplier: undefined,
     },
   })
 
@@ -41,7 +41,7 @@ const CreateBinMaterialForm = function(){
         toast.success("Bin material created", {
           description: `Created at ${datetime}`,
         })
-        form.reset({ name: "", multiplier: "" as any })
+        form.reset({ name: "", multiplier: undefined })
       } else if (result?.error) {
         form.setError("root", { message: result.error })
       }
@@ -71,7 +71,14 @@ const CreateBinMaterialForm = function(){
             <FormItem>
               <FormLabel>Multiplier</FormLabel>
               <FormControl>
-                <Input disabled={isPending} placeholder="1.0" {...field} type="number" />
+                <Input
+                  disabled={isPending}
+                  placeholder="1.0"
+                  {...field}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  type="number"
+                />
               </FormControl>
               <FormDescription>
                 Sets the points earned per gram of material recycled
