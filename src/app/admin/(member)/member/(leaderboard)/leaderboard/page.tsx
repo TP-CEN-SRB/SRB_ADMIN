@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
-import { getTopTwentyUsers } from "./action"
+import { getTopTwentyUsers, getMyRank } from "./action"
 
 const col_widths = ["10%", "35%", "18%", "13%", "13%", "11%"]
 
@@ -13,7 +13,7 @@ function initialsFor(name: string | null | undefined) {
 }
 
 export default async function LeaderboardPage() {
-  const leaderboard = await getTopTwentyUsers()
+  const [leaderboard, myRank] = await Promise.all([getTopTwentyUsers(), getMyRank()])
   const [first, second, third] = leaderboard
   const rest = leaderboard.slice(3)
 
@@ -23,6 +23,33 @@ export default async function LeaderboardPage() {
         <h1 className="text-2xl font-semibold">Leaderboard</h1>
         <p className="text-sm text-muted-foreground">Top 20 members ranked by current points</p>
       </div>
+
+      {myRank && (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border bg-muted/50 px-4 py-3 max-w-3xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Avatar className="size-9">
+              <AvatarImage src={myRank.profileImageUrl || ""} alt={myRank.username ?? "You"} />
+              <AvatarFallback className="text-xs">{initialsFor(myRank.username)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium">Your rank</p>
+              <p className="text-xs text-muted-foreground">{myRank.username}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-lg font-bold">#{myRank.rank}</p>
+              <p className="text-[10px] text-muted-foreground">Rank</p>
+            </div>
+            <div className="text-center">
+              <p className="flex items-center justify-center gap-1 text-lg font-bold text-yellow-600">
+                {myRank.balance} <Star className="size-3 fill-yellow-600" />
+              </p>
+              <p className="text-[10px] text-muted-foreground">Points</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {leaderboard.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">No ranked members yet.</p>
