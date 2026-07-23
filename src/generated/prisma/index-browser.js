@@ -250,6 +250,9 @@ exports.Prisma.RedemptionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   rewardId: 'rewardId',
+  status: 'status',
+  fulfilledAt: 'fulfilledAt',
+  fulfilledById: 'fulfilledById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -315,6 +318,8 @@ exports.Prisma.VideoScalarFieldEnum = {
 exports.Prisma.CrashlogScalarFieldEnum = {
   id: 'id',
   message: 'message',
+  source: 'source',
+  binId: 'binId',
   createdAt: 'createdAt'
 };
 
@@ -476,6 +481,11 @@ exports.QueueStatus = exports.$Enums.QueueStatus = {
   CLOSED: 'CLOSED'
 };
 
+exports.RedemptionStatus = exports.$Enums.RedemptionStatus = {
+  PENDING: 'PENDING',
+  FULFILLED: 'FULFILLED'
+};
+
 exports.TransactionType = exports.$Enums.TransactionType = {
   REDEMPTION: 'REDEMPTION',
   DISPOSAL: 'DISPOSAL',
@@ -483,6 +493,11 @@ exports.TransactionType = exports.$Enums.TransactionType = {
   QUEST_REWARD: 'QUEST_REWARD',
   TREE_REWARD: 'TREE_REWARD',
   PURCHASE: 'PURCHASE'
+};
+
+exports.ActivityLogSource = exports.$Enums.ActivityLogSource = {
+  APP_ERROR: 'APP_ERROR',
+  BIN_COMMAND: 'BIN_COMMAND'
 };
 
 exports.FaultStatus = exports.$Enums.FaultStatus = {

@@ -77,7 +77,10 @@ export const POST = async (req: NextRequest) => {
         userId: decodedToken.userId,
       },
     })
-    return NextResponse.json({ message: `Reward Redeemed!` }, { status: 200 })
+    return NextResponse.json(
+      { message: `Reward Redeemed!`, redemptionId: redemption.id },
+      { status: 200 }
+    )
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(

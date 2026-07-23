@@ -275,3 +275,17 @@ export const handleBinDiagnostic = async (binId: string, payload: unknown) => {
     return { error: "Failed to process diagnostic" }
   }
 }
+
+// Logs an admin-issued bin command (open/close/up/down) to the activity
+// log. There's no hardware ack topic for door state, so this logs the
+// moment the command was successfully published over MQTT, not a
+// confirmed physical door movement.
+export const logBinCommand = async (binId: string, materialName: string, command: string) => {
+  await prisma.crashlog.create({
+    data: {
+      source: "BIN_COMMAND",
+      binId,
+      message: `"${command}" command sent to ${materialName} bin (${binId})`,
+    },
+  })
+}

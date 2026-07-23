@@ -13,6 +13,8 @@ const getData = async function(){
   return logs.map((log) => ({
     id: log.id,
     message: log.message,
+    source: log.source,
+    binId: log.binId,
     createdAt: log.createdAt.toISOString(),
   }))
 }

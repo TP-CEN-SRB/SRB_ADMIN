@@ -29,8 +29,10 @@ import {
   Calendar,
   ClipboardList,
   Store,
-  Bug,
-  MailCheck
+  MailCheck,
+  Ticket,
+  Receipt,
+  ScrollText
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -241,16 +243,50 @@ export default function AdminDashboard() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Crash Log Section */}
+        {/* Rewards Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Crash Log</SidebarGroupLabel>
+          <SidebarGroupLabel>Rewards</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/voucher'}>
+                  <Link href="/admin/voucher" className="flex items-center gap-3">
+                    <Ticket className="h-4 w-4" />
+                    Vouchers
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Transactions Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Transactions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/transaction'}>
+                  <Link href="/admin/transaction" className="flex items-center gap-3">
+                    <Receipt className="h-4 w-4" />
+                    All Transactions
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Activity Log Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Activity Log</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === '/admin/crashlog'}>
                   <Link href="/admin/crashlog" className="flex items-center gap-3">
-                    <Bug className="h-4 w-4" />
-                    Messages
+                    <ScrollText className="h-4 w-4" />
+                    Activity Log
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

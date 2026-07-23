@@ -35,6 +35,7 @@ import {
 import { deleteBin } from "./action"
 import { publishMqtt } from "@/lib/mqtt"
 import { ableToPublishMqttMessage, updateCommandUpdatedAt } from "@/utils/mqttPublisher"
+import { logBinCommand } from "@/app/action/bin"
 import { Bin } from "./columns"
 
 export function BinActions({ bin }: { bin: Bin }) {
@@ -58,6 +59,7 @@ export function BinActions({ bin }: { bin: Bin }) {
     if (success) {
       toast.success("Command sent", { description: `"${command}" sent to the bin.` })
       await updateCommandUpdatedAt(bin.userId)
+      await logBinCommand(bin.id, bin.binMaterial.name, command)
     } else {
       toast.error("Failed to send command")
     }

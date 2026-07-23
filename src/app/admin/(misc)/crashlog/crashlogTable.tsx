@@ -28,11 +28,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { format } from "date-fns"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, DoorOpen } from "lucide-react"
 
 interface Crashlog {
   id: string
   message: string
+  source: string
+  binId: string | null
   createdAt: string
 }
 
@@ -47,7 +49,11 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
       header: "Message",
       cell: ({ row }) => (
         <div className="flex items-start gap-2">
-          <AlertTriangle className="text-red-500 w-4 h-4 mt-1" />
+          {row.original.source === "BIN_COMMAND" ? (
+            <DoorOpen className="text-blue-500 w-4 h-4 mt-1" />
+          ) : (
+            <AlertTriangle className="text-red-500 w-4 h-4 mt-1" />
+          )}
           <span className="whitespace-pre-wrap wrap-break-word">{row.original.message}</span>
         </div>
       ),
@@ -81,7 +87,7 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
   return (
     <div className="flex flex-col h-full overflow-hidden px-4 py-6">
       <div className="flex items-center justify-between gap-2 mb-6">
-        <h1 className="text-2xl font-bold">Crash Logs</h1>
+        <h1 className="text-2xl font-bold">Activity Log</h1>
         <Input
           type="search"
           placeholder="Search messages..."
@@ -121,7 +127,7 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
                   colSpan={columns.length}
                   className="py-6 text-center text-muted-foreground"
                 >
-                  💤 No crash logs received yet.
+                  💤 No activity logged yet.
                 </TableCell>
               </TableRow>
             )}
