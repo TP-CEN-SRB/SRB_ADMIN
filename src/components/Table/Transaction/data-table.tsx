@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
   }
 
   return (
-    <div className="px-4">
+    <div className="flex flex-col h-full overflow-hidden px-4">
       <div className="flex items-center justify-between">
         <h2 className="text-slate-800 line-clamp-1 flex-1">
           <span className="font-normal">Showing results for:</span> {name}
@@ -117,7 +117,7 @@ export function DataTable<TData, TValue>({
           <ExportCSV data={data} userId={userId} />
         </div>
       </div>
-      <div className="rounded-md border">
+      <div className="flex-1 overflow-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

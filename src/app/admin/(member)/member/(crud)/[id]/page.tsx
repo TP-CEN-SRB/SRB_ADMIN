@@ -21,7 +21,9 @@ import {
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import Link from "next/link";
+import { Suspense } from "react"
 import { getFeedbacksForUser, getFaultReportsForUser } from "@admin/(member)/member/(response)/feedback/feedback";
+import { ProfileSkeleton } from "@/components/ProfileSkeleton";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
@@ -65,19 +67,6 @@ async function getMemberId(id: string){
 
 export default async function MemberPage({ params } : { params : Promise<{id: string}>}){
   const { id } = await params
-  const [member, feedbacks, faultReports] = await Promise.all([
-    getMemberId(id),
-    getFeedbacksForUser(id),
-    getFaultReportsForUser(id),
-  ])
-
-  if (!member){
-    notFound()
-  }
-
-  const initials = member.name 
-  ? member.name.substring(0, 2).toUpperCase() 
-  : "US";
 
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
@@ -85,7 +74,7 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
         <h1 className="text-2xl font-semibold">Profile</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/admin/member/edit/${member.id}`}>
+            <Link href={`/admin/member/edit/${id}`}>
               <Edit className="mr-2 size-4" />
               Edit Member
             </Link>
@@ -100,6 +89,29 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
         </div>
       </div>
 
+      <Suspense fallback={<ProfileSkeleton />}>
+        <MemberProfileSection id={id} />
+      </Suspense>
+    </div>
+  )
+}
+
+async function MemberProfileSection({ id }: { id: string }) {
+  const [member, feedbacks, faultReports] = await Promise.all([
+    getMemberId(id),
+    getFeedbacksForUser(id),
+    getFaultReportsForUser(id),
+  ])
+
+  if (!member){
+    notFound()
+  }
+
+  const initials = member.name
+  ? member.name.substring(0, 2).toUpperCase()
+  : "US";
+
+  return (
       <div className="grid gap-6 md:grid-cols-4">
         {/* Sidebar */}
         <div className="md:col-span-1">
@@ -364,6 +376,5 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
           </div>
         </div>
       </div>
-    </div>
   );
 }

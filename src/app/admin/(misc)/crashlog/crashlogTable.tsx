@@ -6,6 +6,7 @@ import {
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
+  getFilteredRowModel,
   flexRender,
   PaginationState,
 } from "@tanstack/react-table"
@@ -18,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -61,23 +63,35 @@ const CrashlogTable = ({ data }: CrashlogTableProps) => {
     pageIndex: 0,
     pageSize: 10,
   })
+  const [search, setSearch] = useState("")
 
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     onPaginationChange: setPagination,
-    state: { pagination },
+    onGlobalFilterChange: setSearch,
+    globalFilterFn: (row, _columnId, filterValue) =>
+      row.original.message.toLowerCase().includes(String(filterValue).toLowerCase()),
+    state: { pagination, globalFilter: search },
   })
 
   return (
-    <div className="px-4 py-6">
-      <div className="flex items-center gap-2 mb-6">
+    <div className="flex flex-col h-full overflow-hidden px-4 py-6">
+      <div className="flex items-center justify-between gap-2 mb-6">
         <h1 className="text-2xl font-bold">Crash Logs</h1>
+        <Input
+          type="search"
+          placeholder="Search messages..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="max-w-xs"
+        />
       </div>
 
-      <div className="rounded-xl border bg-white shadow">
+      <div className="flex-1 overflow-auto rounded-xl border bg-white shadow">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

@@ -11,43 +11,44 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { useTransition } from "react"
+import { useTableQueryParams } from "@/hooks/useTableQueryParams"
+import { TablePaginationControls } from "@/components/TablePaginationControls"
 
 interface FeedbackHeaderProps {
   view: "feedback" | "reports"
+  currentPage: number
+  currentLimit: number
+  totalPages: number
+  totalCount: number
 }
 
-export function FeedbackHeader({ view }: FeedbackHeaderProps) {
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+export function FeedbackHeader({ view, currentPage, currentLimit, totalPages, totalCount }: FeedbackHeaderProps) {
+  const { searchParams, isPending, pushParams, setLimit, goToPage } =
+    useTableQueryParams({ currentPage, totalPages })
 
   const currentStatus = searchParams.get("status") || "ALL"
-
-  function pushParams(mutate: (params: URLSearchParams) => void) {
-    const params = new URLSearchParams(searchParams.toString())
-    mutate(params)
-    startTransition(function () {
-      router.push(`${pathname}?${params.toString()}`)
-    })
-  }
 
   function onToggleView(newView: "feedback" | "reports") {
     pushParams(function (params) {
       params.set("view", newView)
       params.delete("search")
       params.delete("status")
+      params.set("page", "1")
     })
   }
 
   function onSearch(search: string) {
-    pushParams(function (params) { params.set("search", search) })
+    pushParams(function (params) {
+      params.set("search", search)
+      params.set("page", "1")
+    })
   }
 
   function onStatusChange(status: string) {
-    pushParams(function (params) { params.set("status", status) })
+    pushParams(function (params) {
+      params.set("status", status)
+      params.set("page", "1")
+    })
   }
 
   return (
@@ -77,6 +78,7 @@ export function FeedbackHeader({ view }: FeedbackHeaderProps) {
         <Input
           placeholder={view === "feedback" ? "search category, name or email..." : "search category, location, name or email..."}
           className="text-sm w-72"
+          defaultValue={searchParams.get("search") ?? ""}
           onChange={function (e) { onSearch(e.target.value) }}
         />
 
@@ -93,6 +95,18 @@ export function FeedbackHeader({ view }: FeedbackHeaderProps) {
             </SelectContent>
           </Select>
         )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <TablePaginationControls
+          currentPage={currentPage}
+          currentLimit={currentLimit}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          isPending={isPending}
+          onLimitChange={setLimit}
+          onPageChange={goToPage}
+        />
       </div>
     </header>
   )

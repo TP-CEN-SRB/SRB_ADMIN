@@ -1,6 +1,10 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { EventHeader } from "./header"
 import { EventActions } from "./eventActions"
+import CreateEventForm from "@/components/FormLogic/EventForms/CreateEventForm"
 import { getEvents } from "@/app/action/event"
 
 const col_widths = ["20%", "30%", "13%", "13%", "14%", "10%"]
@@ -23,17 +27,42 @@ function parseSort(sort: string): { sortItem: string | undefined; sortOrder: str
   }
 }
 
-export default async function AllEventsPage({
-  searchParams,
-}: {
+interface AllEventsPageProps {
   searchParams: Promise<{
     page?: string
     limit?: string
     sort?: string
     search?: string
   }>
-}) {
+}
+
+export default async function AllEventsPage({ searchParams }: AllEventsPageProps) {
   const params = await searchParams
+
+  return (
+    <div className="flex h-full overflow-hidden">
+      <div className="w-full max-w-sm border-r overflow-y-auto p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Add Event</CardTitle>
+            <CardDescription>Create a new event for members to participate in.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreateEventForm />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={6} />}>
+          <EventsTable searchParams={params} />
+        </Suspense>
+      </div>
+    </div>
+  )
+}
+
+async function EventsTable({ searchParams: params }: { searchParams: Awaited<AllEventsPageProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   const currentSort = params.sort || "dateDesc"
@@ -45,7 +74,7 @@ export default async function AllEventsPage({
   const totalPages = Math.max(1, Math.ceil(eventCount / currentLimit))
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <>
       <EventHeader
         currentPage={currentPage}
         currentLimit={currentLimit}
@@ -100,6 +129,6 @@ export default async function AllEventsPage({
           </TableBody>
         </Table>
       </div>
-    </div>
+    </>
   )
 }

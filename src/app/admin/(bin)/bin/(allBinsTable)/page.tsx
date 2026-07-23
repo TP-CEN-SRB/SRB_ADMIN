@@ -1,4 +1,6 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { BinHeader } from "./header"
 import { BinActions } from "./binActions"
 import { getAllBinsWithUserAndMaterial } from "./action"
@@ -7,9 +9,7 @@ import { getBinMaterials } from "../binMaterialShared"
 const col_widths = ["18%", "18%", "13%", "13%", "11%", "17%", "10%"]
 const statuses = ["FUNCTIONAL", "UNDER_MAINTENANCE"]
 
-export default async function AllBinsPage({
-  searchParams,
-}: {
+interface AllBinsPageProps {
   searchParams: Promise<{
     page?: string
     limit?: string
@@ -18,8 +18,19 @@ export default async function AllBinsPage({
     status?: string
     material?: string
   }>
-}) {
+}
+
+export default async function AllBinsPage({ searchParams }: AllBinsPageProps) {
   const params = await searchParams
+
+  return (
+    <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={7} />}>
+      <BinsTable searchParams={params} />
+    </Suspense>
+  )
+}
+
+async function BinsTable({ searchParams: params }: { searchParams: Awaited<AllBinsPageProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   const currentSort = params.sort || "dateDesc"

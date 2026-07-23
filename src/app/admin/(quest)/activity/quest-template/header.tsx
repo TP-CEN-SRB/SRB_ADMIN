@@ -22,8 +22,7 @@ import {
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ListFilter, PlusCircle } from "lucide-react"
-import Link from "next/link"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ListFilter } from "lucide-react"
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { useTransition } from "react"
@@ -188,13 +187,6 @@ export function QuestTemplateHeader({ currentPage, currentLimit, totalPages, tot
       </div>
 
       <div className="flex items-center gap-2">
-        <Button asChild size="sm">
-          <Link href="/admin/activity/quest-template/create">
-            <PlusCircle className="mr-2 size-4" />
-            Create Template
-          </Link>
-        </Button>
-
         <Select value={currentLimit.toString()} onValueChange={rebuildURL}>
           <SelectTrigger className="text-sm w-24 text-center">
             <SelectValue placeholder="Select limit" />

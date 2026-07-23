@@ -1,6 +1,8 @@
 import { Star } from "lucide-react"
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { FeedbackHeader } from "./header"
 import { FeedbackActions } from "./feedbackActions"
 import { FaultReportActions } from "./faultReportActions"
@@ -25,34 +27,37 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
-export default async function FeedbackAndReportsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ view?: string; search?: string; status?: string }>
-}) {
+interface FeedbackAndReportsPageProps {
+  searchParams: Promise<{ view?: string; search?: string; status?: string; page?: string; limit?: string }>
+}
+
+export default async function FeedbackAndReportsPage({ searchParams }: FeedbackAndReportsPageProps) {
   const params = await searchParams
   const view = params.view === "reports" ? "reports" : "feedback"
   const search = params.search || ""
   const status = params.status || "ALL"
+  const currentPage = Number(params.page) || 1
+  const currentLimit = Number(params.limit) || 10
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <FeedbackHeader view={view} />
-
-      {view === "feedback" ? (
-        <FeedbackTable search={search} />
-      ) : (
-        <FaultReportsTable search={search} status={status} />
-      )}
+      <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={6} />}>
+        {view === "feedback" ? (
+          <FeedbackTable search={search} page={currentPage} limit={currentLimit} />
+        ) : (
+          <FaultReportsTable search={search} status={status} page={currentPage} limit={currentLimit} />
+        )}
+      </Suspense>
     </div>
   )
 }
 
-async function FeedbackTable({ search }: { search: string }) {
-  const feedbacks = await getFeedbacks(search)
+async function FeedbackTable({ search, page, limit }: { search: string; page: number; limit: number }) {
+  const { feedbacks, feedbackCount, totalPages } = await getFeedbacks(search, page, limit)
 
   return (
     <>
+      <FeedbackHeader view="feedback" currentPage={page} currentLimit={limit} totalPages={totalPages} totalCount={feedbackCount} />
       <Table className="table-fixed">
         <colgroup>
           {feedbackColWidths.map((width, index) => (
@@ -104,11 +109,22 @@ async function FeedbackTable({ search }: { search: string }) {
   )
 }
 
-async function FaultReportsTable({ search, status }: { search: string; status: string }) {
-  const reports = await getFaultReports(search, status)
+async function FaultReportsTable({
+  search,
+  status,
+  page,
+  limit,
+}: {
+  search: string
+  status: string
+  page: number
+  limit: number
+}) {
+  const { reports, reportCount, totalPages } = await getFaultReports(search, status, page, limit)
 
   return (
     <>
+      <FeedbackHeader view="reports" currentPage={page} currentLimit={limit} totalPages={totalPages} totalCount={reportCount} />
       <Table className="table-fixed">
         <colgroup>
           {reportColWidths.map((width, index) => (

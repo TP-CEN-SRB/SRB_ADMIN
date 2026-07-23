@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
   const id = usePathname().split("/").slice(-1)
 
   return (
-    <div className="px-4">
+    <div className="flex flex-col h-full overflow-hidden px-4">
       <div className="flex flex-wrap justify-end items-center gap-3 py-3">
         <Button
           asChild
@@ -82,7 +82,7 @@ export function DataTable<TData, TValue>({
           />
         </div>
       </div>
-      <div className="rounded-md border">
+      <div className="flex-1 overflow-auto rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

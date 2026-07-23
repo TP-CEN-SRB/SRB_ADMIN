@@ -26,10 +26,8 @@ import {
   Trophy, 
   MessageSquare,
   Target,
-  Calendar, 
-  ClipboardList, 
-  FilePlus, 
-  CalendarPlus, 
+  Calendar,
+  ClipboardList,
   Store,
   Bug,
   MailCheck
@@ -219,24 +217,6 @@ export default function AdminDashboard() {
                   <Link href="/admin/activity/quest-template" className="flex items-center gap-3">
                     <ClipboardList className="h-4 w-4" />
                     View Quest Templates
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/activity/quest-template/create'}>
-                  <Link href="/admin/activity/quest-template/create" className="flex items-center gap-3">
-                    <FilePlus className="h-4 w-4" />
-                    Create Quest Templates
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/activity/event/create'}>
-                  <Link href="/admin/activity/event/create" className="flex items-center gap-3">
-                    <CalendarPlus className="h-4 w-4" />
-                    Create Event Templates
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

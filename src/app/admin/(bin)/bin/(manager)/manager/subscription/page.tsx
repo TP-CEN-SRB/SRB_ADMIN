@@ -1,21 +1,34 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { SubscriptionHeader } from "./subscriptionHeader"
 import { SubscriptionSeeMore } from "./SubscriptionSeeMore"
 import { getAllSubscriptions } from "@/app/action/subscription"
 
 const col_widths = ["30%", "25%", "20%", "15%", "10%"]
 
-export default async function AllSubscriptionsPage({
-  searchParams,
-}: {
+interface AllSubscriptionsPageProps {
   searchParams: Promise<{
     page?: string
     limit?: string
     sort?: string
     search?: string
   }>
-}) {
+}
+
+export default async function AllSubscriptionsPage({ searchParams }: AllSubscriptionsPageProps) {
   const params = await searchParams
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={5} />}>
+        <SubscriptionsTable searchParams={params} />
+      </Suspense>
+    </div>
+  )
+}
+
+async function SubscriptionsTable({ searchParams: params }: { searchParams: Awaited<AllSubscriptionsPageProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   const sortOrder = params.sort === "dateAsc" ? "asc" : "desc"
@@ -29,7 +42,7 @@ export default async function AllSubscriptionsPage({
   )
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <>
       <SubscriptionHeader
         currentPage={currentPage}
         currentLimit={currentLimit}
@@ -88,6 +101,6 @@ export default async function AllSubscriptionsPage({
           </TableBody>
         </Table>
       </div>
-    </div>
+    </>
   )
 }
