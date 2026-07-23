@@ -38,7 +38,6 @@ export function DisposalsByMaterialChart({
           tickLine={false}
           tickMargin={10}
           axisLine={false}
-          tickFormatter={(value) => value.slice(0, 3)}
         />
         <ChartTooltip content={<ChartTooltipContent indicator="line" className="text-xs" />} />
         <ChartLegend content={<ChartLegendContent />} />

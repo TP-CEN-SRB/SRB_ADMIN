@@ -5,6 +5,67 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
+import { Role } from "@/generated/prisma"
+
+const getAllSubscriptions = async (
+  page: number,
+  limit: number,
+  search: string,
+  sortOrder: "asc" | "desc" = "desc"
+) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (!user || user?.role !== "admin") {
+    return { subscriptions: [], subscriptionCount: 0, totalPages: 1 }
+  }
+
+  const whereClause = search
+    ? { email: { contains: search, mode: "insensitive" as const } }
+    : {}
+
+  const [subscriptionCount, subscriptions] = await Promise.all([
+    prisma.subscription.count({ where: whereClause }),
+    prisma.subscription.findMany({
+      where: whereClause,
+      orderBy: { createdAt: sortOrder },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+        userId: true,
+        user: {
+          select: { name: true, location: true, faculty: true },
+        },
+      },
+    }),
+  ])
+
+  return {
+    subscriptions,
+    subscriptionCount,
+    totalPages: Math.max(1, Math.ceil(subscriptionCount / limit)),
+  }
+}
+
+const getAllBinManagersForPicker = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (!user || user?.role !== "admin") {
+    return []
+  }
+
+  return prisma.user.findMany({
+    where: { role: Role.BIN },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, location: true },
+  })
+}
 
 const getSubscriptionByUserId = async (userId: string) => {
   const session = await auth.api.getSession({
@@ -130,4 +191,6 @@ export {
   updateSubscription,
   getSubscriptionByUserId,
   deleteSubscription,
+  getAllSubscriptions,
+  getAllBinManagersForPicker,
 }

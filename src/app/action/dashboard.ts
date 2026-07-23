@@ -3,8 +3,9 @@
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { cached, DASHBOARD_TTL } from "@/lib/cache"
+import { cached, invalidateByPrefix, DASHBOARD_TTL } from "@/lib/cache"
 import { DateRange, getWeeksInMonth, months, days } from "@/utils/dateUtils"
+import { format } from "date-fns"
 import { BinStatus, Role } from "@/generated/prisma"
 
 export type DashboardPeriod = "day" | "week" | "month" | "year"
@@ -12,7 +13,12 @@ export type DashboardPeriod = "day" | "week" | "month" | "year"
 const ONLINE_THRESHOLD_MS = 10 * 60 * 1000
 const DASHBOARD_CACHE_PREFIX = "cache:dashboard:"
 
-export const getDashboardStats = async (period: DashboardPeriod) => {
+// Bin mutations (create/update/delete/capacity/diagnostic/heartbeat) affect the
+// aggregates cached below — call this after any of them so dashboard numbers
+// don't lag behind by up to DASHBOARD_TTL seconds.
+export const invalidateDashboardCache = async () => invalidateByPrefix(DASHBOARD_CACHE_PREFIX)
+
+export const getDashboardStats = async (period: DashboardPeriod, offset: number = 0) => {
   const session = await auth.api.getSession({ headers: await headers() })
   if (session?.user?.role !== "admin") {
     return {
@@ -26,10 +32,10 @@ export const getDashboardStats = async (period: DashboardPeriod) => {
     }
   }
 
-  const { startDate, endDate } = DateRange(period)
+  const { startDate, endDate } = DateRange(period, offset)
 
   return cached(
-    `cache:dashboard:stats:${period}`,
+    `cache:dashboard:stats:${period}:${offset}`,
     DASHBOARD_TTL,
     async function(){
       const [
@@ -165,7 +171,7 @@ export const getBarChartData = async (
           )
 
           return {
-            month: day,
+            month: start ? format(start, "d/M") : day,
             bin: total,
             ...materialCounts,
           }
@@ -182,7 +188,7 @@ export const getBarChartData = async (
       // column matches the original in-memory comparison exactly.
       const SGT_OFFSET_MS = 8 * 60 * 60 * 1000
       return await Promise.all(
-        weekRanges.map(async ({ week, start, end }) => {
+        weekRanges.map(async ({ start, end }) => {
           const { total, materialCounts } = await countDisposalsByMaterial(
             new Date(start.getTime() - SGT_OFFSET_MS),
             new Date(end.getTime() - SGT_OFFSET_MS),
@@ -191,7 +197,7 @@ export const getBarChartData = async (
           )
 
           return {
-            month: week,
+            month: format(start, "d/M"),
             bin: total,
             ...materialCounts,
           }
@@ -219,7 +225,7 @@ export const getBarChartData = async (
         )
 
         return {
-          month,
+          month: start ? format(start, "MMM") : month,
           bin: total,
           ...materialCounts,
         }

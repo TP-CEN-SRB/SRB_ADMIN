@@ -1,32 +1,45 @@
 "use client"
 
-import { useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { MoreHorizontal } from "lucide-react"
+import Link from "next/link"
+import { useTransition } from "react"
 import { FaEdit, FaTrashRestore, FaCaretSquareDown, FaCaretSquareUp } from "react-icons/fa"
-import { MdDeleteForever } from "react-icons/md"
+import { Trash2Icon } from "lucide-react"
 import { BiSolidDoorOpen } from "react-icons/bi"
 import { RiDoorFill } from "react-icons/ri"
 import { toast } from "sonner"
+import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ConfirmDeleteBinDialog from "./ConfirmDeleteBinDialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { deleteBin } from "./action"
 import { publishMqtt } from "@/lib/mqtt"
 import { ableToPublishMqttMessage, updateCommandUpdatedAt } from "@/utils/mqttPublisher"
 import { Bin } from "./columns"
 
 export function BinActions({ bin }: { bin: Bin }) {
   const router = useRouter()
-  const [isDialogOpen, setDialogOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   async function sendCommand(command: string) {
     const ableToPublish = await ableToPublishMqttMessage(bin.userId)
@@ -50,34 +63,40 @@ export function BinActions({ bin }: { bin: Bin }) {
     }
   }
 
+  function handleDelete() {
+    startTransition(async function () {
+      const data = await deleteBin(bin.id)
+      if (data?.error) {
+        toast.error(data.error)
+        return
+      }
+      const datetime = format(new Date(), "EEEE, MMMM dd, yyyy 'at' h:mm a")
+      toast.success("Bin deleted successfully", { description: `Bin deleted at ${datetime}` })
+      router.push("/admin/bin")
+    })
+  }
+
   return (
-    <>
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">More</Button>
+      </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link href={`/admin/bin/update/${bin.id}`}>
               <FaEdit className="mr-2" /> Edit Bin
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-            <MdDeleteForever className="mr-2" /> Delete Bin
-          </DropdownMenuItem>
-
           <DropdownMenuItem onClick={() => router.push(`/admin/bin/disposal/${bin.id}`)}>
             <FaTrashRestore className="mr-2" /> View Disposals
           </DropdownMenuItem>
+        </DropdownMenuGroup>
 
-          <DropdownMenuSeparator />
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
           <DropdownMenuLabel>Commands</DropdownMenuLabel>
 
           <DropdownMenuItem onClick={() => sendCommand("open")}>
@@ -92,14 +111,36 @@ export function BinActions({ bin }: { bin: Bin }) {
           <DropdownMenuItem onClick={() => sendCommand("down")}>
             <FaCaretSquareDown className="mr-2" /> Lower Bin
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </DropdownMenuGroup>
 
-      <ConfirmDeleteBinDialog
-        binId={bin.id}
-        isOpen={isDialogOpen}
-        handleDialogOpen={() => setDialogOpen((prev) => !prev)}
-      />
-    </>
+        <DropdownMenuGroup>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>
+                Delete Bin
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent size="sm">
+              <AlertDialogHeader>
+                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                  <Trash2Icon />
+                </AlertDialogMedia>
+                <AlertDialogTitle>Delete this bin?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete bin {bin.id} and all of its disposal history.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+                <AlertDialogAction disabled={isPending} variant="destructive" onClick={handleDelete}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }

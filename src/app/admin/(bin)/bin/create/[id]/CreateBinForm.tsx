@@ -16,14 +16,13 @@ import {
 import { Input } from "@/components/ui/input"
 import BinStatusCombobox from "./CreateBinStatusCombobox"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import { BinMaterial, BinStatus } from "@/generated/prisma"
 import { createBin } from "./action"
-import { redirect } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import BinMaterialCheckBox from "./BinMaterialCheckbox"
-import Card from "@/components/Card/Card"
-import FormHeader from "@/components/FormLogic/FormHeader"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface CreateBinFormProps {
   materials: BinMaterial[]
@@ -38,6 +37,7 @@ const CreateBinForm = ({
   binLocation,
   usedBinMaterials,
 }: CreateBinFormProps) => {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const form = useForm<z.infer<typeof BinSchema>>({
     resolver: zodResolver(BinSchema),
@@ -78,72 +78,64 @@ const CreateBinForm = ({
   }
 
   return (
-    <Card isAdmin rounded fullWidth>
-      <FormHeader>Add a bin</FormHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold">Location</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={true}
-                    placeholder="Near Library"
-                    {...field}
-                    type="text"
-                    className="bg-gray-200"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold">Status</FormLabel>
-                <FormControl>
-                  <BinStatusCombobox field={field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
-          {/* change to drop down list to select material */}
-          <FormField
-            control={form.control}
-            name="materialIds"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold">Material(s)</FormLabel>
-                <FormControl>
-                  <BinMaterialCheckBox
-                    materials={materials}
-                    usedBinMaterials={usedBinMaterials}
-                    field={field} // ✅ Added this
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <div className="w-full space-y-4">
+      <Button variant="ghost" size="sm" onClick={() => router.back()} className="-ml-2">
+        <ArrowLeft className="mr-2 size-4" /> Back
+      </Button>
 
-          <Button
-            disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
-            type="submit"
-          >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Submit"}
-          </Button>
-        </form>
-      </Form>
-    </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add a bin</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Location</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled={true}
+                        placeholder="Near Library"
+                        {...field}
+                        type="text"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="materialIds"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Material(s)</FormLabel>
+                    <FormControl>
+                      <BinMaterialCheckBox
+                        materials={materials}
+                        usedBinMaterials={usedBinMaterials}
+                        field={field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button disabled={isPending} className="w-full" type="submit">
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
+                {isPending ? "Loading..." : "Submit"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 

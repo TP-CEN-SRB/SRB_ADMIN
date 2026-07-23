@@ -9,7 +9,7 @@ export const getTopTwentyUsers = async () => cached(
   DASHBOARD_TTL,
   async function(){
     const topUsers = await prisma.user.findMany({
-      where: { role: Role.STUDENT },
+      where: { role: Role.STUDENT, point: { isNot: null } },
       orderBy: { point: { balance: "desc" } },
       take: 20,
       select: {

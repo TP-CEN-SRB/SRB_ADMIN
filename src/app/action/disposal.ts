@@ -3,6 +3,17 @@ import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
+export type Disposal = {
+  id: string
+  weightInGrams: number
+  isRedeemed: boolean
+  pointsAwarded: number
+  userId: string | null
+  createdAt: Date
+  imageUrl: string | null
+  user: { name: string } | null
+}
+
 const getDisposalByBinId = async (
   binId: string,
   page: number | null,
@@ -26,12 +37,14 @@ const getDisposalByBinId = async (
     return { disposalCount: 0, disposals: [] }
   }
 
+  const PAGE_SIZE = 21
+
   const [disposalCount, disposals, bin] = await Promise.all([
     prisma.disposal.count({ where: { binId: binId } }),
     prisma.disposal.findMany({
       where: { binId: binId },
-      take: page ? 10 : undefined,
-      skip: page ? (page - 1) * 10 : 0,
+      take: page ? PAGE_SIZE : undefined,
+      skip: page ? (page - 1) * PAGE_SIZE : 0,
       orderBy:
         sortItem === sortableItems[0]
           ? { weightInGrams: sortOrder }
@@ -48,6 +61,7 @@ const getDisposalByBinId = async (
         userId: true,
         createdAt: true,
         imageUrl: true,
+        user: { select: { name: true } },
       },
     }),
     prisma.bin.findUnique({

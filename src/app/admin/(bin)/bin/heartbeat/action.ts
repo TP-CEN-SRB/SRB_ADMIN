@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db"
 import { BinStatus } from "@/generated/prisma"
+import { invalidateDashboardCache } from "@/app/action/dashboard"
 
 export const getHeartbeat = async function(){
   const bins = await prisma.bin.findMany({
@@ -70,17 +71,20 @@ export const getHeartbeat = async function(){
   })
 
   // STEP 3 — Sync DB statuses only if changed
+  const changedBins = evaluated.filter((bin) => bin.status !== bin.effectiveStatus)
+
   await Promise.all(
-    evaluated.map((bin) => {
-      if (bin.status !== bin.effectiveStatus) {
-        return prisma.bin.update({
-          where: { id: bin.id },
-          data: { status: bin.effectiveStatus },
-        })
-      }
-      return null
-    })
+    changedBins.map((bin) =>
+      prisma.bin.update({
+        where: { id: bin.id },
+        data: { status: bin.effectiveStatus },
+      })
+    )
   )
+
+  if (changedBins.length > 0) {
+    await invalidateDashboardCache()
+  }
 
   return evaluated
 }

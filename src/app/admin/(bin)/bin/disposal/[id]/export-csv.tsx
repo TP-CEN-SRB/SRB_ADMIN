@@ -9,10 +9,9 @@ import { FaTableCells } from "react-icons/fa6"
 import { PiExportBold } from "react-icons/pi"
 import { IoIosDocument } from "react-icons/io"
 import { CSVLink } from "react-csv"
-import { Disposal } from "./columns"
 import { useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
-import { getDisposalByBinId } from "@/app/action/disposal"
+import { getDisposalByBinId, Disposal } from "@/app/action/disposal"
 
 interface ExportCSVProps<TData> {
   data: TData[]

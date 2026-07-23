@@ -6,13 +6,25 @@ import BinsDeployedFaculty from "./components/binsDeployedFaculty"
 import { getDashboardStats, DashboardPeriod, getBarChartData, getPieChartData } from "@/app/action/dashboard"
 import { BarChartConfig, PieChartConfig } from "./(bin)/bin/(allBinsTable)/chartConfigs"
 import { DateRange } from "@/utils/dateUtils"
+import { format } from "date-fns"
 
 const periods: DashboardPeriod[] = ["day", "week", "month", "year"]
-const periodLabel: Record<DashboardPeriod, string> = {
-  day: "today",
-  week: "this week",
-  month: "this month",
-  year: "this year",
+
+function formatPeriodLabel(period: DashboardPeriod, offset: number, startDate?: Date, endDate?: Date) {
+  if (offset === 0) {
+    return period === "day" ? "today" : period === "week" ? "this week" : period === "month" ? "this month" : "this year"
+  }
+  if (!startDate || !endDate) return ""
+  switch (period) {
+    case "day":
+      return format(startDate, "d MMM yyyy")
+    case "week":
+      return `${format(startDate, "d/M")} - ${format(endDate, "d/M")}`
+    case "month":
+      return format(startDate, "MMMM yyyy")
+    case "year":
+      return format(startDate, "yyyy")
+  }
 }
 // getBarChartData/getPieChartData only branch on "week"/"month" explicitly,
 // otherwise grouping defaults to month-across-year — close enough for "day"
@@ -55,24 +67,26 @@ function StatCard({
 export default async function AdminHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ period?: string }>
+  searchParams: Promise<{ period?: string; offset?: string }>
 }) {
   const params = await searchParams
   const period = (periods.includes(params.period as DashboardPeriod)
     ? params.period
     : "week") as DashboardPeriod
+  const offset = Math.min(0, Number(params.offset) || 0)
 
-  const { startDate, endDate } = DateRange(period)
+  const { startDate, endDate } = DateRange(period, offset)
   const filter = chartFilter[period]
 
   const [stats, barChartData, pieChartData] = await Promise.all([
-    getDashboardStats(period),
+    getDashboardStats(period, offset),
     getBarChartData(startDate, endDate, filter),
     getPieChartData(startDate, endDate, filter),
   ])
 
   const { month, bin, ...materials } = barChartData[0] ?? { month: "", bin: 0 }
   const barChartConfig = BarChartConfig({ materials })
+  const resolvedLabel = formatPeriodLabel(period, offset, startDate, endDate)
 
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
@@ -81,16 +95,16 @@ export default async function AdminHomePage({
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-sm text-muted-foreground">Overview of bins, disposals, and impact</p>
         </div>
-        <DashboardPeriodToggle period={period} />
+        <DashboardPeriodToggle period={period} offset={offset} rangeLabel={resolvedLabel} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard icon={Boxes} iconClassName="bg-blue-500/10 text-blue-600" value={stats.totalBins} label="Total Bins" />
         <StatCard icon={Wifi} iconClassName="bg-green-500/10 text-green-600" value={stats.binsOnline} label="Bins Online (live)" />
         <StatCard icon={Wrench} iconClassName="bg-red-500/10 text-red-600" value={stats.underMaintenanceBins} label="Under Maintenance" />
-        <StatCard icon={Recycle} iconClassName="bg-teal-500/10 text-teal-600" value={stats.disposalsMade} label={`Disposals Made (${periodLabel[period]})`} />
-        <StatCard icon={Leaf} iconClassName="bg-emerald-500/10 text-emerald-600" value={`${stats.totalCarbonOffsetKg.toFixed(1)} kg`} label={`Carbon Offset (${periodLabel[period]})`} />
-        <StatCard icon={Users} iconClassName="bg-purple-500/10 text-purple-600" value={stats.activeUsers} label={`Active Users (${periodLabel[period]})`} />
+        <StatCard icon={Recycle} iconClassName="bg-teal-500/10 text-teal-600" value={stats.disposalsMade} label={`Disposals Made (${resolvedLabel})`} />
+        <StatCard icon={Leaf} iconClassName="bg-emerald-500/10 text-emerald-600" value={`${stats.totalCarbonOffsetKg.toFixed(1)} kg`} label={`Carbon Offset (${resolvedLabel})`} />
+        <StatCard icon={Users} iconClassName="bg-purple-500/10 text-purple-600" value={stats.activeUsers} label={`Active Users (${resolvedLabel})`} />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">

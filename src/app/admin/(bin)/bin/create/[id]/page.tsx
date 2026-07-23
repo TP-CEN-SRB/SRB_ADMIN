@@ -21,17 +21,13 @@ export default async function CreateBinFormPageWithBinUser({ params }: { params:
       }),
     ])
   return (
-    <>
-      <div className="flex justify-center min-h-screen items-center">
-        <div className="container mx-auto max-w-lg py-8">
-          <CreateBinForm
-            materials={getAllMaterials}
-            binUserId={id}
-            binLocation={getBinLocation?.location}
-            usedBinMaterials={getUnavailableMaterialsForBin.map((bin) => bin.binMaterial)}
-          />
-        </div>
-      </div>
-    </>
+    <div className="container mx-auto max-w-lg px-4 py-6 md:px-6">
+      <CreateBinForm
+        materials={getAllMaterials}
+        binUserId={id}
+        binLocation={getBinLocation?.location}
+        usedBinMaterials={getUnavailableMaterialsForBin.map((bin) => bin.binMaterial)}
+      />
+    </div>
   )
 }

@@ -1,21 +1,15 @@
 "use client"
-
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useTransition } from "react"
-import { FaEdit, FaUsers } from "react-icons/fa"
-import { Trash2Icon } from "lucide-react"
-import { toast } from "sonner"
-import { format } from "date-fns"
-
-import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
+
+import { Trash2Icon } from "lucide-react"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,43 +22,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { deleteEvent } from "@/app/action/event"
+import { Button } from "@/components/ui/button"
+import { deleteSubscription } from "@/app/action/subscription"
 
-export function EventActions({ eventId }: { eventId: string }) {
-  const router = useRouter()
-  const [isPending, startTransition] = useTransition()
+import { toast } from "sonner"
 
-  function handleDelete() {
-    startTransition(async function () {
-      const data = await deleteEvent(eventId)
-      if (data?.error) {
-        toast.error(data.error)
-        return
-      }
-      const datetime = format(new Date(), "EEEE, MMMM dd, yyyy 'at' h:mm a")
-      toast.success("Event deleted successfully", { description: `Event deleted at ${datetime}` })
-      router.push("/admin/event")
-    })
-  }
+interface SubscriptionSeeMoreProps {
+  subscriptionId: string
+  email: string
+  binManagerId: string
+}
 
+export function SubscriptionSeeMore({ subscriptionId, email, binManagerId }: SubscriptionSeeMoreProps) {
   return (
-    <DropdownMenu modal={false}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">More</Button>
       </DropdownMenuTrigger>
-
       <DropdownMenuContent>
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href={`/admin/activity/event/update/${eventId}`}>
-              <FaEdit className="mr-2" /> Edit Event
-            </Link>
+            <Link href={`/admin/bin/manager/view/${binManagerId}`}>View Manager</Link>
           </DropdownMenuItem>
-
           <DropdownMenuItem asChild>
-            <Link href={`/admin/activity/event/${eventId}/users`}>
-              <FaUsers className="mr-2" /> View Users
-            </Link>
+            <Link href={`/admin/bin/manager/subscription/edit/${subscriptionId}`}>Edit Email</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
 
@@ -72,7 +53,7 @@ export function EventActions({ eventId }: { eventId: string }) {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>
-                Delete Event
+                Delete
               </DropdownMenuItem>
             </AlertDialogTrigger>
 
@@ -81,14 +62,24 @@ export function EventActions({ eventId }: { eventId: string }) {
                 <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
                   <Trash2Icon />
                 </AlertDialogMedia>
-                <AlertDialogTitle>Delete this event?</AlertDialogTitle>
+                <AlertDialogTitle>Delete {email}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete this event and its progress records.
+                  This will stop {email} from receiving bin alert emails.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
-                <AlertDialogAction disabled={isPending} variant="destructive" onClick={handleDelete}>
+                <AlertDialogAction
+                  variant="destructive"
+                  onClick={async () => {
+                    const data = await deleteSubscription(subscriptionId)
+                    if (data?.error) {
+                      toast.error(data.error)
+                      return
+                    }
+                    toast.success(`${email} has been deleted`)
+                  }}
+                >
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>

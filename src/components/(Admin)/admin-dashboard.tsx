@@ -31,7 +31,8 @@ import {
   FilePlus, 
   CalendarPlus, 
   Store,
-  Bug
+  Bug,
+  MailCheck
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -86,6 +87,15 @@ export default function AdminDashboard() {
                   <Link href="/admin/bin/manager" className="flex items-center gap-3">
                     <UserCog className="h-4 w-4" />
                     View Bin Managers
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/manager/subscription'}>
+                  <Link href="/admin/bin/manager/subscription" className="flex items-center gap-3">
+                    <MailCheck className="h-4 w-4" />
+                    Subscriptions
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

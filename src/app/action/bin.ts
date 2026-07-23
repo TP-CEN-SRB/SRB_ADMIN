@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db"
 import { BinStatus } from "@/generated/prisma"
 import { z } from "zod"
 import { DiagnosticComponentResultSchema, DiagnosticPayloadSchema } from "@/schemas"
+import { sendBinFaultyEmail } from "@/lib/resend"
+import { invalidateDashboardCache } from "@/app/action/dashboard"
 
 // Cross-cutting bin actions shared by infrastructure entry points that
 // aren't tied to a single admin page: the MQTT bridge (src/lib/mqtt.ts),
@@ -205,6 +207,16 @@ export const handleBinDiagnostic = async (binId: string, payload: unknown) => {
       ? BinStatus.UNDER_MAINTENANCE
       : BinStatus.FUNCTIONAL
 
+    const bin = await prisma.bin.findUnique({
+      where: { id: binId },
+      select: {
+        status: true,
+        userId: true,
+        binMaterial: { select: { name: true } },
+        user: { select: { location: true } },
+      },
+    })
+
     // Save log entry
     await prisma.binDiagnosticLog.create({
       data: {
@@ -226,6 +238,26 @@ export const handleBinDiagnostic = async (binId: string, payload: unknown) => {
       where: { id: binId },
       data: { status: overallStatus },
     })
+
+    if (bin && bin.status !== overallStatus) {
+      await invalidateDashboardCache()
+    }
+
+    // Notify subscribers only on the transition INTO Under Maintenance, not on
+    // every subsequent diagnostic ping while the fault persists.
+    if (bin && anyFailed && bin.status !== BinStatus.UNDER_MAINTENANCE) {
+      const subscriptions = await prisma.subscription.findMany({
+        where: { userId: bin.userId },
+      })
+      if (subscriptions.length > 0) {
+        await sendBinFaultyEmail(
+          subscriptions.map((s) => s.email),
+          bin.binMaterial.name,
+          bin.user.location,
+          failedComponents
+        )
+      }
+    }
 
     if (anyFailed) {
       return {

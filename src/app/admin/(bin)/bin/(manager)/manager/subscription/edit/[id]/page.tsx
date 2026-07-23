@@ -11,7 +11,7 @@ export default async function EditSubscriptionPage({ params }: { params: Promise
     notFound()
   }
   return (
-    <div className="min-h-screen flex items-center justify-center container mx-auto max-w-screen-xs p-4">
+    <div className="container mx-auto max-w-screen-xs px-4 py-6">
       <EditSubscriptionForm id={subscription.id} email={subscription.email} />
     </div>
   )

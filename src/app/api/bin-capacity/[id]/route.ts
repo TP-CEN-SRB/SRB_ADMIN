@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { sendBinWarningEmail } from "@/lib/resend"
 import jwt from "jsonwebtoken"
 import { Role, BinStatus } from "@/generated/prisma"
+import { invalidateDashboardCache } from "@/app/action/dashboard"
 
 // ======================
 // PUT — Update bin capacity
@@ -120,6 +121,8 @@ export const PUT = async (
         sendBinWarningEmail(emails, binCapacity, material, location)
       )
     )
+
+    await invalidateDashboardCache()
 
     return NextResponse.json(
       { message: "Bin capacity updated successfully!" },

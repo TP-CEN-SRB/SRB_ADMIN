@@ -130,3 +130,64 @@ export const sendBinWarningEmail = async (
     console.error("❌ Bin warning email failed:", err.message)
   }
 }
+
+//Email Template
+export function faultyEmailTemplate(
+  material: string,
+  location: string | null,
+  failedComponents: { id: string; name: string }[]
+) {
+  const componentList = failedComponents.length
+    ? failedComponents.map((c) => `<li>${c.name}</li>`).join("")
+    : "<li>Unknown component</li>"
+
+  return `
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Bin Hardware Fault</title>
+      <style>
+        body { font-family: Arial, sans-serif background-color: #f4f4f4 margin: 0 padding: 0 }
+        .container { max-width: 600px margin: 0 auto background-color: #ffffff padding: 20px border-radius: 8px box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) }
+        h1 { color: #333333 }
+        p { color: #555555 }
+        .footer { margin-top: 20px font-size: 12px color: #999999 }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>Hello,</h1>
+        <p>Please be informed that the <b>${material}</b> bin at <b>${location}</b> has failed a hardware self-test and has been marked <b>Under Maintenance</b>.</p>
+        <p>Failed components:</p>
+        <ul>${componentList}</ul>
+        <p>You may head to the specified location to inspect the bin.</p>
+        <div class="footer">
+          <p>Thank you,<br>Temasek Polytechnic CEN</p>
+        </div>
+      </div>
+    </body>
+  </html>`
+}
+
+//Resend Email
+export const sendBinFaultyEmail = async (
+  emailList: string[],
+  material: string,
+  location: string | null,
+  failedComponents: { id: string; name: string }[]
+): Promise<void> => {
+  try {
+    await resend.emails.send({
+      from: `TP Smart Bin <no-reply@${process.env.RESEND_DOMAIN}>`,
+      to: emailList,
+      subject: "[Smart Bin System] Bin Hardware Fault",
+      html: faultyEmailTemplate(material, location, failedComponents),
+    })
+
+    console.log(`📧 Bin faulty email SENT → ${material} at ${location}`)
+  } catch (err: any) {
+    console.error("❌ Bin faulty email failed:", err.message)
+  }
+}

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { MoreHorizontal } from "lucide-react"
+import { useTransition } from "react"
 import { FaEdit, FaPlus } from "react-icons/fa"
-import { MdDeleteForever, MdMarkEmailRead, MdOutlineBarChart } from "react-icons/md"
+import { MdMarkEmailRead, MdOutlineBarChart } from "react-icons/md"
+import { Trash2Icon } from "lucide-react"
+import { toast } from "sonner"
 import {
   Tooltip,
   TooltipTrigger,
@@ -17,12 +18,24 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import ConfirmDeleteBinManagerDialog from "./ConfirmDeleteBinManagerDialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { deleteBinUser } from "@/lib/auth-server"
 
 interface BinManagerActionsProps {
   binManagerId: string
@@ -31,22 +44,31 @@ interface BinManagerActionsProps {
 
 export function BinManagerActions({ binManagerId, binCount }: BinManagerActionsProps) {
   const hasBins = binCount > 0
-  const [isDialogOpen, setDialogOpen] = useState(false)
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
+  function handleDelete() {
+    startTransition(async function () {
+      const data = await deleteBinUser(binManagerId)
+      if (data?.error) {
+        toast.error(data.error)
+        return
+      }
+      toast.success("Bin Manager Deleted", {
+        description: "The bin manager and all their assigned bins have been permanently deleted.",
+      })
+      router.push("/admin/bin/manager")
+    })
+  }
 
   return (
-    <>
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline">More</Button>
+      </DropdownMenuTrigger>
 
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
+      <DropdownMenuContent>
+        <DropdownMenuGroup>
           <DropdownMenuItem asChild>
             <Link href={`/admin/bin/manager/update/${binManagerId}`}>
               <FaEdit className="mr-2" /> Edit Manager
@@ -58,25 +80,6 @@ export function BinManagerActions({ binManagerId, binCount }: BinManagerActionsP
               <FaPlus className="mr-2" /> Create Bin
             </Link>
           </DropdownMenuItem>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <DropdownMenuItem onClick={() => setDialogOpen(true)}>
-                    <MdDeleteForever className="mr-2 text-red-500" /> Delete Manager
-                  </DropdownMenuItem>
-                </div>
-              </TooltipTrigger>
-              {hasBins && (
-                <TooltipContent side="left" align="start" sideOffset={10} className="max-w-xs">
-                  This manager has {binCount} bins linked. Deleting will remove all of them.
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-
-          <DropdownMenuSeparator />
 
           <TooltipProvider>
             <Tooltip>
@@ -103,14 +106,40 @@ export function BinManagerActions({ binManagerId, binCount }: BinManagerActionsP
               <MdMarkEmailRead className="mr-2" /> Manage Subscriptions
             </Link>
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </DropdownMenuGroup>
 
-      <ConfirmDeleteBinManagerDialog
-        userId={binManagerId}
-        isOpen={isDialogOpen}
-        handleDialogOpen={() => setDialogOpen((prev) => !prev)}
-      />
-    </>
+        <DropdownMenuSeparator />
+
+        <DropdownMenuGroup>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem variant="destructive" onSelect={(e) => e.preventDefault()}>
+                Delete Manager
+              </DropdownMenuItem>
+            </AlertDialogTrigger>
+
+            <AlertDialogContent size="sm">
+              <AlertDialogHeader>
+                <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                  <Trash2Icon />
+                </AlertDialogMedia>
+                <AlertDialogTitle>Delete this bin manager?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {hasBins
+                    ? `This manager has ${binCount} bin${binCount === 1 ? "" : "s"} linked. Deleting will permanently remove the manager and all of their bins.`
+                    : "This will permanently delete this bin manager."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+                <AlertDialogAction disabled={isPending} variant="destructive" onClick={handleDelete}>
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
