@@ -8,7 +8,8 @@ const getTransactionByUserId = async (
   userId: string,
   page: number | null,
   sortOrder: string | undefined,
-  transactionType: string | null
+  transactionType: string | null,
+  limit: number = 10
 ) => {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -30,7 +31,7 @@ const getTransactionByUserId = async (
 
   // check if all conditions are met
   if (pageCondition || sortOrderCondition || transactionTypeCondition) {
-    return { transactionCount: 0, transactions: [] }
+    return { transactionCount: 0, transactions: [], totalPages: 1 }
   }
   const [transactionCount, transactions, user] = await Promise.all([
     prisma.transaction.count({
@@ -48,8 +49,8 @@ const getTransactionByUserId = async (
           : undefined,
         userId: userId,
       },
-      take: page ? 10 : undefined,
-      skip: page ? (page - 1) * 10 : 0,
+      take: page ? limit : undefined,
+      skip: page ? (page - 1) * limit : 0,
       orderBy: { createdAt: sortOrder === "asc" ? "asc" : "desc" },
       select: {
         id: true,
@@ -57,12 +58,87 @@ const getTransactionByUserId = async (
         pointsChange: true,
         description: true,
         transactionType: true,
+        queueId: true,
+        weightInGrams: true,
+        carbonSaved: true,
         createdAt: true,
       },
     }),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
   ])
-  return { transactionCount, transactions, user }
+  return {
+    transactionCount,
+    transactions,
+    user,
+    totalPages: Math.max(1, Math.ceil(transactionCount / limit)),
+  }
 }
 
-export { getTransactionByUserId }
+const getAllTransactions = async (
+  page: number,
+  limit: number,
+  sortOrder: string | undefined,
+  transactionType: string | null,
+  search: string
+) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const sessionUser = session?.user
+  if (!sessionUser || sessionUser?.role !== "admin") {
+    return { transactionCount: 0, transactions: [], totalPages: 1 }
+  }
+
+  const transactionTypeCondition =
+    transactionType &&
+    !transactionType
+      .split(",")
+      .every((type) =>
+        Object.values(TransactionType).includes(type as TransactionType)
+      )
+
+  if (transactionTypeCondition) {
+    return { transactionCount: 0, transactions: [], totalPages: 1 }
+  }
+
+  const whereClause = {
+    transactionType: transactionType
+      ? { in: transactionType.split(",") as TransactionType[] }
+      : undefined,
+    user: search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { email: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : undefined,
+  }
+
+  const [transactionCount, transactions] = await Promise.all([
+    prisma.transaction.count({ where: whereClause }),
+    prisma.transaction.findMany({
+      where: whereClause,
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy: { createdAt: sortOrder === "asc" ? "asc" : "desc" },
+      select: {
+        id: true,
+        user: { select: { id: true, name: true, email: true } },
+        pointsChange: true,
+        description: true,
+        transactionType: true,
+        queueId: true,
+        createdAt: true,
+      },
+    }),
+  ])
+
+  return {
+    transactionCount,
+    transactions,
+    totalPages: Math.max(1, Math.ceil(transactionCount / limit)),
+  }
+}
+
+export { getTransactionByUserId, getAllTransactions }

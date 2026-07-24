@@ -1,35 +1,37 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { PageinationHeader } from "./header"
 import { Role, Faculty, Sort, getAllMembers } from "./allMembers"
 import { SeeMore } from "./seeMore"
 
 const col_widths = ["5%", "10%", "15%", "10%", "10%", "10%", "10%", "10%", "10%", "10%"]
 
-const verified = [
-  {label: "True", value: true},
-  {label: "False", value: false}
-]
+interface ViewStudentProps {
+  searchParams: Promise<{
+    page?: string
+    limit?: string
+    roles?: string
+    faculty?: string
+    sort?: string
+    search?: string
+  }>
+}
 
-export default async function ViewStudent(
-  {
-    searchParams
-  } : {
-    searchParams: Promise<{
-    page?: string, 
-    limit?: string, 
-    roles?: string, 
-    faculty?: string, 
-    sort?: string,
-    email?: string,
-    }>
-      })
-
-  {
-
+export default async function ViewStudent({ searchParams }: ViewStudentProps) {
   const params = await searchParams
+
+  return (
+    <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={10} />}>
+      <MembersTable searchParams={params} />
+    </Suspense>
+  )
+}
+
+async function MembersTable({ searchParams: params }: { searchParams: Awaited<ViewStudentProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
-  
+
   const currentRoles = params.roles ? (params.roles.split(",") as Role[]) : ["admin", "STUDENT", "STAFF"] as Role[]
   const currentFaculty = params.faculty ? (params.faculty.split(",") as Faculty[]) : ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"] as Faculty[]
 
@@ -50,17 +52,17 @@ export default async function ViewStudent(
       break
   }
 
-  const currentEmail = params.email || ""
+  const currentSearch = params.search || ""
 
-  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentFaculty, currentSort, currentEmail)
+  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentFaculty, currentSort, currentSearch)
 
   return(
     <div className="flex flex-col h-full overflow-hidden">
 
-      <PageinationHeader 
-      currentPage={currentPage} 
-      currentLimit={currentLimit} 
-      totalPages={totalPages} 
+      <PageinationHeader
+      currentPage={currentPage}
+      currentLimit={currentLimit}
+      totalPages={totalPages}
       allMemberCount={allMemberCount}
       />
 
@@ -107,7 +109,7 @@ export default async function ViewStudent(
               <TableCell className="text-center"><span className="text-xs">{member.role === "admin"? "ADMIN" : member.role}</span></TableCell>
 
               <TableCell className="text-center"><SeeMore memberId={member.id} memberName={member.name} memberEmail={member.email}/></TableCell>
-              
+
             </TableRow>
           ))}
 

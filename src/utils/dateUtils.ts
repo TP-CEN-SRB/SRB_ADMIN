@@ -127,11 +127,15 @@ export const getWeeksInMonth = (dateFrom?: Date, dateTo?: Date): Array<{ week: s
 
 type FilterPeriod = "day" | "week" | "month" | "year" | "all time"
 
-export const DateRange = (period: FilterPeriod) => {
+// `offset` shifts the returned range back (negative) or forward (positive) by
+// whole periods, e.g. offset=-1 with period="week" returns last week's Mon-Sun.
+export const DateRange = (period: FilterPeriod, offset: number = 0) => {
     const now = new Date()
 
     switch (period) {
         case "day": {
+        now.setDate(now.getDate() + offset)
+
         const startDate = new Date(now)
         startDate.setHours(0, 0, 0, 0)
 
@@ -141,11 +145,12 @@ export const DateRange = (period: FilterPeriod) => {
         return { startDate, endDate }
         }
         case "week": {
+        now.setDate(now.getDate() + offset * 7)
         const monday = now.getDate() - ((now.getDay() + 6) % 7)
-        
+
         const startDate = new Date(now.setDate(monday))
         startDate.setHours(0, 0, 0, 0)
-        
+
         const endDate = new Date(now)
         endDate.setDate(monday + 6) // Add 6 days to get to Sunday
         endDate.setHours(23, 59, 59, 999)
@@ -153,18 +158,22 @@ export const DateRange = (period: FilterPeriod) => {
         return { startDate, endDate }
         }
         case "month": {
+        now.setMonth(now.getMonth() + offset)
+
         const startDate = new Date(now.getFullYear(), now.getMonth(), 1)
         startDate.setHours(0, 0, 0, 0)
-        
+
         const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
         endDate.setHours(23, 59, 59, 999)
 
         return { startDate, endDate }
         }
         case "year": {
+        now.setFullYear(now.getFullYear() + offset)
+
         const startDate = new Date(now.getFullYear(), 0, 1)
         startDate.setHours(0, 0, 0, 0)
-        
+
         const endDate = new Date(now.getFullYear(), 11, 31)
         endDate.setHours(23, 59, 59, 999)
 

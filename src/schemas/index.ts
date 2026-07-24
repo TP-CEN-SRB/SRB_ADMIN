@@ -100,6 +100,41 @@ const RewardSchema = z
   .and(DateRangeSchema)
   .and(ImageSchema)
 
+const VoucherSchema = z.object({
+  name: z
+    .string({ message: "Name is required" })
+    .trim()
+    .min(2, "Name is too short"),
+  pointsRequired: z.coerce
+    .number({ message: "Points must be a number" })
+    .int("Points must be an integer")
+    .gte(1, "Points cannot be less than 1")
+    .max(2147483647, "Maximum value is 2147483647"),
+  description: z
+    .string({ message: "Description is required" })
+    .min(2, "Description is too short"),
+  isAvailable: z.boolean(),
+  image: z
+    .instanceof(File, { message: "Image is required" })
+    .refine((file) => file.size !== 0, "Image is required")
+    .refine((file) => file.size <= MAX_FILE_SIZE, {
+      message: `File size should not exceed ${
+        MAX_FILE_SIZE / (1024 * 1024)
+      } MB`,
+    })
+    .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
+      message: "Only .jpg, .jpeg, .png, and .webp files are accepted",
+    }),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  // Empty = unrestricted, any registered store can fulfill this voucher.
+  storeIds: z.array(z.string()).default([]),
+})
+
+const UpdateVoucherSchema = VoucherSchema.extend({
+  image: VoucherSchema.shape.image.optional(),
+})
+
 export const BinMaterialSchema = z.object({
   name: z
     .string()
@@ -107,12 +142,26 @@ export const BinMaterialSchema = z.object({
     .min(2, "Name is too short")
     .regex(/^[A-Za-z\s]+$/, "Name can only contain letters"),
   multiplier: z
-    .number({ 
+    .number({
       message: "Multiplier is required"
     })
     .gte(0, "Multiplier cannot be negative")
     .lte(1.7976931348623157e308, "Multiplier exceeds the maximum limit")
     .multipleOf(0.1, "Multiplier can only be set to 1 d.p."),
+})
+
+// Shape of a single hardware self-test result reported by bin/scanner firmware
+export const DiagnosticComponentResultSchema = z.object({
+  componentId: z.string(),
+  componentName: z.string(),
+  status: z.enum(["passed", "failed"]),
+})
+
+// Payload posted to /api/bin-diagnostic and published to the srb/health/<binId> MQTT topic
+export const DiagnosticPayloadSchema = z.object({
+  timestamp: z.union([z.string(), z.number()]),
+  deviceType: z.string().optional(),
+  results: z.array(DiagnosticComponentResultSchema),
 })
 
 const SubscriptionSchema = z.object({
@@ -221,5 +270,7 @@ export {
   UpdateEventSchema,
   EventSchema,
   FeedbackSchema,
-  FaultReportSchema
+  FaultReportSchema,
+  VoucherSchema,
+  UpdateVoucherSchema,
 }

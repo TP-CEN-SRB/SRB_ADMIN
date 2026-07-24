@@ -1,14 +1,16 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { QuestTemplateHeader } from "./header"
 import { TemplateActions } from "./templateActions"
+import CreateQuestTemplateForm from "@/components/FormLogic/(Quest)/CreateQuestTemplateForm"
 import { getQuestTemplates, QuestTemplateSort } from "@/app/action/questTemplate"
 
 const col_widths = ["25%", "15%", "10%", "15%", "15%", "10%"]
 const materialTypes = ["PLASTIC", "METAL", "PAPER", "E_WASTE", "GENERAL"]
 
-export default async function QuestTemplatePage({
-  searchParams,
-}: {
+interface QuestTemplatePageProps {
   searchParams: Promise<{
     page?: string
     limit?: string
@@ -16,8 +18,35 @@ export default async function QuestTemplatePage({
     search?: string
     material?: string
   }>
-}) {
+}
+
+export default async function QuestTemplatePage({ searchParams }: QuestTemplatePageProps) {
   const params = await searchParams
+
+  return (
+    <div className="flex h-full overflow-hidden">
+      <div className="w-full max-w-sm border-r overflow-y-auto p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Add Quest Template</CardTitle>
+            <CardDescription>Create a reusable quest template.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreateQuestTemplateForm />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={6} />}>
+          <QuestTemplateTable searchParams={params} />
+        </Suspense>
+      </div>
+    </div>
+  )
+}
+
+async function QuestTemplateTable({ searchParams: params }: { searchParams: Awaited<QuestTemplatePageProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   const currentSort = (params.sort || "dateDesc") as QuestTemplateSort
@@ -33,7 +62,7 @@ export default async function QuestTemplatePage({
   )
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <>
       <QuestTemplateHeader
         currentPage={currentPage}
         currentLimit={currentLimit}
@@ -88,6 +117,6 @@ export default async function QuestTemplatePage({
           </TableBody>
         </Table>
       </div>
-    </div>
+    </>
   )
 }

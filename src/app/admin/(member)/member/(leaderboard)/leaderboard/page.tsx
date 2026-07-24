@@ -1,10 +1,12 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { Trophy, Star } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { getTopTwentyUsers } from "./action"
+import { getTopTwentyUsers, getMyRank } from "./action"
 
 const col_widths = ["10%", "35%", "18%", "13%", "13%", "11%"]
 
@@ -12,17 +14,54 @@ function initialsFor(name: string | null | undefined) {
   return name ? name.substring(0, 2).toUpperCase() : "US"
 }
 
-export default async function LeaderboardPage() {
-  const leaderboard = await getTopTwentyUsers()
-  const [first, second, third] = leaderboard
-  const rest = leaderboard.slice(3)
-
+export default function LeaderboardPage() {
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Leaderboard</h1>
         <p className="text-sm text-muted-foreground">Top 20 members ranked by current points</p>
       </div>
+
+      <Suspense fallback={<LeaderboardSkeleton />}>
+        <LeaderboardContent />
+      </Suspense>
+    </div>
+  )
+}
+
+async function LeaderboardContent() {
+  const [leaderboard, myRank] = await Promise.all([getTopTwentyUsers(), getMyRank()])
+  const [first, second, third] = leaderboard
+  const rest = leaderboard.slice(3)
+
+  return (
+    <>
+      {myRank && (
+        <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border bg-muted/50 px-4 py-3 max-w-3xl mx-auto">
+          <div className="flex items-center gap-3">
+            <Avatar className="size-9">
+              <AvatarImage src={myRank.profileImageUrl || ""} alt={myRank.username ?? "You"} />
+              <AvatarFallback className="text-xs">{initialsFor(myRank.username)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="text-sm font-medium">Your rank</p>
+              <p className="text-xs text-muted-foreground">{myRank.username}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <p className="text-lg font-bold">#{myRank.rank}</p>
+              <p className="text-[10px] text-muted-foreground">Rank</p>
+            </div>
+            <div className="text-center">
+              <p className="flex items-center justify-center gap-1 text-lg font-bold text-yellow-600">
+                {myRank.balance} <Star className="size-3 fill-yellow-600" />
+              </p>
+              <p className="text-[10px] text-muted-foreground">Points</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {leaderboard.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">No ranked members yet.</p>
@@ -85,7 +124,53 @@ export default async function LeaderboardPage() {
           )}
         </>
       )}
-    </div>
+    </>
+  )
+}
+
+function LeaderboardSkeleton() {
+  return (
+    <>
+      <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border bg-muted/50 px-4 py-3 max-w-3xl mx-auto">
+        <div className="flex items-center gap-3">
+          <Skeleton className="size-9 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+        </div>
+        <div className="flex items-center gap-6">
+          <Skeleton className="h-8 w-10" />
+          <Skeleton className="h-8 w-10" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 items-end gap-4 mb-10 max-w-3xl mx-auto">
+        {[2, 1, 3].map((rank) => (
+          <div key={rank} className="flex flex-col items-center">
+            <Skeleton className={cn("rounded-full", rank === 1 ? "size-24" : "size-16")} />
+            <Skeleton className="mt-2 h-4 w-20" />
+            <Skeleton className="mt-2 h-3 w-12" />
+            <Skeleton
+              className={cn(
+                "w-full mt-3 rounded-t-lg",
+                rank === 1 ? "h-28" : rank === 2 ? "h-20" : "h-16"
+              )}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-lg border overflow-hidden p-4 space-y-3">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="flex gap-4">
+            {Array.from({ length: 6 }).map((_, j) => (
+              <Skeleton key={j} className="h-5 flex-1" />
+            ))}
+          </div>
+        ))}
+      </div>
+    </>
   )
 }
 

@@ -35,6 +35,28 @@ export const verifyQrToken = (token: string): TransferQrPayload => {
   return jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!) as TransferQrPayload
 }
 
+export const generateRedemptionQrToken = (data: {
+  redemptionId: string
+  userId: string
+  rewardName: string
+  pointsRequired: number
+}) => {
+  return jwt.sign(data, process.env.NEXT_JWT_SECRET_KEY!, {
+    expiresIn: "2m",
+  })
+}
+
+type RedemptionQrPayload = {
+  redemptionId: string
+  userId: string
+  rewardName: string
+  pointsRequired: number
+}
+
+export const verifyRedemptionQrToken = (token: string): RedemptionQrPayload => {
+  return jwt.verify(token, process.env.NEXT_JWT_SECRET_KEY!) as RedemptionQrPayload
+}
+
 // One-time handoff token for the "Go to Mobile App" SSO flow: short-lived
 // and single-purpose (identifies a user, nothing else) so it's safe to pass
 // as a URL query param. The mobile app exchanges it via

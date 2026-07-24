@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Suspense } from "react"
 import { Undo2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -11,17 +12,13 @@ import {
 import { getQuestTemplateById } from "@/app/action/questTemplate"
 import UpdateQuestTemplateForm from "@/components/FormLogic/(Quest)/UpdateQuestTemplateForm"
 import { notFound } from "next/navigation"
+import { FormSkeleton } from "@/components/FormSkeleton"
 
-export default async function UpdateQuestTemplatePage({
+export default function UpdateQuestTemplatePage({
   params,
 }: {
   params: Promise<{ templateId: string }>
 }) {
-  const { templateId } = await params
-  const template = await getQuestTemplateById(templateId)
-
-  if (!template) return notFound()
-
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
       <div className="mb-6 flex flex-col items-start justify-between gap-3 sm:flex-row">
@@ -35,16 +32,29 @@ export default async function UpdateQuestTemplatePage({
       </div>
 
       <div className="max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>Template Details</CardTitle>
-            <CardDescription>Update this quest template.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <UpdateQuestTemplateForm id={templateId} template={template} />
-          </CardContent>
-        </Card>
+        <Suspense fallback={<FormSkeleton fields={5} />}>
+          <UpdateQuestTemplateSection params={params} />
+        </Suspense>
       </div>
     </div>
+  )
+}
+
+async function UpdateQuestTemplateSection({ params }: { params: Promise<{ templateId: string }> }) {
+  const { templateId } = await params
+  const template = await getQuestTemplateById(templateId)
+
+  if (!template) return notFound()
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Template Details</CardTitle>
+        <CardDescription>Update this quest template.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <UpdateQuestTemplateForm id={templateId} template={template} />
+      </CardContent>
+    </Card>
   )
 }

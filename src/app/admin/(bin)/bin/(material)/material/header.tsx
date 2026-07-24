@@ -1,16 +1,6 @@
 "use client"
 
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -21,17 +11,10 @@ import {
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ListFilter } from "lucide-react"
+import { ListFilter } from "lucide-react"
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { useTransition } from "react"
-
-const limits = [
-  { label: "10 rows", value: "10" },
-  { label: "20 rows", value: "20" },
-  { label: "50 rows", value: "50" },
-  { label: "100 rows", value: "100" },
-]
+import { useTableQueryParams } from "@/hooks/useTableQueryParams"
+import { TablePaginationControls } from "@/components/TablePaginationControls"
 
 const sorts = [
   { label: "A-Z", value: "nameAsc" },
@@ -48,61 +31,17 @@ interface MaterialHeaderProps {
 }
 
 export function MaterialHeader({ currentPage, currentLimit, totalPages, totalCount }: MaterialHeaderProps) {
-  const [isPending, startTransition] = useTransition()
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+  const { searchParams, isPending, setLimit, goToPage, setSort, setSearch } =
+    useTableQueryParams({ currentPage, totalPages })
 
   const currentSort = searchParams.get("sort") || "nameAsc"
 
-  function pushParams(mutate: (params: URLSearchParams) => void) {
-    const params = new URLSearchParams(searchParams.toString())
-    mutate(params)
-    startTransition(function () {
-      router.push(`${pathname}?${params.toString()}`)
-    })
-  }
-
-  function rebuildURL(newLimit: string) {
-    pushParams(function (params) {
-      params.set("limit", newLimit)
-      params.set("page", "1")
-    })
-  }
-
-  function onButtonClick(direction: string) {
-    let newPage = currentPage
-    switch (direction) {
-      case "start":
-        newPage = 1
-        break
-      case "prev":
-        newPage = currentPage - 1
-        break
-      case "next":
-        newPage = currentPage + 1
-        break
-      case "end":
-        newPage = totalPages
-        break
-    }
-    const clampPage = Math.max(1, Math.min(newPage, totalPages))
-    pushParams(function (params) { params.set("page", clampPage.toString()) })
-  }
-
   function onCheckedSort(sortValue: string, isChecked: boolean) {
-    if (!isChecked) return
-    pushParams(function (params) {
-      params.set("sort", sortValue)
-      params.set("page", "1")
-    })
+    setSort(sortValue, isChecked)
   }
 
   function onSearch(search: string) {
-    pushParams(function (params) {
-      params.set("search", search)
-      params.set("page", "1")
-    })
+    setSearch("search", search)
   }
 
   return (
@@ -143,42 +82,15 @@ export function MaterialHeader({ currentPage, currentLimit, totalPages, totalCou
       </div>
 
       <div className="flex items-center gap-2">
-        <Select value={currentLimit.toString()} onValueChange={rebuildURL}>
-          <SelectTrigger className="text-sm w-24 text-center">
-            <SelectValue placeholder="Select limit" />
-          </SelectTrigger>
-
-          <SelectContent position="popper">
-            <SelectGroup>
-              <SelectLabel>No. of Rows</SelectLabel>
-              {limits.map(function (limit) {
-                return (
-                  <SelectItem key={limit.value} value={limit.value}>
-                    {limit.label}
-                  </SelectItem>
-                )
-              })}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-
-        <Button variant="outline" onClick={function () { onButtonClick("start") }} disabled={(currentPage < 2) || isPending}>
-          <ChevronsLeft className="h-4 w-4" />
-        </Button>
-
-        <Button variant="outline" onClick={function () { onButtonClick("prev") }} disabled={(currentPage < 2) || isPending}>
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-
-        <div className="text-sm w-20 text-center">{Math.min(currentPage * currentLimit, totalCount)} / {totalCount}</div>
-
-        <Button variant="outline" onClick={function () { onButtonClick("next") }} disabled={(currentPage > (totalPages - 1)) || isPending}>
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-
-        <Button variant="outline" onClick={function () { onButtonClick("end") }} disabled={(currentPage > (totalPages - 1)) || isPending}>
-          <ChevronsRight className="h-4 w-4" />
-        </Button>
+        <TablePaginationControls
+          currentPage={currentPage}
+          currentLimit={currentLimit}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          isPending={isPending}
+          onLimitChange={setLimit}
+          onPageChange={goToPage}
+        />
       </div>
     </header>
   )

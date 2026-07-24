@@ -191,6 +191,23 @@ const getStoreById = async (id: string) => {
   })
 }
 
+// Get Store Options - lightweight list for pickers (e.g. voucher store restriction)
+const getStoreOptions = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== Role.admin) {
+    return []
+  }
+
+  return await prisma.user.findMany({
+    where: { role: Role.STORE },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, faculty: true },
+  })
+}
+
 // Delete Store
 const deleteStore = async (storeId: string) => {
     const session = await auth.api.getSession({
@@ -222,5 +239,6 @@ export {
   updateStore,
   getStoreAccounts,
   getStoreById,
+  getStoreOptions,
   deleteStore,
 }

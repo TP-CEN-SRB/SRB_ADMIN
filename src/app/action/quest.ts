@@ -111,22 +111,60 @@ export const deleteQuest = async (questId: string) => {
   }
 }
 
-export const getUsersByQuestId = async (questId: string) => {
-  const usersInQuest = await prisma.userQuest.findMany({
-    where: { questId },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          faculty: true,
+export const getUsersByQuestId = async (
+  questId: string,
+  page: number,
+  limit: number,
+  search: string,
+  faculties: string[],
+  completion: string[]
+) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+
+  if (user?.role !== "admin") {
+    return { usersInQuest: [], userCount: 0, totalPages: 1 }
+  }
+
+  // isCompleted is a boolean column, so "both checked" / "none checked" both
+  // mean "don't filter" - there's no boolean equivalent of an empty `in: []`.
+  const isCompletedFilter =
+    completion.includes("Completed") === completion.includes("Not Completed")
+      ? undefined
+      : completion.includes("Completed")
+
+  const whereClause = {
+    questId,
+    isCompleted: isCompletedFilter,
+    user: {
+      faculty: { in: faculties as ("ENG" | "BUS" | "DES" | "ASC" | "IIT" | "HSS" | "EXT" | "OTHERS")[] },
+      name: search ? { contains: search, mode: "insensitive" as const } : undefined,
+    },
+  }
+
+  const [userCount, usersInQuest] = await Promise.all([
+    prisma.userQuest.count({ where: whereClause }),
+    prisma.userQuest.findMany({
+      where: whereClause,
+      orderBy: [{ isCompleted: "desc" }, { progress: "desc" }],
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            faculty: true,
+          },
         },
       },
-    },
-  })
+    }),
+  ])
 
-  return usersInQuest
+  return { usersInQuest, userCount, totalPages: Math.max(1, Math.ceil(userCount / limit)) }
 }
 
 export const updateQuest = async (

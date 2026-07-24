@@ -3,8 +3,9 @@
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
-import { cached, DASHBOARD_TTL } from "@/lib/cache"
-import { DateRange, getWeeksInMonth, months, days, normalizeDate } from "@/utils/dateUtils"
+import { cached, invalidateByPrefix, DASHBOARD_TTL } from "@/lib/cache"
+import { DateRange, getWeeksInMonth, months, days } from "@/utils/dateUtils"
+import { format } from "date-fns"
 import { BinStatus, Role } from "@/generated/prisma"
 
 export type DashboardPeriod = "day" | "week" | "month" | "year"
@@ -12,7 +13,12 @@ export type DashboardPeriod = "day" | "week" | "month" | "year"
 const ONLINE_THRESHOLD_MS = 10 * 60 * 1000
 const DASHBOARD_CACHE_PREFIX = "cache:dashboard:"
 
-export const getDashboardStats = async (period: DashboardPeriod) => {
+// Bin mutations (create/update/delete/capacity/diagnostic/heartbeat) affect the
+// aggregates cached below — call this after any of them so dashboard numbers
+// don't lag behind by up to DASHBOARD_TTL seconds.
+export const invalidateDashboardCache = async () => invalidateByPrefix(DASHBOARD_CACHE_PREFIX)
+
+export const getDashboardStats = async (period: DashboardPeriod, offset: number = 0) => {
   const session = await auth.api.getSession({ headers: await headers() })
   if (session?.user?.role !== "admin") {
     return {
@@ -26,10 +32,10 @@ export const getDashboardStats = async (period: DashboardPeriod) => {
     }
   }
 
-  const { startDate, endDate } = DateRange(period)
+  const { startDate, endDate } = DateRange(period, offset)
 
   return cached(
-    `cache:dashboard:stats:${period}`,
+    `cache:dashboard:stats:${period}:${offset}`,
     DASHBOARD_TTL,
     async function(){
       const [
@@ -87,6 +93,35 @@ type MonthlyData = {
   [key: string]: number | string
 }
 
+// Counts disposals per material for a single date-bounded bucket without pulling
+// disposal rows into memory: groupBy is bounded by bin count (small, fixed), not
+// disposal volume, and the DB does the counting.
+const countDisposalsByMaterial = async (
+  start: Date | undefined,
+  end: Date | undefined,
+  binMaterialByBinId: Map<string, string>,
+  baseMaterialCounts: MaterialCounts
+) => {
+  const grouped = await prisma.disposal.groupBy({
+    by: ["binId"],
+    where: start && end ? { createdAt: { gte: start, lte: end } } : undefined,
+    _count: { _all: true },
+  })
+
+  const materialCounts = { ...baseMaterialCounts }
+  let total = 0
+
+  for (const row of grouped) {
+    total += row._count._all
+    const material = binMaterialByBinId.get(row.binId)
+    if (material && material in materialCounts) {
+      materialCounts[material] += row._count._all
+    }
+  }
+
+  return { total, materialCounts }
+}
+
 export const getBarChartData = async (
   dateFrom?: Date,
   dateTo?: Date,
@@ -96,54 +131,48 @@ export const getBarChartData = async (
   DASHBOARD_TTL,
   async function(){
   try {
-    const binMaterials = await prisma.binMaterial.findMany({
-      select: { name: true },
-    })
+    const [binMaterials, bins] = await Promise.all([
+      prisma.binMaterial.findMany({ select: { name: true } }),
+      prisma.bin.findMany({
+        select: { id: true, binMaterial: { select: { name: true } } },
+      }),
+    ])
 
     const baseMaterialCounts = binMaterials.reduce((acc: { [x: string]: number }, material: { name: string | number }) => {
       acc[material.name] = 0
       return acc
     }, {} as MaterialCounts)
 
-    const allDisposals = await prisma.disposal.findMany({
-      where: {
-        ...(filter !== "all" && filter !== "alltime" && dateFrom && dateTo
-          ? {
-              createdAt: {
-                gte: dateFrom,
-                lte: dateTo,
-              },
-            }
-          : {}),
-      },
-      include: {
-        bin: {
-          select: {
-            binMaterial: { select: { name: true } },
-          },
-        },
-      },
-    })
+    const binMaterialByBinId = new Map(bins.map((b) => [b.id, b.binMaterial.name]))
 
-    // WEEK filter
+    const hasRange = filter !== "all" && filter !== "alltime" && dateFrom && dateTo
+
+    // WEEK filter — one bucket per day within the (Mon–Sun) dateFrom..dateTo range
     if (filter === "week") {
       return await Promise.all(
         days.map(async (day, dayIndex) => {
-          const filtered = allDisposals.filter(
-            (d) => new Date(d.createdAt).getDay() === (dayIndex + 1) % 7
+          let start: Date | undefined
+          let end: Date | undefined
+
+          if (hasRange) {
+            start = new Date(dateFrom!)
+            start.setDate(start.getDate() + dayIndex)
+            start.setHours(0, 0, 0, 0)
+
+            end = new Date(start)
+            end.setHours(23, 59, 59, 999)
+          }
+
+          const { total, materialCounts } = await countDisposalsByMaterial(
+            start,
+            end,
+            binMaterialByBinId,
+            baseMaterialCounts
           )
 
-          const materialCounts = { ...baseMaterialCounts }
-          filtered.forEach((d: { bin: { binMaterial: { name: any } } }) => {
-            const material = d.bin.binMaterial.name
-            if (material in materialCounts) {
-              materialCounts[material]++
-            }
-          })
-
           return {
-            month: day,
-            bin: filtered.length,
+            month: start ? format(start, "d/M") : day,
+            bin: total,
             ...materialCounts,
           }
         })
@@ -153,24 +182,23 @@ export const getBarChartData = async (
     // MONTH filter
     if (filter === "month") {
       const weekRanges = getWeeksInMonth(dateFrom ?? new Date(), dateTo ?? new Date())
+      // getWeeksInMonth's start/end were designed to be compared against
+      // normalizeDate(d.createdAt) (raw + 8h SGT shift), not raw createdAt —
+      // shift the bounds back by 8h so the DB-side comparison against the raw
+      // column matches the original in-memory comparison exactly.
+      const SGT_OFFSET_MS = 8 * 60 * 60 * 1000
       return await Promise.all(
-        weekRanges.map(async ({ week, start, end }) => {
-          const filtered = allDisposals.filter((d) => {
-            const date = normalizeDate(new Date(d.createdAt))
-            return date >= start && date <= end
-          })
-
-          const materialCounts = { ...baseMaterialCounts }
-          filtered.forEach((d: { bin: { binMaterial: { name: any } } }) => {
-            const material = d.bin.binMaterial.name
-            if (material in materialCounts) {
-              materialCounts[material]++
-            }
-          })
+        weekRanges.map(async ({ start, end }) => {
+          const { total, materialCounts } = await countDisposalsByMaterial(
+            new Date(start.getTime() - SGT_OFFSET_MS),
+            new Date(end.getTime() - SGT_OFFSET_MS),
+            binMaterialByBinId,
+            baseMaterialCounts
+          )
 
           return {
-            month: week,
-            bin: filtered.length,
+            month: format(start, "d/M"),
+            bin: total,
             ...materialCounts,
           }
         })
@@ -178,23 +206,27 @@ export const getBarChartData = async (
     }
 
     // DEFAULT = All Time (group by month)
+    const year = (dateFrom ?? new Date()).getFullYear()
     return await Promise.all(
       months.map(async (month, monthIndex) => {
-        const filtered = allDisposals.filter(
-          (d) => new Date(d.createdAt).getMonth() === monthIndex
+        let start: Date | undefined
+        let end: Date | undefined
+
+        if (hasRange) {
+          start = new Date(year, monthIndex, 1, 0, 0, 0, 0)
+          end = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999)
+        }
+
+        const { total, materialCounts } = await countDisposalsByMaterial(
+          start,
+          end,
+          binMaterialByBinId,
+          baseMaterialCounts
         )
 
-        const materialCounts = { ...baseMaterialCounts }
-        filtered.forEach((d: { bin: { binMaterial: { name: any } } }) => {
-          const material = d.bin.binMaterial.name
-          if (material in materialCounts) {
-            materialCounts[material]++
-          }
-        })
-
         return {
-          month,
-          bin: filtered.length,
+          month: start ? format(start, "MMM") : month,
+          bin: total,
           ...materialCounts,
         }
       })

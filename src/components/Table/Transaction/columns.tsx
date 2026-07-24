@@ -1,7 +1,10 @@
 "use client"
 
+import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
+import { ImageIcon } from "lucide-react"
 import { TransactionType } from "@/generated/prisma"
+import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
@@ -13,6 +16,7 @@ export type Transaction = {
   pointsChange: number
   description: string
   transactionType: TransactionType
+  queueId?: string | null
   createdAt: Date
 }
 
@@ -33,7 +37,6 @@ export const columns: ColumnDef<Transaction>[] = [
       const time = row.original.createdAt.toLocaleTimeString("en-SG", {
         hour: "2-digit",
         minute: "2-digit",
-        second: "2-digit",
         hour12: false,
       })
 
@@ -75,6 +78,23 @@ export const columns: ColumnDef<Transaction>[] = [
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+      )
+    },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      const { transactionType, queueId } = row.original
+      if (transactionType !== "DISPOSAL" || !queueId) return null
+
+      return (
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/admin/transaction/disposal/${queueId}`}>
+            <ImageIcon className="mr-1 size-3.5" />
+            More
+          </Link>
+        </Button>
       )
     },
   },

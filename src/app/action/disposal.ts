@@ -5,11 +5,22 @@ import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { deleteDisposalImages } from "@/lib/disposalImages"
 
+export type Disposal = {
+  id: string
+  weightInGrams: number
+  isRedeemed: boolean
+  pointsAwarded: number
+  userId: string | null
+  createdAt: Date
+  imageUrl: string | null
+  user: { name: string } | null
+}
+
 const getDisposalByBinId = async (
   binId: string,
-  page: number | null,
-  sortOrder: string | undefined,
-  sortItem: string | undefined
+  page: number,
+  limit: number,
+  sort: string | undefined
 ) => {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -18,30 +29,32 @@ const getDisposalByBinId = async (
   if (user?.role !== "admin") {
     return { error: "Permission denied!" }
   }
-  const sortableItems = ["weight", "point", "createdAt"]
-  const pageCondition = page != null && page < 0
-  const sortOrderCondition =
-    sortOrder !== undefined && sortOrder !== "asc" && sortOrder !== "desc"
-  const sortItemCondition =
-    sortItem !== undefined && !Object.values(sortableItems).includes(sortItem)
-  if (pageCondition || sortItemCondition || sortOrderCondition) {
-    return { disposalCount: 0, disposals: [] }
-  }
+
+  const orderBy = (function () {
+    switch (sort) {
+      case "weightAsc":
+        return { weightInGrams: "asc" as const }
+      case "weightDesc":
+        return { weightInGrams: "desc" as const }
+      case "pointsAsc":
+        return { pointsAwarded: "asc" as const }
+      case "pointsDesc":
+        return { pointsAwarded: "desc" as const }
+      case "dateAsc":
+        return { createdAt: "asc" as const }
+      case "dateDesc":
+      default:
+        return { createdAt: "desc" as const }
+    }
+  })()
 
   const [disposalCount, disposals, bin] = await Promise.all([
     prisma.disposal.count({ where: { binId: binId } }),
     prisma.disposal.findMany({
       where: { binId: binId },
-      take: page ? 10 : undefined,
-      skip: page ? (page - 1) * 10 : 0,
-      orderBy:
-        sortItem === sortableItems[0]
-          ? { weightInGrams: sortOrder }
-          : sortItem === sortableItems[1]
-          ? { pointsAwarded: sortOrder }
-          : sortItem === sortableItems[2]
-          ? { createdAt: sortOrder }
-          : { createdAt: "desc" },
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy,
       select: {
         id: true,
         weightInGrams: true,
@@ -50,6 +63,7 @@ const getDisposalByBinId = async (
         userId: true,
         createdAt: true,
         imageUrl: true,
+        user: { select: { name: true } },
       },
     }),
     prisma.bin.findUnique({
@@ -60,7 +74,43 @@ const getDisposalByBinId = async (
       },
     }),
   ])
-  return { disposalCount, disposals, bin }
+  return {
+    disposalCount,
+    disposals,
+    bin,
+    totalPages: Math.max(1, Math.ceil(disposalCount / limit)),
+  }
+}
+
+// Powers the "View Images" action on a DISPOSAL transaction row - a single
+// transaction is created per redeemed DisposalQueue (see
+// src/app/api/disposal/[id]/route.ts), so this looks up every disposal that
+// was part of that queue.
+const getDisposalsByQueueId = async (queueId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== "admin") {
+    return { error: "Permission denied!" }
+  }
+
+  const disposals = await prisma.disposal.findMany({
+    where: { queueId },
+    orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      weightInGrams: true,
+      pointsAwarded: true,
+      createdAt: true,
+      imageUrl: true,
+      carbonprint: true,
+      bin: { select: { binMaterial: { select: { name: true } } } },
+      user: { select: { name: true } },
+    },
+  })
+
+  return { disposals }
 }
 
 const getBinImageSnapshot = async (
@@ -97,4 +147,9 @@ const deleteDisposalImagesForBin = async (binId: string, asOf: string) => {
   return result
 }
 
-export { getDisposalByBinId, getBinImageSnapshot, deleteDisposalImagesForBin }
+export {
+  getDisposalByBinId,
+  getDisposalsByQueueId,
+  getBinImageSnapshot,
+  deleteDisposalImagesForBin,
+}

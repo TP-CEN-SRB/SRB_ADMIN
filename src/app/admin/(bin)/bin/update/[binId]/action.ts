@@ -6,6 +6,7 @@ import { BinStatus } from "@/generated/prisma"
 import { revalidatePath } from "next/cache"
 import { z } from "zod"
 import { checkExistingBinRecord } from "../../binShared"
+import { invalidateDashboardCache } from "@/app/action/dashboard"
 
 export const getBinById = async (id: string) => {
   return await prisma.bin.findUnique({
@@ -68,7 +69,12 @@ export const updateBin = async (
           },
         }),
       ])
+      await invalidateDashboardCache()
       revalidatePath("/admin/bin")
+      revalidatePath("/admin/bin/manager")
+      revalidatePath("/admin/bin/manager/map")
+      revalidatePath("/admin/bin/manager/view/[id]", "page")
+      revalidatePath("/admin/bin/manager/[id]", "page")
       return {
         success: `Bin updated successfully, Bin ID: ${id}`,
       }

@@ -2,6 +2,7 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { EditMemberFormValue, EditMemberSchema } from "./schema";
 
 export async function getMemberId(id: string) {
@@ -63,15 +64,17 @@ export async function updateMember(id: string, payload: EditMemberFormValue) {
                 email: email,
                 emailVerified: emailVerified, 
                 faculty: faculty, 
-                role: role 
-            } 
+                role: role
+            }
         });
 } catch(error) {
     console.error("updateMember failed:", error);
     return { error: "Something went wrong when updating, please try again later." }
 }
+    revalidatePath("/admin/member")
+    revalidatePath("/admin/member/[id]", "page")
     return { success: true }
-}   
+}
 
 export async function sendPasswordResetEmail(email: string) {
     const header = await headers();

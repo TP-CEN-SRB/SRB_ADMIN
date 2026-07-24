@@ -27,6 +27,7 @@
   "@tanstack/react-table": "^8.21.3",
   "@types/mapbox-gl": "^3.4.1",
   "@uploadthing/react": "^7.0.0",
+  "@upstash/ratelimit": "^2.0.8",
   "@upstash/redis": "^1.35.7",
   "archiver": "^8.0.0",
   "bcrypt": "^6.0.0",

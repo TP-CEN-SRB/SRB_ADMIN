@@ -2,10 +2,34 @@
 
 import { prisma } from "@/lib/db"
 import { BinStatus } from "@/generated/prisma"
+import { z } from "zod"
+import { DiagnosticComponentResultSchema, DiagnosticPayloadSchema } from "@/schemas"
+import { sendBinFaultyEmail } from "@/lib/resend"
+import { invalidateDashboardCache } from "@/app/action/dashboard"
 
 // Cross-cutting bin actions shared by infrastructure entry points that
 // aren't tied to a single admin page: the MQTT bridge (src/lib/mqtt.ts),
 // the bin-diagnostic webhook, and the smart-alerts API route.
+
+type DiagnosticComponentResult = z.infer<typeof DiagnosticComponentResultSchema>
+
+const FailedComponentSchema = z.object({ id: z.string(), name: z.string() })
+type FailedComponent = z.infer<typeof FailedComponentSchema>
+
+interface BinAlert {
+  id: string
+  location: string
+  material?: string
+  capacity: number
+  lastHeartBeat: Date | null
+  alertLevel: "hardware" | "offline" | "critical"
+  lat: number | null
+  long: number | null
+  hardwareFailed: boolean
+  failedComponents: FailedComponent[]
+  components: DiagnosticComponentResult[]
+  lastDiagnosticAt: Date | null
+}
 
 export const getSmartAlerts = async function(){
   const bins = await prisma.bin.findMany({
@@ -73,7 +97,7 @@ export const getSmartAlerts = async function(){
   // ============================
   // ALERT EVALUATION
   // ============================
-  const alerts: any[] = []
+  const alerts: BinAlert[] = []
 
   for (const bin of bins) {
     const last = bin.lastHeartBeat
@@ -89,19 +113,21 @@ export const getSmartAlerts = async function(){
     const binDiag = binLogsByBin.get(bin.id)
 
     let binHardwareFailed = false
-    let failedComponents: { id: string; name: string }[] = []
-    let components: any[] = []
+    let failedComponents: FailedComponent[] = []
+    let components: DiagnosticComponentResult[] = []
 
     if (binDiag?.details && typeof binDiag.details === "object") {
-      const d = binDiag.details as any
+      const details = binDiag.details as { failedComponents?: unknown; allComponents?: unknown }
 
-      if (Array.isArray(d.failedComponents) && d.failedComponents.length > 0) {
+      const parsedFailed = FailedComponentSchema.array().safeParse(details.failedComponents)
+      if (parsedFailed.success && parsedFailed.data.length > 0) {
         binHardwareFailed = true
-        failedComponents = d.failedComponents
+        failedComponents = parsedFailed.data
       }
 
-      if (Array.isArray(d.allComponents)) {
-        components = d.allComponents
+      const parsedAll = DiagnosticComponentResultSchema.array().safeParse(details.allComponents)
+      if (parsedAll.success) {
+        components = parsedAll.data
       }
     }
 
@@ -137,14 +163,15 @@ export const getSmartAlerts = async function(){
   return alerts
 }
 
-export const handleBinDiagnostic = async (binId: string, payload: any) => {
+export const handleBinDiagnostic = async (binId: string, payload: unknown) => {
   try {
-    const { timestamp, results, deviceType } = payload
-
-    if (!Array.isArray(results)) {
-      console.error("❌ Diagnostic payload missing results[] array")
+    const parsed = DiagnosticPayloadSchema.safeParse(payload)
+    if (!parsed.success) {
+      console.error("❌ Invalid diagnostic payload:", parsed.error.flatten())
       return { error: "Invalid diagnostic payload" }
     }
+
+    const { timestamp, results, deviceType } = parsed.data
 
     // Ignore scanner diagnostics — they belong to ScannerDiagnosticLog
     if (deviceType === "scanner_unit_esp32") {
@@ -154,8 +181,8 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
 
     // Extract failed components
     const failedComponents = results
-      .filter((r: any) => r.status === "failed")
-      .map((r: any) => ({
+      .filter((r) => r.status === "failed")
+      .map((r) => ({
         id: r.componentId,
         name: r.componentName,
       }))
@@ -164,21 +191,31 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
 
     // Component OK checks (only bin components)
     const lidOK = !results.some(
-      (r: any) =>
-        (r.componentId?.includes("motor") ||
-          r.componentId?.includes("lid") ||
-          r.componentId?.includes("ultrasonic")) &&
+      (r) =>
+        (r.componentId.includes("motor") ||
+          r.componentId.includes("lid") ||
+          r.componentId.includes("ultrasonic")) &&
         r.status === "failed"
     )
 
     const loadcellOK = !results.some(
-      (r: any) => r.componentId?.includes("loadcell") && r.status === "failed"
+      (r) => r.componentId.includes("loadcell") && r.status === "failed"
     )
 
     // Final bin status
     const overallStatus = anyFailed
       ? BinStatus.UNDER_MAINTENANCE
       : BinStatus.FUNCTIONAL
+
+    const bin = await prisma.bin.findUnique({
+      where: { id: binId },
+      select: {
+        status: true,
+        userId: true,
+        binMaterial: { select: { name: true } },
+        user: { select: { location: true } },
+      },
+    })
 
     // Save log entry
     await prisma.binDiagnosticLog.create({
@@ -202,6 +239,26 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
       data: { status: overallStatus },
     })
 
+    if (bin && bin.status !== overallStatus) {
+      await invalidateDashboardCache()
+    }
+
+    // Notify subscribers only on the transition INTO Under Maintenance, not on
+    // every subsequent diagnostic ping while the fault persists.
+    if (bin && anyFailed && bin.status !== BinStatus.UNDER_MAINTENANCE) {
+      const subscriptions = await prisma.subscription.findMany({
+        where: { userId: bin.userId },
+      })
+      if (subscriptions.length > 0) {
+        await sendBinFaultyEmail(
+          subscriptions.map((s) => s.email),
+          bin.binMaterial.name,
+          bin.user.location,
+          failedComponents
+        )
+      }
+    }
+
     if (anyFailed) {
       return {
         alert: {
@@ -217,4 +274,18 @@ export const handleBinDiagnostic = async (binId: string, payload: any) => {
     console.error("❌ handleBinDiagnostic error:", error)
     return { error: "Failed to process diagnostic" }
   }
+}
+
+// Logs an admin-issued bin command (open/close/up/down) to the activity
+// log. There's no hardware ack topic for door state, so this logs the
+// moment the command was successfully published over MQTT, not a
+// confirmed physical door movement.
+export const logBinCommand = async (binId: string, materialName: string, command: string) => {
+  await prisma.crashlog.create({
+    data: {
+      source: "BIN_COMMAND",
+      binId,
+      message: `"${command}" command sent to ${materialName} bin (${binId})`,
+    },
+  })
 }

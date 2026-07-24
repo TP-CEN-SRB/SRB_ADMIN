@@ -21,7 +21,11 @@ import {
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
 import Link from "next/link";
+import { Suspense } from "react"
 import { getFeedbacksForUser, getFaultReportsForUser } from "@admin/(member)/member/(response)/feedback/feedback";
+import { getTransactionByUserId } from "@/app/action/transaction";
+import { ProfileSkeleton } from "@/components/ProfileSkeleton";
+import { History } from "lucide-react";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400",
@@ -65,19 +69,6 @@ async function getMemberId(id: string){
 
 export default async function MemberPage({ params } : { params : Promise<{id: string}>}){
   const { id } = await params
-  const [member, feedbacks, faultReports] = await Promise.all([
-    getMemberId(id),
-    getFeedbacksForUser(id),
-    getFaultReportsForUser(id),
-  ])
-
-  if (!member){
-    notFound()
-  }
-
-  const initials = member.name 
-  ? member.name.substring(0, 2).toUpperCase() 
-  : "US";
 
   return (
     <div className="container mx-auto px-4 py-6 md:px-6 2xl:max-w-[1400px] h-full overflow-y-auto">
@@ -85,7 +76,7 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
         <h1 className="text-2xl font-semibold">Profile</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/admin/member/edit/${member.id}`}>
+            <Link href={`/admin/member/edit/${id}`}>
               <Edit className="mr-2 size-4" />
               Edit Member
             </Link>
@@ -100,6 +91,32 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
         </div>
       </div>
 
+      <Suspense fallback={<ProfileSkeleton />}>
+        <MemberProfileSection id={id} />
+      </Suspense>
+    </div>
+  )
+}
+
+async function MemberProfileSection({ id }: { id: string }) {
+  const [member, feedbacks, faultReports, transactionData] = await Promise.all([
+    getMemberId(id),
+    getFeedbacksForUser(id),
+    getFaultReportsForUser(id),
+    getTransactionByUserId(id, 1, "desc", null),
+  ])
+
+  if (!member){
+    notFound()
+  }
+
+  const recentTransactions = (("transactions" in transactionData ? transactionData.transactions : undefined) ?? []).slice(0, 5)
+
+  const initials = member.name
+  ? member.name.substring(0, 2).toUpperCase()
+  : "US";
+
+  return (
       <div className="grid gap-6 md:grid-cols-4">
         {/* Sidebar */}
         <div className="md:col-span-1">
@@ -362,8 +379,74 @@ export default async function MemberPage({ params } : { params : Promise<{id: st
               </CardContent>
             </Card>
           </div>
+
+          {/* Transaction History */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Transaction History</CardTitle>
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/admin/member/transaction/${id}`}>
+                  <History className="mr-2 size-4" />
+                  View Full History
+                </Link>
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              <Table className="table-fixed">
+                <colgroup>
+                  <col style={{ width: "15%" }} />
+                  <col style={{ width: "40%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "25%" }} />
+                </colgroup>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-center">Points</TableHead>
+                    <TableHead className="text-center">Timestamp</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {recentTransactions.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-20 text-center text-muted-foreground">
+                        No transactions yet.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    recentTransactions.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell className="text-center"><span className="text-xs">{transaction.transactionType}</span></TableCell>
+                        <TableCell><span className="text-xs truncate block max-w-full">{transaction.description}</span></TableCell>
+                        <TableCell
+                          className={`text-center text-xs font-medium ${
+                            transaction.pointsChange > 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {transaction.pointsChange > 0 ? "+" : ""}
+                          {transaction.pointsChange}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className="text-xs">
+                            {new Date(transaction.createdAt).toLocaleString("en-SG", {
+                              year: "numeric",
+                              month: "2-digit",
+                              day: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              hour12: false,
+                            })}
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </div>
   );
 }

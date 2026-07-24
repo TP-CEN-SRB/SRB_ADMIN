@@ -1,6 +1,10 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { QuestHeader } from "./header"
 import { QuestActions } from "./questActions"
+import CreateQuestForm from "@/components/FormLogic/(Quest)/CreateQuestForm"
 import { getQuests } from "@/app/action/quest"
 
 const col_widths = ["20%", "12%", "10%", "12%", "12%", "12%", "12%", "10%"]
@@ -24,9 +28,7 @@ function parseSort(sort: string): { sortItem: string | undefined; sortOrder: str
   }
 }
 
-export default async function AllQuestsPage({
-  searchParams,
-}: {
+interface AllQuestsPageProps {
   searchParams: Promise<{
     page?: string
     limit?: string
@@ -34,8 +36,35 @@ export default async function AllQuestsPage({
     search?: string
     material?: string
   }>
-}) {
+}
+
+export default async function AllQuestsPage({ searchParams }: AllQuestsPageProps) {
   const params = await searchParams
+
+  return (
+    <div className="flex h-full overflow-hidden">
+      <div className="w-full max-w-sm border-r overflow-y-auto p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Add Quest</CardTitle>
+            <CardDescription>Create a new recycling quest for members.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CreateQuestForm />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={8} />}>
+          <QuestsTable searchParams={params} />
+        </Suspense>
+      </div>
+    </div>
+  )
+}
+
+async function QuestsTable({ searchParams: params }: { searchParams: Awaited<AllQuestsPageProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   const currentSort = params.sort || "dateDesc"
@@ -55,7 +84,7 @@ export default async function AllQuestsPage({
   const totalPages = Math.max(1, Math.ceil(questCount / currentLimit))
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <>
       <QuestHeader
         currentPage={currentPage}
         currentLimit={currentLimit}
@@ -114,6 +143,6 @@ export default async function AllQuestsPage({
           </TableBody>
         </Table>
       </div>
-    </div>
+    </>
   )
 }

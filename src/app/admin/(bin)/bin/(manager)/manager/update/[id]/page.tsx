@@ -1,11 +1,20 @@
+import { Suspense } from "react"
 import { getAllBinManagers } from "../../action"
 import UpdateBinManagerScreen from "./UpdateBinManagerScreen"
 import { prisma } from "@/lib/db"
 import { notFound } from "next/navigation"
+import { FormSkeleton } from "@/components/FormSkeleton"
 
+export default function UpdateBinManagersPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<FormSkeleton fields={5} />}>
+      <UpdateBinManagerSection params={params} />
+    </Suspense>
+  )
+}
 
-export default async function UpdateBinManagersPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params 
+async function UpdateBinManagerSection({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const [binUser, binManagers] = await Promise.all([
     prisma.user.findUnique({
       where: {

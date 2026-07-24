@@ -26,12 +26,13 @@ import {
   Trophy, 
   MessageSquare,
   Target,
-  Calendar, 
-  ClipboardList, 
-  FilePlus, 
-  CalendarPlus, 
+  Calendar,
+  ClipboardList,
   Store,
-  Bug
+  MailCheck,
+  Ticket,
+  Receipt,
+  ScrollText
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -86,6 +87,15 @@ export default function AdminDashboard() {
                   <Link href="/admin/bin/manager" className="flex items-center gap-3">
                     <UserCog className="h-4 w-4" />
                     View Bin Managers
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/manager/subscription'}>
+                  <Link href="/admin/bin/manager/subscription" className="flex items-center gap-3">
+                    <MailCheck className="h-4 w-4" />
+                    Subscriptions
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -212,24 +222,6 @@ export default function AdminDashboard() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/activity/quest-template/create'}>
-                  <Link href="/admin/activity/quest-template/create" className="flex items-center gap-3">
-                    <FilePlus className="h-4 w-4" />
-                    Create Quest Templates
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/activity/event/create'}>
-                  <Link href="/admin/activity/event/create" className="flex items-center gap-3">
-                    <CalendarPlus className="h-4 w-4" />
-                    Create Event Templates
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -251,16 +243,50 @@ export default function AdminDashboard() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Crash Log Section */}
+        {/* Rewards Section */}
         <SidebarGroup>
-          <SidebarGroupLabel>Crash Log</SidebarGroupLabel>
+          <SidebarGroupLabel>Rewards</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/crashlog'}>
-                  <Link href="/admin/crashlog" className="flex items-center gap-3">
-                    <Bug className="h-4 w-4" />
-                    Messages
+                <SidebarMenuButton asChild isActive={pathname === '/admin/voucher'}>
+                  <Link href="/admin/voucher" className="flex items-center gap-3">
+                    <Ticket className="h-4 w-4" />
+                    Vouchers
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Transactions Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Transactions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/transaction'}>
+                  <Link href="/admin/transaction" className="flex items-center gap-3">
+                    <Receipt className="h-4 w-4" />
+                    All Transactions
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Activity Log Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Activity Log</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/log'}>
+                  <Link href="/admin/log" className="flex items-center gap-3">
+                    <ScrollText className="h-4 w-4" />
+                    Activity Log
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

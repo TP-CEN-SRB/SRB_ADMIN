@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db"
 import { BinStatus } from "@/generated/prisma"
 import { revalidatePath } from "next/cache"
+import { invalidateDashboardCache } from "@/app/action/dashboard"
 
 export const deleteBin = async (id: string) => {
   const bin = await prisma.bin.findUnique({
@@ -16,6 +17,7 @@ export const deleteBin = async (id: string) => {
         id,
       },
     })
+    await invalidateDashboardCache()
     revalidatePath("/admin/bin")
     return { success: `Bin with ID ${id} deleted successfully` }
   } else return { error: `Bin with ID ${id} does not exist` }

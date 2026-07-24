@@ -1,7 +1,17 @@
+import { Suspense } from "react"
 import { getAllBinManagers } from "../action"
 import CreateBinManagerScreen from "./CreateBinManagerScreen"
+import { FormSkeleton } from "@/components/FormSkeleton"
 
-export default async function CreateBinManagerPage() {
+export default function CreateBinManagerPage() {
+  return (
+    <Suspense fallback={<FormSkeleton fields={5} />}>
+      <CreateBinManagerSection />
+    </Suspense>
+  )
+}
+
+async function CreateBinManagerSection() {
   const binManagers = await getAllBinManagers()
   return (
     <CreateBinManagerScreen

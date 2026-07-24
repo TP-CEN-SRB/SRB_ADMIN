@@ -228,6 +228,7 @@ export const PUT = async (
     // --- Aggregate totals ---
     let totalPoints = 0
     let totalCarbon = 0
+    let totalWeight = 0
     const carbonById: Record<string, number> = {}
 
     for (const d of disposals) {
@@ -236,6 +237,7 @@ export const PUT = async (
       carbonById[d.id] = c
       totalCarbon += c
       totalPoints += d.pointsAwarded
+      totalWeight += d.weightInGrams
     }
     const treeProgressIncrement = totalCarbon / 1000
     console.log("Totals:", { totalPoints, totalCarbon, treeProgressIncrement })
@@ -276,11 +278,12 @@ export const PUT = async (
       await tx.transaction.create({
         data: {
           pointsChange: totalPoints,
-          description: `Awarded ${totalPoints} pts for ${disposals.length} disposals in queue. (${totalCarbon.toFixed(
-            2
-          )}g CO2 saved)`,
+          description: `Awarded ${totalPoints} pts for ${disposals.length} disposals in queue.`,
           transactionType: TransactionType.DISPOSAL,
           userId,
+          queueId,
+          weightInGrams: totalWeight,
+          carbonSaved: totalCarbon,
         },
       })
 

@@ -85,7 +85,11 @@ export const auth = betterAuth({
                 subject: "[Smart Bin System] Account Verification",
                 html: emailTemplate(url, "VERIFY"),
             })
-        }
+        },
+        // Clicking the link verifies AND creates a session in one step, so
+        // the user lands already signed in at the callbackURL instead of
+        // being dropped on a login page to sign in a second time.
+        autoSignInAfterVerification: true,
     },
 
     plugins:[

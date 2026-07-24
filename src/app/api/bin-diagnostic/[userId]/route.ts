@@ -7,7 +7,12 @@ export async function POST(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const { userId } = await params 
+    const apiKey = req.headers.get("x-api-key")
+    if (apiKey !== process.env.API_KEY) {
+      return NextResponse.json({ message: "Permission denied" }, { status: 401 })
+    }
+
+    const { userId } = await params
 
     if (!userId) {
       return NextResponse.json(

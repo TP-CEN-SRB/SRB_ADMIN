@@ -32,7 +32,9 @@ model User {
   disposals            Disposal[]
   disposal_queue       DisposalQueue[]
   point                Point?
-  redemptions          Redemption[]
+  redemptions          Redemption[]           @relation("RedeemedBy")
+  fulfilledRedemptions Redemption[]           @relation("FulfilledRedemptions")
+  allowedVouchers      Reward[]               @relation("VoucherAllowedStores")
   subscriptions        Subscription[]
   transactions         Transaction[]
   receivedTransfers    TransferSession[]      @relation("ReceivedTransfers")
@@ -186,18 +188,25 @@ model Reward {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   redemptions    Redemption[]
+  // Stores (User rows with role STORE) allowed to fulfill this voucher.
+  // Empty = unrestricted, any registered store can fulfill it.
+  allowedStores  User[]       @relation("VoucherAllowedStores")
 
   @@map("rewards")
 }
 
 model Redemption {
-  id        String   @id @default(uuid())
-  userId    String
-  rewardId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reward    Reward   @relation(fields: [rewardId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String           @id @default(uuid())
+  userId        String
+  rewardId      String
+  status        RedemptionStatus @default(PENDING)
+  fulfilledAt   DateTime?
+  fulfilledById String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  reward        Reward           @relation(fields: [rewardId], references: [id], onDelete: Cascade)
+  user          User             @relation("RedeemedBy", fields: [userId], references: [id], onDelete: Cascade)
+  fulfilledBy   User?            @relation("FulfilledRedemptions", fields: [fulfilledById], references: [id])
 
   @@map("redemptions")
 }
@@ -219,6 +228,14 @@ model Transaction {
   description     String
   transactionType TransactionType
   userId          String
+  // Set for DISPOSAL transactions - links back to the DisposalQueue whose
+  // disposals were redeemed together, so admins can view the trash images.
+  // No FK relation since queues aren't guaranteed to outlive their redemption.
+  queueId         String?
+  // Also DISPOSAL-only: aggregate weight/carbon across the redeemed queue,
+  // shown in place of a text description on the member transaction table.
+  weightInGrams   Int?
+  carbonSaved     Float?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -279,10 +296,17 @@ model Video {
   @@map("video")
 }
 
+enum ActivityLogSource {
+  APP_ERROR
+  BIN_COMMAND
+}
+
 model Crashlog {
-  id        String   @id @default(uuid())
+  id        String            @id @default(uuid())
   message   String
-  createdAt DateTime @default(now())
+  source    ActivityLogSource @default(APP_ERROR)
+  binId     String?
+  createdAt DateTime          @default(now())
 
   @@map("crashlog")
 }
@@ -422,6 +446,11 @@ enum Role {
   BIN
   STAFF
   STORE
+}
+
+enum RedemptionStatus {
+  PENDING
+  FULFILLED
 }
 
 enum TransactionType {

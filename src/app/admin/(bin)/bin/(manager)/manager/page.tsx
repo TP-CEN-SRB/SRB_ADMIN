@@ -1,4 +1,6 @@
+import { Suspense } from "react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { TableSkeleton } from "@/components/TableSkeleton"
 import { BinManagerHeader } from "./header"
 import { BinManagerActions } from "./binManagerActions"
 import { listOfBinManagersUsed } from "./action"
@@ -6,9 +8,7 @@ import { listOfBinManagersUsed } from "./action"
 const col_widths = ["25%", "30%", "15%", "15%", "15%"]
 const binManagerFaculties = ["ENG", "BUS", "DES", "ASC", "IIT", "HSS", "EXT", "OTHERS"]
 
-export default async function AllBinManagersPage({
-  searchParams,
-}: {
+interface AllBinManagersPageProps {
   searchParams: Promise<{
     page?: string
     limit?: string
@@ -16,8 +16,19 @@ export default async function AllBinManagersPage({
     search?: string
     faculty?: string
   }>
-}) {
+}
+
+export default async function AllBinManagersPage({ searchParams }: AllBinManagersPageProps) {
   const params = await searchParams
+
+  return (
+    <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={5} />}>
+      <BinManagersTable searchParams={params} />
+    </Suspense>
+  )
+}
+
+async function BinManagersTable({ searchParams: params }: { searchParams: Awaited<AllBinManagersPageProps["searchParams"]> }) {
   const currentPage = Number(params.page) || 1
   const currentLimit = Number(params.limit) || 10
   const currentSort = params.sort || "nameAsc"

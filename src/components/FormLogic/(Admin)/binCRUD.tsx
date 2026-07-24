@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db"
 import { EditBinFormValue } from "@/components/FormLogic/(Admin)/admin-schema"
 import { updateCredentialPassword } from "@/lib/createCredentialUser"
+import { revalidatePath } from "next/cache"
 
 export async function updateBin(formData: Partial<EditBinFormValue>, binUserID: string) {
     try {
@@ -18,6 +19,12 @@ export async function updateBin(formData: Partial<EditBinFormValue>, binUserID: 
             where: { id: binUserID },
             data: safeUpdateData,
         })
+
+        revalidatePath("/admin/bin/manager")
+        revalidatePath("/admin/bin/manager/map")
+        revalidatePath("/admin/bin/manager/view/[id]", "page")
+        revalidatePath("/admin/bin/manager/update/[id]", "page")
+        revalidatePath("/admin/bin/manager/[id]", "page")
 
         return updatedUser
 

@@ -102,6 +102,15 @@ interface BinManager {
   bins: Bin[]
 }
 
+// Shape returned by GET /api/bin-data — a live status snapshot, not a full Bin
+interface BinStatusUpdate {
+  id: string
+  name: string
+  isOnline: boolean
+  lastHeartBeat: string | null
+  status: string
+}
+
 
 interface ScreenProps {
   binManager: BinManager
@@ -207,18 +216,21 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
   // AUTO-REFRESH: BIN STATUS + REAL UPTIME DATA
   // -----------------------------------------------------
   useEffect(function(){
+    const controller = new AbortController()
+
     const fetchData = async function(){
       try {
         // ⚡ 1. Fetch real-time bin heartbeat/status
         const binRes = await fetch(
-          `/api/bin-data?managerId=${binManager.id}`
+          `/api/bin-data?managerId=${binManager.id}`,
+          { signal: controller.signal }
         )
-        const binData = await binRes.json()
+        const binData: BinStatusUpdate[] = await binRes.json()
 
         if (Array.isArray(binData)) {
           setLiveBins((prev) =>
             prev.map((b) => {
-              const upd = binData.find((x: any) => x.id === b.id)
+              const upd = binData.find((x) => x.id === b.id)
               return upd ? { ...b, ...upd } : b
             })
           )
@@ -226,22 +238,23 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
 
         // ⚡ 2. Fetch uptime timeline (5-min buckets → compressed)
         const uptimeRes = await fetch(
-          `/api/uptime?managerId=${binManager.id}&range=${selectedRange}`
+          `/api/uptime?managerId=${binManager.id}&range=${selectedRange}`,
+          { signal: controller.signal }
         )
-        const uptimeJson = await uptimeRes.json()
+        const uptimeJson: UptimeEntry[] = await uptimeRes.json()
 
         if (Array.isArray(uptimeJson)) {
           setUptimeData(
-            uptimeJson.map((u: any) => ({
+            uptimeJson.map((u) => ({
               id: u.id,
               name: u.name,
               uptimePercent: u.uptimePercent,
-              uptimeTimeline: (u.uptimeTimeline || []).map((entry: any) => {
+              uptimeTimeline: (u.uptimeTimeline || []).map((entry) => {
                 return {
                     timestampUTC: entry.timestampUTC,   // from backend
                     timestampSGT: entry.timestampSGT,   // already formatted
                     label: entry.label,                 // already generated
-                    uptime: entry.uptime, 
+                    uptime: entry.uptime,
                 }
               }),
             }))
@@ -251,11 +264,12 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
         // ⚡ Ensure selectedBinId stays valid even if bins change
         if (
           uptimeJson.length > 0 &&
-          !uptimeJson.find((b: any) => b.id === selectedBinId)
+          !uptimeJson.find((b) => b.id === selectedBinId)
         ) {
           setSelectedBinId(uptimeJson[0].id)
         }
       } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return
         console.error("❌ Auto-refresh failed:", error)
       }
     }
@@ -263,7 +277,10 @@ const ViewBinManagerScreen = ({ binManager }: ScreenProps) => {
     fetchData()
 
     const interval = setInterval(fetchData, 5000)
-    return () => clearInterval(interval)
+    return () => {
+      controller.abort()
+      clearInterval(interval)
+    }
   }, [binManager.id, selectedRange, selectedBinId])
 
     // -----------------------------------------------------
