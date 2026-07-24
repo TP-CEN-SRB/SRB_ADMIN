@@ -2,6 +2,8 @@
 import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
+import { deleteDisposalImages } from "@/lib/disposalImages"
 
 const getDisposalByBinId = async (
   binId: string,
@@ -61,4 +63,38 @@ const getDisposalByBinId = async (
   return { disposalCount, disposals, bin }
 }
 
-export { getDisposalByBinId }
+const getBinImageSnapshot = async (
+  binId: string
+): Promise<{ error: string } | { count: number; asOf: string }> => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== "admin") {
+    return { error: "Permission denied!" }
+  }
+
+  const count: number = await prisma.disposal.count({
+    where: { binId, imageUrl: { not: null } },
+  })
+  return { count, asOf: new Date().toISOString() }
+}
+
+const deleteDisposalImagesForBin = async (binId: string, asOf: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== "admin") {
+    return { error: "Permission denied!" }
+  }
+
+  const result = await deleteDisposalImages({
+    binId,
+    createdAt: { lte: new Date(asOf) },
+  })
+  revalidatePath(`/admin/bin/disposal/${binId}`)
+  return result
+}
+
+export { getDisposalByBinId, getBinImageSnapshot, deleteDisposalImagesForBin }

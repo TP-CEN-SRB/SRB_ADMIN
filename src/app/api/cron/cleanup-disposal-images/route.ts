@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/db"
-import { utapi } from "@/lib/uploadthing"
+import { deleteDisposalImages } from "@/lib/disposalImages"
 
 /**
  * Delete UploadThing-hosted disposal images older than the retention
@@ -17,39 +16,11 @@ import { utapi } from "@/lib/uploadthing"
 const DISPOSAL_IMAGE_RETENTION_DAYS = 90
 const BATCH_SIZE = 500
 
-const extractFileKey = (url: string) => url.split("/f/").pop()
-
 const runCleanup = async function(){
   const cutoff = new Date()
   cutoff.setDate(cutoff.getDate() - DISPOSAL_IMAGE_RETENTION_DAYS)
 
-  const staleDisposals = await prisma.disposal.findMany({
-    where: {
-      imageUrl: { not: null },
-      createdAt: { lt: cutoff },
-    },
-    select: { id: true, imageUrl: true },
-    take: BATCH_SIZE,
-  })
-
-  if (staleDisposals.length === 0) {
-    return { deletedCount: 0 }
-  }
-
-  const fileKeys = staleDisposals
-    .map((d) => extractFileKey(d.imageUrl!))
-    .filter((key): key is string => !!key)
-
-  if (fileKeys.length > 0) {
-    await utapi.deleteFiles(fileKeys)
-  }
-
-  await prisma.disposal.updateMany({
-    where: { id: { in: staleDisposals.map((d) => d.id) } },
-    data: { imageUrl: null },
-  })
-
-  return { deletedCount: fileKeys.length }
+  return deleteDisposalImages({ createdAt: { lt: cutoff } }, BATCH_SIZE)
 }
 
 export const GET = async (req: NextRequest) => {

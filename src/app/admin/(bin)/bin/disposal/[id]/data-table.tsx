@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button"
 import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import SortByFilter from "./sortBy"
 import ExportCSV from "./export-csv"
+import DownloadImagesZip from "./download-images-zip"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -25,6 +26,7 @@ interface DataTableProps<TData, TValue> {
   binId: string
   material: string
   location: string
+  imageCount: number
 }
 
 function capitalizeFirstLetter(str: string) {
@@ -39,6 +41,7 @@ export function DataTable<TData, TValue>({
   data,
   material,
   location,
+  imageCount,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -104,6 +107,7 @@ export function DataTable<TData, TValue>({
             onApplySortBy={handleApplySortBy}
           />
           <ExportCSV data={data} binId={binId} />
+          <DownloadImagesZip binId={binId} imageCount={imageCount} />
         </div>
       </div>
       
