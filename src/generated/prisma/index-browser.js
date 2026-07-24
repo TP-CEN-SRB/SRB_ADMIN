@@ -271,6 +271,9 @@ exports.Prisma.TransactionScalarFieldEnum = {
   description: 'description',
   transactionType: 'transactionType',
   userId: 'userId',
+  queueId: 'queueId',
+  weightInGrams: 'weightInGrams',
+  carbonSaved: 'carbonSaved',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

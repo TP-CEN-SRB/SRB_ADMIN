@@ -60,8 +60,8 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
         setSort(sortValue, isChecked)
     }
 
-    function onEmailSearch(email: string){
-        setSearch("email", email)
+    function onSearch(search: string){
+        setSearch("search", search)
     }
 
     return(
@@ -136,7 +136,7 @@ export function PageinationHeader({currentPage, currentLimit, totalPages, allMem
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Input placeholder="search email..." className="text-sm w-40" onChange={function(e) { onEmailSearch(e.target.value) }}/>
+                <Input placeholder="search name or email..." className="text-sm w-48" defaultValue={searchParams.get("search") ?? ""} onChange={function(e) { onSearch(e.target.value) }}/>
             </div>
 
             <div className="flex items-center gap-2">

@@ -1,11 +1,24 @@
 import { Suspense } from "react"
 import Link from "next/link"
+import { ImageIcon } from "lucide-react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { TableSkeleton } from "@/components/TableSkeleton"
 import { TransactionHeader } from "./header"
 import { getAllTransactions } from "@/app/action/transaction"
 
-const col_widths = ["20%", "18%", "14%", "12%", "24%", "12%"]
+const col_widths = ["16%", "16%", "12%", "10%", "22%", "14%", "10%"]
+
+function formatTimestamp(date: Date | string) {
+  return new Date(date).toLocaleString("en-SG", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  })
+}
 
 interface TransactionAdminPageProps {
   searchParams: Promise<{
@@ -22,7 +35,7 @@ export default async function TransactionAdminPage({ searchParams }: Transaction
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={6} />}>
+      <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={7} />}>
         <TransactionTable searchParams={params} />
       </Suspense>
     </div>
@@ -67,6 +80,7 @@ async function TransactionTable({ searchParams: params }: { searchParams: Awaite
             <TableHead className="text-center">Points</TableHead>
             <TableHead>Description</TableHead>
             <TableHead className="text-center">Timestamp</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
       </Table>
@@ -81,7 +95,7 @@ async function TransactionTable({ searchParams: params }: { searchParams: Awaite
           <TableBody>
             {transactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                   No transactions found.
                 </TableCell>
               </TableRow>
@@ -108,9 +122,17 @@ async function TransactionTable({ searchParams: params }: { searchParams: Awaite
                   </TableCell>
                   <TableCell><span className="text-xs">{transaction.description}</span></TableCell>
                   <TableCell className="text-center">
-                    <span className="text-xs">
-                      {new Date(transaction.createdAt).toLocaleString("en-SG", { hour12: false })}
-                    </span>
+                    <span className="text-xs">{formatTimestamp(transaction.createdAt)}</span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {transaction.transactionType === "DISPOSAL" && transaction.queueId ? (
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/admin/transaction/disposal/${transaction.queueId}`}>
+                          <ImageIcon className="mr-1 size-3.5" />
+                          More
+                        </Link>
+                      </Button>
+                    ) : null}
                   </TableCell>
                 </TableRow>
               ))

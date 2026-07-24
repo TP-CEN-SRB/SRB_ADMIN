@@ -7,12 +7,12 @@ export type Faculty = "ENG" | "BUS" | "DES" | "ASC" | "IIT" | "HSS" | "EXT" | "O
 export type Sort = "asc" | "desc" | undefined
 
 export async function getAllMembers(
-  page: number, 
-  limit: number, 
-  roles: Role[], 
-  faculty: Faculty[], 
+  page: number,
+  limit: number,
+  roles: Role[],
+  faculty: Faculty[],
   sort: Sort[],
-  email: string
+  search: string
   )
   {
 
@@ -23,9 +23,12 @@ export async function getAllMembers(
     faculty: {
       in: faculty
     },
-    email: {
-      contains: email
-    }
+    OR: search
+      ? [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+        ]
+      : undefined,
   }
 
   const allMember = await prisma.user.findMany({

@@ -80,4 +80,35 @@ const getDisposalByBinId = async (
   }
 }
 
-export { getDisposalByBinId }
+// Powers the "View Images" action on a DISPOSAL transaction row - a single
+// transaction is created per redeemed DisposalQueue (see
+// src/app/api/disposal/[id]/route.ts), so this looks up every disposal that
+// was part of that queue.
+const getDisposalsByQueueId = async (queueId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const user = session?.user
+  if (user?.role !== "admin") {
+    return { error: "Permission denied!" }
+  }
+
+  const disposals = await prisma.disposal.findMany({
+    where: { queueId },
+    orderBy: { createdAt: "asc" },
+    select: {
+      id: true,
+      weightInGrams: true,
+      pointsAwarded: true,
+      createdAt: true,
+      imageUrl: true,
+      carbonprint: true,
+      bin: { select: { binMaterial: { select: { name: true } } } },
+      user: { select: { name: true } },
+    },
+  })
+
+  return { disposals }
+}
+
+export { getDisposalByBinId, getDisposalsByQueueId }

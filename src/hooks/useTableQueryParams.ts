@@ -1,7 +1,9 @@
 "use client"
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { useTransition } from "react"
+import { useEffect, useRef, useTransition } from "react"
+
+const SEARCH_DEBOUNCE_MS = 400
 
 type PageDirection = "start" | "prev" | "next" | "end"
 
@@ -19,6 +21,13 @@ export function useTableQueryParams({ currentPage, totalPages }: UseTableQueryPa
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(function () {
+    return function () {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    }
+  }, [])
 
   function pushParams(mutate: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(searchParams.toString())
@@ -85,11 +94,16 @@ export function useTableQueryParams({ currentPage, totalPages }: UseTableQueryPa
     })
   }
 
+  // Debounced so a page navigation (and the resulting Suspense refetch)
+  // only fires once typing pauses, instead of on every keystroke.
   function setSearch(paramName: string, value: string) {
-    pushParams(function (params) {
-      params.set(paramName, value)
-      params.set("page", "1")
-    })
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    searchDebounceRef.current = setTimeout(function () {
+      pushParams(function (params) {
+        params.set(paramName, value)
+        params.set("page", "1")
+      })
+    }, SEARCH_DEBOUNCE_MS)
   }
 
   return {

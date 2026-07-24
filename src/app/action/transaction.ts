@@ -8,7 +8,8 @@ const getTransactionByUserId = async (
   userId: string,
   page: number | null,
   sortOrder: string | undefined,
-  transactionType: string | null
+  transactionType: string | null,
+  limit: number = 10
 ) => {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -30,7 +31,7 @@ const getTransactionByUserId = async (
 
   // check if all conditions are met
   if (pageCondition || sortOrderCondition || transactionTypeCondition) {
-    return { transactionCount: 0, transactions: [] }
+    return { transactionCount: 0, transactions: [], totalPages: 1 }
   }
   const [transactionCount, transactions, user] = await Promise.all([
     prisma.transaction.count({
@@ -48,8 +49,8 @@ const getTransactionByUserId = async (
           : undefined,
         userId: userId,
       },
-      take: page ? 10 : undefined,
-      skip: page ? (page - 1) * 10 : 0,
+      take: page ? limit : undefined,
+      skip: page ? (page - 1) * limit : 0,
       orderBy: { createdAt: sortOrder === "asc" ? "asc" : "desc" },
       select: {
         id: true,
@@ -57,12 +58,20 @@ const getTransactionByUserId = async (
         pointsChange: true,
         description: true,
         transactionType: true,
+        queueId: true,
+        weightInGrams: true,
+        carbonSaved: true,
         createdAt: true,
       },
     }),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
   ])
-  return { transactionCount, transactions, user }
+  return {
+    transactionCount,
+    transactions,
+    user,
+    totalPages: Math.max(1, Math.ceil(transactionCount / limit)),
+  }
 }
 
 const getAllTransactions = async (
@@ -119,6 +128,7 @@ const getAllTransactions = async (
         pointsChange: true,
         description: true,
         transactionType: true,
+        queueId: true,
         createdAt: true,
       },
     }),

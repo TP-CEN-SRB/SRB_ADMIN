@@ -17879,10 +17879,14 @@ export namespace Prisma {
 
   export type TransactionAvgAggregateOutputType = {
     pointsChange: number | null
+    weightInGrams: number | null
+    carbonSaved: number | null
   }
 
   export type TransactionSumAggregateOutputType = {
     pointsChange: number | null
+    weightInGrams: number | null
+    carbonSaved: number | null
   }
 
   export type TransactionMinAggregateOutputType = {
@@ -17891,6 +17895,9 @@ export namespace Prisma {
     description: string | null
     transactionType: $Enums.TransactionType | null
     userId: string | null
+    queueId: string | null
+    weightInGrams: number | null
+    carbonSaved: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -17901,6 +17908,9 @@ export namespace Prisma {
     description: string | null
     transactionType: $Enums.TransactionType | null
     userId: string | null
+    queueId: string | null
+    weightInGrams: number | null
+    carbonSaved: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -17911,6 +17921,9 @@ export namespace Prisma {
     description: number
     transactionType: number
     userId: number
+    queueId: number
+    weightInGrams: number
+    carbonSaved: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -17919,10 +17932,14 @@ export namespace Prisma {
 
   export type TransactionAvgAggregateInputType = {
     pointsChange?: true
+    weightInGrams?: true
+    carbonSaved?: true
   }
 
   export type TransactionSumAggregateInputType = {
     pointsChange?: true
+    weightInGrams?: true
+    carbonSaved?: true
   }
 
   export type TransactionMinAggregateInputType = {
@@ -17931,6 +17948,9 @@ export namespace Prisma {
     description?: true
     transactionType?: true
     userId?: true
+    queueId?: true
+    weightInGrams?: true
+    carbonSaved?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17941,6 +17961,9 @@ export namespace Prisma {
     description?: true
     transactionType?: true
     userId?: true
+    queueId?: true
+    weightInGrams?: true
+    carbonSaved?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17951,6 +17974,9 @@ export namespace Prisma {
     description?: true
     transactionType?: true
     userId?: true
+    queueId?: true
+    weightInGrams?: true
+    carbonSaved?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -18048,6 +18074,9 @@ export namespace Prisma {
     description: string
     transactionType: $Enums.TransactionType
     userId: string
+    queueId: string | null
+    weightInGrams: number | null
+    carbonSaved: number | null
     createdAt: Date
     updatedAt: Date
     _count: TransactionCountAggregateOutputType | null
@@ -18077,6 +18106,9 @@ export namespace Prisma {
     description?: boolean
     transactionType?: boolean
     userId?: boolean
+    queueId?: boolean
+    weightInGrams?: boolean
+    carbonSaved?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -18088,6 +18120,9 @@ export namespace Prisma {
     description?: boolean
     transactionType?: boolean
     userId?: boolean
+    queueId?: boolean
+    weightInGrams?: boolean
+    carbonSaved?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -18099,6 +18134,9 @@ export namespace Prisma {
     description?: boolean
     transactionType?: boolean
     userId?: boolean
+    queueId?: boolean
+    weightInGrams?: boolean
+    carbonSaved?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -18110,11 +18148,14 @@ export namespace Prisma {
     description?: boolean
     transactionType?: boolean
     userId?: boolean
+    queueId?: boolean
+    weightInGrams?: boolean
+    carbonSaved?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pointsChange" | "description" | "transactionType" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+  export type TransactionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "pointsChange" | "description" | "transactionType" | "userId" | "queueId" | "weightInGrams" | "carbonSaved" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
   export type TransactionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -18136,6 +18177,9 @@ export namespace Prisma {
       description: string
       transactionType: $Enums.TransactionType
       userId: string
+      queueId: string | null
+      weightInGrams: number | null
+      carbonSaved: number | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["transaction"]>
@@ -18567,6 +18611,9 @@ export namespace Prisma {
     readonly description: FieldRef<"Transaction", 'String'>
     readonly transactionType: FieldRef<"Transaction", 'TransactionType'>
     readonly userId: FieldRef<"Transaction", 'String'>
+    readonly queueId: FieldRef<"Transaction", 'String'>
+    readonly weightInGrams: FieldRef<"Transaction", 'Int'>
+    readonly carbonSaved: FieldRef<"Transaction", 'Float'>
     readonly createdAt: FieldRef<"Transaction", 'DateTime'>
     readonly updatedAt: FieldRef<"Transaction", 'DateTime'>
   }
@@ -33785,6 +33832,9 @@ export namespace Prisma {
     description: 'description',
     transactionType: 'transactionType',
     userId: 'userId',
+    queueId: 'queueId',
+    weightInGrams: 'weightInGrams',
+    carbonSaved: 'carbonSaved',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -35231,6 +35281,9 @@ export namespace Prisma {
     description?: StringFilter<"Transaction"> | string
     transactionType?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
     userId?: StringFilter<"Transaction"> | string
+    queueId?: StringNullableFilter<"Transaction"> | string | null
+    weightInGrams?: IntNullableFilter<"Transaction"> | number | null
+    carbonSaved?: FloatNullableFilter<"Transaction"> | number | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -35242,6 +35295,9 @@ export namespace Prisma {
     description?: SortOrder
     transactionType?: SortOrder
     userId?: SortOrder
+    queueId?: SortOrderInput | SortOrder
+    weightInGrams?: SortOrderInput | SortOrder
+    carbonSaved?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -35256,6 +35312,9 @@ export namespace Prisma {
     description?: StringFilter<"Transaction"> | string
     transactionType?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
     userId?: StringFilter<"Transaction"> | string
+    queueId?: StringNullableFilter<"Transaction"> | string | null
+    weightInGrams?: IntNullableFilter<"Transaction"> | number | null
+    carbonSaved?: FloatNullableFilter<"Transaction"> | number | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -35267,6 +35326,9 @@ export namespace Prisma {
     description?: SortOrder
     transactionType?: SortOrder
     userId?: SortOrder
+    queueId?: SortOrderInput | SortOrder
+    weightInGrams?: SortOrderInput | SortOrder
+    carbonSaved?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TransactionCountOrderByAggregateInput
@@ -35285,6 +35347,9 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Transaction"> | string
     transactionType?: EnumTransactionTypeWithAggregatesFilter<"Transaction"> | $Enums.TransactionType
     userId?: StringWithAggregatesFilter<"Transaction"> | string
+    queueId?: StringNullableWithAggregatesFilter<"Transaction"> | string | null
+    weightInGrams?: IntNullableWithAggregatesFilter<"Transaction"> | number | null
+    carbonSaved?: FloatNullableWithAggregatesFilter<"Transaction"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   }
@@ -37354,6 +37419,9 @@ export namespace Prisma {
     pointsChange: number
     description: string
     transactionType: $Enums.TransactionType
+    queueId?: string | null
+    weightInGrams?: number | null
+    carbonSaved?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutTransactionsInput
@@ -37365,6 +37433,9 @@ export namespace Prisma {
     description: string
     transactionType: $Enums.TransactionType
     userId: string
+    queueId?: string | null
+    weightInGrams?: number | null
+    carbonSaved?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37374,6 +37445,9 @@ export namespace Prisma {
     pointsChange?: IntFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutTransactionsNestedInput
@@ -37385,6 +37459,9 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     userId?: StringFieldUpdateOperationsInput | string
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37395,6 +37472,9 @@ export namespace Prisma {
     description: string
     transactionType: $Enums.TransactionType
     userId: string
+    queueId?: string | null
+    weightInGrams?: number | null
+    carbonSaved?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -37404,6 +37484,9 @@ export namespace Prisma {
     pointsChange?: IntFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -37414,6 +37497,9 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     userId?: StringFieldUpdateOperationsInput | string
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -39490,18 +39576,34 @@ export namespace Prisma {
     not?: NestedEnumTransactionTypeFilter<$PrismaModel> | $Enums.TransactionType
   }
 
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type TransactionCountOrderByAggregateInput = {
     id?: SortOrder
     pointsChange?: SortOrder
     description?: SortOrder
     transactionType?: SortOrder
     userId?: SortOrder
+    queueId?: SortOrder
+    weightInGrams?: SortOrder
+    carbonSaved?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type TransactionAvgOrderByAggregateInput = {
     pointsChange?: SortOrder
+    weightInGrams?: SortOrder
+    carbonSaved?: SortOrder
   }
 
   export type TransactionMaxOrderByAggregateInput = {
@@ -39510,6 +39612,9 @@ export namespace Prisma {
     description?: SortOrder
     transactionType?: SortOrder
     userId?: SortOrder
+    queueId?: SortOrder
+    weightInGrams?: SortOrder
+    carbonSaved?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -39520,12 +39625,17 @@ export namespace Prisma {
     description?: SortOrder
     transactionType?: SortOrder
     userId?: SortOrder
+    queueId?: SortOrder
+    weightInGrams?: SortOrder
+    carbonSaved?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type TransactionSumOrderByAggregateInput = {
     pointsChange?: SortOrder
+    weightInGrams?: SortOrder
+    carbonSaved?: SortOrder
   }
 
   export type EnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -39536,6 +39646,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumTransactionTypeFilter<$PrismaModel>
     _max?: NestedEnumTransactionTypeFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type QuestDetailsCountOrderByAggregateInput = {
@@ -40109,17 +40235,6 @@ export namespace Prisma {
     overallStatus?: SortOrder
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type ApikeyCountOrderByAggregateInput = {
     id?: SortOrder
     configId?: SortOrder
@@ -40211,22 +40326,6 @@ export namespace Prisma {
     rateLimitMax?: SortOrder
     requestCount?: SortOrder
     remaining?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {
@@ -41411,6 +41510,14 @@ export namespace Prisma {
     set?: $Enums.TransactionType
   }
 
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type UserUpdateOneRequiredWithoutTransactionsNestedInput = {
     create?: XOR<UserCreateWithoutTransactionsInput, UserUncheckedCreateWithoutTransactionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutTransactionsInput
@@ -41659,14 +41766,6 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutScannerDiagnosticLogInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutScannerDiagnosticLogInput, UserUpdateWithoutScannerDiagnosticLogInput>, UserUncheckedUpdateWithoutScannerDiagnosticLogInput>
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -42001,6 +42100,22 @@ export namespace Prisma {
     _max?: NestedEnumTransactionTypeFilter<$PrismaModel>
   }
 
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type NestedEnumActivityLogSourceFilter<$PrismaModel = never> = {
     equals?: $Enums.ActivityLogSource | EnumActivityLogSourceFieldRefInput<$PrismaModel>
     in?: $Enums.ActivityLogSource[] | ListEnumActivityLogSourceFieldRefInput<$PrismaModel>
@@ -42083,22 +42198,6 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type SessionCreateWithoutUserInput = {
@@ -42383,6 +42482,9 @@ export namespace Prisma {
     pointsChange: number
     description: string
     transactionType: $Enums.TransactionType
+    queueId?: string | null
+    weightInGrams?: number | null
+    carbonSaved?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -42392,6 +42494,9 @@ export namespace Prisma {
     pointsChange: number
     description: string
     transactionType: $Enums.TransactionType
+    queueId?: string | null
+    weightInGrams?: number | null
+    carbonSaved?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -42894,6 +42999,9 @@ export namespace Prisma {
     description?: StringFilter<"Transaction"> | string
     transactionType?: EnumTransactionTypeFilter<"Transaction"> | $Enums.TransactionType
     userId?: StringFilter<"Transaction"> | string
+    queueId?: StringNullableFilter<"Transaction"> | string | null
+    weightInGrams?: IntNullableFilter<"Transaction"> | number | null
+    carbonSaved?: FloatNullableFilter<"Transaction"> | number | null
     createdAt?: DateTimeFilter<"Transaction"> | Date | string
     updatedAt?: DateTimeFilter<"Transaction"> | Date | string
   }
@@ -47026,6 +47134,9 @@ export namespace Prisma {
     pointsChange: number
     description: string
     transactionType: $Enums.TransactionType
+    queueId?: string | null
+    weightInGrams?: number | null
+    carbonSaved?: number | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -47367,6 +47478,9 @@ export namespace Prisma {
     pointsChange?: IntFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47376,6 +47490,9 @@ export namespace Prisma {
     pointsChange?: IntFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47385,6 +47502,9 @@ export namespace Prisma {
     pointsChange?: IntFieldUpdateOperationsInput | number
     description?: StringFieldUpdateOperationsInput | string
     transactionType?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    queueId?: NullableStringFieldUpdateOperationsInput | string | null
+    weightInGrams?: NullableIntFieldUpdateOperationsInput | number | null
+    carbonSaved?: NullableFloatFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

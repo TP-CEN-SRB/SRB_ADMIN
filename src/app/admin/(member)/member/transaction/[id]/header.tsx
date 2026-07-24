@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,9 +11,8 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
 
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ListFilter } from "lucide-react"
+import { ListFilter, Undo2 } from "lucide-react"
 
 import { useTableQueryParams } from "@/hooks/useTableQueryParams"
 import { TablePaginationControls } from "@/components/TablePaginationControls"
@@ -26,20 +26,29 @@ const transactionTypes = [
   { label: "Others", value: "OTHERS" },
 ]
 
-interface TransactionHeaderProps {
+interface MemberTransactionHeaderProps {
+  memberId: string
+  memberName: string
   currentPage: number
   currentLimit: number
   totalPages: number
   totalCount: number
 }
 
-export function TransactionHeader({ currentPage, currentLimit, totalPages, totalCount }: TransactionHeaderProps) {
-  const { searchParams, isPending, setLimit, goToPage, toggleListParam, setSearch, pushParams } =
+export function MemberTransactionHeader({
+  memberId,
+  memberName,
+  currentPage,
+  currentLimit,
+  totalPages,
+  totalCount,
+}: MemberTransactionHeaderProps) {
+  const { searchParams, isPending, setLimit, goToPage, toggleListParam, pushParams } =
     useTableQueryParams({ currentPage, totalPages })
 
   const typeParam = searchParams.get("transactionType")
   const activeTypes = typeParam ? typeParam.split(",") : transactionTypes.map((t) => t.value)
-  const currentSort = searchParams.get("sort") || "dateDesc"
+  const currentSort = searchParams.get("sortOrder") || "desc"
 
   function onCheckedType(typeValue: string, isChecked: boolean) {
     toggleListParam("transactionType", typeValue, isChecked, activeTypes)
@@ -48,19 +57,15 @@ export function TransactionHeader({ currentPage, currentLimit, totalPages, total
   function onCheckedSort(sortValue: string, isChecked: boolean) {
     if (!isChecked) return
     pushParams(function (params) {
-      params.set("sort", sortValue)
+      params.set("sortOrder", sortValue)
       params.set("page", "1")
     })
-  }
-
-  function onSearch(search: string) {
-    setSearch("search", search)
   }
 
   return (
     <header className="z-40 flex items-center justify-between bg-muted p-2">
       <div className="flex items-center gap-2">
-        All Transactions
+        Transactions for {memberName}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -73,14 +78,14 @@ export function TransactionHeader({ currentPage, currentLimit, totalPages, total
             <DropdownMenuGroup>
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuCheckboxItem
-                checked={currentSort === "dateDesc"}
-                onCheckedChange={(checked) => onCheckedSort("dateDesc", checked)}
+                checked={currentSort === "desc"}
+                onCheckedChange={(checked) => onCheckedSort("desc", checked)}
               >
                 Newest first
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
-                checked={currentSort === "dateAsc"}
-                onCheckedChange={(checked) => onCheckedSort("dateAsc", checked)}
+                checked={currentSort === "asc"}
+                onCheckedChange={(checked) => onCheckedSort("asc", checked)}
               >
                 Oldest first
               </DropdownMenuCheckboxItem>
@@ -105,16 +110,16 @@ export function TransactionHeader({ currentPage, currentLimit, totalPages, total
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-
-        <Input
-          placeholder="search member name or email..."
-          className="text-sm w-64"
-          defaultValue={searchParams.get("search") ?? ""}
-          onChange={function (e) { onSearch(e.target.value) }}
-        />
       </div>
 
       <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <Link href={`/admin/member/${memberId}`}>
+            <Undo2 className="mr-2 size-4" />
+            Return to Profile
+          </Link>
+        </Button>
+
         <TablePaginationControls
           currentPage={currentPage}
           currentLimit={currentLimit}

@@ -14,7 +14,7 @@ interface ViewStudentProps {
     roles?: string
     faculty?: string
     sort?: string
-    email?: string
+    search?: string
   }>
 }
 
@@ -52,9 +52,9 @@ async function MembersTable({ searchParams: params }: { searchParams: Awaited<Vi
       break
   }
 
-  const currentEmail = params.email || ""
+  const currentSearch = params.search || ""
 
-  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentFaculty, currentSort, currentEmail)
+  const {allMember, allMemberCount, totalPages} = await getAllMembers(currentPage, currentLimit, currentRoles, currentFaculty, currentSort, currentSearch)
 
   return(
     <div className="flex flex-col h-full overflow-hidden">
