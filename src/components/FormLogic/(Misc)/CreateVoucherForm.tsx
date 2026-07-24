@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -18,16 +18,24 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Loader2, PlusCircle } from "lucide-react"
 
 import { VoucherSchema } from "@/schemas"
 import { createVoucher } from "@/app/action/voucher"
+import { getStoreOptions } from "@/app/action/store"
 
 type VoucherFormValue = z.output<typeof VoucherSchema>
+type StoreOption = { id: string; name: string; faculty: string }
 
 export function CreateVoucherForm() {
   const [isPending, startTransition] = useTransition()
+  const [storeOptions, setStoreOptions] = useState<StoreOption[]>([])
+
+  useEffect(function () {
+    getStoreOptions().then(setStoreOptions)
+  }, [])
 
   const form = useForm<z.input<typeof VoucherSchema>, unknown, z.output<typeof VoucherSchema>>({
     resolver: zodResolver(VoucherSchema),
@@ -36,6 +44,7 @@ export function CreateVoucherForm() {
       description: "",
       isAvailable: true,
       pointsRequired: undefined,
+      storeIds: [],
     },
   })
 
@@ -56,7 +65,7 @@ export function CreateVoucherForm() {
 
       if (result?.success) {
         toast.success("Voucher created", { description: result.success })
-        form.reset({ name: "", description: "", isAvailable: true, pointsRequired: undefined })
+        form.reset({ name: "", description: "", isAvailable: true, pointsRequired: undefined, storeIds: [] })
         const fileInput = document.querySelector<HTMLInputElement>('input[name="image"]')
         if (fileInput) fileInput.value = ""
       }
@@ -190,6 +199,49 @@ export function CreateVoucherForm() {
                   <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                 </FormControl>
               </div>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="storeIds"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Allowed Stores</FormLabel>
+              <FormDescription>
+                Leave all unchecked to allow any registered store to fulfill this voucher.
+              </FormDescription>
+              <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border p-3">
+                {storeOptions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No stores registered yet.</p>
+                ) : (
+                  storeOptions.map((store) => {
+                    const checked = (field.value ?? []).includes(store.id)
+                    return (
+                      <div key={store.id} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`store-${store.id}`}
+                          disabled={isPending}
+                          checked={checked}
+                          onCheckedChange={(isChecked) => {
+                            const current: string[] = field.value ?? []
+                            field.onChange(
+                              isChecked
+                                ? [...current, store.id]
+                                : current.filter((id) => id !== store.id)
+                            )
+                          }}
+                        />
+                        <label htmlFor={`store-${store.id}`} className="text-sm">
+                          {store.name} <span className="text-muted-foreground">({store.faculty})</span>
+                        </label>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+              <FormMessage />
             </FormItem>
           )}
         />

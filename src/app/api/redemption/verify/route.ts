@@ -25,11 +25,19 @@ export const POST = async (req: NextRequest) => {
 
     const redemption = await prisma.redemption.findUnique({
       where: { id: redemptionId },
-      include: { user: { select: { name: true } } },
+      include: {
+        user: { select: { name: true } },
+        reward: { select: { allowedStores: { select: { id: true } } } },
+      },
     })
 
     if (!redemption || redemption.status !== "PENDING") {
       return NextResponse.json({ message: "Voucher already used or invalid" }, { status: 400 })
+    }
+
+    const allowedStoreIds = redemption.reward.allowedStores.map((store) => store.id)
+    if (allowedStoreIds.length > 0 && !allowedStoreIds.includes(decoded.userId)) {
+      return NextResponse.json({ message: "This voucher cannot be used at your store" }, { status: 403 })
     }
 
     return NextResponse.json(

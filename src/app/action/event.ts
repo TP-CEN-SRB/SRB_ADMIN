@@ -151,29 +151,51 @@ type UserInEvent = {
   }
 }
 
-export const getUsersByEventId = async (eventId: string): Promise<UserInEvent[]> => {
+export const getUsersByEventId = async (
+  eventId: string,
+  page: number,
+  limit: number,
+  search: string,
+  faculties: string[]
+) => {
   const session = await auth.api.getSession({
     headers: await headers()
   })
   const user = session?.user
-  if (user?.role !== "admin") return []
+  if (user?.role !== "admin") {
+    return { usersInEvent: [] as UserInEvent[], userCount: 0, totalPages: 1 }
+  }
 
-  const userEvents = await prisma.userEvent.findMany({
-    where: { eventId },
-    select: {
-      points: true,
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          faculty: true,
+  const whereClause = {
+    eventId,
+    user: {
+      faculty: { in: faculties as ("ENG" | "BUS" | "DES" | "ASC" | "IIT" | "HSS" | "EXT" | "OTHERS")[] },
+      name: search ? { contains: search, mode: "insensitive" as const } : undefined,
+    },
+  }
+
+  const [userCount, userEvents] = await Promise.all([
+    prisma.userEvent.count({ where: whereClause }),
+    prisma.userEvent.findMany({
+      where: whereClause,
+      orderBy: { points: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        points: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            faculty: true,
+          },
         },
       },
-    },
-  })
+    }),
+  ])
 
-  return userEvents
+  return { usersInEvent: userEvents, userCount, totalPages: Math.max(1, Math.ceil(userCount / limit)) }
 }
 
 export const getEvents = async (

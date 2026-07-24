@@ -133,7 +133,7 @@ export const POST = async (req: NextRequest) => {
             { type: "image/jpeg" }
           )
           const result = await utapi.uploadFiles(file)
-          return result.data?.url
+          return result.data?.ufsUrl
         } catch (e) {
           console.error("[disposal] image upload failed:", e)
           return undefined

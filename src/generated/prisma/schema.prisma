@@ -34,6 +34,7 @@ model User {
   point                Point?
   redemptions          Redemption[]           @relation("RedeemedBy")
   fulfilledRedemptions Redemption[]           @relation("FulfilledRedemptions")
+  allowedVouchers      Reward[]               @relation("VoucherAllowedStores")
   subscriptions        Subscription[]
   transactions         Transaction[]
   receivedTransfers    TransferSession[]      @relation("ReceivedTransfers")
@@ -187,6 +188,9 @@ model Reward {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   redemptions    Redemption[]
+  // Stores (User rows with role STORE) allowed to fulfill this voucher.
+  // Empty = unrestricted, any registered store can fulfill it.
+  allowedStores  User[]       @relation("VoucherAllowedStores")
 
   @@map("rewards")
 }

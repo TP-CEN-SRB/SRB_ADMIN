@@ -24,7 +24,7 @@ const createVoucher = async (values: z.infer<typeof VoucherSchema>) => {
     return { error: "Invalid fields", fieldErrors: validated.error.flatten().fieldErrors }
   }
 
-  const { name, pointsRequired, description, isAvailable, image, startDate, endDate } = validated.data
+  const { name, pointsRequired, description, isAvailable, image, startDate, endDate, storeIds } = validated.data
 
   const existing = await prisma.reward.findUnique({ where: { name } })
   if (existing) {
@@ -42,9 +42,10 @@ const createVoucher = async (values: z.infer<typeof VoucherSchema>) => {
       pointsRequired,
       description,
       isAvailable,
-      image: uploadRes.data.appUrl,
+      image: uploadRes.data.ufsUrl,
       startDate: startDate ?? null,
       endDate: endDate ?? null,
+      allowedStores: { connect: storeIds.map((id) => ({ id })) },
     },
   })
 
@@ -63,7 +64,7 @@ const updateVoucher = async (id: string, values: z.infer<typeof UpdateVoucherSch
     return { error: "Invalid fields", fieldErrors: validated.error.flatten().fieldErrors }
   }
 
-  const { name, pointsRequired, description, isAvailable, image, startDate, endDate } = validated.data
+  const { name, pointsRequired, description, isAvailable, image, startDate, endDate, storeIds } = validated.data
 
   const currentVoucher = await prisma.reward.findUnique({ where: { id } })
   if (!currentVoucher) {
@@ -85,7 +86,7 @@ const updateVoucher = async (id: string, values: z.infer<typeof UpdateVoucherSch
     if (uploadRes.error) {
       return { error: "Unable to upload image" }
     }
-    imageUrl = uploadRes.data.appUrl
+    imageUrl = uploadRes.data.ufsUrl
   }
 
   await prisma.reward.update({
@@ -98,6 +99,7 @@ const updateVoucher = async (id: string, values: z.infer<typeof UpdateVoucherSch
       image: imageUrl,
       startDate: startDate ?? null,
       endDate: endDate ?? null,
+      allowedStores: { set: storeIds.map((storeId) => ({ id: storeId })) },
     },
   })
 
@@ -190,7 +192,7 @@ const getVouchers = async (page: number, limit: number, sort: string, search: st
         startDate: true,
         endDate: true,
         createdAt: true,
-        _count: { select: { redemptions: true } },
+        _count: { select: { redemptions: true, allowedStores: true } },
       },
     }),
   ])
@@ -200,7 +202,10 @@ const getVouchers = async (page: number, limit: number, sort: string, search: st
 
 // Get Voucher by ID
 const getVoucherById = async (id: string) => {
-  return await prisma.reward.findUnique({ where: { id } })
+  return await prisma.reward.findUnique({
+    where: { id },
+    include: { allowedStores: { select: { id: true } } },
+  })
 }
 
 export {

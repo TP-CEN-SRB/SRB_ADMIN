@@ -3263,6 +3263,7 @@ export namespace Prisma {
     disposal_queue: number
     redemptions: number
     fulfilledRedemptions: number
+    allowedVouchers: number
     subscriptions: number
     transactions: number
     receivedTransfers: number
@@ -3282,6 +3283,7 @@ export namespace Prisma {
     disposal_queue?: boolean | UserCountOutputTypeCountDisposal_queueArgs
     redemptions?: boolean | UserCountOutputTypeCountRedemptionsArgs
     fulfilledRedemptions?: boolean | UserCountOutputTypeCountFulfilledRedemptionsArgs
+    allowedVouchers?: boolean | UserCountOutputTypeCountAllowedVouchersArgs
     subscriptions?: boolean | UserCountOutputTypeCountSubscriptionsArgs
     transactions?: boolean | UserCountOutputTypeCountTransactionsArgs
     receivedTransfers?: boolean | UserCountOutputTypeCountReceivedTransfersArgs
@@ -3351,6 +3353,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountFulfilledRedemptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RedemptionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAllowedVouchersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RewardWhereInput
   }
 
   /**
@@ -3525,10 +3534,12 @@ export namespace Prisma {
 
   export type RewardCountOutputType = {
     redemptions: number
+    allowedStores: number
   }
 
   export type RewardCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     redemptions?: boolean | RewardCountOutputTypeCountRedemptionsArgs
+    allowedStores?: boolean | RewardCountOutputTypeCountAllowedStoresArgs
   }
 
   // Custom InputTypes
@@ -3547,6 +3558,13 @@ export namespace Prisma {
    */
   export type RewardCountOutputTypeCountRedemptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RedemptionWhereInput
+  }
+
+  /**
+   * RewardCountOutputType without action
+   */
+  export type RewardCountOutputTypeCountAllowedStoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: UserWhereInput
   }
 
 
@@ -3974,6 +3992,7 @@ export namespace Prisma {
     point?: boolean | User$pointArgs<ExtArgs>
     redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     fulfilledRedemptions?: boolean | User$fulfilledRedemptionsArgs<ExtArgs>
+    allowedVouchers?: boolean | User$allowedVouchersArgs<ExtArgs>
     subscriptions?: boolean | User$subscriptionsArgs<ExtArgs>
     transactions?: boolean | User$transactionsArgs<ExtArgs>
     receivedTransfers?: boolean | User$receivedTransfersArgs<ExtArgs>
@@ -4071,6 +4090,7 @@ export namespace Prisma {
     point?: boolean | User$pointArgs<ExtArgs>
     redemptions?: boolean | User$redemptionsArgs<ExtArgs>
     fulfilledRedemptions?: boolean | User$fulfilledRedemptionsArgs<ExtArgs>
+    allowedVouchers?: boolean | User$allowedVouchersArgs<ExtArgs>
     subscriptions?: boolean | User$subscriptionsArgs<ExtArgs>
     transactions?: boolean | User$transactionsArgs<ExtArgs>
     receivedTransfers?: boolean | User$receivedTransfersArgs<ExtArgs>
@@ -4096,6 +4116,7 @@ export namespace Prisma {
       point: Prisma.$PointPayload<ExtArgs> | null
       redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
       fulfilledRedemptions: Prisma.$RedemptionPayload<ExtArgs>[]
+      allowedVouchers: Prisma.$RewardPayload<ExtArgs>[]
       subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
       transactions: Prisma.$TransactionPayload<ExtArgs>[]
       receivedTransfers: Prisma.$TransferSessionPayload<ExtArgs>[]
@@ -4531,6 +4552,7 @@ export namespace Prisma {
     point<T extends User$pointArgs<ExtArgs> = {}>(args?: Subset<T, User$pointArgs<ExtArgs>>): Prisma__PointClient<$Result.GetResult<Prisma.$PointPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     redemptions<T extends User$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     fulfilledRedemptions<T extends User$fulfilledRedemptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$fulfilledRedemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    allowedVouchers<T extends User$allowedVouchersArgs<ExtArgs> = {}>(args?: Subset<T, User$allowedVouchersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscriptions<T extends User$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     transactions<T extends User$transactionsArgs<ExtArgs> = {}>(args?: Subset<T, User$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     receivedTransfers<T extends User$receivedTransfersArgs<ExtArgs> = {}>(args?: Subset<T, User$receivedTransfersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TransferSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -5168,6 +5190,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RedemptionScalarFieldEnum | RedemptionScalarFieldEnum[]
+  }
+
+  /**
+   * User.allowedVouchers
+   */
+  export type User$allowedVouchersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Reward
+     */
+    select?: RewardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Reward
+     */
+    omit?: RewardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RewardInclude<ExtArgs> | null
+    where?: RewardWhereInput
+    orderBy?: RewardOrderByWithRelationInput | RewardOrderByWithRelationInput[]
+    cursor?: RewardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: RewardScalarFieldEnum | RewardScalarFieldEnum[]
   }
 
   /**
@@ -14730,6 +14776,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     redemptions?: boolean | Reward$redemptionsArgs<ExtArgs>
+    allowedStores?: boolean | Reward$allowedStoresArgs<ExtArgs>
     _count?: boolean | RewardCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["reward"]>
 
@@ -14775,6 +14822,7 @@ export namespace Prisma {
   export type RewardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "pointsRequired" | "description" | "isAvailable" | "image" | "startDate" | "endDate" | "createdAt" | "updatedAt", ExtArgs["result"]["reward"]>
   export type RewardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     redemptions?: boolean | Reward$redemptionsArgs<ExtArgs>
+    allowedStores?: boolean | Reward$allowedStoresArgs<ExtArgs>
     _count?: boolean | RewardCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type RewardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -14784,6 +14832,7 @@ export namespace Prisma {
     name: "Reward"
     objects: {
       redemptions: Prisma.$RedemptionPayload<ExtArgs>[]
+      allowedStores: Prisma.$UserPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -15191,6 +15240,7 @@ export namespace Prisma {
   export interface Prisma__RewardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     redemptions<T extends Reward$redemptionsArgs<ExtArgs> = {}>(args?: Subset<T, Reward$redemptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RedemptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    allowedStores<T extends Reward$allowedStoresArgs<ExtArgs> = {}>(args?: Subset<T, Reward$allowedStoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15644,6 +15694,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RedemptionScalarFieldEnum | RedemptionScalarFieldEnum[]
+  }
+
+  /**
+   * Reward.allowedStores
+   */
+  export type Reward$allowedStoresArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+    orderBy?: UserOrderByWithRelationInput | UserOrderByWithRelationInput[]
+    cursor?: UserWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
   }
 
   /**
@@ -34319,6 +34393,7 @@ export namespace Prisma {
     point?: XOR<PointNullableScalarRelationFilter, PointWhereInput> | null
     redemptions?: RedemptionListRelationFilter
     fulfilledRedemptions?: RedemptionListRelationFilter
+    allowedVouchers?: RewardListRelationFilter
     subscriptions?: SubscriptionListRelationFilter
     transactions?: TransactionListRelationFilter
     receivedTransfers?: TransferSessionListRelationFilter
@@ -34361,6 +34436,7 @@ export namespace Prisma {
     point?: PointOrderByWithRelationInput
     redemptions?: RedemptionOrderByRelationAggregateInput
     fulfilledRedemptions?: RedemptionOrderByRelationAggregateInput
+    allowedVouchers?: RewardOrderByRelationAggregateInput
     subscriptions?: SubscriptionOrderByRelationAggregateInput
     transactions?: TransactionOrderByRelationAggregateInput
     receivedTransfers?: TransferSessionOrderByRelationAggregateInput
@@ -34406,6 +34482,7 @@ export namespace Prisma {
     point?: XOR<PointNullableScalarRelationFilter, PointWhereInput> | null
     redemptions?: RedemptionListRelationFilter
     fulfilledRedemptions?: RedemptionListRelationFilter
+    allowedVouchers?: RewardListRelationFilter
     subscriptions?: SubscriptionListRelationFilter
     transactions?: TransactionListRelationFilter
     receivedTransfers?: TransferSessionListRelationFilter
@@ -35074,6 +35151,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Reward"> | Date | string
     updatedAt?: DateTimeFilter<"Reward"> | Date | string
     redemptions?: RedemptionListRelationFilter
+    allowedStores?: UserListRelationFilter
   }
 
   export type RewardOrderByWithRelationInput = {
@@ -35088,6 +35166,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     redemptions?: RedemptionOrderByRelationAggregateInput
+    allowedStores?: UserOrderByRelationAggregateInput
   }
 
   export type RewardWhereUniqueInput = Prisma.AtLeast<{
@@ -35105,6 +35184,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Reward"> | Date | string
     updatedAt?: DateTimeFilter<"Reward"> | Date | string
     redemptions?: RedemptionListRelationFilter
+    allowedStores?: UserListRelationFilter
   }, "id" | "name">
 
   export type RewardOrderByWithAggregationInput = {
@@ -36355,6 +36435,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -36397,6 +36478,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -36439,6 +36521,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -36481,6 +36564,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -37202,6 +37286,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     redemptions?: RedemptionCreateNestedManyWithoutRewardInput
+    allowedStores?: UserCreateNestedManyWithoutAllowedVouchersInput
   }
 
   export type RewardUncheckedCreateInput = {
@@ -37216,6 +37301,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutRewardInput
+    allowedStores?: UserUncheckedCreateNestedManyWithoutAllowedVouchersInput
   }
 
   export type RewardUpdateInput = {
@@ -37230,6 +37316,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUpdateManyWithoutRewardNestedInput
+    allowedStores?: UserUpdateManyWithoutAllowedVouchersNestedInput
   }
 
   export type RewardUncheckedUpdateInput = {
@@ -37244,6 +37331,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     redemptions?: RedemptionUncheckedUpdateManyWithoutRewardNestedInput
+    allowedStores?: UserUncheckedUpdateManyWithoutAllowedVouchersNestedInput
   }
 
   export type RewardCreateManyInput = {
@@ -38716,6 +38804,12 @@ export namespace Prisma {
     none?: RedemptionWhereInput
   }
 
+  export type RewardListRelationFilter = {
+    every?: RewardWhereInput
+    some?: RewardWhereInput
+    none?: RewardWhereInput
+  }
+
   export type SubscriptionListRelationFilter = {
     every?: SubscriptionWhereInput
     some?: SubscriptionWhereInput
@@ -38790,6 +38884,10 @@ export namespace Prisma {
   }
 
   export type RedemptionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RewardOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -39441,6 +39539,16 @@ export namespace Prisma {
 
   export type PointSumOrderByAggregateInput = {
     balance?: SortOrder
+  }
+
+  export type UserListRelationFilter = {
+    every?: UserWhereInput
+    some?: UserWhereInput
+    none?: UserWhereInput
+  }
+
+  export type UserOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type RewardCountOrderByAggregateInput = {
@@ -40383,6 +40491,12 @@ export namespace Prisma {
     connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
   }
 
+  export type RewardCreateNestedManyWithoutAllowedStoresInput = {
+    create?: XOR<RewardCreateWithoutAllowedStoresInput, RewardUncheckedCreateWithoutAllowedStoresInput> | RewardCreateWithoutAllowedStoresInput[] | RewardUncheckedCreateWithoutAllowedStoresInput[]
+    connectOrCreate?: RewardCreateOrConnectWithoutAllowedStoresInput | RewardCreateOrConnectWithoutAllowedStoresInput[]
+    connect?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+  }
+
   export type SubscriptionCreateNestedManyWithoutUserInput = {
     create?: XOR<SubscriptionCreateWithoutUserInput, SubscriptionUncheckedCreateWithoutUserInput> | SubscriptionCreateWithoutUserInput[] | SubscriptionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SubscriptionCreateOrConnectWithoutUserInput | SubscriptionCreateOrConnectWithoutUserInput[]
@@ -40499,6 +40613,12 @@ export namespace Prisma {
     connectOrCreate?: RedemptionCreateOrConnectWithoutFulfilledByInput | RedemptionCreateOrConnectWithoutFulfilledByInput[]
     createMany?: RedemptionCreateManyFulfilledByInputEnvelope
     connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+  }
+
+  export type RewardUncheckedCreateNestedManyWithoutAllowedStoresInput = {
+    create?: XOR<RewardCreateWithoutAllowedStoresInput, RewardUncheckedCreateWithoutAllowedStoresInput> | RewardCreateWithoutAllowedStoresInput[] | RewardUncheckedCreateWithoutAllowedStoresInput[]
+    connectOrCreate?: RewardCreateOrConnectWithoutAllowedStoresInput | RewardCreateOrConnectWithoutAllowedStoresInput[]
+    connect?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
   }
 
   export type SubscriptionUncheckedCreateNestedManyWithoutUserInput = {
@@ -40726,6 +40846,19 @@ export namespace Prisma {
     update?: RedemptionUpdateWithWhereUniqueWithoutFulfilledByInput | RedemptionUpdateWithWhereUniqueWithoutFulfilledByInput[]
     updateMany?: RedemptionUpdateManyWithWhereWithoutFulfilledByInput | RedemptionUpdateManyWithWhereWithoutFulfilledByInput[]
     deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
+  }
+
+  export type RewardUpdateManyWithoutAllowedStoresNestedInput = {
+    create?: XOR<RewardCreateWithoutAllowedStoresInput, RewardUncheckedCreateWithoutAllowedStoresInput> | RewardCreateWithoutAllowedStoresInput[] | RewardUncheckedCreateWithoutAllowedStoresInput[]
+    connectOrCreate?: RewardCreateOrConnectWithoutAllowedStoresInput | RewardCreateOrConnectWithoutAllowedStoresInput[]
+    upsert?: RewardUpsertWithWhereUniqueWithoutAllowedStoresInput | RewardUpsertWithWhereUniqueWithoutAllowedStoresInput[]
+    set?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    disconnect?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    delete?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    connect?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    update?: RewardUpdateWithWhereUniqueWithoutAllowedStoresInput | RewardUpdateWithWhereUniqueWithoutAllowedStoresInput[]
+    updateMany?: RewardUpdateManyWithWhereWithoutAllowedStoresInput | RewardUpdateManyWithWhereWithoutAllowedStoresInput[]
+    deleteMany?: RewardScalarWhereInput | RewardScalarWhereInput[]
   }
 
   export type SubscriptionUpdateManyWithoutUserNestedInput = {
@@ -40960,6 +41093,19 @@ export namespace Prisma {
     update?: RedemptionUpdateWithWhereUniqueWithoutFulfilledByInput | RedemptionUpdateWithWhereUniqueWithoutFulfilledByInput[]
     updateMany?: RedemptionUpdateManyWithWhereWithoutFulfilledByInput | RedemptionUpdateManyWithWhereWithoutFulfilledByInput[]
     deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
+  }
+
+  export type RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput = {
+    create?: XOR<RewardCreateWithoutAllowedStoresInput, RewardUncheckedCreateWithoutAllowedStoresInput> | RewardCreateWithoutAllowedStoresInput[] | RewardUncheckedCreateWithoutAllowedStoresInput[]
+    connectOrCreate?: RewardCreateOrConnectWithoutAllowedStoresInput | RewardCreateOrConnectWithoutAllowedStoresInput[]
+    upsert?: RewardUpsertWithWhereUniqueWithoutAllowedStoresInput | RewardUpsertWithWhereUniqueWithoutAllowedStoresInput[]
+    set?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    disconnect?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    delete?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    connect?: RewardWhereUniqueInput | RewardWhereUniqueInput[]
+    update?: RewardUpdateWithWhereUniqueWithoutAllowedStoresInput | RewardUpdateWithWhereUniqueWithoutAllowedStoresInput[]
+    updateMany?: RewardUpdateManyWithWhereWithoutAllowedStoresInput | RewardUpdateManyWithWhereWithoutAllowedStoresInput[]
+    deleteMany?: RewardScalarWhereInput | RewardScalarWhereInput[]
   }
 
   export type SubscriptionUncheckedUpdateManyWithoutUserNestedInput = {
@@ -41403,11 +41549,23 @@ export namespace Prisma {
     connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
   }
 
+  export type UserCreateNestedManyWithoutAllowedVouchersInput = {
+    create?: XOR<UserCreateWithoutAllowedVouchersInput, UserUncheckedCreateWithoutAllowedVouchersInput> | UserCreateWithoutAllowedVouchersInput[] | UserUncheckedCreateWithoutAllowedVouchersInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutAllowedVouchersInput | UserCreateOrConnectWithoutAllowedVouchersInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+  }
+
   export type RedemptionUncheckedCreateNestedManyWithoutRewardInput = {
     create?: XOR<RedemptionCreateWithoutRewardInput, RedemptionUncheckedCreateWithoutRewardInput> | RedemptionCreateWithoutRewardInput[] | RedemptionUncheckedCreateWithoutRewardInput[]
     connectOrCreate?: RedemptionCreateOrConnectWithoutRewardInput | RedemptionCreateOrConnectWithoutRewardInput[]
     createMany?: RedemptionCreateManyRewardInputEnvelope
     connect?: RedemptionWhereUniqueInput | RedemptionWhereUniqueInput[]
+  }
+
+  export type UserUncheckedCreateNestedManyWithoutAllowedVouchersInput = {
+    create?: XOR<UserCreateWithoutAllowedVouchersInput, UserUncheckedCreateWithoutAllowedVouchersInput> | UserCreateWithoutAllowedVouchersInput[] | UserUncheckedCreateWithoutAllowedVouchersInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutAllowedVouchersInput | UserCreateOrConnectWithoutAllowedVouchersInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
   }
 
   export type RedemptionUpdateManyWithoutRewardNestedInput = {
@@ -41424,6 +41582,19 @@ export namespace Prisma {
     deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
   }
 
+  export type UserUpdateManyWithoutAllowedVouchersNestedInput = {
+    create?: XOR<UserCreateWithoutAllowedVouchersInput, UserUncheckedCreateWithoutAllowedVouchersInput> | UserCreateWithoutAllowedVouchersInput[] | UserUncheckedCreateWithoutAllowedVouchersInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutAllowedVouchersInput | UserCreateOrConnectWithoutAllowedVouchersInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutAllowedVouchersInput | UserUpsertWithWhereUniqueWithoutAllowedVouchersInput[]
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutAllowedVouchersInput | UserUpdateWithWhereUniqueWithoutAllowedVouchersInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutAllowedVouchersInput | UserUpdateManyWithWhereWithoutAllowedVouchersInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
+  }
+
   export type RedemptionUncheckedUpdateManyWithoutRewardNestedInput = {
     create?: XOR<RedemptionCreateWithoutRewardInput, RedemptionUncheckedCreateWithoutRewardInput> | RedemptionCreateWithoutRewardInput[] | RedemptionUncheckedCreateWithoutRewardInput[]
     connectOrCreate?: RedemptionCreateOrConnectWithoutRewardInput | RedemptionCreateOrConnectWithoutRewardInput[]
@@ -41436,6 +41607,19 @@ export namespace Prisma {
     update?: RedemptionUpdateWithWhereUniqueWithoutRewardInput | RedemptionUpdateWithWhereUniqueWithoutRewardInput[]
     updateMany?: RedemptionUpdateManyWithWhereWithoutRewardInput | RedemptionUpdateManyWithWhereWithoutRewardInput[]
     deleteMany?: RedemptionScalarWhereInput | RedemptionScalarWhereInput[]
+  }
+
+  export type UserUncheckedUpdateManyWithoutAllowedVouchersNestedInput = {
+    create?: XOR<UserCreateWithoutAllowedVouchersInput, UserUncheckedCreateWithoutAllowedVouchersInput> | UserCreateWithoutAllowedVouchersInput[] | UserUncheckedCreateWithoutAllowedVouchersInput[]
+    connectOrCreate?: UserCreateOrConnectWithoutAllowedVouchersInput | UserCreateOrConnectWithoutAllowedVouchersInput[]
+    upsert?: UserUpsertWithWhereUniqueWithoutAllowedVouchersInput | UserUpsertWithWhereUniqueWithoutAllowedVouchersInput[]
+    set?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    disconnect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    delete?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    connect?: UserWhereUniqueInput | UserWhereUniqueInput[]
+    update?: UserUpdateWithWhereUniqueWithoutAllowedVouchersInput | UserUpdateWithWhereUniqueWithoutAllowedVouchersInput[]
+    updateMany?: UserUpdateManyWithWhereWithoutAllowedVouchersInput | UserUpdateManyWithWhereWithoutAllowedVouchersInput[]
+    deleteMany?: UserScalarWhereInput | UserScalarWhereInput[]
   }
 
   export type RewardCreateNestedOneWithoutRedemptionsInput = {
@@ -42453,6 +42637,39 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type RewardCreateWithoutAllowedStoresInput = {
+    id?: string
+    name: string
+    pointsRequired: number
+    description: string
+    isAvailable?: boolean
+    image: string
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    redemptions?: RedemptionCreateNestedManyWithoutRewardInput
+  }
+
+  export type RewardUncheckedCreateWithoutAllowedStoresInput = {
+    id?: string
+    name: string
+    pointsRequired: number
+    description: string
+    isAvailable?: boolean
+    image: string
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    redemptions?: RedemptionUncheckedCreateNestedManyWithoutRewardInput
+  }
+
+  export type RewardCreateOrConnectWithoutAllowedStoresInput = {
+    where: RewardWhereUniqueInput
+    create: XOR<RewardCreateWithoutAllowedStoresInput, RewardUncheckedCreateWithoutAllowedStoresInput>
+  }
+
   export type SubscriptionCreateWithoutUserInput = {
     id?: string
     email: string
@@ -42947,6 +43164,38 @@ export namespace Prisma {
     data: XOR<RedemptionUpdateManyMutationInput, RedemptionUncheckedUpdateManyWithoutFulfilledByInput>
   }
 
+  export type RewardUpsertWithWhereUniqueWithoutAllowedStoresInput = {
+    where: RewardWhereUniqueInput
+    update: XOR<RewardUpdateWithoutAllowedStoresInput, RewardUncheckedUpdateWithoutAllowedStoresInput>
+    create: XOR<RewardCreateWithoutAllowedStoresInput, RewardUncheckedCreateWithoutAllowedStoresInput>
+  }
+
+  export type RewardUpdateWithWhereUniqueWithoutAllowedStoresInput = {
+    where: RewardWhereUniqueInput
+    data: XOR<RewardUpdateWithoutAllowedStoresInput, RewardUncheckedUpdateWithoutAllowedStoresInput>
+  }
+
+  export type RewardUpdateManyWithWhereWithoutAllowedStoresInput = {
+    where: RewardScalarWhereInput
+    data: XOR<RewardUpdateManyMutationInput, RewardUncheckedUpdateManyWithoutAllowedStoresInput>
+  }
+
+  export type RewardScalarWhereInput = {
+    AND?: RewardScalarWhereInput | RewardScalarWhereInput[]
+    OR?: RewardScalarWhereInput[]
+    NOT?: RewardScalarWhereInput | RewardScalarWhereInput[]
+    id?: StringFilter<"Reward"> | string
+    name?: StringFilter<"Reward"> | string
+    pointsRequired?: IntFilter<"Reward"> | number
+    description?: StringFilter<"Reward"> | string
+    isAvailable?: BoolFilter<"Reward"> | boolean
+    image?: StringFilter<"Reward"> | string
+    startDate?: DateTimeNullableFilter<"Reward"> | Date | string | null
+    endDate?: DateTimeNullableFilter<"Reward"> | Date | string | null
+    createdAt?: DateTimeFilter<"Reward"> | Date | string
+    updatedAt?: DateTimeFilter<"Reward"> | Date | string
+  }
+
   export type SubscriptionUpsertWithWhereUniqueWithoutUserInput = {
     where: SubscriptionWhereUniqueInput
     update: XOR<SubscriptionUpdateWithoutUserInput, SubscriptionUncheckedUpdateWithoutUserInput>
@@ -43231,6 +43480,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -43272,6 +43522,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -43329,6 +43580,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -43370,6 +43622,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -43411,6 +43664,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -43452,6 +43706,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -43509,6 +43764,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -43550,6 +43806,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -43610,6 +43867,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -43651,6 +43909,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -43799,6 +44058,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -43840,6 +44100,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -44019,6 +44280,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -44060,6 +44322,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -44133,6 +44396,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -44174,6 +44438,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -44250,6 +44515,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -44291,6 +44557,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -44410,6 +44677,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -44451,6 +44719,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -44519,6 +44788,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueCreateNestedManyWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -44560,6 +44830,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUncheckedCreateNestedManyWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -44617,6 +44888,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUpdateManyWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -44658,6 +44930,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUncheckedUpdateManyWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -44699,6 +44972,95 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UserCreateWithoutAllowedVouchersInput = {
+    id?: string
+    profileImageUrl?: string | null
+    email: string
+    emailVerified?: boolean
+    name: string
+    diploma?: string | null
+    faculty: $Enums.Faculty
+    role: $Enums.Role
+    lat?: number | null
+    long?: number | null
+    location?: string | null
+    commandUpdatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    treesaved?: number
+    treeprogress?: number
+    carbonprint?: number
+    image?: string | null
+    scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    bins?: BinCreateNestedManyWithoutUserInput
+    disposals?: DisposalCreateNestedManyWithoutUserInput
+    disposal_queue?: DisposalQueueCreateNestedManyWithoutUserInput
+    point?: PointCreateNestedOneWithoutUserInput
+    redemptions?: RedemptionCreateNestedManyWithoutUserInput
+    fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
+    sentTransfers?: TransferSessionCreateNestedManyWithoutSenderInput
+    user_quest?: UserQuestCreateNestedManyWithoutUserInput
+    user_event?: UserEventCreateNestedManyWithoutUserInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
+    Feedback?: FeedbackCreateNestedManyWithoutUserInput
+    FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAllowedVouchersInput = {
+    id?: string
+    profileImageUrl?: string | null
+    email: string
+    emailVerified?: boolean
+    name: string
+    diploma?: string | null
+    faculty: $Enums.Faculty
+    role: $Enums.Role
+    lat?: number | null
+    long?: number | null
+    location?: string | null
+    commandUpdatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    treesaved?: number
+    treeprogress?: number
+    carbonprint?: number
+    image?: string | null
+    scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    bins?: BinUncheckedCreateNestedManyWithoutUserInput
+    disposals?: DisposalUncheckedCreateNestedManyWithoutUserInput
+    disposal_queue?: DisposalQueueUncheckedCreateNestedManyWithoutUserInput
+    point?: PointUncheckedCreateNestedOneWithoutUserInput
+    redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
+    fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
+    sentTransfers?: TransferSessionUncheckedCreateNestedManyWithoutSenderInput
+    user_quest?: UserQuestUncheckedCreateNestedManyWithoutUserInput
+    user_event?: UserEventUncheckedCreateNestedManyWithoutUserInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
+    Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAllowedVouchersInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAllowedVouchersInput, UserUncheckedCreateWithoutAllowedVouchersInput>
+  }
+
   export type RedemptionUpsertWithWhereUniqueWithoutRewardInput = {
     where: RedemptionWhereUniqueInput
     update: XOR<RedemptionUpdateWithoutRewardInput, RedemptionUncheckedUpdateWithoutRewardInput>
@@ -44715,6 +45077,50 @@ export namespace Prisma {
     data: XOR<RedemptionUpdateManyMutationInput, RedemptionUncheckedUpdateManyWithoutRewardInput>
   }
 
+  export type UserUpsertWithWhereUniqueWithoutAllowedVouchersInput = {
+    where: UserWhereUniqueInput
+    update: XOR<UserUpdateWithoutAllowedVouchersInput, UserUncheckedUpdateWithoutAllowedVouchersInput>
+    create: XOR<UserCreateWithoutAllowedVouchersInput, UserUncheckedCreateWithoutAllowedVouchersInput>
+  }
+
+  export type UserUpdateWithWhereUniqueWithoutAllowedVouchersInput = {
+    where: UserWhereUniqueInput
+    data: XOR<UserUpdateWithoutAllowedVouchersInput, UserUncheckedUpdateWithoutAllowedVouchersInput>
+  }
+
+  export type UserUpdateManyWithWhereWithoutAllowedVouchersInput = {
+    where: UserScalarWhereInput
+    data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyWithoutAllowedVouchersInput>
+  }
+
+  export type UserScalarWhereInput = {
+    AND?: UserScalarWhereInput | UserScalarWhereInput[]
+    OR?: UserScalarWhereInput[]
+    NOT?: UserScalarWhereInput | UserScalarWhereInput[]
+    id?: StringFilter<"User"> | string
+    profileImageUrl?: StringNullableFilter<"User"> | string | null
+    email?: StringFilter<"User"> | string
+    emailVerified?: BoolFilter<"User"> | boolean
+    name?: StringFilter<"User"> | string
+    diploma?: StringNullableFilter<"User"> | string | null
+    faculty?: EnumFacultyFilter<"User"> | $Enums.Faculty
+    role?: EnumRoleFilter<"User"> | $Enums.Role
+    lat?: FloatNullableFilter<"User"> | number | null
+    long?: FloatNullableFilter<"User"> | number | null
+    location?: StringNullableFilter<"User"> | string | null
+    commandUpdatedAt?: DateTimeNullableFilter<"User"> | Date | string | null
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
+    treesaved?: IntFilter<"User"> | number
+    treeprogress?: FloatFilter<"User"> | number
+    carbonprint?: FloatFilter<"User"> | number
+    image?: StringNullableFilter<"User"> | string | null
+    scannerAlertActive?: BoolFilter<"User"> | boolean
+    banned?: BoolNullableFilter<"User"> | boolean | null
+    banReason?: StringNullableFilter<"User"> | string | null
+    banExpires?: DateTimeNullableFilter<"User"> | Date | string | null
+  }
+
   export type RewardCreateWithoutRedemptionsInput = {
     id?: string
     name: string
@@ -44726,6 +45132,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    allowedStores?: UserCreateNestedManyWithoutAllowedVouchersInput
   }
 
   export type RewardUncheckedCreateWithoutRedemptionsInput = {
@@ -44739,6 +45146,7 @@ export namespace Prisma {
     endDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    allowedStores?: UserUncheckedCreateNestedManyWithoutAllowedVouchersInput
   }
 
   export type RewardCreateOrConnectWithoutRedemptionsInput = {
@@ -44776,6 +45184,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueCreateNestedManyWithoutUserInput
     point?: PointCreateNestedOneWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -44817,6 +45226,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUncheckedCreateNestedManyWithoutUserInput
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -44863,6 +45273,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueCreateNestedManyWithoutUserInput
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -44904,6 +45315,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUncheckedCreateNestedManyWithoutUserInput
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -44942,6 +45354,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    allowedStores?: UserUpdateManyWithoutAllowedVouchersNestedInput
   }
 
   export type RewardUncheckedUpdateWithoutRedemptionsInput = {
@@ -44955,6 +45368,7 @@ export namespace Prisma {
     endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    allowedStores?: UserUncheckedUpdateManyWithoutAllowedVouchersNestedInput
   }
 
   export type UserUpsertWithoutRedemptionsInput = {
@@ -44998,6 +45412,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUpdateManyWithoutUserNestedInput
     point?: PointUpdateOneWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -45039,6 +45454,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUncheckedUpdateManyWithoutUserNestedInput
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -45091,6 +45507,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUpdateManyWithoutUserNestedInput
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -45132,6 +45549,7 @@ export namespace Prisma {
     disposal_queue?: DisposalQueueUncheckedUpdateManyWithoutUserNestedInput
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -45174,6 +45592,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
     sentTransfers?: TransferSessionCreateNestedManyWithoutSenderInput
@@ -45215,6 +45634,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
     sentTransfers?: TransferSessionUncheckedCreateNestedManyWithoutSenderInput
@@ -45272,6 +45692,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
     sentTransfers?: TransferSessionUpdateManyWithoutSenderNestedInput
@@ -45313,6 +45734,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
     sentTransfers?: TransferSessionUncheckedUpdateManyWithoutSenderNestedInput
@@ -45354,6 +45776,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
     sentTransfers?: TransferSessionCreateNestedManyWithoutSenderInput
@@ -45395,6 +45818,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
     sentTransfers?: TransferSessionUncheckedCreateNestedManyWithoutSenderInput
@@ -45452,6 +45876,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
     sentTransfers?: TransferSessionUpdateManyWithoutSenderNestedInput
@@ -45493,6 +45918,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
     sentTransfers?: TransferSessionUncheckedUpdateManyWithoutSenderNestedInput
@@ -45607,6 +46033,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -45648,6 +46075,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -45742,6 +46170,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -45783,6 +46212,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -45824,6 +46254,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     sentTransfers?: TransferSessionCreateNestedManyWithoutSenderInput
@@ -45865,6 +46296,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     sentTransfers?: TransferSessionUncheckedCreateNestedManyWithoutSenderInput
@@ -45911,6 +46343,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -45952,6 +46385,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -46009,6 +46443,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     sentTransfers?: TransferSessionUpdateManyWithoutSenderNestedInput
@@ -46050,6 +46485,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     sentTransfers?: TransferSessionUncheckedUpdateManyWithoutSenderNestedInput
@@ -46102,6 +46538,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -46143,6 +46580,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -46222,6 +46660,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -46263,6 +46702,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -46345,6 +46785,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -46386,6 +46827,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -46458,6 +46900,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -46499,6 +46942,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -46556,6 +47000,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -46597,6 +47042,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -46638,6 +47084,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -46679,6 +47126,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -46736,6 +47184,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -46777,6 +47226,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -46894,6 +47344,7 @@ export namespace Prisma {
     point?: PointCreateNestedOneWithoutUserInput
     redemptions?: RedemptionCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
     transactions?: TransactionCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
@@ -46935,6 +47386,7 @@ export namespace Prisma {
     point?: PointUncheckedCreateNestedOneWithoutUserInput
     redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
     fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
     transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
     receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
@@ -46992,6 +47444,7 @@ export namespace Prisma {
     point?: PointUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
     transactions?: TransactionUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
@@ -47033,6 +47486,7 @@ export namespace Prisma {
     point?: PointUncheckedUpdateOneWithoutUserNestedInput
     redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
     fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
     transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
     receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
@@ -47448,6 +47902,47 @@ export namespace Prisma {
     rewardId?: StringFieldUpdateOperationsInput | string
     status?: EnumRedemptionStatusFieldUpdateOperationsInput | $Enums.RedemptionStatus
     fulfilledAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type RewardUpdateWithoutAllowedStoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    pointsRequired?: IntFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    image?: StringFieldUpdateOperationsInput | string
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    redemptions?: RedemptionUpdateManyWithoutRewardNestedInput
+  }
+
+  export type RewardUncheckedUpdateWithoutAllowedStoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    pointsRequired?: IntFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    image?: StringFieldUpdateOperationsInput | string
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    redemptions?: RedemptionUncheckedUpdateManyWithoutRewardNestedInput
+  }
+
+  export type RewardUncheckedUpdateManyWithoutAllowedStoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    pointsRequired?: IntFieldUpdateOperationsInput | number
+    description?: StringFieldUpdateOperationsInput | string
+    isAvailable?: BoolFieldUpdateOperationsInput | boolean
+    image?: StringFieldUpdateOperationsInput | string
+    startDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -47951,6 +48446,115 @@ export namespace Prisma {
     fulfilledById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UserUpdateWithoutAllowedVouchersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    diploma?: NullableStringFieldUpdateOperationsInput | string | null
+    faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    treesaved?: IntFieldUpdateOperationsInput | number
+    treeprogress?: FloatFieldUpdateOperationsInput | number
+    carbonprint?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    bins?: BinUpdateManyWithoutUserNestedInput
+    disposals?: DisposalUpdateManyWithoutUserNestedInput
+    disposal_queue?: DisposalQueueUpdateManyWithoutUserNestedInput
+    point?: PointUpdateOneWithoutUserNestedInput
+    redemptions?: RedemptionUpdateManyWithoutUserNestedInput
+    fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
+    sentTransfers?: TransferSessionUpdateManyWithoutSenderNestedInput
+    user_quest?: UserQuestUpdateManyWithoutUserNestedInput
+    user_event?: UserEventUpdateManyWithoutUserNestedInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
+    Feedback?: FeedbackUpdateManyWithoutUserNestedInput
+    FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAllowedVouchersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    diploma?: NullableStringFieldUpdateOperationsInput | string | null
+    faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    treesaved?: IntFieldUpdateOperationsInput | number
+    treeprogress?: FloatFieldUpdateOperationsInput | number
+    carbonprint?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    bins?: BinUncheckedUpdateManyWithoutUserNestedInput
+    disposals?: DisposalUncheckedUpdateManyWithoutUserNestedInput
+    disposal_queue?: DisposalQueueUncheckedUpdateManyWithoutUserNestedInput
+    point?: PointUncheckedUpdateOneWithoutUserNestedInput
+    redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
+    fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
+    sentTransfers?: TransferSessionUncheckedUpdateManyWithoutSenderNestedInput
+    user_quest?: UserQuestUncheckedUpdateManyWithoutUserNestedInput
+    user_event?: UserEventUncheckedUpdateManyWithoutUserNestedInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
+    Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateManyWithoutAllowedVouchersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    diploma?: NullableStringFieldUpdateOperationsInput | string | null
+    faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    treesaved?: IntFieldUpdateOperationsInput | number
+    treeprogress?: FloatFieldUpdateOperationsInput | number
+    carbonprint?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserQuestCreateManyQuestInput = {

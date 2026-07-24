@@ -283,8 +283,8 @@ export default function AdminDashboard() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/admin/crashlog'}>
-                  <Link href="/admin/crashlog" className="flex items-center gap-3">
+                <SidebarMenuButton asChild isActive={pathname === '/admin/log'}>
+                  <Link href="/admin/log" className="flex items-center gap-3">
                     <ScrollText className="h-4 w-4" />
                     Activity Log
                   </Link>

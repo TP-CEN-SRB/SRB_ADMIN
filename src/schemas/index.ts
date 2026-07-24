@@ -127,6 +127,8 @@ const VoucherSchema = z.object({
     }),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
+  // Empty = unrestricted, any registered store can fulfill this voucher.
+  storeIds: z.array(z.string()).default([]),
 })
 
 const UpdateVoucherSchema = VoucherSchema.extend({

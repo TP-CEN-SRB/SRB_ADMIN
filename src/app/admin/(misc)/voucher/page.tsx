@@ -9,7 +9,7 @@ import { VoucherActions } from "./voucherActions"
 import { CreateVoucherForm } from "@/components/FormLogic/(Misc)/CreateVoucherForm"
 import { getVouchers } from "@/app/action/voucher"
 
-const col_widths = ["12%", "22%", "12%", "12%", "12%", "12%", "10%", "8%"]
+const col_widths = ["10%", "20%", "10%", "10%", "10%", "10%", "10%", "10%", "10%"]
 
 interface VoucherAdminPageProps {
   searchParams: Promise<{
@@ -38,7 +38,7 @@ export default async function VoucherAdminPage({ searchParams }: VoucherAdminPag
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={8} />}>
+        <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={9} />}>
           <VoucherTable searchParams={params} />
         </Suspense>
       </div>
@@ -80,6 +80,7 @@ async function VoucherTable({ searchParams: params }: { searchParams: Awaited<Vo
             <TableHead>Name</TableHead>
             <TableHead className="text-center">Points</TableHead>
             <TableHead className="text-center">Status</TableHead>
+            <TableHead className="text-center">Stores</TableHead>
             <TableHead className="text-center">Start</TableHead>
             <TableHead className="text-center">End</TableHead>
             <TableHead className="text-center">Redeemed</TableHead>
@@ -98,7 +99,7 @@ async function VoucherTable({ searchParams: params }: { searchParams: Awaited<Vo
           <TableBody>
             {vouchers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
                   No vouchers found.
                 </TableCell>
               </TableRow>
@@ -120,6 +121,11 @@ async function VoucherTable({ searchParams: params }: { searchParams: Awaited<Vo
                     <Badge variant={voucher.isAvailable ? "default" : "secondary"}>
                       {voucher.isAvailable ? "Available" : "Hidden"}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="text-xs">
+                      {voucher._count.allowedStores === 0 ? "All" : `${voucher._count.allowedStores} store${voucher._count.allowedStores > 1 ? "s" : ""}`}
+                    </span>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs">{voucher.startDate ? new Date(voucher.startDate).toLocaleDateString("en-SG") : "—"}</span>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -19,13 +19,16 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { Loader2, Save } from "lucide-react"
 
 import { UpdateVoucherSchema } from "@/schemas"
 import { updateVoucher } from "@/app/action/voucher"
+import { getStoreOptions } from "@/app/action/store"
 
 type UpdateVoucherFormValue = z.output<typeof UpdateVoucherSchema>
+type StoreOption = { id: string; name: string; faculty: string }
 
 interface UpdateVoucherFormProps {
   id: string
@@ -37,12 +40,18 @@ interface UpdateVoucherFormProps {
     image: string
     startDate: Date | null
     endDate: Date | null
+    allowedStores: { id: string }[]
   }
 }
 
 export function UpdateVoucherForm({ id, voucher }: UpdateVoucherFormProps) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const [storeOptions, setStoreOptions] = useState<StoreOption[]>([])
+
+  useEffect(function () {
+    getStoreOptions().then(setStoreOptions)
+  }, [])
 
   const form = useForm<z.input<typeof UpdateVoucherSchema>, unknown, z.output<typeof UpdateVoucherSchema>>({
     resolver: zodResolver(UpdateVoucherSchema),
@@ -53,6 +62,7 @@ export function UpdateVoucherForm({ id, voucher }: UpdateVoucherFormProps) {
       isAvailable: voucher.isAvailable,
       startDate: voucher.startDate ?? undefined,
       endDate: voucher.endDate ?? undefined,
+      storeIds: voucher.allowedStores.map((store) => store.id),
     },
   })
 
@@ -200,6 +210,49 @@ export function UpdateVoucherForm({ id, voucher }: UpdateVoucherFormProps) {
                   <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                 </FormControl>
               </div>
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="storeIds"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Allowed Stores</FormLabel>
+              <FormDescription>
+                Leave all unchecked to allow any registered store to fulfill this voucher.
+              </FormDescription>
+              <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border p-3">
+                {storeOptions.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No stores registered yet.</p>
+                ) : (
+                  storeOptions.map((store) => {
+                    const checked = (field.value ?? []).includes(store.id)
+                    return (
+                      <div key={store.id} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`store-${store.id}`}
+                          disabled={isPending}
+                          checked={checked}
+                          onCheckedChange={(isChecked) => {
+                            const current: string[] = field.value ?? []
+                            field.onChange(
+                              isChecked
+                                ? [...current, store.id]
+                                : current.filter((sid) => sid !== store.id)
+                            )
+                          }}
+                        />
+                        <label htmlFor={`store-${store.id}`} className="text-sm">
+                          {store.name} <span className="text-muted-foreground">({store.faculty})</span>
+                        </label>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+              <FormMessage />
             </FormItem>
           )}
         />
