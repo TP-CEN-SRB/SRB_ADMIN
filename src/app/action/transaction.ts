@@ -79,7 +79,9 @@ const getAllTransactions = async (
   limit: number,
   sortOrder: string | undefined,
   transactionType: string | null,
-  search: string
+  search: string,
+  dateFrom?: Date,
+  dateTo?: Date
 ) => {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -105,6 +107,7 @@ const getAllTransactions = async (
     transactionType: transactionType
       ? { in: transactionType.split(",") as TransactionType[] }
       : undefined,
+    createdAt: dateFrom && dateTo ? { gte: dateFrom, lte: dateTo } : undefined,
     user: search
       ? {
           OR: [
@@ -141,4 +144,37 @@ const getAllTransactions = async (
   }
 }
 
-export { getTransactionByUserId, getAllTransactions }
+// Economy snapshot for the global transactions page: points currently in
+// circulation (all-time, not date-scoped - it's a balance, not a flow) plus
+// how much was earned vs. spent within the selected period.
+const getTransactionStats = async (dateFrom?: Date, dateTo?: Date) => {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const sessionUser = session?.user
+  if (!sessionUser || sessionUser?.role !== "admin") {
+    return { pointsInCirculation: 0, totalEarned: 0, totalSpent: 0 }
+  }
+
+  const dateFilter = dateFrom && dateTo ? { gte: dateFrom, lte: dateTo } : undefined
+
+  const [circulation, earned, spent] = await Promise.all([
+    prisma.point.aggregate({ _sum: { balance: true } }),
+    prisma.transaction.aggregate({
+      _sum: { pointsChange: true },
+      where: { pointsChange: { gt: 0 }, createdAt: dateFilter },
+    }),
+    prisma.transaction.aggregate({
+      _sum: { pointsChange: true },
+      where: { pointsChange: { lt: 0 }, createdAt: dateFilter },
+    }),
+  ])
+
+  return {
+    pointsInCirculation: circulation._sum.balance ?? 0,
+    totalEarned: earned._sum.pointsChange ?? 0,
+    totalSpent: Math.abs(spent._sum.pointsChange ?? 0),
+  }
+}
+
+export { getTransactionByUserId, getAllTransactions, getTransactionStats }

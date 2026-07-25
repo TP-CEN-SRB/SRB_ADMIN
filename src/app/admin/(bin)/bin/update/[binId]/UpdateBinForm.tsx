@@ -1,11 +1,18 @@
 "use client"
 
-import { redirect, useRouter } from "next/navigation" // Import useRouter
+import { useRouter } from "next/navigation"
 import { UpdateBinSchema } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
-import React, { useTransition, useState } from "react"
+import { useTransition } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
   Form,
   FormControl,
@@ -18,12 +25,10 @@ import { Input } from "@/components/ui/input"
 import BinStatusCombobox from "./UpdateBinStatusCombobox"
 import BinMaterialCombobox from "./BinMaterialCombobox"
 import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { Loader2, Save } from "lucide-react"
 import { toast } from "sonner"
 import { Bin, BinMaterial } from "@/generated/prisma"
 import { updateBin } from "./action"
-import Card from "@/components/Card/Card"
-import FormHeader from "@/components/FormLogic/FormHeader"
 
 interface UpdateBinFormProps {
   id: string
@@ -62,98 +67,87 @@ export default function UpdateBinForm({
       try {
         const result = await updateBin(id, values)
         if (result?.success) {
-          toast.success("success",{
+          toast.success("Success", {
             description: `Bin updated at ${datetime}`,
           })
           router.push("/admin/bin")
         } else if (result?.error) {
-          toast.error("Error",{
+          toast.error("Error", {
             description: result.error || "Failed to update bin",
-            duration: 2000,
           })
         }
       } catch (error) {
-        console.error("Update error:", error)
-        toast.error("Error",{
+        toast.error("Error", {
           description: "An unexpected error occurred",
-          duration: 2000,
         })
       }
     })
   }
 
   return (
-    <Card isAdmin rounded fullWidth>
-      <FormHeader>Update bin</FormHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Location
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={true}
-                    placeholder="Near Library"
-                    {...field}
-                    type="text"
-                    className="bg-gray-200"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Status
-                </FormLabel>
-                <FormControl>
-                  <BinStatusCombobox field={field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="materialId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-bold text-slate-700">
-                  Material
-                </FormLabel>
-                <FormControl>
-                  <BinMaterialCombobox
-                    materials={materials}
-                    field={field}
-                    currentFieldName={binMaterialName}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button
-            disabled={isPending}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
-            type="submit"
-          >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : ""}
-            {isPending ? "Loading..." : "Submit"}
-          </Button>
-        </form>
-      </Form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Bin Details</CardTitle>
+        <CardDescription>Update this bin&apos;s status and material.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location</FormLabel>
+                  <FormControl>
+                    <Input disabled placeholder="Near Library" {...field} type="text" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <FormControl>
+                    <BinStatusCombobox field={field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="materialId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Material</FormLabel>
+                  <FormControl>
+                    <BinMaterialCombobox
+                      materials={materials}
+                      field={field}
+                      currentFieldName={binMaterialName}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button disabled={isPending} type="submit">
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 size-4" />
+              )}
+              {isPending ? "Updating..." : "Save Changes"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
     </Card>
   )
 }
-
-

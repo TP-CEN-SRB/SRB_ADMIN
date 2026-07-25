@@ -65,6 +65,12 @@ export async function createCredentialUser({
     },
   })
 
+  // Mirrors the Point row auth.api.signUpEmail's caller creates for student
+  // self-signup (see /api/signup/student) - without it, admin-created
+  // accounts (stores, bin managers) have no points row at all rather than
+  // one with a real 0 balance.
+  await prisma.point.create({ data: { userId: user.id } })
+
   return user
 }
 
