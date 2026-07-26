@@ -93,12 +93,13 @@ const connectMqtt = (): Promise<MqttClient> => {
 
 export const publishMqtt = async (
   topic: string,
-  message: string
+  message: string,
+  options?: { retain?: boolean }
 ): Promise<boolean> => {
   const mqttClient = await connectMqtt()
 
   return new Promise((resolve, reject) => {
-    mqttClient.publish(topic, message, { qos: 0 }, (err) => {
+    mqttClient.publish(topic, message, { qos: 0, retain: options?.retain ?? false }, (err) => {
       if (err) return reject(false)
       resolve(true)
     })

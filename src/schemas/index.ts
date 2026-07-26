@@ -256,7 +256,6 @@ const UpdateEventSchema = EventSchema.partial().extend({
   id: z.string().uuid({ message: "Invalid Event ID" }),
 })
 
-
 export {
   BinSchema,
   DisposalSchema,

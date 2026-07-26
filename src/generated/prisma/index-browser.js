@@ -196,6 +196,15 @@ exports.Prisma.BinScalarFieldEnum = {
   alertLevel: 'alertLevel'
 };
 
+exports.Prisma.PowerScheduleScalarFieldEnum = {
+  id: 'id',
+  enabled: 'enabled',
+  startMinute: 'startMinute',
+  endMinute: 'endMinute',
+  days: 'days',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.BinMaterialScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -515,6 +524,7 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Verification: 'Verification',
   Bin: 'Bin',
+  PowerSchedule: 'PowerSchedule',
   BinMaterial: 'BinMaterial',
   DisposalQueue: 'DisposalQueue',
   Disposal: 'Disposal',

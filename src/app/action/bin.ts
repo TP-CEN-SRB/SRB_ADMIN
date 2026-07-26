@@ -6,6 +6,10 @@ import { z } from "zod"
 import { DiagnosticComponentResultSchema, DiagnosticPayloadSchema } from "@/schemas"
 import { sendBinFaultyEmail } from "@/lib/resend"
 import { invalidateDashboardCache } from "@/app/action/dashboard"
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { revalidatePath } from "next/cache"
+import { publishMqtt } from "@/lib/mqtt"
 
 // Cross-cutting bin actions shared by infrastructure entry points that
 // aren't tied to a single admin page: the MQTT bridge (src/lib/mqtt.ts),
@@ -288,4 +292,67 @@ export const logBinCommand = async (binId: string, materialName: string, command
       message: `"${command}" command sent to ${materialName} bin (${binId})`,
     },
   })
+}
+
+async function requireAdmin() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  return session?.user?.role === "admin"
+}
+
+// Fetches the system-wide power schedule for the schedule edit page. There's
+// always exactly one row - create it with defaults on first read if it
+// doesn't exist yet.
+export const getPowerSchedule = async () => {
+  const existing = await prisma.powerSchedule.findFirst()
+  if (existing) return existing
+  return await prisma.powerSchedule.create({ data: {} })
+}
+
+// Saves the system-wide SMPS power schedule and pushes it to every bin
+// controller over a retained MQTT message (srb/schedule), so devices get the
+// current schedule immediately, and again on every reconnect/reboot without
+// the admin having to resend it.
+export const updatePowerSchedule = async (values: {
+  enabled: boolean
+  startMinute: number
+  endMinute: number
+  days: number[]
+}) => {
+  if (!(await requireAdmin())) {
+    return { error: "Unauthorized access!" }
+  }
+
+  const existing = await prisma.powerSchedule.findFirst({ select: { id: true } })
+
+  await prisma.powerSchedule.upsert({
+    where: { id: existing?.id ?? "" },
+    create: {
+      enabled: values.enabled,
+      startMinute: values.startMinute,
+      endMinute: values.endMinute,
+      days: values.days,
+    },
+    update: {
+      enabled: values.enabled,
+      startMinute: values.startMinute,
+      endMinute: values.endMinute,
+      days: values.days,
+    },
+  })
+
+  const payload = JSON.stringify({
+    enabled: values.enabled,
+    startMinute: values.startMinute,
+    endMinute: values.endMinute,
+    days: values.days,
+  })
+
+  const published = await publishMqtt("srb/schedule", payload, { retain: true })
+
+  revalidatePath("/admin/bin/schedule")
+
+  if (!published) {
+    return { error: "Schedule saved, but the devices could not be reached over MQTT" }
+  }
+  return { success: "Power schedule updated" }
 }

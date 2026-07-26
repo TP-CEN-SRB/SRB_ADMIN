@@ -12,7 +12,8 @@ import {
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ListFilter } from "lucide-react"
+import { ListFilter, Clock } from "lucide-react"
+import Link from "next/link"
 
 import ExportCSV from "./export-csv"
 import { Bin } from "./columns"
@@ -142,6 +143,13 @@ export function BinHeader({ currentPage, currentLimit, totalPages, totalCount, m
       </div>
 
       <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/admin/bin/schedule">
+            <Clock className="mr-2 size-4" />
+            Power Schedule
+          </Link>
+        </Button>
+
         <ExportCSV data={exportData} />
 
         <TablePaginationControls

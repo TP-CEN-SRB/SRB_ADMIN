@@ -39,6 +39,11 @@ export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
  */
 export type Bin = $Result.DefaultSelection<Prisma.$BinPayload>
 /**
+ * Model PowerSchedule
+ * 
+ */
+export type PowerSchedule = $Result.DefaultSelection<Prisma.$PowerSchedulePayload>
+/**
  * Model BinMaterial
  * 
  */
@@ -429,6 +434,16 @@ export class PrismaClient<
     * ```
     */
   get bin(): Prisma.BinDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.powerSchedule`: Exposes CRUD operations for the **PowerSchedule** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PowerSchedules
+    * const powerSchedules = await prisma.powerSchedule.findMany()
+    * ```
+    */
+  get powerSchedule(): Prisma.PowerScheduleDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.binMaterial`: Exposes CRUD operations for the **BinMaterial** model.
@@ -1078,6 +1093,7 @@ export namespace Prisma {
     Account: 'Account',
     Verification: 'Verification',
     Bin: 'Bin',
+    PowerSchedule: 'PowerSchedule',
     BinMaterial: 'BinMaterial',
     DisposalQueue: 'DisposalQueue',
     Disposal: 'Disposal',
@@ -1114,7 +1130,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "bin" | "binMaterial" | "disposalQueue" | "disposal" | "point" | "reward" | "redemption" | "subscription" | "transaction" | "questDetails" | "userQuest" | "transferSession" | "video" | "crashlog" | "questTemplate" | "event" | "userEvent" | "feedback" | "faultReport" | "binDiagnosticLog" | "scannerDiagnosticLog" | "apikey"
+      modelProps: "user" | "session" | "account" | "verification" | "bin" | "powerSchedule" | "binMaterial" | "disposalQueue" | "disposal" | "point" | "reward" | "redemption" | "subscription" | "transaction" | "questDetails" | "userQuest" | "transferSession" | "video" | "crashlog" | "questTemplate" | "event" | "userEvent" | "feedback" | "faultReport" | "binDiagnosticLog" | "scannerDiagnosticLog" | "apikey"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1485,6 +1501,80 @@ export namespace Prisma {
           count: {
             args: Prisma.BinCountArgs<ExtArgs>
             result: $Utils.Optional<BinCountAggregateOutputType> | number
+          }
+        }
+      }
+      PowerSchedule: {
+        payload: Prisma.$PowerSchedulePayload<ExtArgs>
+        fields: Prisma.PowerScheduleFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PowerScheduleFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PowerScheduleFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>
+          }
+          findFirst: {
+            args: Prisma.PowerScheduleFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PowerScheduleFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>
+          }
+          findMany: {
+            args: Prisma.PowerScheduleFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>[]
+          }
+          create: {
+            args: Prisma.PowerScheduleCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>
+          }
+          createMany: {
+            args: Prisma.PowerScheduleCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PowerScheduleCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>[]
+          }
+          delete: {
+            args: Prisma.PowerScheduleDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>
+          }
+          update: {
+            args: Prisma.PowerScheduleUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>
+          }
+          deleteMany: {
+            args: Prisma.PowerScheduleDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PowerScheduleUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PowerScheduleUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>[]
+          }
+          upsert: {
+            args: Prisma.PowerScheduleUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PowerSchedulePayload>
+          }
+          aggregate: {
+            args: Prisma.PowerScheduleAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePowerSchedule>
+          }
+          groupBy: {
+            args: Prisma.PowerScheduleGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PowerScheduleGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PowerScheduleCountArgs<ExtArgs>
+            result: $Utils.Optional<PowerScheduleCountAggregateOutputType> | number
           }
         }
       }
@@ -3155,6 +3245,7 @@ export namespace Prisma {
     account?: AccountOmit
     verification?: VerificationOmit
     bin?: BinOmit
+    powerSchedule?: PowerScheduleOmit
     binMaterial?: BinMaterialOmit
     disposalQueue?: DisposalQueueOmit
     disposal?: DisposalOmit
@@ -9988,6 +10079,1057 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: BinInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PowerSchedule
+   */
+
+  export type AggregatePowerSchedule = {
+    _count: PowerScheduleCountAggregateOutputType | null
+    _avg: PowerScheduleAvgAggregateOutputType | null
+    _sum: PowerScheduleSumAggregateOutputType | null
+    _min: PowerScheduleMinAggregateOutputType | null
+    _max: PowerScheduleMaxAggregateOutputType | null
+  }
+
+  export type PowerScheduleAvgAggregateOutputType = {
+    startMinute: number | null
+    endMinute: number | null
+    days: number | null
+  }
+
+  export type PowerScheduleSumAggregateOutputType = {
+    startMinute: number | null
+    endMinute: number | null
+    days: number[]
+  }
+
+  export type PowerScheduleMinAggregateOutputType = {
+    id: string | null
+    enabled: boolean | null
+    startMinute: number | null
+    endMinute: number | null
+    updatedAt: Date | null
+  }
+
+  export type PowerScheduleMaxAggregateOutputType = {
+    id: string | null
+    enabled: boolean | null
+    startMinute: number | null
+    endMinute: number | null
+    updatedAt: Date | null
+  }
+
+  export type PowerScheduleCountAggregateOutputType = {
+    id: number
+    enabled: number
+    startMinute: number
+    endMinute: number
+    days: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PowerScheduleAvgAggregateInputType = {
+    startMinute?: true
+    endMinute?: true
+    days?: true
+  }
+
+  export type PowerScheduleSumAggregateInputType = {
+    startMinute?: true
+    endMinute?: true
+    days?: true
+  }
+
+  export type PowerScheduleMinAggregateInputType = {
+    id?: true
+    enabled?: true
+    startMinute?: true
+    endMinute?: true
+    updatedAt?: true
+  }
+
+  export type PowerScheduleMaxAggregateInputType = {
+    id?: true
+    enabled?: true
+    startMinute?: true
+    endMinute?: true
+    updatedAt?: true
+  }
+
+  export type PowerScheduleCountAggregateInputType = {
+    id?: true
+    enabled?: true
+    startMinute?: true
+    endMinute?: true
+    days?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PowerScheduleAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PowerSchedule to aggregate.
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PowerSchedules to fetch.
+     */
+    orderBy?: PowerScheduleOrderByWithRelationInput | PowerScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PowerScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PowerSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PowerSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PowerSchedules
+    **/
+    _count?: true | PowerScheduleCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PowerScheduleAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PowerScheduleSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PowerScheduleMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PowerScheduleMaxAggregateInputType
+  }
+
+  export type GetPowerScheduleAggregateType<T extends PowerScheduleAggregateArgs> = {
+        [P in keyof T & keyof AggregatePowerSchedule]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePowerSchedule[P]>
+      : GetScalarType<T[P], AggregatePowerSchedule[P]>
+  }
+
+
+
+
+  export type PowerScheduleGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PowerScheduleWhereInput
+    orderBy?: PowerScheduleOrderByWithAggregationInput | PowerScheduleOrderByWithAggregationInput[]
+    by: PowerScheduleScalarFieldEnum[] | PowerScheduleScalarFieldEnum
+    having?: PowerScheduleScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PowerScheduleCountAggregateInputType | true
+    _avg?: PowerScheduleAvgAggregateInputType
+    _sum?: PowerScheduleSumAggregateInputType
+    _min?: PowerScheduleMinAggregateInputType
+    _max?: PowerScheduleMaxAggregateInputType
+  }
+
+  export type PowerScheduleGroupByOutputType = {
+    id: string
+    enabled: boolean
+    startMinute: number
+    endMinute: number
+    days: number[]
+    updatedAt: Date
+    _count: PowerScheduleCountAggregateOutputType | null
+    _avg: PowerScheduleAvgAggregateOutputType | null
+    _sum: PowerScheduleSumAggregateOutputType | null
+    _min: PowerScheduleMinAggregateOutputType | null
+    _max: PowerScheduleMaxAggregateOutputType | null
+  }
+
+  type GetPowerScheduleGroupByPayload<T extends PowerScheduleGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PowerScheduleGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PowerScheduleGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PowerScheduleGroupByOutputType[P]>
+            : GetScalarType<T[P], PowerScheduleGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PowerScheduleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    enabled?: boolean
+    startMinute?: boolean
+    endMinute?: boolean
+    days?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["powerSchedule"]>
+
+  export type PowerScheduleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    enabled?: boolean
+    startMinute?: boolean
+    endMinute?: boolean
+    days?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["powerSchedule"]>
+
+  export type PowerScheduleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    enabled?: boolean
+    startMinute?: boolean
+    endMinute?: boolean
+    days?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["powerSchedule"]>
+
+  export type PowerScheduleSelectScalar = {
+    id?: boolean
+    enabled?: boolean
+    startMinute?: boolean
+    endMinute?: boolean
+    days?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PowerScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "enabled" | "startMinute" | "endMinute" | "days" | "updatedAt", ExtArgs["result"]["powerSchedule"]>
+
+  export type $PowerSchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PowerSchedule"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      enabled: boolean
+      startMinute: number
+      endMinute: number
+      days: number[]
+      updatedAt: Date
+    }, ExtArgs["result"]["powerSchedule"]>
+    composites: {}
+  }
+
+  type PowerScheduleGetPayload<S extends boolean | null | undefined | PowerScheduleDefaultArgs> = $Result.GetResult<Prisma.$PowerSchedulePayload, S>
+
+  type PowerScheduleCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PowerScheduleFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PowerScheduleCountAggregateInputType | true
+    }
+
+  export interface PowerScheduleDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PowerSchedule'], meta: { name: 'PowerSchedule' } }
+    /**
+     * Find zero or one PowerSchedule that matches the filter.
+     * @param {PowerScheduleFindUniqueArgs} args - Arguments to find a PowerSchedule
+     * @example
+     * // Get one PowerSchedule
+     * const powerSchedule = await prisma.powerSchedule.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PowerScheduleFindUniqueArgs>(args: SelectSubset<T, PowerScheduleFindUniqueArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PowerSchedule that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PowerScheduleFindUniqueOrThrowArgs} args - Arguments to find a PowerSchedule
+     * @example
+     * // Get one PowerSchedule
+     * const powerSchedule = await prisma.powerSchedule.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PowerScheduleFindUniqueOrThrowArgs>(args: SelectSubset<T, PowerScheduleFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PowerSchedule that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleFindFirstArgs} args - Arguments to find a PowerSchedule
+     * @example
+     * // Get one PowerSchedule
+     * const powerSchedule = await prisma.powerSchedule.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PowerScheduleFindFirstArgs>(args?: SelectSubset<T, PowerScheduleFindFirstArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PowerSchedule that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleFindFirstOrThrowArgs} args - Arguments to find a PowerSchedule
+     * @example
+     * // Get one PowerSchedule
+     * const powerSchedule = await prisma.powerSchedule.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PowerScheduleFindFirstOrThrowArgs>(args?: SelectSubset<T, PowerScheduleFindFirstOrThrowArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PowerSchedules that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PowerSchedules
+     * const powerSchedules = await prisma.powerSchedule.findMany()
+     * 
+     * // Get first 10 PowerSchedules
+     * const powerSchedules = await prisma.powerSchedule.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const powerScheduleWithIdOnly = await prisma.powerSchedule.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PowerScheduleFindManyArgs>(args?: SelectSubset<T, PowerScheduleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PowerSchedule.
+     * @param {PowerScheduleCreateArgs} args - Arguments to create a PowerSchedule.
+     * @example
+     * // Create one PowerSchedule
+     * const PowerSchedule = await prisma.powerSchedule.create({
+     *   data: {
+     *     // ... data to create a PowerSchedule
+     *   }
+     * })
+     * 
+     */
+    create<T extends PowerScheduleCreateArgs>(args: SelectSubset<T, PowerScheduleCreateArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PowerSchedules.
+     * @param {PowerScheduleCreateManyArgs} args - Arguments to create many PowerSchedules.
+     * @example
+     * // Create many PowerSchedules
+     * const powerSchedule = await prisma.powerSchedule.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PowerScheduleCreateManyArgs>(args?: SelectSubset<T, PowerScheduleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PowerSchedules and returns the data saved in the database.
+     * @param {PowerScheduleCreateManyAndReturnArgs} args - Arguments to create many PowerSchedules.
+     * @example
+     * // Create many PowerSchedules
+     * const powerSchedule = await prisma.powerSchedule.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PowerSchedules and only return the `id`
+     * const powerScheduleWithIdOnly = await prisma.powerSchedule.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PowerScheduleCreateManyAndReturnArgs>(args?: SelectSubset<T, PowerScheduleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PowerSchedule.
+     * @param {PowerScheduleDeleteArgs} args - Arguments to delete one PowerSchedule.
+     * @example
+     * // Delete one PowerSchedule
+     * const PowerSchedule = await prisma.powerSchedule.delete({
+     *   where: {
+     *     // ... filter to delete one PowerSchedule
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PowerScheduleDeleteArgs>(args: SelectSubset<T, PowerScheduleDeleteArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PowerSchedule.
+     * @param {PowerScheduleUpdateArgs} args - Arguments to update one PowerSchedule.
+     * @example
+     * // Update one PowerSchedule
+     * const powerSchedule = await prisma.powerSchedule.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PowerScheduleUpdateArgs>(args: SelectSubset<T, PowerScheduleUpdateArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PowerSchedules.
+     * @param {PowerScheduleDeleteManyArgs} args - Arguments to filter PowerSchedules to delete.
+     * @example
+     * // Delete a few PowerSchedules
+     * const { count } = await prisma.powerSchedule.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PowerScheduleDeleteManyArgs>(args?: SelectSubset<T, PowerScheduleDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PowerSchedules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PowerSchedules
+     * const powerSchedule = await prisma.powerSchedule.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PowerScheduleUpdateManyArgs>(args: SelectSubset<T, PowerScheduleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PowerSchedules and returns the data updated in the database.
+     * @param {PowerScheduleUpdateManyAndReturnArgs} args - Arguments to update many PowerSchedules.
+     * @example
+     * // Update many PowerSchedules
+     * const powerSchedule = await prisma.powerSchedule.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PowerSchedules and only return the `id`
+     * const powerScheduleWithIdOnly = await prisma.powerSchedule.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PowerScheduleUpdateManyAndReturnArgs>(args: SelectSubset<T, PowerScheduleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PowerSchedule.
+     * @param {PowerScheduleUpsertArgs} args - Arguments to update or create a PowerSchedule.
+     * @example
+     * // Update or create a PowerSchedule
+     * const powerSchedule = await prisma.powerSchedule.upsert({
+     *   create: {
+     *     // ... data to create a PowerSchedule
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PowerSchedule we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PowerScheduleUpsertArgs>(args: SelectSubset<T, PowerScheduleUpsertArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PowerSchedules.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleCountArgs} args - Arguments to filter PowerSchedules to count.
+     * @example
+     * // Count the number of PowerSchedules
+     * const count = await prisma.powerSchedule.count({
+     *   where: {
+     *     // ... the filter for the PowerSchedules we want to count
+     *   }
+     * })
+    **/
+    count<T extends PowerScheduleCountArgs>(
+      args?: Subset<T, PowerScheduleCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PowerScheduleCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PowerSchedule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PowerScheduleAggregateArgs>(args: Subset<T, PowerScheduleAggregateArgs>): Prisma.PrismaPromise<GetPowerScheduleAggregateType<T>>
+
+    /**
+     * Group by PowerSchedule.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PowerScheduleGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PowerScheduleGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PowerScheduleGroupByArgs['orderBy'] }
+        : { orderBy?: PowerScheduleGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PowerScheduleGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPowerScheduleGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PowerSchedule model
+   */
+  readonly fields: PowerScheduleFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PowerSchedule.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PowerScheduleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PowerSchedule model
+   */
+  interface PowerScheduleFieldRefs {
+    readonly id: FieldRef<"PowerSchedule", 'String'>
+    readonly enabled: FieldRef<"PowerSchedule", 'Boolean'>
+    readonly startMinute: FieldRef<"PowerSchedule", 'Int'>
+    readonly endMinute: FieldRef<"PowerSchedule", 'Int'>
+    readonly days: FieldRef<"PowerSchedule", 'Int[]'>
+    readonly updatedAt: FieldRef<"PowerSchedule", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PowerSchedule findUnique
+   */
+  export type PowerScheduleFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Filter, which PowerSchedule to fetch.
+     */
+    where: PowerScheduleWhereUniqueInput
+  }
+
+  /**
+   * PowerSchedule findUniqueOrThrow
+   */
+  export type PowerScheduleFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Filter, which PowerSchedule to fetch.
+     */
+    where: PowerScheduleWhereUniqueInput
+  }
+
+  /**
+   * PowerSchedule findFirst
+   */
+  export type PowerScheduleFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Filter, which PowerSchedule to fetch.
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PowerSchedules to fetch.
+     */
+    orderBy?: PowerScheduleOrderByWithRelationInput | PowerScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PowerSchedules.
+     */
+    cursor?: PowerScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PowerSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PowerSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PowerSchedules.
+     */
+    distinct?: PowerScheduleScalarFieldEnum | PowerScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * PowerSchedule findFirstOrThrow
+   */
+  export type PowerScheduleFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Filter, which PowerSchedule to fetch.
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PowerSchedules to fetch.
+     */
+    orderBy?: PowerScheduleOrderByWithRelationInput | PowerScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PowerSchedules.
+     */
+    cursor?: PowerScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PowerSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PowerSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PowerSchedules.
+     */
+    distinct?: PowerScheduleScalarFieldEnum | PowerScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * PowerSchedule findMany
+   */
+  export type PowerScheduleFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Filter, which PowerSchedules to fetch.
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PowerSchedules to fetch.
+     */
+    orderBy?: PowerScheduleOrderByWithRelationInput | PowerScheduleOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PowerSchedules.
+     */
+    cursor?: PowerScheduleWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PowerSchedules from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PowerSchedules.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PowerSchedules.
+     */
+    distinct?: PowerScheduleScalarFieldEnum | PowerScheduleScalarFieldEnum[]
+  }
+
+  /**
+   * PowerSchedule create
+   */
+  export type PowerScheduleCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PowerSchedule.
+     */
+    data: XOR<PowerScheduleCreateInput, PowerScheduleUncheckedCreateInput>
+  }
+
+  /**
+   * PowerSchedule createMany
+   */
+  export type PowerScheduleCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PowerSchedules.
+     */
+    data: PowerScheduleCreateManyInput | PowerScheduleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PowerSchedule createManyAndReturn
+   */
+  export type PowerScheduleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * The data used to create many PowerSchedules.
+     */
+    data: PowerScheduleCreateManyInput | PowerScheduleCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PowerSchedule update
+   */
+  export type PowerScheduleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PowerSchedule.
+     */
+    data: XOR<PowerScheduleUpdateInput, PowerScheduleUncheckedUpdateInput>
+    /**
+     * Choose, which PowerSchedule to update.
+     */
+    where: PowerScheduleWhereUniqueInput
+  }
+
+  /**
+   * PowerSchedule updateMany
+   */
+  export type PowerScheduleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PowerSchedules.
+     */
+    data: XOR<PowerScheduleUpdateManyMutationInput, PowerScheduleUncheckedUpdateManyInput>
+    /**
+     * Filter which PowerSchedules to update
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * Limit how many PowerSchedules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PowerSchedule updateManyAndReturn
+   */
+  export type PowerScheduleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * The data used to update PowerSchedules.
+     */
+    data: XOR<PowerScheduleUpdateManyMutationInput, PowerScheduleUncheckedUpdateManyInput>
+    /**
+     * Filter which PowerSchedules to update
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * Limit how many PowerSchedules to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PowerSchedule upsert
+   */
+  export type PowerScheduleUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PowerSchedule to update in case it exists.
+     */
+    where: PowerScheduleWhereUniqueInput
+    /**
+     * In case the PowerSchedule found by the `where` argument doesn't exist, create a new PowerSchedule with this data.
+     */
+    create: XOR<PowerScheduleCreateInput, PowerScheduleUncheckedCreateInput>
+    /**
+     * In case the PowerSchedule was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PowerScheduleUpdateInput, PowerScheduleUncheckedUpdateInput>
+  }
+
+  /**
+   * PowerSchedule delete
+   */
+  export type PowerScheduleDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Filter which PowerSchedule to delete.
+     */
+    where: PowerScheduleWhereUniqueInput
+  }
+
+  /**
+   * PowerSchedule deleteMany
+   */
+  export type PowerScheduleDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PowerSchedules to delete
+     */
+    where?: PowerScheduleWhereInput
+    /**
+     * Limit how many PowerSchedules to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PowerSchedule without action
+   */
+  export type PowerScheduleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
   }
 
 
@@ -33810,6 +34952,18 @@ export namespace Prisma {
   export type BinScalarFieldEnum = (typeof BinScalarFieldEnum)[keyof typeof BinScalarFieldEnum]
 
 
+  export const PowerScheduleScalarFieldEnum: {
+    id: 'id',
+    enabled: 'enabled',
+    startMinute: 'startMinute',
+    endMinute: 'endMinute',
+    days: 'days',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PowerScheduleScalarFieldEnum = (typeof PowerScheduleScalarFieldEnum)[keyof typeof PowerScheduleScalarFieldEnum]
+
+
   export const BinMaterialScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -34874,6 +36028,65 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Bin"> | Date | string
     lastHeartBeat?: DateTimeNullableWithAggregatesFilter<"Bin"> | Date | string | null
     alertLevel?: StringNullableWithAggregatesFilter<"Bin"> | string | null
+  }
+
+  export type PowerScheduleWhereInput = {
+    AND?: PowerScheduleWhereInput | PowerScheduleWhereInput[]
+    OR?: PowerScheduleWhereInput[]
+    NOT?: PowerScheduleWhereInput | PowerScheduleWhereInput[]
+    id?: StringFilter<"PowerSchedule"> | string
+    enabled?: BoolFilter<"PowerSchedule"> | boolean
+    startMinute?: IntFilter<"PowerSchedule"> | number
+    endMinute?: IntFilter<"PowerSchedule"> | number
+    days?: IntNullableListFilter<"PowerSchedule">
+    updatedAt?: DateTimeFilter<"PowerSchedule"> | Date | string
+  }
+
+  export type PowerScheduleOrderByWithRelationInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    days?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PowerScheduleWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PowerScheduleWhereInput | PowerScheduleWhereInput[]
+    OR?: PowerScheduleWhereInput[]
+    NOT?: PowerScheduleWhereInput | PowerScheduleWhereInput[]
+    enabled?: BoolFilter<"PowerSchedule"> | boolean
+    startMinute?: IntFilter<"PowerSchedule"> | number
+    endMinute?: IntFilter<"PowerSchedule"> | number
+    days?: IntNullableListFilter<"PowerSchedule">
+    updatedAt?: DateTimeFilter<"PowerSchedule"> | Date | string
+  }, "id">
+
+  export type PowerScheduleOrderByWithAggregationInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    days?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PowerScheduleCountOrderByAggregateInput
+    _avg?: PowerScheduleAvgOrderByAggregateInput
+    _max?: PowerScheduleMaxOrderByAggregateInput
+    _min?: PowerScheduleMinOrderByAggregateInput
+    _sum?: PowerScheduleSumOrderByAggregateInput
+  }
+
+  export type PowerScheduleScalarWhereWithAggregatesInput = {
+    AND?: PowerScheduleScalarWhereWithAggregatesInput | PowerScheduleScalarWhereWithAggregatesInput[]
+    OR?: PowerScheduleScalarWhereWithAggregatesInput[]
+    NOT?: PowerScheduleScalarWhereWithAggregatesInput | PowerScheduleScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PowerSchedule"> | string
+    enabled?: BoolWithAggregatesFilter<"PowerSchedule"> | boolean
+    startMinute?: IntWithAggregatesFilter<"PowerSchedule"> | number
+    endMinute?: IntWithAggregatesFilter<"PowerSchedule"> | number
+    days?: IntNullableListFilter<"PowerSchedule">
+    updatedAt?: DateTimeWithAggregatesFilter<"PowerSchedule"> | Date | string
   }
 
   export type BinMaterialWhereInput = {
@@ -37010,6 +38223,69 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     lastHeartBeat?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     alertLevel?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type PowerScheduleCreateInput = {
+    id?: string
+    enabled?: boolean
+    startMinute?: number
+    endMinute?: number
+    days?: PowerScheduleCreatedaysInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type PowerScheduleUncheckedCreateInput = {
+    id?: string
+    enabled?: boolean
+    startMinute?: number
+    endMinute?: number
+    days?: PowerScheduleCreatedaysInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type PowerScheduleUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    startMinute?: IntFieldUpdateOperationsInput | number
+    endMinute?: IntFieldUpdateOperationsInput | number
+    days?: PowerScheduleUpdatedaysInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PowerScheduleUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    startMinute?: IntFieldUpdateOperationsInput | number
+    endMinute?: IntFieldUpdateOperationsInput | number
+    days?: PowerScheduleUpdatedaysInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PowerScheduleCreateManyInput = {
+    id?: string
+    enabled?: boolean
+    startMinute?: number
+    endMinute?: number
+    days?: PowerScheduleCreatedaysInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type PowerScheduleUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    startMinute?: IntFieldUpdateOperationsInput | number
+    endMinute?: IntFieldUpdateOperationsInput | number
+    days?: PowerScheduleUpdatedaysInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PowerScheduleUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    startMinute?: IntFieldUpdateOperationsInput | number
+    endMinute?: IntFieldUpdateOperationsInput | number
+    days?: PowerScheduleUpdatedaysInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type BinMaterialCreateInput = {
@@ -39368,6 +40644,51 @@ export namespace Prisma {
     _max?: NestedEnumBinStatusFilter<$PrismaModel>
   }
 
+  export type IntNullableListFilter<$PrismaModel = never> = {
+    equals?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    has?: number | IntFieldRefInput<$PrismaModel> | null
+    hasEvery?: number[] | ListIntFieldRefInput<$PrismaModel>
+    hasSome?: number[] | ListIntFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type PowerScheduleCountOrderByAggregateInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    days?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PowerScheduleAvgOrderByAggregateInput = {
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    days?: SortOrder
+  }
+
+  export type PowerScheduleMaxOrderByAggregateInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PowerScheduleMinOrderByAggregateInput = {
+    id?: SortOrder
+    enabled?: SortOrder
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PowerScheduleSumOrderByAggregateInput = {
+    startMinute?: SortOrder
+    endMinute?: SortOrder
+    days?: SortOrder
+  }
+
   export type BinMaterialCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
@@ -41376,6 +42697,15 @@ export namespace Prisma {
     update?: BinDiagnosticLogUpdateWithWhereUniqueWithoutBinInput | BinDiagnosticLogUpdateWithWhereUniqueWithoutBinInput[]
     updateMany?: BinDiagnosticLogUpdateManyWithWhereWithoutBinInput | BinDiagnosticLogUpdateManyWithWhereWithoutBinInput[]
     deleteMany?: BinDiagnosticLogScalarWhereInput | BinDiagnosticLogScalarWhereInput[]
+  }
+
+  export type PowerScheduleCreatedaysInput = {
+    set: number[]
+  }
+
+  export type PowerScheduleUpdatedaysInput = {
+    set?: number[]
+    push?: number | number[]
   }
 
   export type BinCreateNestedManyWithoutBinMaterialInput = {
