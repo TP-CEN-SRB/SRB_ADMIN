@@ -4,6 +4,18 @@ import jwt from "jsonwebtoken"
 import sharp from "sharp"
 import { prisma } from "@/lib/db"
 import { utapi } from "@/lib/uploadthing"
+import { publishMqtt } from "@/lib/mqtt"
+
+// Marks a bin manager's relay as "busy" for the duration of a disposal, so a
+// scheduled power-off doesn't cut power mid-task. Never lets an MQTT hiccup
+// fail the actual disposal request.
+async function setBinBusy(userId: string, busy: boolean) {
+  try {
+    await publishMqtt(`srb/busy/${userId}`, JSON.stringify({ busy }))
+  } catch (e) {
+    console.error("[disposal] busy-state publish failed:", e)
+  }
+}
 
 // Cap stored disposal images well below the raw camera capture size -
 // this is a thumbnail for admin review, not a forensic record.
@@ -95,135 +107,140 @@ export const POST = async (req: NextRequest) => {
     const raw = await req.json()
     const userId: string = raw.userId
 
-    // Normalize to items[]
-    // imageBase64 is optional and used for low-confidence detections that
-    // need a human to eyeball them later - uploaded to UploadThing (not
-    // stored in Postgres) since Vercel has no persistent local disk.
-    type Item = { material: string; weightInGrams: number; imageBase64?: string }
-    const items: Item[] =
-      Array.isArray(raw.items) && raw.items.length > 0
-        ? raw.items
-        : [{ material: raw.material, weightInGrams: raw.weightInGrams, imageBase64: raw.imageBase64 }]
+    await setBinBusy(userId, true)
+    try {
+      // Normalize to items[]
+      // imageBase64 is optional and used for low-confidence detections that
+      // need a human to eyeball them later - uploaded to UploadThing (not
+      // stored in Postgres) since Vercel has no persistent local disk.
+      type Item = { material: string; weightInGrams: number; imageBase64?: string }
+      const items: Item[] =
+        Array.isArray(raw.items) && raw.items.length > 0
+          ? raw.items
+          : [{ material: raw.material, weightInGrams: raw.weightInGrams, imageBase64: raw.imageBase64 }]
 
-    // Validate each item
-    for (const it of items) {
-      const validated = DisposalSchema.safeParse(it)
-      if (!validated.success) {
-        return NextResponse.json({ message: "Invalid fields!" }, { status: 400 })
+      // Validate each item
+      for (const it of items) {
+        const validated = DisposalSchema.safeParse(it)
+        if (!validated.success) {
+          return NextResponse.json({ message: "Invalid fields!" }, { status: 400 })
+        }
       }
-    }
 
-    // Upload any images ahead of the transaction - an external HTTP call
-    // has no business running inside a DB transaction/holding row locks.
-    const imageUrls: (string | undefined)[] = await Promise.all(
-      items.map(async (item) => {
-        if (!item.imageBase64) return undefined
-        try {
-          const rawBuffer = Buffer.from(item.imageBase64, "base64")
-          const resizedBuffer = await sharp(rawBuffer)
-            .resize(DISPOSAL_IMAGE_MAX_DIMENSION, DISPOSAL_IMAGE_MAX_DIMENSION, {
-              fit: "inside",
-              withoutEnlargement: true,
-            })
-            .jpeg({ quality: DISPOSAL_IMAGE_JPEG_QUALITY })
-            .toBuffer()
-          const file = new File(
-            [new Uint8Array(resizedBuffer)], 
-            `disposal-${Date.now()}-${item.material}.jpg`, 
-            { type: "image/jpeg" }
-          )
-          const result = await utapi.uploadFiles(file)
-          return result.data?.ufsUrl
-        } catch (e) {
-          console.error("[disposal] image upload failed:", e)
-          return undefined
-        }
-      })
-    )
-
-    // Transaction: create one or many disposals
-    const { ids, points, carbonprints } = await prisma.$transaction(async (tx) => {
-      const ids: string[] = []
-      const points: number[] = []
-      const carbonprints: number[] = []
-
-      for (let i = 0; i < items.length; i++) {
-        const { material: mRaw, weightInGrams } = items[i]
-        const imageUrl = imageUrls[i]
-        const material = (mRaw ?? "").toUpperCase()
-
-        const [bin, binMaterial] = await Promise.all([
-          tx.bin.findFirst({
-            where: {
-              userId,
-              binMaterial: { name: material },
-            },
-            select: {
-              id: true,
-              status: true,
-              currentCapacity: true,
-              binMaterial: { select: { name: true } },
-            },
-          }),
-          tx.binMaterial.findUnique({
-            where: { name: material },
-          }),
-        ])
-
-        if (!bin) throw new Error("No bin found!")
-        if (!binMaterial) throw new Error("No bin material found!")
-        if (bin.status === "UNDER_MAINTENANCE") {
-          throw new Error("Bin is currently under maintenance!")
-        }
-        if (bin.currentCapacity >= 100) {
-          throw new Error("Bin is already full!")
-        }
-
-        const carbonPrint =
-          weightInGrams * (binMaterial.carbon_multiplier ?? 0)
-        const pointsAwarded = Math.floor(
-          weightInGrams * (binMaterial.multiplier ?? 1)
-        )
-
-        const disposal = await tx.disposal.create({
-          data: {
-            weightInGrams,
-            binId: bin.id,
-            carbonprint: carbonPrint,
-            pointsAwarded,
-            imageUrl,
-          },
-          select: { id: true, pointsAwarded: true, carbonprint: true },
+      // Upload any images ahead of the transaction - an external HTTP call
+      // has no business running inside a DB transaction/holding row locks.
+      const imageUrls: (string | undefined)[] = await Promise.all(
+        items.map(async (item) => {
+          if (!item.imageBase64) return undefined
+          try {
+            const rawBuffer = Buffer.from(item.imageBase64, "base64")
+            const resizedBuffer = await sharp(rawBuffer)
+              .resize(DISPOSAL_IMAGE_MAX_DIMENSION, DISPOSAL_IMAGE_MAX_DIMENSION, {
+                fit: "inside",
+                withoutEnlargement: true,
+              })
+              .jpeg({ quality: DISPOSAL_IMAGE_JPEG_QUALITY })
+              .toBuffer()
+            const file = new File(
+              [new Uint8Array(resizedBuffer)],
+              `disposal-${Date.now()}-${item.material}.jpg`,
+              { type: "image/jpeg" }
+            )
+            const result = await utapi.uploadFiles(file)
+            return result.data?.ufsUrl
+          } catch (e) {
+            console.error("[disposal] image upload failed:", e)
+            return undefined
+          }
         })
+      )
 
-        ids.push(disposal.id)
-        points.push(disposal.pointsAwarded)
-        carbonprints.push(disposal.carbonprint)
+      // Transaction: create one or many disposals
+      const { ids, points, carbonprints } = await prisma.$transaction(async (tx) => {
+        const ids: string[] = []
+        const points: number[] = []
+        const carbonprints: number[] = []
+
+        for (let i = 0; i < items.length; i++) {
+          const { material: mRaw, weightInGrams } = items[i]
+          const imageUrl = imageUrls[i]
+          const material = (mRaw ?? "").toUpperCase()
+
+          const [bin, binMaterial] = await Promise.all([
+            tx.bin.findFirst({
+              where: {
+                userId,
+                binMaterial: { name: material },
+              },
+              select: {
+                id: true,
+                status: true,
+                currentCapacity: true,
+                binMaterial: { select: { name: true } },
+              },
+            }),
+            tx.binMaterial.findUnique({
+              where: { name: material },
+            }),
+          ])
+
+          if (!bin) throw new Error("No bin found!")
+          if (!binMaterial) throw new Error("No bin material found!")
+          if (bin.status === "UNDER_MAINTENANCE") {
+            throw new Error("Bin is currently under maintenance!")
+          }
+          if (bin.currentCapacity >= 100) {
+            throw new Error("Bin is already full!")
+          }
+
+          const carbonPrint =
+            weightInGrams * (binMaterial.carbon_multiplier ?? 0)
+          const pointsAwarded = Math.floor(
+            weightInGrams * (binMaterial.multiplier ?? 1)
+          )
+
+          const disposal = await tx.disposal.create({
+            data: {
+              weightInGrams,
+              binId: bin.id,
+              carbonprint: carbonPrint,
+              pointsAwarded,
+              imageUrl,
+            },
+            select: { id: true, pointsAwarded: true, carbonprint: true },
+          })
+
+          ids.push(disposal.id)
+          points.push(disposal.pointsAwarded)
+          carbonprints.push(disposal.carbonprint)
+        }
+
+        return { ids, points, carbonprints }
+      })
+
+      // Response
+      if (ids.length === 1) {
+        return NextResponse.json(
+          {
+            id: ids[0],
+            point: points[0],
+            carbonprint: carbonprints[0],
+          },
+          { status: 200 }
+        )
       }
 
-      return { ids, points, carbonprints }
-    })
-
-    // Response
-    if (ids.length === 1) {
       return NextResponse.json(
         {
-          id: ids[0],
-          point: points[0],
-          carbonprint: carbonprints[0],
+          ids,
+          points,
+          carbonprints,
         },
         { status: 200 }
       )
+    } finally {
+      await setBinBusy(userId, false)
     }
-
-    return NextResponse.json(
-      {
-        ids,
-        points,
-        carbonprints,
-      },
-      { status: 200 }
-    )
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return NextResponse.json(

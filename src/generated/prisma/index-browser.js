@@ -202,6 +202,7 @@ exports.Prisma.PowerScheduleScalarFieldEnum = {
   startMinute: 'startMinute',
   endMinute: 'endMinute',
   days: 'days',
+  userId: 'userId',
   updatedAt: 'updatedAt'
 };
 

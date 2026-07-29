@@ -35,9 +35,11 @@ interface ScheduleFormProps {
     endMinute: number
     days: number[]
   }
+  userId?: string | null
+  redirectTo?: string
 }
 
-export function ScheduleForm({ initialData }: ScheduleFormProps) {
+export function ScheduleForm({ initialData, userId = null, redirectTo = "/admin/bin/schedule" }: ScheduleFormProps) {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -58,11 +60,12 @@ export function ScheduleForm({ initialData }: ScheduleFormProps) {
         startMinute: range[0],
         endMinute: range[1],
         days,
+        userId,
       })
 
       if (result?.success) {
         toast.success("Success", { description: result.success })
-        router.push("/admin/bin")
+        router.push(redirectTo)
       } else if (result?.error) {
         toast.error("Error", { description: result.error })
       }
@@ -94,7 +97,7 @@ export function ScheduleForm({ initialData }: ScheduleFormProps) {
         <Slider
           min={0}
           max={1439}
-          step={15}
+          step={5}
           value={range}
           onValueChange={(value) => setRange([value[0], value[1]] as [number, number])}
           disabled={isPending || !enabled}

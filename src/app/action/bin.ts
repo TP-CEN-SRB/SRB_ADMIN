@@ -299,30 +299,59 @@ async function requireAdmin() {
   return session?.user?.role === "admin"
 }
 
-// Fetches the system-wide power schedule for the schedule edit page. There's
-// always exactly one row - create it with defaults on first read if it
-// doesn't exist yet.
+// Fetches the legacy global default power schedule (userId: null) - the one
+// picked up by any relay that hasn't been assigned its own bin manager yet.
+// There's always exactly one such row - create it with defaults on first
+// read if it doesn't exist yet.
 export const getPowerSchedule = async () => {
-  const existing = await prisma.powerSchedule.findFirst()
+  const existing = await prisma.powerSchedule.findFirst({ where: { userId: null } })
   if (existing) return existing
   return await prisma.powerSchedule.create({ data: {} })
 }
 
-// Saves the system-wide SMPS power schedule and pushes it to every bin
-// controller over a retained MQTT message (srb/schedule), so devices get the
-// current schedule immediately, and again on every reconnect/reboot without
-// the admin having to resend it.
+// Fetches every power schedule (the global default plus any per-bin-manager
+// ones), for the schedule list page. Default row first.
+export const getAllPowerSchedules = async () => {
+  const schedules = await prisma.powerSchedule.findMany({
+    include: { user: { select: { name: true, location: true } } },
+  })
+  return schedules.sort((a, b) => (a.userId === null ? -1 : b.userId === null ? 1 : 0))
+}
+
+export const getPowerScheduleById = async (id: string) => {
+  return prisma.powerSchedule.findUnique({
+    where: { id },
+    include: { user: { select: { name: true, location: true } } },
+  })
+}
+
+// Bin managers that don't have a power schedule of their own yet - the pool
+// of candidates for the "Create Schedule" picker.
+export const getEligibleBinManagersForSchedule = async () => {
+  return prisma.user.findMany({
+    where: { role: "BIN", powerSchedule: null },
+    select: { id: true, name: true, location: true },
+    orderBy: { name: "asc" },
+  })
+}
+
+// Saves a bin manager's SMPS power schedule (or the legacy global default
+// when userId is omitted/null) and pushes it to that bin's relay over a
+// retained MQTT message, so it gets the current schedule immediately, and
+// again on every reconnect/reboot without the admin having to resend it.
 export const updatePowerSchedule = async (values: {
   enabled: boolean
   startMinute: number
   endMinute: number
   days: number[]
+  userId?: string | null
 }) => {
   if (!(await requireAdmin())) {
     return { error: "Unauthorized access!" }
   }
 
-  const existing = await prisma.powerSchedule.findFirst({ select: { id: true } })
+  const userId = values.userId ?? null
+  const existing = await prisma.powerSchedule.findFirst({ where: { userId }, select: { id: true } })
 
   await prisma.powerSchedule.upsert({
     where: { id: existing?.id ?? "" },
@@ -331,6 +360,7 @@ export const updatePowerSchedule = async (values: {
       startMinute: values.startMinute,
       endMinute: values.endMinute,
       days: values.days,
+      userId,
     },
     update: {
       enabled: values.enabled,
@@ -347,7 +377,8 @@ export const updatePowerSchedule = async (values: {
     days: values.days,
   })
 
-  const published = await publishMqtt("srb/schedule", payload, { retain: true })
+  const topic = userId ? `srb/schedule/${userId}` : "srb/schedule"
+  const published = await publishMqtt(topic, payload, { retain: true })
 
   revalidatePath("/admin/bin/schedule")
 
@@ -355,4 +386,28 @@ export const updatePowerSchedule = async (values: {
     return { error: "Schedule saved, but the devices could not be reached over MQTT" }
   }
   return { success: "Power schedule updated" }
+}
+
+// Deletes a per-bin-manager schedule (the legacy global default, userId:
+// null, is protected - deleting it would leave any not-yet-migrated relay
+// with nothing to fall back to) and clears the retained MQTT message so the
+// relay doesn't keep re-applying a schedule that no longer exists in the DB.
+export const deletePowerSchedule = async (id: string) => {
+  if (!(await requireAdmin())) {
+    return { error: "Unauthorized access!" }
+  }
+
+  const existing = await prisma.powerSchedule.findUnique({ where: { id } })
+  if (!existing) {
+    return { error: "Schedule not found" }
+  }
+  if (existing.userId === null) {
+    return { error: "The global default schedule can't be deleted" }
+  }
+
+  await prisma.powerSchedule.delete({ where: { id } })
+  await publishMqtt(`srb/schedule/${existing.userId}`, "", { retain: true })
+
+  revalidatePath("/admin/bin/schedule")
+  return { success: "Power schedule deleted" }
 }

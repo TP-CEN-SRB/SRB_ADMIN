@@ -4093,6 +4093,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: boolean | User$ScannerDiagnosticLogArgs<ExtArgs>
     Feedback?: boolean | User$FeedbackArgs<ExtArgs>
     FaultReport?: boolean | User$FaultReportArgs<ExtArgs>
+    powerSchedule?: boolean | User$powerScheduleArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4191,6 +4192,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: boolean | User$ScannerDiagnosticLogArgs<ExtArgs>
     Feedback?: boolean | User$FeedbackArgs<ExtArgs>
     FaultReport?: boolean | User$FaultReportArgs<ExtArgs>
+    powerSchedule?: boolean | User$powerScheduleArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4217,6 +4219,7 @@ export namespace Prisma {
       ScannerDiagnosticLog: Prisma.$ScannerDiagnosticLogPayload<ExtArgs>[]
       Feedback: Prisma.$FeedbackPayload<ExtArgs>[]
       FaultReport: Prisma.$FaultReportPayload<ExtArgs>[]
+      powerSchedule: Prisma.$PowerSchedulePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -4653,6 +4656,7 @@ export namespace Prisma {
     ScannerDiagnosticLog<T extends User$ScannerDiagnosticLogArgs<ExtArgs> = {}>(args?: Subset<T, User$ScannerDiagnosticLogArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScannerDiagnosticLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     Feedback<T extends User$FeedbackArgs<ExtArgs> = {}>(args?: Subset<T, User$FeedbackArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FeedbackPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     FaultReport<T extends User$FaultReportArgs<ExtArgs> = {}>(args?: Subset<T, User$FaultReportArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FaultReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    powerSchedule<T extends User$powerScheduleArgs<ExtArgs> = {}>(args?: Subset<T, User$powerScheduleArgs<ExtArgs>>): Prisma__PowerScheduleClient<$Result.GetResult<Prisma.$PowerSchedulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5521,6 +5525,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: FaultReportScalarFieldEnum | FaultReportScalarFieldEnum[]
+  }
+
+  /**
+   * User.powerSchedule
+   */
+  export type User$powerScheduleArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PowerSchedule
+     */
+    select?: PowerScheduleSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PowerSchedule
+     */
+    omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
+    where?: PowerScheduleWhereInput
   }
 
   /**
@@ -10111,6 +10134,7 @@ export namespace Prisma {
     enabled: boolean | null
     startMinute: number | null
     endMinute: number | null
+    userId: string | null
     updatedAt: Date | null
   }
 
@@ -10119,6 +10143,7 @@ export namespace Prisma {
     enabled: boolean | null
     startMinute: number | null
     endMinute: number | null
+    userId: string | null
     updatedAt: Date | null
   }
 
@@ -10128,6 +10153,7 @@ export namespace Prisma {
     startMinute: number
     endMinute: number
     days: number
+    userId: number
     updatedAt: number
     _all: number
   }
@@ -10150,6 +10176,7 @@ export namespace Prisma {
     enabled?: true
     startMinute?: true
     endMinute?: true
+    userId?: true
     updatedAt?: true
   }
 
@@ -10158,6 +10185,7 @@ export namespace Prisma {
     enabled?: true
     startMinute?: true
     endMinute?: true
+    userId?: true
     updatedAt?: true
   }
 
@@ -10167,6 +10195,7 @@ export namespace Prisma {
     startMinute?: true
     endMinute?: true
     days?: true
+    userId?: true
     updatedAt?: true
     _all?: true
   }
@@ -10263,6 +10292,7 @@ export namespace Prisma {
     startMinute: number
     endMinute: number
     days: number[]
+    userId: string | null
     updatedAt: Date
     _count: PowerScheduleCountAggregateOutputType | null
     _avg: PowerScheduleAvgAggregateOutputType | null
@@ -10291,7 +10321,9 @@ export namespace Prisma {
     startMinute?: boolean
     endMinute?: boolean
     days?: boolean
+    userId?: boolean
     updatedAt?: boolean
+    user?: boolean | PowerSchedule$userArgs<ExtArgs>
   }, ExtArgs["result"]["powerSchedule"]>
 
   export type PowerScheduleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10300,7 +10332,9 @@ export namespace Prisma {
     startMinute?: boolean
     endMinute?: boolean
     days?: boolean
+    userId?: boolean
     updatedAt?: boolean
+    user?: boolean | PowerSchedule$userArgs<ExtArgs>
   }, ExtArgs["result"]["powerSchedule"]>
 
   export type PowerScheduleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -10309,7 +10343,9 @@ export namespace Prisma {
     startMinute?: boolean
     endMinute?: boolean
     days?: boolean
+    userId?: boolean
     updatedAt?: boolean
+    user?: boolean | PowerSchedule$userArgs<ExtArgs>
   }, ExtArgs["result"]["powerSchedule"]>
 
   export type PowerScheduleSelectScalar = {
@@ -10318,20 +10354,33 @@ export namespace Prisma {
     startMinute?: boolean
     endMinute?: boolean
     days?: boolean
+    userId?: boolean
     updatedAt?: boolean
   }
 
-  export type PowerScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "enabled" | "startMinute" | "endMinute" | "days" | "updatedAt", ExtArgs["result"]["powerSchedule"]>
+  export type PowerScheduleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "enabled" | "startMinute" | "endMinute" | "days" | "userId" | "updatedAt", ExtArgs["result"]["powerSchedule"]>
+  export type PowerScheduleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | PowerSchedule$userArgs<ExtArgs>
+  }
+  export type PowerScheduleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | PowerSchedule$userArgs<ExtArgs>
+  }
+  export type PowerScheduleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | PowerSchedule$userArgs<ExtArgs>
+  }
 
   export type $PowerSchedulePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "PowerSchedule"
-    objects: {}
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       enabled: boolean
       startMinute: number
       endMinute: number
       days: number[]
+      userId: string | null
       updatedAt: Date
     }, ExtArgs["result"]["powerSchedule"]>
     composites: {}
@@ -10727,6 +10776,7 @@ export namespace Prisma {
    */
   export interface Prisma__PowerScheduleClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends PowerSchedule$userArgs<ExtArgs> = {}>(args?: Subset<T, PowerSchedule$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10761,6 +10811,7 @@ export namespace Prisma {
     readonly startMinute: FieldRef<"PowerSchedule", 'Int'>
     readonly endMinute: FieldRef<"PowerSchedule", 'Int'>
     readonly days: FieldRef<"PowerSchedule", 'Int[]'>
+    readonly userId: FieldRef<"PowerSchedule", 'String'>
     readonly updatedAt: FieldRef<"PowerSchedule", 'DateTime'>
   }
     
@@ -10778,6 +10829,10 @@ export namespace Prisma {
      * Omit specific fields from the PowerSchedule
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
     /**
      * Filter, which PowerSchedule to fetch.
      */
@@ -10797,6 +10852,10 @@ export namespace Prisma {
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
+    /**
      * Filter, which PowerSchedule to fetch.
      */
     where: PowerScheduleWhereUniqueInput
@@ -10814,6 +10873,10 @@ export namespace Prisma {
      * Omit specific fields from the PowerSchedule
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
     /**
      * Filter, which PowerSchedule to fetch.
      */
@@ -10863,6 +10926,10 @@ export namespace Prisma {
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
+    /**
      * Filter, which PowerSchedule to fetch.
      */
     where?: PowerScheduleWhereInput
@@ -10910,6 +10977,10 @@ export namespace Prisma {
      * Omit specific fields from the PowerSchedule
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
     /**
      * Filter, which PowerSchedules to fetch.
      */
@@ -10959,6 +11030,10 @@ export namespace Prisma {
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
+    /**
      * The data needed to create a PowerSchedule.
      */
     data: XOR<PowerScheduleCreateInput, PowerScheduleUncheckedCreateInput>
@@ -10992,6 +11067,10 @@ export namespace Prisma {
      */
     data: PowerScheduleCreateManyInput | PowerScheduleCreateManyInput[]
     skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -11006,6 +11085,10 @@ export namespace Prisma {
      * Omit specific fields from the PowerSchedule
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
     /**
      * The data needed to update a PowerSchedule.
      */
@@ -11058,6 +11141,10 @@ export namespace Prisma {
      * Limit how many PowerSchedules to update.
      */
     limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -11072,6 +11159,10 @@ export namespace Prisma {
      * Omit specific fields from the PowerSchedule
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
     /**
      * The filter to search for the PowerSchedule to update in case it exists.
      */
@@ -11099,6 +11190,10 @@ export namespace Prisma {
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
+    /**
      * Filter which PowerSchedule to delete.
      */
     where: PowerScheduleWhereUniqueInput
@@ -11119,6 +11214,25 @@ export namespace Prisma {
   }
 
   /**
+   * PowerSchedule.user
+   */
+  export type PowerSchedule$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
    * PowerSchedule without action
    */
   export type PowerScheduleDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11130,6 +11244,10 @@ export namespace Prisma {
      * Omit specific fields from the PowerSchedule
      */
     omit?: PowerScheduleOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PowerScheduleInclude<ExtArgs> | null
   }
 
 
@@ -34958,6 +35076,7 @@ export namespace Prisma {
     startMinute: 'startMinute',
     endMinute: 'endMinute',
     days: 'days',
+    userId: 'userId',
     updatedAt: 'updatedAt'
   };
 
@@ -35557,6 +35676,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogListRelationFilter
     Feedback?: FeedbackListRelationFilter
     FaultReport?: FaultReportListRelationFilter
+    powerSchedule?: XOR<PowerScheduleNullableScalarRelationFilter, PowerScheduleWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -35600,6 +35720,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogOrderByRelationAggregateInput
     Feedback?: FeedbackOrderByRelationAggregateInput
     FaultReport?: FaultReportOrderByRelationAggregateInput
+    powerSchedule?: PowerScheduleOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -35646,6 +35767,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogListRelationFilter
     Feedback?: FeedbackListRelationFilter
     FaultReport?: FaultReportListRelationFilter
+    powerSchedule?: XOR<PowerScheduleNullableScalarRelationFilter, PowerScheduleWhereInput> | null
   }, "id" | "email" | "location">
 
   export type UserOrderByWithAggregationInput = {
@@ -36039,7 +36161,9 @@ export namespace Prisma {
     startMinute?: IntFilter<"PowerSchedule"> | number
     endMinute?: IntFilter<"PowerSchedule"> | number
     days?: IntNullableListFilter<"PowerSchedule">
+    userId?: StringNullableFilter<"PowerSchedule"> | string | null
     updatedAt?: DateTimeFilter<"PowerSchedule"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
   }
 
   export type PowerScheduleOrderByWithRelationInput = {
@@ -36048,11 +36172,14 @@ export namespace Prisma {
     startMinute?: SortOrder
     endMinute?: SortOrder
     days?: SortOrder
+    userId?: SortOrderInput | SortOrder
     updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
   }
 
   export type PowerScheduleWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    userId?: string
     AND?: PowerScheduleWhereInput | PowerScheduleWhereInput[]
     OR?: PowerScheduleWhereInput[]
     NOT?: PowerScheduleWhereInput | PowerScheduleWhereInput[]
@@ -36061,7 +36188,8 @@ export namespace Prisma {
     endMinute?: IntFilter<"PowerSchedule"> | number
     days?: IntNullableListFilter<"PowerSchedule">
     updatedAt?: DateTimeFilter<"PowerSchedule"> | Date | string
-  }, "id">
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id" | "userId">
 
   export type PowerScheduleOrderByWithAggregationInput = {
     id?: SortOrder
@@ -36069,6 +36197,7 @@ export namespace Prisma {
     startMinute?: SortOrder
     endMinute?: SortOrder
     days?: SortOrder
+    userId?: SortOrderInput | SortOrder
     updatedAt?: SortOrder
     _count?: PowerScheduleCountOrderByAggregateInput
     _avg?: PowerScheduleAvgOrderByAggregateInput
@@ -36086,6 +36215,7 @@ export namespace Prisma {
     startMinute?: IntWithAggregatesFilter<"PowerSchedule"> | number
     endMinute?: IntWithAggregatesFilter<"PowerSchedule"> | number
     days?: IntNullableListFilter<"PowerSchedule">
+    userId?: StringNullableWithAggregatesFilter<"PowerSchedule"> | string | null
     updatedAt?: DateTimeWithAggregatesFilter<"PowerSchedule"> | Date | string
   }
 
@@ -37658,6 +37788,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -37701,6 +37832,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -37744,6 +37876,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -37787,6 +37920,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -38232,6 +38366,7 @@ export namespace Prisma {
     endMinute?: number
     days?: PowerScheduleCreatedaysInput | number[]
     updatedAt?: Date | string
+    user?: UserCreateNestedOneWithoutPowerScheduleInput
   }
 
   export type PowerScheduleUncheckedCreateInput = {
@@ -38240,6 +38375,7 @@ export namespace Prisma {
     startMinute?: number
     endMinute?: number
     days?: PowerScheduleCreatedaysInput | number[]
+    userId?: string | null
     updatedAt?: Date | string
   }
 
@@ -38250,6 +38386,7 @@ export namespace Prisma {
     endMinute?: IntFieldUpdateOperationsInput | number
     days?: PowerScheduleUpdatedaysInput | number[]
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutPowerScheduleNestedInput
   }
 
   export type PowerScheduleUncheckedUpdateInput = {
@@ -38258,6 +38395,7 @@ export namespace Prisma {
     startMinute?: IntFieldUpdateOperationsInput | number
     endMinute?: IntFieldUpdateOperationsInput | number
     days?: PowerScheduleUpdatedaysInput | number[]
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -38267,6 +38405,7 @@ export namespace Prisma {
     startMinute?: number
     endMinute?: number
     days?: PowerScheduleCreatedaysInput | number[]
+    userId?: string | null
     updatedAt?: Date | string
   }
 
@@ -38285,6 +38424,7 @@ export namespace Prisma {
     startMinute?: IntFieldUpdateOperationsInput | number
     endMinute?: IntFieldUpdateOperationsInput | number
     days?: PowerScheduleUpdatedaysInput | number[]
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -40134,6 +40274,11 @@ export namespace Prisma {
     none?: FaultReportWhereInput
   }
 
+  export type PowerScheduleNullableScalarRelationFilter = {
+    is?: PowerScheduleWhereInput | null
+    isNot?: PowerScheduleWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -40652,12 +40797,18 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
   export type PowerScheduleCountOrderByAggregateInput = {
     id?: SortOrder
     enabled?: SortOrder
     startMinute?: SortOrder
     endMinute?: SortOrder
     days?: SortOrder
+    userId?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -40672,6 +40823,7 @@ export namespace Prisma {
     enabled?: SortOrder
     startMinute?: SortOrder
     endMinute?: SortOrder
+    userId?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -40680,6 +40832,7 @@ export namespace Prisma {
     enabled?: SortOrder
     startMinute?: SortOrder
     endMinute?: SortOrder
+    userId?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -40725,11 +40878,6 @@ export namespace Prisma {
     in?: $Enums.QueueStatus[] | ListEnumQueueStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.QueueStatus[] | ListEnumQueueStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumQueueStatusFilter<$PrismaModel> | $Enums.QueueStatus
-  }
-
-  export type UserNullableScalarRelationFilter = {
-    is?: UserWhereInput | null
-    isNot?: UserWhereInput | null
   }
 
   export type DisposalQueueCountOrderByAggregateInput = {
@@ -41881,6 +42029,12 @@ export namespace Prisma {
     connect?: FaultReportWhereUniqueInput | FaultReportWhereUniqueInput[]
   }
 
+  export type PowerScheduleCreateNestedOneWithoutUserInput = {
+    create?: XOR<PowerScheduleCreateWithoutUserInput, PowerScheduleUncheckedCreateWithoutUserInput>
+    connectOrCreate?: PowerScheduleCreateOrConnectWithoutUserInput
+    connect?: PowerScheduleWhereUniqueInput
+  }
+
   export type SessionUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -42003,6 +42157,12 @@ export namespace Prisma {
     connectOrCreate?: FaultReportCreateOrConnectWithoutUserInput | FaultReportCreateOrConnectWithoutUserInput[]
     createMany?: FaultReportCreateManyUserInputEnvelope
     connect?: FaultReportWhereUniqueInput | FaultReportWhereUniqueInput[]
+  }
+
+  export type PowerScheduleUncheckedCreateNestedOneWithoutUserInput = {
+    create?: XOR<PowerScheduleCreateWithoutUserInput, PowerScheduleUncheckedCreateWithoutUserInput>
+    connectOrCreate?: PowerScheduleCreateOrConnectWithoutUserInput
+    connect?: PowerScheduleWhereUniqueInput
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -42308,6 +42468,16 @@ export namespace Prisma {
     deleteMany?: FaultReportScalarWhereInput | FaultReportScalarWhereInput[]
   }
 
+  export type PowerScheduleUpdateOneWithoutUserNestedInput = {
+    create?: XOR<PowerScheduleCreateWithoutUserInput, PowerScheduleUncheckedCreateWithoutUserInput>
+    connectOrCreate?: PowerScheduleCreateOrConnectWithoutUserInput
+    upsert?: PowerScheduleUpsertWithoutUserInput
+    disconnect?: PowerScheduleWhereInput | boolean
+    delete?: PowerScheduleWhereInput | boolean
+    connect?: PowerScheduleWhereUniqueInput
+    update?: XOR<XOR<PowerScheduleUpdateToOneWithWhereWithoutUserInput, PowerScheduleUpdateWithoutUserInput>, PowerScheduleUncheckedUpdateWithoutUserInput>
+  }
+
   export type SessionUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<SessionCreateWithoutUserInput, SessionUncheckedCreateWithoutUserInput> | SessionCreateWithoutUserInput[] | SessionUncheckedCreateWithoutUserInput[]
     connectOrCreate?: SessionCreateOrConnectWithoutUserInput | SessionCreateOrConnectWithoutUserInput[]
@@ -42555,6 +42725,16 @@ export namespace Prisma {
     deleteMany?: FaultReportScalarWhereInput | FaultReportScalarWhereInput[]
   }
 
+  export type PowerScheduleUncheckedUpdateOneWithoutUserNestedInput = {
+    create?: XOR<PowerScheduleCreateWithoutUserInput, PowerScheduleUncheckedCreateWithoutUserInput>
+    connectOrCreate?: PowerScheduleCreateOrConnectWithoutUserInput
+    upsert?: PowerScheduleUpsertWithoutUserInput
+    disconnect?: PowerScheduleWhereInput | boolean
+    delete?: PowerScheduleWhereInput | boolean
+    connect?: PowerScheduleWhereUniqueInput
+    update?: XOR<XOR<PowerScheduleUpdateToOneWithWhereWithoutUserInput, PowerScheduleUpdateWithoutUserInput>, PowerScheduleUncheckedUpdateWithoutUserInput>
+  }
+
   export type UserCreateNestedOneWithoutSessionsInput = {
     create?: XOR<UserCreateWithoutSessionsInput, UserUncheckedCreateWithoutSessionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSessionsInput
@@ -42703,9 +42883,25 @@ export namespace Prisma {
     set: number[]
   }
 
+  export type UserCreateNestedOneWithoutPowerScheduleInput = {
+    create?: XOR<UserCreateWithoutPowerScheduleInput, UserUncheckedCreateWithoutPowerScheduleInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPowerScheduleInput
+    connect?: UserWhereUniqueInput
+  }
+
   export type PowerScheduleUpdatedaysInput = {
     set?: number[]
     push?: number | number[]
+  }
+
+  export type UserUpdateOneWithoutPowerScheduleNestedInput = {
+    create?: XOR<UserCreateWithoutPowerScheduleInput, UserUncheckedCreateWithoutPowerScheduleInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPowerScheduleInput
+    upsert?: UserUpsertWithoutPowerScheduleInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPowerScheduleInput, UserUpdateWithoutPowerScheduleInput>, UserUncheckedUpdateWithoutPowerScheduleInput>
   }
 
   export type BinCreateNestedManyWithoutBinMaterialInput = {
@@ -44264,6 +44460,29 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PowerScheduleCreateWithoutUserInput = {
+    id?: string
+    enabled?: boolean
+    startMinute?: number
+    endMinute?: number
+    days?: PowerScheduleCreatedaysInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type PowerScheduleUncheckedCreateWithoutUserInput = {
+    id?: string
+    enabled?: boolean
+    startMinute?: number
+    endMinute?: number
+    days?: PowerScheduleCreatedaysInput | number[]
+    updatedAt?: Date | string
+  }
+
+  export type PowerScheduleCreateOrConnectWithoutUserInput = {
+    where: PowerScheduleWhereUniqueInput
+    create: XOR<PowerScheduleCreateWithoutUserInput, PowerScheduleUncheckedCreateWithoutUserInput>
+  }
+
   export type SessionUpsertWithWhereUniqueWithoutUserInput = {
     where: SessionWhereUniqueInput
     update: XOR<SessionUpdateWithoutUserInput, SessionUncheckedUpdateWithoutUserInput>
@@ -44780,6 +44999,35 @@ export namespace Prisma {
     resolvedByAdminName?: StringNullableFilter<"FaultReport"> | string | null
   }
 
+  export type PowerScheduleUpsertWithoutUserInput = {
+    update: XOR<PowerScheduleUpdateWithoutUserInput, PowerScheduleUncheckedUpdateWithoutUserInput>
+    create: XOR<PowerScheduleCreateWithoutUserInput, PowerScheduleUncheckedCreateWithoutUserInput>
+    where?: PowerScheduleWhereInput
+  }
+
+  export type PowerScheduleUpdateToOneWithWhereWithoutUserInput = {
+    where?: PowerScheduleWhereInput
+    data: XOR<PowerScheduleUpdateWithoutUserInput, PowerScheduleUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PowerScheduleUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    startMinute?: IntFieldUpdateOperationsInput | number
+    endMinute?: IntFieldUpdateOperationsInput | number
+    days?: PowerScheduleUpdatedaysInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PowerScheduleUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    startMinute?: IntFieldUpdateOperationsInput | number
+    endMinute?: IntFieldUpdateOperationsInput | number
+    days?: PowerScheduleUpdatedaysInput | number[]
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UserCreateWithoutSessionsInput = {
     id?: string
     profileImageUrl?: string | null
@@ -44820,6 +45068,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -44862,6 +45111,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -44920,6 +45170,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -44962,6 +45213,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAccountsInput = {
@@ -45004,6 +45256,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAccountsInput = {
@@ -45046,6 +45299,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAccountsInput = {
@@ -45104,6 +45358,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -45146,6 +45401,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type BinMaterialCreateWithoutBinsInput = {
@@ -45207,6 +45463,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutBinsInput = {
@@ -45249,6 +45506,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutBinsInput = {
@@ -45398,6 +45656,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutBinsInput = {
@@ -45440,6 +45699,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type DisposalUpsertWithWhereUniqueWithoutBinInput = {
@@ -45486,6 +45746,194 @@ export namespace Prisma {
     loadcellOK?: BoolFilter<"BinDiagnosticLog"> | boolean
     overallStatus?: EnumBinStatusFilter<"BinDiagnosticLog"> | $Enums.BinStatus
     details?: JsonNullableFilter<"BinDiagnosticLog">
+  }
+
+  export type UserCreateWithoutPowerScheduleInput = {
+    id?: string
+    profileImageUrl?: string | null
+    email: string
+    emailVerified?: boolean
+    name: string
+    diploma?: string | null
+    faculty: $Enums.Faculty
+    role: $Enums.Role
+    lat?: number | null
+    long?: number | null
+    location?: string | null
+    commandUpdatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    treesaved?: number
+    treeprogress?: number
+    carbonprint?: number
+    image?: string | null
+    scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    accounts?: AccountCreateNestedManyWithoutUserInput
+    bins?: BinCreateNestedManyWithoutUserInput
+    disposals?: DisposalCreateNestedManyWithoutUserInput
+    disposal_queue?: DisposalQueueCreateNestedManyWithoutUserInput
+    point?: PointCreateNestedOneWithoutUserInput
+    redemptions?: RedemptionCreateNestedManyWithoutUserInput
+    fulfilledRedemptions?: RedemptionCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardCreateNestedManyWithoutAllowedStoresInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutUserInput
+    transactions?: TransactionCreateNestedManyWithoutUserInput
+    receivedTransfers?: TransferSessionCreateNestedManyWithoutReceiverInput
+    sentTransfers?: TransferSessionCreateNestedManyWithoutSenderInput
+    user_quest?: UserQuestCreateNestedManyWithoutUserInput
+    user_event?: UserEventCreateNestedManyWithoutUserInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
+    Feedback?: FeedbackCreateNestedManyWithoutUserInput
+    FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPowerScheduleInput = {
+    id?: string
+    profileImageUrl?: string | null
+    email: string
+    emailVerified?: boolean
+    name: string
+    diploma?: string | null
+    faculty: $Enums.Faculty
+    role: $Enums.Role
+    lat?: number | null
+    long?: number | null
+    location?: string | null
+    commandUpdatedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    treesaved?: number
+    treeprogress?: number
+    carbonprint?: number
+    image?: string | null
+    scannerAlertActive?: boolean
+    banned?: boolean | null
+    banReason?: string | null
+    banExpires?: Date | string | null
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    accounts?: AccountUncheckedCreateNestedManyWithoutUserInput
+    bins?: BinUncheckedCreateNestedManyWithoutUserInput
+    disposals?: DisposalUncheckedCreateNestedManyWithoutUserInput
+    disposal_queue?: DisposalQueueUncheckedCreateNestedManyWithoutUserInput
+    point?: PointUncheckedCreateNestedOneWithoutUserInput
+    redemptions?: RedemptionUncheckedCreateNestedManyWithoutUserInput
+    fulfilledRedemptions?: RedemptionUncheckedCreateNestedManyWithoutFulfilledByInput
+    allowedVouchers?: RewardUncheckedCreateNestedManyWithoutAllowedStoresInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutUserInput
+    transactions?: TransactionUncheckedCreateNestedManyWithoutUserInput
+    receivedTransfers?: TransferSessionUncheckedCreateNestedManyWithoutReceiverInput
+    sentTransfers?: TransferSessionUncheckedCreateNestedManyWithoutSenderInput
+    user_quest?: UserQuestUncheckedCreateNestedManyWithoutUserInput
+    user_event?: UserEventUncheckedCreateNestedManyWithoutUserInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
+    Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPowerScheduleInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPowerScheduleInput, UserUncheckedCreateWithoutPowerScheduleInput>
+  }
+
+  export type UserUpsertWithoutPowerScheduleInput = {
+    update: XOR<UserUpdateWithoutPowerScheduleInput, UserUncheckedUpdateWithoutPowerScheduleInput>
+    create: XOR<UserCreateWithoutPowerScheduleInput, UserUncheckedCreateWithoutPowerScheduleInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPowerScheduleInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPowerScheduleInput, UserUncheckedUpdateWithoutPowerScheduleInput>
+  }
+
+  export type UserUpdateWithoutPowerScheduleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    diploma?: NullableStringFieldUpdateOperationsInput | string | null
+    faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    treesaved?: IntFieldUpdateOperationsInput | number
+    treeprogress?: FloatFieldUpdateOperationsInput | number
+    carbonprint?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    accounts?: AccountUpdateManyWithoutUserNestedInput
+    bins?: BinUpdateManyWithoutUserNestedInput
+    disposals?: DisposalUpdateManyWithoutUserNestedInput
+    disposal_queue?: DisposalQueueUpdateManyWithoutUserNestedInput
+    point?: PointUpdateOneWithoutUserNestedInput
+    redemptions?: RedemptionUpdateManyWithoutUserNestedInput
+    fulfilledRedemptions?: RedemptionUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUpdateManyWithoutAllowedStoresNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUpdateManyWithoutUserNestedInput
+    receivedTransfers?: TransferSessionUpdateManyWithoutReceiverNestedInput
+    sentTransfers?: TransferSessionUpdateManyWithoutSenderNestedInput
+    user_quest?: UserQuestUpdateManyWithoutUserNestedInput
+    user_event?: UserEventUpdateManyWithoutUserNestedInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
+    Feedback?: FeedbackUpdateManyWithoutUserNestedInput
+    FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPowerScheduleInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    emailVerified?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    diploma?: NullableStringFieldUpdateOperationsInput | string | null
+    faculty?: EnumFacultyFieldUpdateOperationsInput | $Enums.Faculty
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    lat?: NullableFloatFieldUpdateOperationsInput | number | null
+    long?: NullableFloatFieldUpdateOperationsInput | number | null
+    location?: NullableStringFieldUpdateOperationsInput | string | null
+    commandUpdatedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    treesaved?: IntFieldUpdateOperationsInput | number
+    treeprogress?: FloatFieldUpdateOperationsInput | number
+    carbonprint?: FloatFieldUpdateOperationsInput | number
+    image?: NullableStringFieldUpdateOperationsInput | string | null
+    scannerAlertActive?: BoolFieldUpdateOperationsInput | boolean
+    banned?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    banReason?: NullableStringFieldUpdateOperationsInput | string | null
+    banExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    accounts?: AccountUncheckedUpdateManyWithoutUserNestedInput
+    bins?: BinUncheckedUpdateManyWithoutUserNestedInput
+    disposals?: DisposalUncheckedUpdateManyWithoutUserNestedInput
+    disposal_queue?: DisposalQueueUncheckedUpdateManyWithoutUserNestedInput
+    point?: PointUncheckedUpdateOneWithoutUserNestedInput
+    redemptions?: RedemptionUncheckedUpdateManyWithoutUserNestedInput
+    fulfilledRedemptions?: RedemptionUncheckedUpdateManyWithoutFulfilledByNestedInput
+    allowedVouchers?: RewardUncheckedUpdateManyWithoutAllowedStoresNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutUserNestedInput
+    transactions?: TransactionUncheckedUpdateManyWithoutUserNestedInput
+    receivedTransfers?: TransferSessionUncheckedUpdateManyWithoutReceiverNestedInput
+    sentTransfers?: TransferSessionUncheckedUpdateManyWithoutSenderNestedInput
+    user_quest?: UserQuestUncheckedUpdateManyWithoutUserNestedInput
+    user_event?: UserEventUncheckedUpdateManyWithoutUserNestedInput
+    ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
+    Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type BinCreateWithoutBinMaterialInput = {
@@ -45620,6 +46068,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDisposal_queueInput = {
@@ -45662,6 +46111,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDisposal_queueInput = {
@@ -45736,6 +46186,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDisposal_queueInput = {
@@ -45778,6 +46229,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type BinCreateWithoutDisposalsInput = {
@@ -45855,6 +46307,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutDisposalsInput = {
@@ -45897,6 +46350,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutDisposalsInput = {
@@ -46017,6 +46471,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDisposalsInput = {
@@ -46059,6 +46514,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type DisposalQueueUpsertWithoutDisposalsInput = {
@@ -46128,6 +46584,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPointInput = {
@@ -46170,6 +46627,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPointInput = {
@@ -46228,6 +46686,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPointInput = {
@@ -46270,6 +46729,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type RedemptionCreateWithoutRewardInput = {
@@ -46342,6 +46802,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAllowedVouchersInput = {
@@ -46384,6 +46845,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAllowedVouchersInput = {
@@ -46524,6 +46986,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRedemptionsInput = {
@@ -46566,6 +47029,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRedemptionsInput = {
@@ -46613,6 +47077,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFulfilledRedemptionsInput = {
@@ -46655,6 +47120,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFulfilledRedemptionsInput = {
@@ -46752,6 +47218,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRedemptionsInput = {
@@ -46794,6 +47261,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutFulfilledRedemptionsInput = {
@@ -46847,6 +47315,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFulfilledRedemptionsInput = {
@@ -46889,6 +47358,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSubscriptionsInput = {
@@ -46931,6 +47401,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -46973,6 +47444,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -47031,6 +47503,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -47073,6 +47546,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTransactionsInput = {
@@ -47115,6 +47589,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -47157,6 +47632,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -47215,6 +47691,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -47257,6 +47734,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserQuestCreateWithoutQuestInput = {
@@ -47372,6 +47850,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUser_questInput = {
@@ -47414,6 +47893,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUser_questInput = {
@@ -47509,6 +47989,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUser_questInput = {
@@ -47551,6 +48032,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutReceivedTransfersInput = {
@@ -47593,6 +48075,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutReceivedTransfersInput = {
@@ -47635,6 +48118,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutReceivedTransfersInput = {
@@ -47682,6 +48166,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSentTransfersInput = {
@@ -47724,6 +48209,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSentTransfersInput = {
@@ -47782,6 +48268,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutReceivedTransfersInput = {
@@ -47824,6 +48311,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutSentTransfersInput = {
@@ -47877,6 +48365,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSentTransfersInput = {
@@ -47919,6 +48408,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserEventCreateWithoutEventInput = {
@@ -47999,6 +48489,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutUser_eventInput = {
@@ -48041,6 +48532,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutUser_eventInput = {
@@ -48124,6 +48616,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutUser_eventInput = {
@@ -48166,6 +48659,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type EventUpsertWithoutUserEventInput = {
@@ -48239,6 +48733,7 @@ export namespace Prisma {
     user_event?: UserEventCreateNestedManyWithoutUserInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFeedbackInput = {
@@ -48281,6 +48776,7 @@ export namespace Prisma {
     user_event?: UserEventUncheckedCreateNestedManyWithoutUserInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFeedbackInput = {
@@ -48339,6 +48835,7 @@ export namespace Prisma {
     user_event?: UserEventUpdateManyWithoutUserNestedInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFeedbackInput = {
@@ -48381,6 +48878,7 @@ export namespace Prisma {
     user_event?: UserEventUncheckedUpdateManyWithoutUserNestedInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserCreateWithoutFaultReportInput = {
@@ -48423,6 +48921,7 @@ export namespace Prisma {
     user_event?: UserEventCreateNestedManyWithoutUserInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutFaultReportInput = {
@@ -48465,6 +48964,7 @@ export namespace Prisma {
     user_event?: UserEventUncheckedCreateNestedManyWithoutUserInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutFaultReportInput = {
@@ -48523,6 +49023,7 @@ export namespace Prisma {
     user_event?: UserEventUpdateManyWithoutUserNestedInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFaultReportInput = {
@@ -48565,6 +49066,7 @@ export namespace Prisma {
     user_event?: UserEventUncheckedUpdateManyWithoutUserNestedInput
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type BinCreateWithoutBinDiagnosticLogInput = {
@@ -48683,6 +49185,7 @@ export namespace Prisma {
     user_event?: UserEventCreateNestedManyWithoutUserInput
     Feedback?: FeedbackCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleCreateNestedOneWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutScannerDiagnosticLogInput = {
@@ -48725,6 +49228,7 @@ export namespace Prisma {
     user_event?: UserEventUncheckedCreateNestedManyWithoutUserInput
     Feedback?: FeedbackUncheckedCreateNestedManyWithoutUserInput
     FaultReport?: FaultReportUncheckedCreateNestedManyWithoutUserInput
+    powerSchedule?: PowerScheduleUncheckedCreateNestedOneWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutScannerDiagnosticLogInput = {
@@ -48783,6 +49287,7 @@ export namespace Prisma {
     user_event?: UserEventUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutScannerDiagnosticLogInput = {
@@ -48825,6 +49330,7 @@ export namespace Prisma {
     user_event?: UserEventUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -49818,6 +50324,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAllowedVouchersInput = {
@@ -49860,6 +50367,7 @@ export namespace Prisma {
     ScannerDiagnosticLog?: ScannerDiagnosticLogUncheckedUpdateManyWithoutUserNestedInput
     Feedback?: FeedbackUncheckedUpdateManyWithoutUserNestedInput
     FaultReport?: FaultReportUncheckedUpdateManyWithoutUserNestedInput
+    powerSchedule?: PowerScheduleUncheckedUpdateOneWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutAllowedVouchersInput = {

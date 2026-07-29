@@ -32,7 +32,9 @@ import {
   MailCheck,
   Ticket,
   Receipt,
-  ScrollText
+  ScrollText,
+  Clock,
+  CalendarPlus
 } from 'lucide-react'
 
 export default function AdminDashboard() {
@@ -132,6 +134,32 @@ export default function AdminDashboard() {
                   <Link href="/admin/bin/heartbeat" className="flex items-center gap-3">
                     <Wifi className="h-4 w-4" />
                     Bins Online
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Power Scheduling Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Power Scheduling</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/schedule'}>
+                  <Link href="/admin/bin/schedule" className="flex items-center gap-3">
+                    <Clock className="h-4 w-4" />
+                    View Schedules
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/bin/schedule/create'}>
+                  <Link href="/admin/bin/schedule/create" className="flex items-center gap-3">
+                    <CalendarPlus className="h-4 w-4" />
+                    Create Schedule
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

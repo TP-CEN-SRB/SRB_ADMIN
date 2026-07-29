@@ -45,6 +45,7 @@ model User {
   ScannerDiagnosticLog ScannerDiagnosticLog[]
   Feedback             Feedback[]
   FaultReport          FaultReport[]
+  powerSchedule        PowerSchedule?
 
   banned     Boolean?  @default(false)
   banReason  String?
@@ -123,20 +124,23 @@ model Bin {
   @@map("bins")
 }
 
-// Singleton table (always exactly one row) — the system-wide SMPS power
-// schedule, shared by every bin's ESP32 controller (they're all wired to
-// the same schedule, not one each). Start/end are minutes since midnight
-// (0-1439); a range where start > end wraps past midnight (e.g. start=1320
-// end=360 means "22:00-06:00"). days is a set of weekday numbers matching
-// JS Date.getDay() / RTClib's dayOfTheWeek() (0=Sunday..6=Saturday) so both
-// the admin UI and the ESP32 firmware use the same numbering with no
-// conversion.
+// Per-bin-manager SMPS power schedule. userId = null is the legacy global
+// default (published retained to "srb/schedule", picked up by any relay
+// that hasn't been assigned its own bin manager yet); a real userId scopes
+// the schedule to that bin manager/Pi (published to "srb/schedule/<userId>").
+// Start/end are minutes since midnight (0-1439); a range where start > end
+// wraps past midnight (e.g. start=1320 end=360 means "22:00-06:00"). days is
+// a set of weekday numbers matching JS Date.getDay() / RTClib's
+// dayOfTheWeek() (0=Sunday..6=Saturday) so both the admin UI and the relay
+// use the same numbering with no conversion.
 model PowerSchedule {
   id          String   @id @default(uuid())
   enabled     Boolean  @default(false)
   startMinute Int      @default(0)
   endMinute   Int      @default(1439)
   days        Int[]    @default([0, 1, 2, 3, 4, 5, 6])
+  userId      String?  @unique
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   updatedAt   DateTime @updatedAt
 
   @@map("power_schedule")
