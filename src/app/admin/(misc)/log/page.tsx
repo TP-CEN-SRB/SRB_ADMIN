@@ -3,9 +3,9 @@ import { AlertTriangle, DoorOpen } from "lucide-react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { TableSkeleton } from "@/components/TableSkeleton"
 import { LogHeader } from "./header"
-import { getLogs } from "@/app/action/log"
+import { getLogs, getLogBins } from "@/app/action/log"
 
-const col_widths = ["70%", "30%"]
+const col_widths = ["55%", "20%", "25%"]
 
 interface LogAdminPageProps {
   searchParams: Promise<{
@@ -13,6 +13,7 @@ interface LogAdminPageProps {
     limit?: string
     search?: string
     source?: string
+    bin?: string
   }>
 }
 
@@ -21,7 +22,7 @@ export default async function LogAdminPage({ searchParams }: LogAdminPageProps) 
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={2} />}>
+      <Suspense key={JSON.stringify(params)} fallback={<TableSkeleton columns={3} />}>
         <LogTable searchParams={params} />
       </Suspense>
     </div>
@@ -33,8 +34,15 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
   const currentLimit = Number(params.limit) || 20
   const currentSearch = params.search || ""
   const currentSource = params.source ? params.source.split(",") : ["BIN_COMMAND", "APP_ERROR"]
+  // Absent = every bin, so the filter starts unrestricted rather than empty.
+  const currentBins = params.bin ? params.bin.split(",") : []
 
-  const { logs, logCount, totalPages } = await getLogs(currentPage, currentLimit, currentSearch, currentSource)
+  const [{ logs, logCount, totalPages }, binOptions] = await Promise.all([
+    getLogs(currentPage, currentLimit, currentSearch, currentSource, currentBins),
+    getLogBins(),
+  ])
+
+  const binLabels = new Map(binOptions.map(function (bin) { return [bin.value, bin.label] }))
 
   return (
     <>
@@ -43,6 +51,7 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
         currentLimit={currentLimit}
         totalPages={totalPages}
         totalCount={logCount}
+        binOptions={binOptions}
       />
 
       <Table className="table-fixed">
@@ -54,6 +63,7 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
         <TableHeader>
           <TableRow>
             <TableHead>Message</TableHead>
+            <TableHead className="text-center">Bin</TableHead>
             <TableHead className="text-center">Timestamp</TableHead>
           </TableRow>
         </TableHeader>
@@ -69,7 +79,7 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
           <TableBody>
             {logs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={2} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={3} className="h-24 text-center text-muted-foreground">
                   💤 No activity logged yet.
                 </TableCell>
               </TableRow>
@@ -85,6 +95,11 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
                       )}
                       <span className="text-xs whitespace-pre-wrap wrap-break-word">{log.message}</span>
                     </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="text-xs text-muted-foreground">
+                      {log.binId ? binLabels.get(log.binId) || log.binId.slice(0, 8) : "—"}
+                    </span>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs">
