@@ -5,6 +5,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu"
@@ -21,22 +22,43 @@ const sources = [
   { label: "App Errors", value: "APP_ERROR" },
 ]
 
+interface BinOption {
+  value: string
+  label: string
+}
+
 interface LogHeaderProps {
   currentPage: number
   currentLimit: number
   totalPages: number
   totalCount: number
+  binOptions: BinOption[]
 }
 
-export function LogHeader({ currentPage, currentLimit, totalPages, totalCount }: LogHeaderProps) {
+export function LogHeader({
+  currentPage,
+  currentLimit,
+  totalPages,
+  totalCount,
+  binOptions,
+}: LogHeaderProps) {
   const { searchParams, isPending, setLimit, goToPage, toggleListParam, setSearch } =
     useTableQueryParams({ currentPage, totalPages })
 
   const sourceParam = searchParams.get("source")
   const activeSources = sourceParam ? sourceParam.split(",") : sources.map((s) => s.value)
 
+  // No `bin` param means unfiltered, so every box shows ticked - selecting the
+  // first one narrows to it rather than starting from nothing selected.
+  const binParam = searchParams.get("bin")
+  const activeBins = binParam ? binParam.split(",") : binOptions.map((b) => b.value)
+
   function onCheckedSource(sourceValue: string, isChecked: boolean) {
     toggleListParam("source", sourceValue, isChecked, activeSources)
+  }
+
+  function onCheckedBin(binValue: string, isChecked: boolean) {
+    toggleListParam("bin", binValue, isChecked, activeBins)
   }
 
   function onSearch(search: string) {
@@ -71,6 +93,27 @@ export function LogHeader({ currentPage, currentLimit, totalPages, totalCount }:
                 )
               })}
             </DropdownMenuGroup>
+
+            {binOptions.length > 0 ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Bin</DropdownMenuLabel>
+                  {binOptions.map(function (bin) {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={bin.value}
+                        checked={activeBins.includes(bin.value)}
+                        onCheckedChange={function (checked) { onCheckedBin(bin.value, checked) }}
+                        onSelect={function (event) { event.preventDefault() }}
+                      >
+                        {bin.label}
+                      </DropdownMenuCheckboxItem>
+                    )
+                  })}
+                </DropdownMenuGroup>
+              </>
+            ) : null}
           </DropdownMenuContent>
         </DropdownMenu>
 
