@@ -3,6 +3,7 @@ import { AlertTriangle, DoorOpen } from "lucide-react"
 import { Table, TableHead, TableBody, TableCell, TableHeader, TableRow } from "@/components/ui/table"
 import { TableSkeleton } from "@/components/TableSkeleton"
 import { LogHeader } from "./header"
+import { LogMessage } from "./log-message"
 import { getLogs, getLogBins } from "@/app/action/log"
 
 const col_widths = ["55%", "20%", "25%"]
@@ -93,7 +94,7 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
                       ) : (
                         <AlertTriangle className="text-red-500 w-4 h-4 mt-0.5 shrink-0" />
                       )}
-                      <span className="text-xs whitespace-pre-wrap wrap-break-word">{log.message}</span>
+                      <LogMessage message={log.message} />
                     </div>
                   </TableCell>
                   <TableCell className="text-center">
@@ -103,7 +104,12 @@ async function LogTable({ searchParams: params }: { searchParams: Awaited<LogAdm
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="text-xs">
+                      {/* timeZone is required, not optional: "en-SG" only picks
+                          the formatting conventions, and this renders in a
+                          server component - on Vercel that means UTC, which
+                          showed every timestamp 8 hours behind SGT. */}
                       {log.createdAt.toLocaleString("en-SG", {
+                        timeZone: "Asia/Singapore",
                         year: "numeric",
                         month: "2-digit",
                         day: "2-digit",
