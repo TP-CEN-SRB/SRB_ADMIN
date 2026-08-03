@@ -73,7 +73,9 @@ export default function SmartBinDashboard() {
         description: "Sending command to SRB Power system.",
       })
 
-      const success = await publishMqtt(topic, payload)
+      // retain: true - the Pi's override state needs to survive a reconnect
+      // or reboot, same as the retained schedule in updatePowerSchedule().
+      const success = await publishMqtt(topic, payload, { retain: true })
 
       if (success) {
         toast.success("Command Sent", {
