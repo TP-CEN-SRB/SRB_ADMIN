@@ -66,6 +66,7 @@ export function ScheduleForm({ initialData, userId = null, redirectTo = "/admin/
       if (result?.success) {
         toast.success("Success", { description: result.success })
         router.push(redirectTo)
+        router.refresh()
       } else if (result?.error) {
         toast.error("Error", { description: result.error })
       }
