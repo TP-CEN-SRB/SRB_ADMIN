@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db"
-import { NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse, after } from "next/server"
 import jwt from "jsonwebtoken"
 import { createClient } from "@supabase/supabase-js"
 import {
@@ -92,7 +92,11 @@ export async function POST(
     )
 
     /* ---------- TELEGRAM (SAFE BACKGROUND) ---------- */
-    setImmediate(async function(){
+    // NOTE: setImmediate is unreliable on Vercel — the serverless function
+    // can freeze right after the response is sent, killing this callback
+    // before the Telegram fetch completes. `after()` keeps the function
+    // alive until this work finishes instead.
+    after(async function(){
       try {
         const timeSGT =
           new Date().toLocaleString("en-SG", {
