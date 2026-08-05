@@ -10,6 +10,10 @@ interface LayerProps {
   data: FeatureCollection
   color: string
 }
+
+// Renders one campus-building outline (fill + border + name label) as a
+// GeoJSON map layer. Shared by every admin map that offers the "show school
+// buildings" overlay (bin manager map, store map, ...).
 const MapLayer = ({
   sourceId,
   fillId,

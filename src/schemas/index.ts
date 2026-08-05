@@ -220,6 +220,15 @@ const StoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),
     email: z.string().email("Invalid email"),
     faculty: z.enum(["ENG", "BUS", "ASC", "IIT", "HSS", "DES", "OTHERS", "EXT"]),
+    location: z.string()
+      .min(2, { message: "Location is too short" })
+      .regex(/^[A-Za-z0-9\s,]+$/, { message: "Invalid. Accepted: letters, numbers, commas" }),
+    lat: z.number({ message: "Latitude must be a number" })
+      .min(-90, { message: "Latitude must be between -90 and 90" })
+      .max(90, { message: "Latitude must be between -90 and 90" }),
+    long: z.number({ message: "Longitude must be a number" })
+      .min(-180, { message: "Longitude must be between -180 and 180" })
+      .max(180, { message: "Longitude must be between -180 and 180" }),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
@@ -232,6 +241,15 @@ const UpdateStoreSchema = z.object({
     name: z.string().min(1, "Store name is required"),
     email: z.string().email("Invalid email address"),
     faculty: z.string().min(1, "Faculty is required"),
+    location: z.string()
+      .min(2, { message: "Location is too short" })
+      .regex(/^[A-Za-z0-9\s,]+$/, { message: "Invalid. Accepted: letters, numbers, commas" }),
+    lat: z.number({ message: "Latitude must be a number" })
+      .min(-90, { message: "Latitude must be between -90 and 90" })
+      .max(90, { message: "Latitude must be between -90 and 90" }),
+    long: z.number({ message: "Longitude must be a number" })
+      .min(-180, { message: "Longitude must be between -180 and 180" })
+      .max(180, { message: "Longitude must be between -180 and 180" }),
     password: z.string().min(6, "Password must be at least 6 characters").optional(),
     confirmPassword: z.string().optional(),
   })

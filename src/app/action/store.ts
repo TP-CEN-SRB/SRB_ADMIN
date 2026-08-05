@@ -23,7 +23,7 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
     }
   }
 
-  const { name, email, password, faculty } = validated.data
+  const { name, email, password, faculty, location, lat, long } = validated.data
 
   try {
     const user = await createCredentialUser({
@@ -32,12 +32,24 @@ const createStore = async (values: z.infer<typeof StoreSchema>) => {
       password,
       role: Role.STORE,
       faculty: faculty as Faculty,
+      location,
+      lat,
+      long,
     })
 
     revalidatePath("/admin/store")
+    revalidatePath("/admin/store/map")
     return { success: "Store created successfully", user }
   } catch (error) {
     console.error("[createStore] error:", error)
+    // location is unique - surface a friendlier message than the raw Prisma
+    // P2002 constraint error when two stores are dropped on the same spot.
+    if (error && typeof error === "object" && "code" in error && error.code === "P2002") {
+      return {
+        error: "Another store is already using that location.",
+        fieldErrors: { location: ["Another store is already using that location."] },
+      }
+    }
     return { error: error instanceof Error ? error.message : "Failed to create store" }
   }
 }
@@ -52,13 +64,14 @@ const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>
     }
   }
 
-  const { name, email, password, faculty } = validated.data
+  const { name, email, password, faculty, location, lat, long } = validated.data
 
   const existing = await prisma.user.findFirst({
     where: {
       OR: [
         { name: name.toLowerCase() },
         { email: email.toLowerCase() },
+        { location },
       ],
       NOT: { id },
     },
@@ -71,6 +84,9 @@ const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>
     }
     if (existing.email === email.toLowerCase()) {
       fieldErrors.email = ["Another store with that email already exists."]
+    }
+    if (existing.location === location) {
+      fieldErrors.location = ["Another store is already using that location."]
     }
 
     return {
@@ -88,6 +104,9 @@ const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>
       name: capitalizeFirstLetter(name),
       email: email.toLowerCase(),
       faculty: faculty as Faculty,
+      location,
+      lat,
+      long,
     },
   })
 
@@ -98,6 +117,8 @@ const updateStore = async (id: string, values: z.infer<typeof UpdateStoreSchema>
   }
 
   revalidatePath("/admin/store")
+  revalidatePath("/admin/store/map")
+  revalidatePath("/admin/store/update/[storeId]", "page")
   return { success: `Store ${updatedUser.id} updated successfully` }
 }
 
@@ -154,6 +175,7 @@ const getStoreAccounts = async (
         name: true,
         email: true,
         faculty: true,
+        location: true,
         point: {
           select: {
             balance: true,
@@ -187,6 +209,29 @@ const getStoreById = async (id: string) => {
       name: true,
       email: true,
       faculty: true,
+      location: true,
+      lat: true,
+      long: true,
+    },
+  })
+}
+
+// Get All Stores - lightweight list for the store map (mirrors
+// getAllBinManagers), used both to plot the read-only overview map and to
+// show "other stores" while an admin drags a new/existing store's pin.
+const getAllStores = async () => {
+  return await prisma.user.findMany({
+    where: { role: Role.STORE },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      faculty: true,
+      lat: true,
+      long: true,
+      _count: {
+        select: { fulfilledRedemptions: true },
+      },
     },
   })
 }
@@ -240,5 +285,6 @@ export {
   getStoreAccounts,
   getStoreById,
   getStoreOptions,
+  getAllStores,
   deleteStore,
 }

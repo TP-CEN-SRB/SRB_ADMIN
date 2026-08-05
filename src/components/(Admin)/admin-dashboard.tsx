@@ -260,6 +260,24 @@ export default function AdminDashboard() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/store/map'}>
+                  <Link href="/admin/store/map" className="flex items-center gap-3">
+                    <Map className="h-4 w-4" />
+                    Store Map
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/store/create'}>
+                  <Link href="/admin/store/create" className="flex items-center gap-3">
+                    <UserPlus className="h-4 w-4" />
+                    Create Store
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === '/admin/store'}>
                   <Link href="/admin/store" className="flex items-center gap-3">
                     <Store className="h-4 w-4" />

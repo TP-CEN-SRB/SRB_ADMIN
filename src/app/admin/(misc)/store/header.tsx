@@ -12,7 +12,8 @@ import {
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { ListFilter } from "lucide-react"
+import { ListFilter, Map, PlusCircle } from "lucide-react"
+import Link from "next/link"
 
 import { useTableQueryParams } from "@/hooks/useTableQueryParams"
 import { TablePaginationControls } from "@/components/TablePaginationControls"
@@ -110,6 +111,20 @@ export function StoreHeader({ currentPage, currentLimit, totalPages, totalCount 
       </div>
 
       <div className="flex items-center gap-2">
+        <Button asChild size="sm" variant="outline">
+          <Link href="/admin/store/map">
+            <Map className="mr-2 size-4" />
+            Store Map
+          </Link>
+        </Button>
+
+        <Button asChild size="sm">
+          <Link href="/admin/store/create">
+            <PlusCircle className="mr-2 size-4" />
+            Create Store
+          </Link>
+        </Button>
+
         <TablePaginationControls
           currentPage={currentPage}
           currentLimit={currentLimit}
