@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
+import { ActivityLogSource } from "@/generated/prisma"
 
 const allowedOrigins = [
-  "http://localhost:3000",              // SRB_LOCAL dev      
+  "http://localhost:3000",              // SRB_LOCAL dev
   "https://cen-smart-bin.vercel.app",   // SRB_admin itself
 ]
+
+// Crashlog has carried `source` and `binId` for a while, but this route only
+// ever wrote `message` - so every row landed as an unattributed APP_ERROR and
+// the log page's source filter had nothing to discriminate on. Both are now
+// accepted, and both stay optional: a kiosk running an older build posts
+// { message } alone and must keep working.
+const VALID_SOURCES: string[] = Object.values(ActivityLogSource)
 
 export const POST = async (req: NextRequest) => {
   const origin = req.headers.get("origin") || "*"
@@ -19,12 +27,22 @@ export const POST = async (req: NextRequest) => {
   }
 
   try {
-    const { message } = await req.json()
+    const { message, source, binId } = await req.json()
     if (!message) {
       return NextResponse.json({ message: "Missing message" }, { status: 400 })
     }
 
-    await prisma.crashlog.create({ data: { message } })
+    await prisma.crashlog.create({
+      data: {
+        message: String(message),
+        // Unrecognised values fall back rather than 400 - a logging endpoint
+        // rejecting a log is worse than filing it under the default.
+        source: VALID_SOURCES.includes(source)
+          ? (source as ActivityLogSource)
+          : ActivityLogSource.APP_ERROR,
+        binId: typeof binId === "string" && binId.length > 0 ? binId : null,
+      },
+    })
 
     const res = NextResponse.json({ success: true })
     res.headers.set("Access-Control-Allow-Origin", origin)
