@@ -132,7 +132,7 @@ export function CreateVoucherForm() {
           name="image"
           render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
-              <FormLabel>Image</FormLabel>
+              <FormLabel>Image (optional)</FormLabel>
               <FormControl>
                 <Input
                   disabled={isPending}
@@ -142,6 +142,7 @@ export function CreateVoucherForm() {
                   onChange={(e) => onChange(e.target.files?.[0])}
                 />
               </FormControl>
+              <FormDescription>Leave blank to use a placeholder image for now - you can add a real one later via Edit.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

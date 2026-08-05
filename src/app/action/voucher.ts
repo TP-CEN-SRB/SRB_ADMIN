@@ -8,6 +8,12 @@ import { VoucherSchema, UpdateVoucherSchema } from "@/schemas"
 import { utapi } from "@/lib/uploadthing"
 import { z } from "zod"
 
+// Reward.image is a required column read by both the admin table and the
+// mobile app's /api/reward endpoint, so a voucher created without an upload
+// still needs a real, always-reachable URL rather than null/empty - this is
+// served from this app's own public/ folder, same origin as BETTER_AUTH_URL.
+const DEFAULT_VOUCHER_IMAGE_URL = `${process.env.BETTER_AUTH_URL ?? "https://cen-smart-bin.vercel.app"}/recycling.png`
+
 async function requireAdmin() {
   const session = await auth.api.getSession({ headers: await headers() })
   return session?.user?.role === "admin"
@@ -31,9 +37,13 @@ const createVoucher = async (values: z.infer<typeof VoucherSchema>) => {
     return { error: "Duplicate voucher", fieldErrors: { name: ["A voucher with that name already exists."] } }
   }
 
-  const uploadRes = await utapi.uploadFiles(image)
-  if (uploadRes.error) {
-    return { error: "Unable to upload image" }
+  let imageUrl = DEFAULT_VOUCHER_IMAGE_URL
+  if (image) {
+    const uploadRes = await utapi.uploadFiles(image)
+    if (uploadRes.error) {
+      return { error: "Unable to upload image" }
+    }
+    imageUrl = uploadRes.data.ufsUrl
   }
 
   await prisma.reward.create({
@@ -42,7 +52,7 @@ const createVoucher = async (values: z.infer<typeof VoucherSchema>) => {
       pointsRequired,
       description,
       isAvailable,
-      image: uploadRes.data.ufsUrl,
+      image: imageUrl,
       startDate: startDate ?? null,
       endDate: endDate ?? null,
       allowedStores: { connect: storeIds.map((id) => ({ id })) },
@@ -78,9 +88,13 @@ const updateVoucher = async (id: string, values: z.infer<typeof UpdateVoucherSch
 
   let imageUrl = currentVoucher.image
   if (image) {
-    const deleteRes = await utapi.deleteFiles(currentVoucher.image.split("/").pop() as string)
-    if (!deleteRes.success) {
-      return { error: "Unable to delete existing image" }
+    // The current image is only an UploadThing file to delete if it isn't
+    // still the placeholder set by createVoucher for image-less vouchers.
+    if (currentVoucher.image !== DEFAULT_VOUCHER_IMAGE_URL) {
+      const deleteRes = await utapi.deleteFiles(currentVoucher.image.split("/").pop() as string)
+      if (!deleteRes.success) {
+        return { error: "Unable to delete existing image" }
+      }
     }
     const uploadRes = await utapi.uploadFiles(image)
     if (uploadRes.error) {
@@ -130,9 +144,13 @@ const deleteVoucher = async (id: string) => {
   }
 
   try {
-    const deleteRes = await utapi.deleteFiles(voucher.image.split("/").pop() as string)
-    if (!deleteRes.success) {
-      return { error: "Unable to delete image" }
+    // Nothing to delete from UploadThing if this voucher never got a real
+    // uploaded image (still on the placeholder set by createVoucher).
+    if (voucher.image !== DEFAULT_VOUCHER_IMAGE_URL) {
+      const deleteRes = await utapi.deleteFiles(voucher.image.split("/").pop() as string)
+      if (!deleteRes.success) {
+        return { error: "Unable to delete image" }
+      }
     }
 
     await prisma.reward.delete({ where: { id } })

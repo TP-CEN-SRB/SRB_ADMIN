@@ -114,9 +114,12 @@ const VoucherSchema = z.object({
     .string({ message: "Description is required" })
     .min(2, "Description is too short"),
   isAvailable: z.boolean(),
+  // Optional at creation - createVoucher falls back to a placeholder image
+  // when none is uploaded, so admins can publish a voucher before art is
+  // ready and swap in a real image later via Edit.
   image: z
-    .instanceof(File, { message: "Image is required" })
-    .refine((file) => file.size !== 0, "Image is required")
+    .instanceof(File, { message: "Image must be a file" })
+    .refine((file) => file.size !== 0, "Selected file is empty")
     .refine((file) => file.size <= MAX_FILE_SIZE, {
       message: `File size should not exceed ${
         MAX_FILE_SIZE / (1024 * 1024)
@@ -124,7 +127,8 @@ const VoucherSchema = z.object({
     })
     .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
       message: "Only .jpg, .jpeg, .png, and .webp files are accepted",
-    }),
+    })
+    .optional(),
   startDate: z.coerce.date().optional(),
   endDate: z.coerce.date().optional(),
   // Empty = unrestricted, any registered store can fulfill this voucher.
