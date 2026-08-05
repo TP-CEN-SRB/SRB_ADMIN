@@ -13,6 +13,7 @@ import { StoreSchema } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createStore } from "@/app/action/store"
 import { z } from "zod"
+import { toast } from "sonner"
 
 type StoreFormValue = z.infer<typeof StoreSchema>
 
@@ -75,7 +76,12 @@ export function CreateStoreLocationForm({
     }
 
     setIsPending(false)
+    toast.success("Store created", { description: result.success })
+    // The server action already revalidates /admin/store/map, but that only
+    // marks it stale - router.refresh() is what actually forces this
+    // navigation to pick up the fresh RSC payload instead of a cached one.
     router.push("/admin/store/map")
+    router.refresh()
   }
 
   return (

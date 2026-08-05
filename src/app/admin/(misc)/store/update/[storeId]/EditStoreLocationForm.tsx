@@ -13,6 +13,7 @@ import { UpdateStoreSchema } from "@/schemas"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { updateStore } from "@/app/action/store"
 import { z } from "zod"
+import { toast } from "sonner"
 
 type UpdateStoreFormValue = z.infer<typeof UpdateStoreSchema>
 
@@ -94,7 +95,11 @@ export function EditStoreLocationForm({
     }
 
     setIsPending(false)
+    toast.success("Store updated", { description: result?.success })
+    // Same reasoning as the create form: revalidatePath alone only marks
+    // /admin/store/map stale, router.refresh() forces the fresh fetch.
     router.push("/admin/store/map")
+    router.refresh()
   }
 
   return (
