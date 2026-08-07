@@ -99,6 +99,11 @@ export type UserQuest = $Result.DefaultSelection<Prisma.$UserQuestPayload>
  */
 export type TransferSession = $Result.DefaultSelection<Prisma.$TransferSessionPayload>
 /**
+ * Model GrbWeightLog
+ * 
+ */
+export type GrbWeightLog = $Result.DefaultSelection<Prisma.$GrbWeightLogPayload>
+/**
  * Model Video
  * 
  */
@@ -554,6 +559,16 @@ export class PrismaClient<
     * ```
     */
   get transferSession(): Prisma.TransferSessionDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.grbWeightLog`: Exposes CRUD operations for the **GrbWeightLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GrbWeightLogs
+    * const grbWeightLogs = await prisma.grbWeightLog.findMany()
+    * ```
+    */
+  get grbWeightLog(): Prisma.GrbWeightLogDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.video`: Exposes CRUD operations for the **Video** model.
@@ -1105,6 +1120,7 @@ export namespace Prisma {
     QuestDetails: 'QuestDetails',
     UserQuest: 'UserQuest',
     TransferSession: 'TransferSession',
+    GrbWeightLog: 'GrbWeightLog',
     Video: 'Video',
     Crashlog: 'Crashlog',
     QuestTemplate: 'QuestTemplate',
@@ -1130,7 +1146,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification" | "bin" | "powerSchedule" | "binMaterial" | "disposalQueue" | "disposal" | "point" | "reward" | "redemption" | "subscription" | "transaction" | "questDetails" | "userQuest" | "transferSession" | "video" | "crashlog" | "questTemplate" | "event" | "userEvent" | "feedback" | "faultReport" | "binDiagnosticLog" | "scannerDiagnosticLog" | "apikey"
+      modelProps: "user" | "session" | "account" | "verification" | "bin" | "powerSchedule" | "binMaterial" | "disposalQueue" | "disposal" | "point" | "reward" | "redemption" | "subscription" | "transaction" | "questDetails" | "userQuest" | "transferSession" | "grbWeightLog" | "video" | "crashlog" | "questTemplate" | "event" | "userEvent" | "feedback" | "faultReport" | "binDiagnosticLog" | "scannerDiagnosticLog" | "apikey"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2392,6 +2408,80 @@ export namespace Prisma {
           }
         }
       }
+      GrbWeightLog: {
+        payload: Prisma.$GrbWeightLogPayload<ExtArgs>
+        fields: Prisma.GrbWeightLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GrbWeightLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GrbWeightLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>
+          }
+          findFirst: {
+            args: Prisma.GrbWeightLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GrbWeightLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>
+          }
+          findMany: {
+            args: Prisma.GrbWeightLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>[]
+          }
+          create: {
+            args: Prisma.GrbWeightLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>
+          }
+          createMany: {
+            args: Prisma.GrbWeightLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GrbWeightLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>[]
+          }
+          delete: {
+            args: Prisma.GrbWeightLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>
+          }
+          update: {
+            args: Prisma.GrbWeightLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.GrbWeightLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GrbWeightLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GrbWeightLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.GrbWeightLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GrbWeightLogPayload>
+          }
+          aggregate: {
+            args: Prisma.GrbWeightLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGrbWeightLog>
+          }
+          groupBy: {
+            args: Prisma.GrbWeightLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GrbWeightLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GrbWeightLogCountArgs<ExtArgs>
+            result: $Utils.Optional<GrbWeightLogCountAggregateOutputType> | number
+          }
+        }
+      }
       Video: {
         payload: Prisma.$VideoPayload<ExtArgs>
         fields: Prisma.VideoFieldRefs
@@ -3257,6 +3347,7 @@ export namespace Prisma {
     questDetails?: QuestDetailsOmit
     userQuest?: UserQuestOmit
     transferSession?: TransferSessionOmit
+    grbWeightLog?: GrbWeightLogOmit
     video?: VideoOmit
     crashlog?: CrashlogOmit
     questTemplate?: QuestTemplateOmit
@@ -23816,6 +23907,1014 @@ export namespace Prisma {
 
 
   /**
+   * Model GrbWeightLog
+   */
+
+  export type AggregateGrbWeightLog = {
+    _count: GrbWeightLogCountAggregateOutputType | null
+    _avg: GrbWeightLogAvgAggregateOutputType | null
+    _sum: GrbWeightLogSumAggregateOutputType | null
+    _min: GrbWeightLogMinAggregateOutputType | null
+    _max: GrbWeightLogMaxAggregateOutputType | null
+  }
+
+  export type GrbWeightLogAvgAggregateOutputType = {
+    weightInGrams: number | null
+  }
+
+  export type GrbWeightLogSumAggregateOutputType = {
+    weightInGrams: number | null
+  }
+
+  export type GrbWeightLogMinAggregateOutputType = {
+    id: string | null
+    weightInGrams: number | null
+    createdAt: Date | null
+  }
+
+  export type GrbWeightLogMaxAggregateOutputType = {
+    id: string | null
+    weightInGrams: number | null
+    createdAt: Date | null
+  }
+
+  export type GrbWeightLogCountAggregateOutputType = {
+    id: number
+    weightInGrams: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type GrbWeightLogAvgAggregateInputType = {
+    weightInGrams?: true
+  }
+
+  export type GrbWeightLogSumAggregateInputType = {
+    weightInGrams?: true
+  }
+
+  export type GrbWeightLogMinAggregateInputType = {
+    id?: true
+    weightInGrams?: true
+    createdAt?: true
+  }
+
+  export type GrbWeightLogMaxAggregateInputType = {
+    id?: true
+    weightInGrams?: true
+    createdAt?: true
+  }
+
+  export type GrbWeightLogCountAggregateInputType = {
+    id?: true
+    weightInGrams?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type GrbWeightLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GrbWeightLog to aggregate.
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GrbWeightLogs to fetch.
+     */
+    orderBy?: GrbWeightLogOrderByWithRelationInput | GrbWeightLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GrbWeightLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GrbWeightLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GrbWeightLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GrbWeightLogs
+    **/
+    _count?: true | GrbWeightLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: GrbWeightLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: GrbWeightLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GrbWeightLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GrbWeightLogMaxAggregateInputType
+  }
+
+  export type GetGrbWeightLogAggregateType<T extends GrbWeightLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateGrbWeightLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGrbWeightLog[P]>
+      : GetScalarType<T[P], AggregateGrbWeightLog[P]>
+  }
+
+
+
+
+  export type GrbWeightLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GrbWeightLogWhereInput
+    orderBy?: GrbWeightLogOrderByWithAggregationInput | GrbWeightLogOrderByWithAggregationInput[]
+    by: GrbWeightLogScalarFieldEnum[] | GrbWeightLogScalarFieldEnum
+    having?: GrbWeightLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GrbWeightLogCountAggregateInputType | true
+    _avg?: GrbWeightLogAvgAggregateInputType
+    _sum?: GrbWeightLogSumAggregateInputType
+    _min?: GrbWeightLogMinAggregateInputType
+    _max?: GrbWeightLogMaxAggregateInputType
+  }
+
+  export type GrbWeightLogGroupByOutputType = {
+    id: string
+    weightInGrams: number
+    createdAt: Date
+    _count: GrbWeightLogCountAggregateOutputType | null
+    _avg: GrbWeightLogAvgAggregateOutputType | null
+    _sum: GrbWeightLogSumAggregateOutputType | null
+    _min: GrbWeightLogMinAggregateOutputType | null
+    _max: GrbWeightLogMaxAggregateOutputType | null
+  }
+
+  type GetGrbWeightLogGroupByPayload<T extends GrbWeightLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GrbWeightLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GrbWeightLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GrbWeightLogGroupByOutputType[P]>
+            : GetScalarType<T[P], GrbWeightLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GrbWeightLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weightInGrams?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["grbWeightLog"]>
+
+  export type GrbWeightLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weightInGrams?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["grbWeightLog"]>
+
+  export type GrbWeightLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    weightInGrams?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["grbWeightLog"]>
+
+  export type GrbWeightLogSelectScalar = {
+    id?: boolean
+    weightInGrams?: boolean
+    createdAt?: boolean
+  }
+
+  export type GrbWeightLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "weightInGrams" | "createdAt", ExtArgs["result"]["grbWeightLog"]>
+
+  export type $GrbWeightLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GrbWeightLog"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      weightInGrams: number
+      createdAt: Date
+    }, ExtArgs["result"]["grbWeightLog"]>
+    composites: {}
+  }
+
+  type GrbWeightLogGetPayload<S extends boolean | null | undefined | GrbWeightLogDefaultArgs> = $Result.GetResult<Prisma.$GrbWeightLogPayload, S>
+
+  type GrbWeightLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GrbWeightLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GrbWeightLogCountAggregateInputType | true
+    }
+
+  export interface GrbWeightLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GrbWeightLog'], meta: { name: 'GrbWeightLog' } }
+    /**
+     * Find zero or one GrbWeightLog that matches the filter.
+     * @param {GrbWeightLogFindUniqueArgs} args - Arguments to find a GrbWeightLog
+     * @example
+     * // Get one GrbWeightLog
+     * const grbWeightLog = await prisma.grbWeightLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GrbWeightLogFindUniqueArgs>(args: SelectSubset<T, GrbWeightLogFindUniqueArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GrbWeightLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GrbWeightLogFindUniqueOrThrowArgs} args - Arguments to find a GrbWeightLog
+     * @example
+     * // Get one GrbWeightLog
+     * const grbWeightLog = await prisma.grbWeightLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GrbWeightLogFindUniqueOrThrowArgs>(args: SelectSubset<T, GrbWeightLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GrbWeightLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogFindFirstArgs} args - Arguments to find a GrbWeightLog
+     * @example
+     * // Get one GrbWeightLog
+     * const grbWeightLog = await prisma.grbWeightLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GrbWeightLogFindFirstArgs>(args?: SelectSubset<T, GrbWeightLogFindFirstArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GrbWeightLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogFindFirstOrThrowArgs} args - Arguments to find a GrbWeightLog
+     * @example
+     * // Get one GrbWeightLog
+     * const grbWeightLog = await prisma.grbWeightLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GrbWeightLogFindFirstOrThrowArgs>(args?: SelectSubset<T, GrbWeightLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GrbWeightLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GrbWeightLogs
+     * const grbWeightLogs = await prisma.grbWeightLog.findMany()
+     * 
+     * // Get first 10 GrbWeightLogs
+     * const grbWeightLogs = await prisma.grbWeightLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const grbWeightLogWithIdOnly = await prisma.grbWeightLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GrbWeightLogFindManyArgs>(args?: SelectSubset<T, GrbWeightLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GrbWeightLog.
+     * @param {GrbWeightLogCreateArgs} args - Arguments to create a GrbWeightLog.
+     * @example
+     * // Create one GrbWeightLog
+     * const GrbWeightLog = await prisma.grbWeightLog.create({
+     *   data: {
+     *     // ... data to create a GrbWeightLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends GrbWeightLogCreateArgs>(args: SelectSubset<T, GrbWeightLogCreateArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GrbWeightLogs.
+     * @param {GrbWeightLogCreateManyArgs} args - Arguments to create many GrbWeightLogs.
+     * @example
+     * // Create many GrbWeightLogs
+     * const grbWeightLog = await prisma.grbWeightLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GrbWeightLogCreateManyArgs>(args?: SelectSubset<T, GrbWeightLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GrbWeightLogs and returns the data saved in the database.
+     * @param {GrbWeightLogCreateManyAndReturnArgs} args - Arguments to create many GrbWeightLogs.
+     * @example
+     * // Create many GrbWeightLogs
+     * const grbWeightLog = await prisma.grbWeightLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GrbWeightLogs and only return the `id`
+     * const grbWeightLogWithIdOnly = await prisma.grbWeightLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GrbWeightLogCreateManyAndReturnArgs>(args?: SelectSubset<T, GrbWeightLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GrbWeightLog.
+     * @param {GrbWeightLogDeleteArgs} args - Arguments to delete one GrbWeightLog.
+     * @example
+     * // Delete one GrbWeightLog
+     * const GrbWeightLog = await prisma.grbWeightLog.delete({
+     *   where: {
+     *     // ... filter to delete one GrbWeightLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GrbWeightLogDeleteArgs>(args: SelectSubset<T, GrbWeightLogDeleteArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GrbWeightLog.
+     * @param {GrbWeightLogUpdateArgs} args - Arguments to update one GrbWeightLog.
+     * @example
+     * // Update one GrbWeightLog
+     * const grbWeightLog = await prisma.grbWeightLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GrbWeightLogUpdateArgs>(args: SelectSubset<T, GrbWeightLogUpdateArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GrbWeightLogs.
+     * @param {GrbWeightLogDeleteManyArgs} args - Arguments to filter GrbWeightLogs to delete.
+     * @example
+     * // Delete a few GrbWeightLogs
+     * const { count } = await prisma.grbWeightLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GrbWeightLogDeleteManyArgs>(args?: SelectSubset<T, GrbWeightLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GrbWeightLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GrbWeightLogs
+     * const grbWeightLog = await prisma.grbWeightLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GrbWeightLogUpdateManyArgs>(args: SelectSubset<T, GrbWeightLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GrbWeightLogs and returns the data updated in the database.
+     * @param {GrbWeightLogUpdateManyAndReturnArgs} args - Arguments to update many GrbWeightLogs.
+     * @example
+     * // Update many GrbWeightLogs
+     * const grbWeightLog = await prisma.grbWeightLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GrbWeightLogs and only return the `id`
+     * const grbWeightLogWithIdOnly = await prisma.grbWeightLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GrbWeightLogUpdateManyAndReturnArgs>(args: SelectSubset<T, GrbWeightLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GrbWeightLog.
+     * @param {GrbWeightLogUpsertArgs} args - Arguments to update or create a GrbWeightLog.
+     * @example
+     * // Update or create a GrbWeightLog
+     * const grbWeightLog = await prisma.grbWeightLog.upsert({
+     *   create: {
+     *     // ... data to create a GrbWeightLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GrbWeightLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GrbWeightLogUpsertArgs>(args: SelectSubset<T, GrbWeightLogUpsertArgs<ExtArgs>>): Prisma__GrbWeightLogClient<$Result.GetResult<Prisma.$GrbWeightLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GrbWeightLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogCountArgs} args - Arguments to filter GrbWeightLogs to count.
+     * @example
+     * // Count the number of GrbWeightLogs
+     * const count = await prisma.grbWeightLog.count({
+     *   where: {
+     *     // ... the filter for the GrbWeightLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends GrbWeightLogCountArgs>(
+      args?: Subset<T, GrbWeightLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GrbWeightLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GrbWeightLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GrbWeightLogAggregateArgs>(args: Subset<T, GrbWeightLogAggregateArgs>): Prisma.PrismaPromise<GetGrbWeightLogAggregateType<T>>
+
+    /**
+     * Group by GrbWeightLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GrbWeightLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GrbWeightLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GrbWeightLogGroupByArgs['orderBy'] }
+        : { orderBy?: GrbWeightLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GrbWeightLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGrbWeightLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GrbWeightLog model
+   */
+  readonly fields: GrbWeightLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GrbWeightLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GrbWeightLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GrbWeightLog model
+   */
+  interface GrbWeightLogFieldRefs {
+    readonly id: FieldRef<"GrbWeightLog", 'String'>
+    readonly weightInGrams: FieldRef<"GrbWeightLog", 'Int'>
+    readonly createdAt: FieldRef<"GrbWeightLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GrbWeightLog findUnique
+   */
+  export type GrbWeightLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * Filter, which GrbWeightLog to fetch.
+     */
+    where: GrbWeightLogWhereUniqueInput
+  }
+
+  /**
+   * GrbWeightLog findUniqueOrThrow
+   */
+  export type GrbWeightLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * Filter, which GrbWeightLog to fetch.
+     */
+    where: GrbWeightLogWhereUniqueInput
+  }
+
+  /**
+   * GrbWeightLog findFirst
+   */
+  export type GrbWeightLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * Filter, which GrbWeightLog to fetch.
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GrbWeightLogs to fetch.
+     */
+    orderBy?: GrbWeightLogOrderByWithRelationInput | GrbWeightLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GrbWeightLogs.
+     */
+    cursor?: GrbWeightLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GrbWeightLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GrbWeightLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GrbWeightLogs.
+     */
+    distinct?: GrbWeightLogScalarFieldEnum | GrbWeightLogScalarFieldEnum[]
+  }
+
+  /**
+   * GrbWeightLog findFirstOrThrow
+   */
+  export type GrbWeightLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * Filter, which GrbWeightLog to fetch.
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GrbWeightLogs to fetch.
+     */
+    orderBy?: GrbWeightLogOrderByWithRelationInput | GrbWeightLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GrbWeightLogs.
+     */
+    cursor?: GrbWeightLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GrbWeightLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GrbWeightLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GrbWeightLogs.
+     */
+    distinct?: GrbWeightLogScalarFieldEnum | GrbWeightLogScalarFieldEnum[]
+  }
+
+  /**
+   * GrbWeightLog findMany
+   */
+  export type GrbWeightLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * Filter, which GrbWeightLogs to fetch.
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GrbWeightLogs to fetch.
+     */
+    orderBy?: GrbWeightLogOrderByWithRelationInput | GrbWeightLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GrbWeightLogs.
+     */
+    cursor?: GrbWeightLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GrbWeightLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GrbWeightLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GrbWeightLogs.
+     */
+    distinct?: GrbWeightLogScalarFieldEnum | GrbWeightLogScalarFieldEnum[]
+  }
+
+  /**
+   * GrbWeightLog create
+   */
+  export type GrbWeightLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * The data needed to create a GrbWeightLog.
+     */
+    data: XOR<GrbWeightLogCreateInput, GrbWeightLogUncheckedCreateInput>
+  }
+
+  /**
+   * GrbWeightLog createMany
+   */
+  export type GrbWeightLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GrbWeightLogs.
+     */
+    data: GrbWeightLogCreateManyInput | GrbWeightLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GrbWeightLog createManyAndReturn
+   */
+  export type GrbWeightLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many GrbWeightLogs.
+     */
+    data: GrbWeightLogCreateManyInput | GrbWeightLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GrbWeightLog update
+   */
+  export type GrbWeightLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * The data needed to update a GrbWeightLog.
+     */
+    data: XOR<GrbWeightLogUpdateInput, GrbWeightLogUncheckedUpdateInput>
+    /**
+     * Choose, which GrbWeightLog to update.
+     */
+    where: GrbWeightLogWhereUniqueInput
+  }
+
+  /**
+   * GrbWeightLog updateMany
+   */
+  export type GrbWeightLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GrbWeightLogs.
+     */
+    data: XOR<GrbWeightLogUpdateManyMutationInput, GrbWeightLogUncheckedUpdateManyInput>
+    /**
+     * Filter which GrbWeightLogs to update
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * Limit how many GrbWeightLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GrbWeightLog updateManyAndReturn
+   */
+  export type GrbWeightLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * The data used to update GrbWeightLogs.
+     */
+    data: XOR<GrbWeightLogUpdateManyMutationInput, GrbWeightLogUncheckedUpdateManyInput>
+    /**
+     * Filter which GrbWeightLogs to update
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * Limit how many GrbWeightLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GrbWeightLog upsert
+   */
+  export type GrbWeightLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * The filter to search for the GrbWeightLog to update in case it exists.
+     */
+    where: GrbWeightLogWhereUniqueInput
+    /**
+     * In case the GrbWeightLog found by the `where` argument doesn't exist, create a new GrbWeightLog with this data.
+     */
+    create: XOR<GrbWeightLogCreateInput, GrbWeightLogUncheckedCreateInput>
+    /**
+     * In case the GrbWeightLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GrbWeightLogUpdateInput, GrbWeightLogUncheckedUpdateInput>
+  }
+
+  /**
+   * GrbWeightLog delete
+   */
+  export type GrbWeightLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+    /**
+     * Filter which GrbWeightLog to delete.
+     */
+    where: GrbWeightLogWhereUniqueInput
+  }
+
+  /**
+   * GrbWeightLog deleteMany
+   */
+  export type GrbWeightLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GrbWeightLogs to delete
+     */
+    where?: GrbWeightLogWhereInput
+    /**
+     * Limit how many GrbWeightLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GrbWeightLog without action
+   */
+  export type GrbWeightLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GrbWeightLog
+     */
+    select?: GrbWeightLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GrbWeightLog
+     */
+    omit?: GrbWeightLogOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model Video
    */
 
@@ -35230,6 +36329,15 @@ export namespace Prisma {
   export type TransferSessionScalarFieldEnum = (typeof TransferSessionScalarFieldEnum)[keyof typeof TransferSessionScalarFieldEnum]
 
 
+  export const GrbWeightLogScalarFieldEnum: {
+    id: 'id',
+    weightInGrams: 'weightInGrams',
+    createdAt: 'createdAt'
+  };
+
+  export type GrbWeightLogScalarFieldEnum = (typeof GrbWeightLogScalarFieldEnum)[keyof typeof GrbWeightLogScalarFieldEnum]
+
+
   export const VideoScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -36992,6 +38100,50 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"TransferSession"> | string
     createdAt?: DateTimeWithAggregatesFilter<"TransferSession"> | Date | string
     redeemedAt?: DateTimeNullableWithAggregatesFilter<"TransferSession"> | Date | string | null
+  }
+
+  export type GrbWeightLogWhereInput = {
+    AND?: GrbWeightLogWhereInput | GrbWeightLogWhereInput[]
+    OR?: GrbWeightLogWhereInput[]
+    NOT?: GrbWeightLogWhereInput | GrbWeightLogWhereInput[]
+    id?: StringFilter<"GrbWeightLog"> | string
+    weightInGrams?: IntFilter<"GrbWeightLog"> | number
+    createdAt?: DateTimeFilter<"GrbWeightLog"> | Date | string
+  }
+
+  export type GrbWeightLogOrderByWithRelationInput = {
+    id?: SortOrder
+    weightInGrams?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GrbWeightLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GrbWeightLogWhereInput | GrbWeightLogWhereInput[]
+    OR?: GrbWeightLogWhereInput[]
+    NOT?: GrbWeightLogWhereInput | GrbWeightLogWhereInput[]
+    weightInGrams?: IntFilter<"GrbWeightLog"> | number
+    createdAt?: DateTimeFilter<"GrbWeightLog"> | Date | string
+  }, "id">
+
+  export type GrbWeightLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    weightInGrams?: SortOrder
+    createdAt?: SortOrder
+    _count?: GrbWeightLogCountOrderByAggregateInput
+    _avg?: GrbWeightLogAvgOrderByAggregateInput
+    _max?: GrbWeightLogMaxOrderByAggregateInput
+    _min?: GrbWeightLogMinOrderByAggregateInput
+    _sum?: GrbWeightLogSumOrderByAggregateInput
+  }
+
+  export type GrbWeightLogScalarWhereWithAggregatesInput = {
+    AND?: GrbWeightLogScalarWhereWithAggregatesInput | GrbWeightLogScalarWhereWithAggregatesInput[]
+    OR?: GrbWeightLogScalarWhereWithAggregatesInput[]
+    NOT?: GrbWeightLogScalarWhereWithAggregatesInput | GrbWeightLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GrbWeightLog"> | string
+    weightInGrams?: IntWithAggregatesFilter<"GrbWeightLog"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"GrbWeightLog"> | Date | string
   }
 
   export type VideoWhereInput = {
@@ -39232,6 +40384,48 @@ export namespace Prisma {
     redeemedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type GrbWeightLogCreateInput = {
+    id?: string
+    weightInGrams: number
+    createdAt?: Date | string
+  }
+
+  export type GrbWeightLogUncheckedCreateInput = {
+    id?: string
+    weightInGrams: number
+    createdAt?: Date | string
+  }
+
+  export type GrbWeightLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weightInGrams?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GrbWeightLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weightInGrams?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GrbWeightLogCreateManyInput = {
+    id?: string
+    weightInGrams: number
+    createdAt?: Date | string
+  }
+
+  export type GrbWeightLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weightInGrams?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GrbWeightLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    weightInGrams?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type VideoCreateInput = {
     id?: string
     name: string
@@ -41366,6 +42560,32 @@ export namespace Prisma {
 
   export type TransferSessionSumOrderByAggregateInput = {
     amount?: SortOrder
+  }
+
+  export type GrbWeightLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    weightInGrams?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GrbWeightLogAvgOrderByAggregateInput = {
+    weightInGrams?: SortOrder
+  }
+
+  export type GrbWeightLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    weightInGrams?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GrbWeightLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    weightInGrams?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GrbWeightLogSumOrderByAggregateInput = {
+    weightInGrams?: SortOrder
   }
 
   export type VideoCountOrderByAggregateInput = {

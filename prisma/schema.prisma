@@ -310,6 +310,20 @@ model TransferSession {
   @@map("transfer_session")
 }
 
+// Weight readings for the Giant Rubbish Bin (GRB) - a single standalone bin,
+// unrelated to the per-user Bin model above. Reported in grams by an ESP32
+// over the public HiveMQ broker (topic "albaewaste"), separate from the
+// private HiveMQ Cloud broker in src/lib/mqtt.ts. One row per reading, so
+// SRB_LOCAL's poll of the latest value also doubles as a history log.
+model GrbWeightLog {
+  id            String   @id @default(uuid())
+  weightInGrams Int
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("grb_weight_logs")
+}
+
 model Video {
   id                String   @id @default(uuid())
   name              String

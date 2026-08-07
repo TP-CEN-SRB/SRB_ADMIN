@@ -5,12 +5,15 @@ import { useState, useEffect } from "react"
 import { MqttClient } from "mqtt"
 import { getHeartbeat } from "./action"
 import { publishMqtt, connectMqtt } from "@/lib/mqtt"
+import { connectGrbMqtt } from "@/lib/grbMqtt"
+import { getLatestGrbWeight } from "@/app/action/grb"
 import { toast } from "sonner"
 import {
   FaHeartbeat,
   FaBatteryFull,
   FaPowerOff,
   FaClock,
+  FaWeightHanging,
 } from "react-icons/fa"
 import { Tooltip } from "react-tooltip"
 import { formatDistanceToNow } from "date-fns"
@@ -24,10 +27,11 @@ export default function SmartBinDashboard() {
   const [bins, setBins] = useState<Bin[]>([])
   const [selectedUserId, setSelectedUserId] = useState("all")
   const [mqttClient, setMqttClient] = useState<MqttClient | null>(null)
+  const [grbWeight, setGrbWeight] = useState<{ weightInGrams: number; createdAt: Date } | null>(null)
 
   useEffect(function(){
     let client: MqttClient | null = null;
-    
+
     const init = async function(){
       client = await connectMqtt()
       setMqttClient(client)
@@ -38,6 +42,24 @@ export default function SmartBinDashboard() {
     return function(){
       if (client) {
         client.end()
+      }
+    }
+  }, [])
+
+  // Separate connection to the public HiveMQ broker carrying the Giant
+  // Rubbish Bin's weight - independent lifecycle from the private broker
+  // above so one connection's issues never affect the other.
+  useEffect(function(){
+    let grbClient: MqttClient | null = null
+
+    const init = async function(){
+      grbClient = await connectGrbMqtt()
+    }
+    init()
+
+    return function(){
+      if (grbClient) {
+        grbClient.end()
       }
     }
   }, [])
@@ -54,6 +76,21 @@ export default function SmartBinDashboard() {
 
     fetchData()
     const interval = setInterval(fetchData, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(function(){
+    const fetchGrbWeight = async function(){
+      try {
+        const latest = await getLatestGrbWeight()
+        if (latest) setGrbWeight({ weightInGrams: latest.weightInGrams, createdAt: latest.createdAt })
+      } catch (err) {
+        console.error("Failed to fetch GRB weight:", err)
+      }
+    }
+
+    fetchGrbWeight()
+    const interval = setInterval(fetchGrbWeight, 3000)
     return () => clearInterval(interval)
   }, [])
 
@@ -185,6 +222,23 @@ export default function SmartBinDashboard() {
       </div>
 
       <hr className="my-8 border-border" />
+
+      <div className="bg-card text-card-foreground p-6 rounded-xl shadow-sm border border-border mb-8">
+        <h2 className="text-xl font-semibold mb-4">Giant Rubbish Bin Weight</h2>
+        <div className="flex items-center gap-4">
+          <FaWeightHanging className="text-3xl text-amber-500" />
+          <div>
+            <div className="text-2xl font-bold">
+              {grbWeight ? `${grbWeight.weightInGrams.toLocaleString()} g` : "No readings yet"}
+            </div>
+            {grbWeight && (
+              <div className="text-xs text-muted-foreground">
+                Last updated {formatDistanceToNow(new Date(grbWeight.createdAt), { addSuffix: true })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       <div className="bg-card text-card-foreground p-6 rounded-xl shadow-sm border border-border">
         <h2 className="text-xl font-semibold mb-6">Remote Power Controls</h2>

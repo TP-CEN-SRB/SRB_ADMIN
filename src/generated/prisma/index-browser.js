@@ -320,6 +320,12 @@ exports.Prisma.TransferSessionScalarFieldEnum = {
   redeemedAt: 'redeemedAt'
 };
 
+exports.Prisma.GrbWeightLogScalarFieldEnum = {
+  id: 'id',
+  weightInGrams: 'weightInGrams',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.VideoScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -537,6 +543,7 @@ exports.Prisma.ModelName = {
   QuestDetails: 'QuestDetails',
   UserQuest: 'UserQuest',
   TransferSession: 'TransferSession',
+  GrbWeightLog: 'GrbWeightLog',
   Video: 'Video',
   Crashlog: 'Crashlog',
   QuestTemplate: 'QuestTemplate',
