@@ -6,6 +6,8 @@ import { format } from "date-fns"
 import { StatsSection } from "./StatsSection"
 import { BarChartSection } from "./BarChartSection"
 import { PieChartSection } from "./PieChartSection"
+import { UptimeChartSection } from "./UptimeChartSection"
+import { DisposalsByHourSection } from "./DisposalsByHourSection"
 import { StatsSkeleton, ChartSkeleton } from "./skeletons"
 
 const periods: DashboardPeriod[] = ["day", "week", "month", "year"]
@@ -75,6 +77,19 @@ export default async function AdminHomePage({
 
         <Suspense key={`pie:${period}:${offset}`} fallback={<ChartSkeleton title="Bins by Faculty" />}>
           <PieChartSection dateFrom={startDate} dateTo={endDate} filter={filter} />
+        </Suspense>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <Suspense fallback={<ChartSkeleton title="Bin Uptime — Last 24 Hours" />}>
+          <UptimeChartSection />
+        </Suspense>
+
+        <Suspense
+          key={`usage-hour:${period}:${offset}`}
+          fallback={<ChartSkeleton title="Usage by Time of Day" />}
+        >
+          <DisposalsByHourSection dateFrom={startDate} dateTo={endDate} />
         </Suspense>
       </div>
     </div>

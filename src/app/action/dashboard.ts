@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { cached, invalidateByPrefix, DASHBOARD_TTL } from "@/lib/cache"
+import { computeBinUptime } from "@/lib/uptime"
 import { DateRange, getWeeksInMonth, months, days } from "@/utils/dateUtils"
 import { format } from "date-fns"
 import { BinStatus, Role } from "@/generated/prisma"
@@ -246,6 +247,10 @@ export const getPieChartData = async (
   `${DASHBOARD_CACHE_PREFIX}pie-chart:${dateFrom}:${dateTo}:${filter}`,
   DASHBOARD_TTL,
   async function(){
+    // Bins are a static roster (registered once, not re-created per period),
+    // so this must NOT be scoped by createdAt like the disposal-based charts
+    // above — that bug made the chart empty for any period without a
+    // brand-new bin registration in it (i.e. almost always).
     const binsWithFaculty = await prisma.bin.findMany({
       include: {
         user: {
@@ -257,10 +262,6 @@ export const getPieChartData = async (
       where: {
         user: {
           role: "BIN" as Role,
-        },
-        createdAt: {
-          gte: dateFrom,
-          lte: dateTo,
         },
       },
     })
@@ -290,3 +291,78 @@ export const getPieChartData = async (
     }))
   }
 )
+
+export type FleetUptimeHour = { hour: string; uptimePct: number | null }
+
+// Fleet-wide counterpart to /api/uptime (which is scoped to one bin
+// manager): reuses the same Redis uptime:<binId>:<bucketISO> snapshots via
+// computeBinUptime, then averages across every bin per hourly bucket over
+// the last rolling 24h. A null hour means no bin reported any heartbeat in
+// that bucket (not the same as 0% — 0% means bins reported and were down).
+export const getFleetUptimeByHour = async (): Promise<FleetUptimeHour[]> =>
+  cached(
+    `${DASHBOARD_CACHE_PREFIX}fleet-uptime:day`,
+    DASHBOARD_TTL,
+    async function () {
+      const bins = await prisma.bin.findMany({
+        select: { id: true, binMaterial: { select: { name: true } } },
+      })
+      if (bins.length === 0) return []
+
+      const perBin = await computeBinUptime(
+        bins.map((b) => ({ id: b.id, name: b.binMaterial.name })),
+        "day"
+      )
+
+      const bucketCount = perBin[0]?.uptimeTimeline.length ?? 0
+      return Array.from({ length: bucketCount }, (_, i) => {
+        const entry = perBin[0].uptimeTimeline[i]
+        const vals = perBin
+          .map((b) => b.uptimeTimeline[i]?.uptime)
+          .filter((v): v is number => v !== null && v !== undefined)
+
+        return {
+          hour: entry.label,
+          uptimePct: vals.length
+            ? Math.round(vals.reduce((a, v) => a + v, 0) / vals.length)
+            : null,
+        }
+      })
+    }
+  )
+
+export type DisposalHourBucket = { hour: string; count: number }
+
+// Histogram of disposal counts by hour-of-day (Singapore local time) within
+// the given range — reveals when users actually use the bins, independent
+// of which specific day each disposal fell on.
+export const getDisposalsByHour = async (
+  dateFrom?: Date,
+  dateTo?: Date
+): Promise<DisposalHourBucket[]> =>
+  cached(
+    `${DASHBOARD_CACHE_PREFIX}disposals-by-hour:${dateFrom}:${dateTo}`,
+    DASHBOARD_TTL,
+    async function () {
+      const disposals = await prisma.disposal.findMany({
+        where: { createdAt: { gte: dateFrom, lte: dateTo } },
+        select: { createdAt: true },
+      })
+
+      const counts = new Array(24).fill(0)
+      for (const d of disposals) {
+        // Re-anchor to SGT before reading the hour, same trick used in
+        // /api/uptime's toSGT — otherwise this histogram reports the UTC
+        // hour, silently shifted 8h from when people actually disposed.
+        const sgt = new Date(
+          d.createdAt.toLocaleString("en-US", { timeZone: "Asia/Singapore" })
+        )
+        counts[sgt.getHours()]++
+      }
+
+      return counts.map((count, hour) => ({
+        hour: `${hour.toString().padStart(2, "0")}:00`,
+        count,
+      }))
+    }
+  )
