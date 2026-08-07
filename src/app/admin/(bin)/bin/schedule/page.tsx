@@ -8,6 +8,12 @@ import { TableSkeleton } from "@/components/TableSkeleton"
 import { getAllPowerSchedules } from "@/app/action/bin"
 import { ScheduleActions } from "./schedule-actions"
 
+// Same static-prerendering trap as the map/test-bins pages: no headers()/
+// cookies() call here for Next to key off, so this got frozen at build time
+// and wouldn't reflect schedules created/deleted (or their bin manager
+// deleted) afterward.
+export const dynamic = "force-dynamic"
+
 const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 function formatMinutes(minutes: number) {

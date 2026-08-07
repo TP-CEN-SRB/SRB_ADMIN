@@ -1,6 +1,12 @@
 import { getBinManagersWithBins } from "./action"
 import { BinTestGrid } from "./bin-test-grid"
 
+// No headers()/cookies() call here for Next to key off, so without this it
+// gets statically prerendered at build time — a frozen snapshot that never
+// reflects bins/managers deleted afterward. This page controls live hardware
+// and must always read current DB state.
+export const dynamic = "force-dynamic"
+
 export default async function TestBinPage() {
   const managers = await getBinManagersWithBins()
 
