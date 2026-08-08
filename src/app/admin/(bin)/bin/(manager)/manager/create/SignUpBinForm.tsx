@@ -85,7 +85,7 @@ export function SignUpBinForm({
     >
       <FieldGroup>
         <div className="flex flex-col items-center gap-1 text-center mb-4">
-          <h1 className="text-2xl font-bold">Create your account</h1>
+          <h1 className="text-2xl font-bold">Create Bin Account</h1>
         </div>
 
         {serverError && (

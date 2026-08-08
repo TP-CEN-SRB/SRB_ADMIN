@@ -42,14 +42,14 @@ const BinsDeployedFaculty = ({data}:BinsDeployedFacultyProps) => {
               >
                 <tspan
                   x={viewBox.cx}
-                  y={viewBox.cy}
+                  y={(viewBox.cy || 0) - 12}
                   className="fill-foreground text-2xl lg:text-3xl font-bold"
                 >
                   {totalBins?.toLocaleString()}
                 </tspan>
                 <tspan
                   x={viewBox.cx}
-                  y={(viewBox.cy || 0) + 24}
+                  y={(viewBox.cy || 0) + 12}
                   className="fill-muted-foreground text-sm font-bold"
                 >
                   Disposals
